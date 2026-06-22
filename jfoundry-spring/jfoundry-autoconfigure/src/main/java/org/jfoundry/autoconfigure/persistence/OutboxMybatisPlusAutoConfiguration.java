@@ -1,5 +1,6 @@
 package org.jfoundry.autoconfigure.persistence;
 
+import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.handler.TableNameHandler;
 import com.baomidou.mybatisplus.extension.plugins.inner.DynamicTableNameInnerInterceptor;
@@ -22,6 +23,12 @@ import org.springframework.context.annotation.Bean;
 ///   <li>P2-2: 在 MybatisPlusInterceptor 中追加 {@link DynamicTableNameInnerInterceptor}，
 ///       把 OutboxData 的逻辑表名 {@code ddd_outbox_event} 重写为业务配置的
 ///       {@code jfoundry.outbox.table-name}（默认值不变，向后兼容）。</li>
+///   <li>P2-3: 当 {@code jfoundry.persistence.db-type} 显式配置时，用该值构造
+///       {@link PaginationInnerInterceptor}；未配置时回退到 MP 默认行为（由 MP 在首次
+///       分页查询时通过 {@code JdbcUtils.extractDatabaseMetaData} 自动检测）。
+///       显式配置解决 HikariCP / Druid 等连接池包装 DataSource 导致 MP 默认检测失效
+///       的问题。不在未配置时主动打开 Connection 检测，避免在 ApplicationContext
+///       启动阶段触发 DataSource 提前初始化（影响其它依赖启动时序的测试）。</li>
 /// </ul>
 /// <p>
 /// 注：不在 mybatisPlusOutboxRepository 上加 @ConditionalOnBean(OutboxMapper.class) —— 因为
@@ -29,7 +36,7 @@ import org.springframework.context.annotation.Bean;
 /// 评估。OutboxMapper 通过构造器参数 @Autowired 注入，若 mapper 缺失会在 bean 创建时明确报错。
 @AutoConfiguration
 @MapperScan(basePackages = "org.jfoundry.infrastructure.messaging.mybatis.outbox")
-@EnableConfigurationProperties(JfoundryOutboxProperties.class)
+@EnableConfigurationProperties({JfoundryOutboxProperties.class, JfoundryPersistenceProperties.class})
 public class OutboxMybatisPlusAutoConfiguration {
 
     /// 逻辑表名 — 与 {@code OutboxData.@TableName("ddd_outbox_event")} 对齐。
@@ -42,12 +49,31 @@ public class OutboxMybatisPlusAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(MybatisPlusInterceptor.class)
-    public MybatisPlusInterceptor mybatisPlusInterceptor(JfoundryOutboxProperties outboxProperties) {
+    public MybatisPlusInterceptor mybatisPlusInterceptor(
+            JfoundryOutboxProperties outboxProperties,
+            JfoundryPersistenceProperties persistenceProperties) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         // P2-2: 表名重写必须先于 pagination —— pagination 在 rewritten SQL 上加 LIMIT。
         interceptor.addInnerInterceptor(outboxTableNameInterceptor(outboxProperties));
-        interceptor.addInnerInterceptor(new PaginationInnerInterceptor());
+        interceptor.addInnerInterceptor(paginationInnerInterceptor(persistenceProperties));
         return interceptor;
+    }
+
+    /// P2-3: 当业务通过 {@code jfoundry.persistence.db-type} 显式配置方言时，用该值构造
+    /// {@link PaginationInnerInterceptor}，避免 MP 默认自动检测被 HikariCP / Druid 等连接池
+    /// 包装干扰。未显式配置时回退到 MP 默认行为（no-arg 构造，MP 在首次分页查询时通过
+    /// {@code JdbcUtils.extractDatabaseMetaData} 自动检测），保持向后兼容。
+    /// <p>
+    /// 这里仅查询显式配置；不调用 {@link DbTypeResolver#autoDetect} 是为了避免在 bean
+    /// 创建阶段打开 Connection 拖慢 ApplicationContext 启动。业务侧若需要强制覆盖自动检测
+    /// 但又不方便配置固定值，可自行注入 {@link DbTypeResolver} 并在首次查询前调用
+    /// {@code autoDetect}。
+    private PaginationInnerInterceptor paginationInnerInterceptor(
+            JfoundryPersistenceProperties persistenceProperties) {
+        DbType dbType = new DbTypeResolver().resolveExplicit(persistenceProperties);
+        return dbType != null
+                ? new PaginationInnerInterceptor(dbType)
+                : new PaginationInnerInterceptor();
     }
 
     @Bean
