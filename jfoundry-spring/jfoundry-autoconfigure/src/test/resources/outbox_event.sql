@@ -4,7 +4,7 @@ CREATE TABLE ddd_outbox_event (
     topic           VARCHAR(255)  NOT NULL,
     payload_key     VARCHAR(255),
     payload_type    VARCHAR(500)  NOT NULL,
-    payload_json    TEXT          NOT NULL,
+    payload_json    MEDIUMTEXT    NOT NULL,  -- 16MB; P2-4: supports 1MB+ payloads
     -- PENDING / DISPATCHING / PUBLISHED / FAILED / DEAD_LETTERED
     status          VARCHAR(32)   NOT NULL,
     retry_count     INT           NOT NULL DEFAULT 0,

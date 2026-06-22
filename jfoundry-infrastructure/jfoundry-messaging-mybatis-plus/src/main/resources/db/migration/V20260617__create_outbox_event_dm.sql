@@ -1,9 +1,15 @@
+-- DM (达梦) variant of ddd_outbox_event schema.
+-- P2-4: mirrors V20260617__create_outbox_event.sql 1:1, except:
+--   * payload_json  : MEDIUMTEXT -> CLOB (2GB capacity, DM's native large-string type)
+--   * error_message : VARCHAR(2000) retained (DM supports VARCHAR up to ~8KB)
+--   * TIMESTAMP     : retained (DM supports ANSI TIMESTAMP)
+-- Select via Flyway's databaseId feature or a db-specific profile.
 CREATE TABLE ddd_outbox_event (
     event_id        VARCHAR(64)   NOT NULL,
     topic           VARCHAR(255)  NOT NULL,
     payload_key     VARCHAR(255),
     payload_type    VARCHAR(500)  NOT NULL,
-    payload_json    MEDIUMTEXT    NOT NULL,  -- 16MB; P2-4: supports 1MB+ payloads
+    payload_json    CLOB          NOT NULL,  -- P2-4: 2GB capacity
     -- PENDING / DISPATCHING / PUBLISHED / FAILED / DEAD_LETTERED
     status          VARCHAR(32)   NOT NULL,
     retry_count     INT           NOT NULL DEFAULT 0,
