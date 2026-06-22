@@ -19,19 +19,23 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 /// Outbox Dispatcher 自动配置。
 /// <p>
-/// 根据 {@code ddd.outbox.dispatcher.mode} 选择 Dispatcher 实现：
+/// 根据 {@code jfoundry.outbox.dispatcher.mode} 选择 Dispatcher 实现：
 /// <ul>
 ///   <li>{@code scheduled}（默认）：注册 ScheduledOutboxDispatcher（本类已加 @EnableScheduling）。</li>
-///   <li>{@code jobrunr}：要求 classpath 有 ddd-messaging-jobrunr，由业务侧或该模块自身的 AutoConfiguration 注册。</li>
+///   <li>{@code jobrunr}：要求 classpath 有 jfoundry-messaging-jobrunr，由业务侧或该模块自身的 AutoConfiguration 注册。</li>
 /// </ul>
-/// {@code ddd.outbox.dispatcher.enabled=false} 是信息性开关：本配置不会因此自动跳过 bean 注册，
-/// 业务侧需要禁用调度时，自行关闭 {@code @EnableScheduling} 或在业务侧 {@code @Configuration} 上排除本 AutoConfiguration。
+/// <p>
+/// 总开关：{@code jfoundry.outbox.dispatcher.enabled=false} 将关闭整个 AutoConfiguration，
+/// 所有 Dispatcher / BackoffStrategy bean 都不会注册，{@code @EnableScheduling} 也不会生效。
+/// 默认 {@code matchIfMissing=true} 保持向后兼容。
 @AutoConfiguration
 @AutoConfigureAfter({
         MessageSenderAutoConfiguration.class,
         OutboxMybatisPlusAutoConfiguration.class
 })
 @EnableConfigurationProperties(OutboxDispatcherProperties.class)
+@ConditionalOnProperty(prefix = "jfoundry.outbox.dispatcher", name = "enabled",
+                       havingValue = "true", matchIfMissing = true)
 @EnableScheduling
 public class OutboxDispatcherAutoConfiguration {
 
