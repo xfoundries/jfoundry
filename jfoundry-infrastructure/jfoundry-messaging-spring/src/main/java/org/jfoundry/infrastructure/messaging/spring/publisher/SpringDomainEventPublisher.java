@@ -3,9 +3,7 @@ package org.jfoundry.infrastructure.messaging.spring.publisher;
 import org.jfoundry.domain.event.DomainEventPublisher;
 import org.jfoundry.infrastructure.messaging.externalization.DomainEventSink;
 import org.jmolecules.event.types.DomainEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -21,14 +19,14 @@ import java.util.List;
 /// </ol>
 /// <p>
 /// 若无事务上下文，立即同步发布给 Sinks 和本地监听器。
-@Component
+/// <p>
+/// 不再标注 {@code @Component}：由 {@code DomainEventPublisherAutoConfiguration} 注册为 bean。
 public class SpringDomainEventPublisher implements DomainEventPublisher {
 
     private final ApplicationEventPublisher eventPublisher;
     private final List<DomainEventSink> sinks;
 
     /// 主构造器：注入 sinks（可能为空 list）。
-    @Autowired
     public SpringDomainEventPublisher(ApplicationEventPublisher eventPublisher,
                                       List<DomainEventSink> sinks) {
         this.eventPublisher = eventPublisher;

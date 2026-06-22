@@ -1,3 +1,4 @@
+org.jfoundry.autoconfigure.messaging.DomainEventPublisherAutoConfiguration
 org.jfoundry.autoconfigure.messaging.MessageSenderAutoConfiguration
 org.jfoundry.autoconfigure.messaging.DomainEventExternalizerAutoConfiguration
 org.jfoundry.autoconfigure.persistence.OutboxMybatisPlusAutoConfiguration
