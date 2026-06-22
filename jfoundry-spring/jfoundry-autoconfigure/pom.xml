@@ -52,6 +52,16 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <optional>true</optional>
         </dependency>
+        <!--
+          jmolecules-jackson：P3-3 JfoundryJacksonAutoConfiguration 通过 JMoleculesModule
+          自动注册到 ObjectMapper，让 ValueObject / Identifier 以单值形式序列化。
+          optional 避免强制传递给业务侧：业务若不使用 jmolecules 类型，不会触发 Module 注册。
+        -->
+        <dependency>
+            <groupId>org.jmolecules.integrations</groupId>
+            <artifactId>jmolecules-jackson</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         <!-- Spring Boot autoconfigure (compile): @AutoConfiguration / @ConditionalOnX are first-class citizens here -->
         <dependency>
@@ -99,6 +109,18 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!--
+          spring-web (test scope): required so Spring Boot's JacksonAutoConfiguration can
+          build the default ObjectMapper via Jackson2ObjectMapperBuilder, which applies all
+          registered Module beans (including JMoleculesModule). In a real Spring Boot app
+          spring-web is always present via spring-boot-starter-web/-webflux; here we pull it
+          in just for the JfoundryJacksonAutoConfiguration integration test.
+        -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
