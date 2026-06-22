@@ -33,19 +33,24 @@ public interface OutboxRepository {
 
     /// 原子声明一批待派发事件（多实例安全）。
     /// <p>
-    /// 实现 SQL 形如（MySQL/H2 方言）：
+    /// 实现 SQL 形如（MySQL/H2 方言，{@code UPDATE...ORDER BY...LIMIT N} 单语句原子 top-N
+    /// claim，候选集选取与加锁合并为单一原子操作，无需 retry）：
     /// <pre>
-    /// UPDATE outbox_event
-    ///   SET status = 'DISPATCHING', claimed_at = now, claimed_by = #{claimerId}
-    ///   WHERE id IN (SELECT id FROM (SELECT id FROM outbox_event
-    ///                                 WHERE status = 'PENDING' LIMIT #{limit}) t);
-    /// SELECT * FROM outbox_event WHERE claimed_by = #{claimerId} AND status = 'DISPATCHING';
+    /// UPDATE ddd_outbox_event
+    ///   SET status = 'DISPATCHING', claimed_at = CURRENT_TIMESTAMP, claimed_by = #{claimerId}
+    ///   WHERE status = 'PENDING'
+    ///   ORDER BY event_id ASC
+    ///   LIMIT #{limit};
+    /// SELECT * FROM ddd_outbox_event WHERE claimed_by = #{claimerId} AND status = 'DISPATCHING';
     /// </pre>
     /// <p>
-    /// 多实例下，两个并发 claim 不会拿到相同记录（数据库行级锁保证）。
+    /// 多实例下，两个并发 UPDATE 会被行级锁串行化，后执行者看到的 PENDING 集合已不再
+    /// 包含前者 claim 走的行，因此自动选取不同记录（无需应用层 retry）。
     /// <p>
-    /// 实现侧注意：达梦数据库不支持 UPDATE...LIMIT subquery，需走 ROWNUM/top-N 改写
-    /// （由 P2-3 dialect 机制分派）。
+    /// 实现侧注意：达梦数据库不支持 UPDATE...LIMIT，需走 ROWNUM/top-N 子查询改写
+    /// （由 P2-3 dialect 机制分派；候选集快照模式，并发下可能需 Repository 层 retry）。
+    /// 具体 SQL 形态见 {@code jfoundry-messaging-mybatis-plus} 模块的
+    /// {@code OutboxMapper.claimPending}。
     /// <p>
     /// 参数约束：
     /// <ul>
