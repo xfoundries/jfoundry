@@ -96,4 +96,22 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
         entry.reactivate();
         mapper.updateById(OutboxData.fromEntry(entry));
     }
+
+    @Override
+    public List<OutboxEntry> claimDispatchable(int limit, String claimerId) {
+        if (limit <= 0) {
+            throw new IllegalArgumentException("limit must be positive: " + limit);
+        }
+        if (claimerId == null || claimerId.isBlank()) {
+            throw new IllegalArgumentException("claimerId must not be blank");
+        }
+        // Default to MySQL/H2 dialect; dialect dispatch added in Task 2.5.
+        // UPDATE...ORDER BY event_id LIMIT N 在 MySQL/H2 下是原子的：UPDATE 执行时对匹配行
+        // 加排他锁，两个并发 UPDATE 会被锁串行化，后执行者看到的 PENDING 集合已不包含前者
+        // claim 走的行，自动选取不同行。
+        mapper.claimPending(limit, claimerId);
+        return mapper.selectByClaimer(claimerId).stream()
+                .map(OutboxData::toEntry)
+                .toList();
+    }
 }

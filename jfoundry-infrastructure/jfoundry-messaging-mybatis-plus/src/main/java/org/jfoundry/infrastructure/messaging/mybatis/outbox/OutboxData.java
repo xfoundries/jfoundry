@@ -31,6 +31,10 @@ public class OutboxData {
     private Instant nextRetryAt;
     private Instant createdAt;
     private Instant updatedAt;
+    /// P2-1: atomic claim columns — 与 OutboxEntry.claimedAt 对齐，由 Task 2.1 schema 增补。
+    private Instant claimedAt;
+    /// P2-1: claim 该条目的 pod 标识 — 与 OutboxEntry.claimedBy 对齐。
+    private String claimedBy;
 
     public String getEventId() { return eventId; }
     public void setEventId(String eventId) { this.eventId = eventId; }
@@ -58,6 +62,10 @@ public class OutboxData {
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+    public Instant getClaimedAt() { return claimedAt; }
+    public void setClaimedAt(Instant claimedAt) { this.claimedAt = claimedAt; }
+    public String getClaimedBy() { return claimedBy; }
+    public void setClaimedBy(String claimedBy) { this.claimedBy = claimedBy; }
 
     /// SPI entry → MP data。
     /// <p>
@@ -78,6 +86,8 @@ public class OutboxData {
         data.nextRetryAt = entry.getNextRetryAt();
         data.createdAt = entry.getCreatedAt();
         data.updatedAt = entry.getUpdatedAt();
+        data.claimedAt = entry.getClaimedAt();
+        data.claimedBy = entry.getClaimedBy();
         return data;
     }
 
@@ -99,6 +109,8 @@ public class OutboxData {
         entry.setNextRetryAt(data.nextRetryAt);
         entry.setCreatedAt(data.createdAt);
         entry.setUpdatedAt(data.updatedAt);
+        entry.setClaimedAt(data.claimedAt);
+        entry.setClaimedBy(data.claimedBy);
         return entry;
     }
 }
