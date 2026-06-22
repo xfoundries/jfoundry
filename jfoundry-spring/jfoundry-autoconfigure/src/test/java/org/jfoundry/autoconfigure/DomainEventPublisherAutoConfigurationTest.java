@@ -15,11 +15,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// so that a minimal Spring Boot app with jfoundry-spring-autoconfigure on classpath
 /// can inject DomainEventPublisher without business-side @ComponentScan.
 /// <p>
-/// TestApp provides an ObjectMapper bean because DomainEventExternalizerAutoConfiguration
-/// (which fires alongside this autoconfig) requires Jackson. The Jackson dependency is
-/// marked optional in the autoconfigure module — business-side is expected to provide it.
-/// Providing it here keeps this test focused on the DomainEventPublisher contract without
-/// broadening scope to fix the Externalizer's condition (that's Task 1.2).
+/// TestApp provides an ObjectMapper bean because DomainEventExternalizerAutoConfiguration's
+/// unconditional payloadSerializer bean method requires Jackson. Marking payloadSerializer
+/// conditional on ObjectMapper is out of scope for Task 1.2 (which only corrects the
+/// domainEventExternalizer bean's condition type).
 @SpringBootTest(classes = DomainEventPublisherAutoConfigurationTest.TestApp.class)
 class DomainEventPublisherAutoConfigurationTest {
 
