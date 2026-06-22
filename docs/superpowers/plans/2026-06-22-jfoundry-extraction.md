@@ -4356,7 +4356,7 @@ business provides its own Module bean."
 ### Task 3.7: Add user-facing documentation for P3 concepts
 
 **Files:**
-- Create: `docs/valueobject.md`
+- Create: `../../value-object.md`
 - Create: `docs/layered-architecture.md`
 - Create: `docs/archunit-rules.md`
 
@@ -4364,7 +4364,7 @@ business provides its own Module bean."
 - Consumes: all P3 deliverables from Tasks 3.1–3.6
 - Produces: standalone usage docs business developers can read without grepping the spec
 
-- [ ] **Step 1: Create `docs/valueobject.md`**
+- [ ] **Step 1: Create `../../value-object.md`**
 
 Path: `/Users/huangxiao/Workspace/mine/jfoundry/docs/valueobject.md`
 
@@ -4759,7 +4759,7 @@ echo "9. jmolecules-archunit pinned in BOM:"
 grep "jmolecules-archunit" jfoundry-dependencies/pom.xml && echo "PASS" || echo "FAIL"
 
 echo "10. Docs exist:"
-test -f docs/valueobject.md && test -f docs/layered-architecture.md && test -f docs/archunit-rules.md && echo "PASS" || echo "FAIL"
+test -f docs/value-object.md && test -f docs/layered-architecture.md && test -f docs/archunit-rules.md && echo "PASS" || echo "FAIL"
 ```
 
 Expected: all 10 checks PASS.
