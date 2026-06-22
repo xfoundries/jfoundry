@@ -1,0 +1,73 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-infrastructure</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>jfoundry-messaging-core</artifactId>
+    <name>jfoundry-messaging-core</name>
+    <description>
+        DDD messaging SPI: MessageSender, DomainEventSink, ExternalizationRule resolver,
+        Outbox (Entry/Repository/Dispatcher) abstractions, PayloadSerializer + default
+        JacksonPayloadSerializer. ORM-agnostic — concrete Outbox persistence lives in
+        ddd-messaging-mybatis-plus (or future -jpa/-mongo siblings).
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-domain</artifactId>
+        </dependency>
+
+        <!-- jMolecules standard @Externalized annotation -->
+        <dependency>
+            <groupId>org.jmolecules</groupId>
+            <artifactId>jmolecules-events</artifactId>
+        </dependency>
+
+        <!--
+          Jackson 用于默认 PayloadSerializer 实现 (JacksonPayloadSerializer)。
+          optional + provided 双标记：本模块自身可编译默认实现，但不强制传递给下游；
+          业务侧通常通过 Spring Boot 链路获得 Jackson，覆盖默认实现时也不影响。
+        -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Spring for SpEL + @EventListener metadata (provided) -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

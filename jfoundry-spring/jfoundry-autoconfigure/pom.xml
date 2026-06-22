@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-spring</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>jfoundry-spring-autoconfigure</artifactId>
+    <name>jfoundry-spring-autoconfigure</name>
+    <description>
+        Spring Boot AutoConfiguration for ddd-framework: MessageSender, DomainEventExternalizer,
+        OutboxMybatisPlus, OutboxDispatcher. ORM-agnostic layout — future JPA/Mongo adapters
+        register their own AutoConfiguration here without forcing a rename of any "mybatis-plus"
+        starter.
+    </description>
+
+    <dependencies>
+        <!-- Aggregate all DDD infrastructure implementations so AutoConfigurations can reference
+             their concrete beans (DomainEventExternalizer, ScheduledOutboxDispatcher,
+             MybatisPlusOutboxRepository, LoggingMessageSender, JacksonPayloadSerializer). -->
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-mybatis-plus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-spring</artifactId>
+        </dependency>
+
+        <!--
+          Jackson：本模块 DomainEventExternalizerAutoConfiguration 注入 ObjectMapper 用以构造
+          默认 JacksonPayloadSerializer。Spring Boot 应用通常自带 ObjectMapper + jsr310；
+          optional 避免强制传递给业务侧，业务侧若不使用外部化链路也不需要 Jackson。
+        -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Spring Boot autoconfigure (compile): @AutoConfiguration / @ConditionalOnX are first-class citizens here -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+        <!-- mybatis-spring: @MapperScan annotation source; business side provides runtime via mybatis-plus-spring-boot3-starter -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>3.0.3</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <!-- configuration-processor: metadata for IDE auto-completion on OutboxDispatcherProperties -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <version>3.2.7</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.220</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

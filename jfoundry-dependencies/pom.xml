@@ -1,0 +1,270 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.jfoundry</groupId>
+    <artifactId>jfoundry-dependencies</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>jfoundry-dependencies</name>
+    
+    <properties>
+        <spring.version>6.1.10</spring.version>
+        <spring-boot.version>3.2.7</spring-boot.version>
+        <mybatis-plus.version>3.5.12</mybatis-plus.version>
+        <jmolecules.version>2025.0.2</jmolecules.version>
+        <archunit.version>1.4.2</archunit.version>
+        <jackson.version>2.17.1</jackson.version>
+        <assertj.version>3.26.0</assertj.version>
+        <slf4j.version>2.0.13</slf4j.version>
+        <mockito.version>5.12.0</mockito.version>
+        <mybatis-plus-spring-boot3.version>3.5.12</mybatis-plus-spring-boot3.version>
+        <awaitility.version>4.2.1</awaitility.version>
+        <jobrunr.version>6.3.5</jobrunr.version>
+        <!--
+          snakeyaml: Spring Boot 3.2.7 brings 2.2 (has TagInspector);
+          JobRunr 6.3.5 declares 1.33 (lacks TagInspector, breaks Boot YAML parsing).
+          Pin 2.2 explicitly so ddd-messaging-jobrunr tests get the working version
+          after excluding JobRunr's 1.33.
+        -->
+        <snakeyaml.version>2.2</snakeyaml.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!--子项目依赖声明-->
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-domain</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-infrastructure</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <!--新增子模块声明（破坏式重构）-->
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-persistence-core</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-messaging-core</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-persistence-mybatis-plus</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-messaging-mybatis-plus</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-messaging-spring</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-messaging-jobrunr</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-spring-autoconfigure</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-spring</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-spring-mybatis-plus-starter</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <!--新增子模块声明-->
+
+            <!--子项目依赖声明-->
+
+            <!--Spring依赖-->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${spring.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- Spring Boot Autoconfigure for @ConditionalOnMissingBean (LoggingMessageSender default-impl retraction) -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-autoconfigure</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- SLF4J for logging in infrastructure components -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!--Spring依赖-->
+
+            <!--单元测试依赖声明-->
+            <dependency>
+                <groupId>org.jmolecules</groupId>
+                <artifactId>jmolecules-bom</artifactId>
+                <version>${jmolecules.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>5.13.3</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit-junit5</artifactId>
+                <version>${archunit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <!--单元测试依赖声明-->
+
+            <!--ORM-->
+            <!--
+              mybatis-plus-annotation：OutboxData / 业务 Data 类需 @TableName/@TableId 注解。
+              ddd-persistence-mybatis-plus / ddd-messaging-mybatis-plus 模块编译时通过
+              mybatis-plus-core 间接获得；业务侧运行时通过 mybatis-plus-spring-boot3-starter
+              提供。core SPI（OutboxEntry / BaseData）刻意不带 ORM 注解，避免被特定 ORM 绑定。
+            -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-annotation</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-core</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-extension</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <!--
+              mybatis-plus-jsqlparser：3.5.x 起 PaginationInnerInterceptor 等 JSqlParser-based
+              inner interceptor 被拆到独立 jar（避免硬绑定 JSqlParser）。OutboxRepository.findPending
+              通过 selectPage 依赖 PaginationInnerInterceptor 把分页 SQL 翻译成对应方言。
+            -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-jsqlparser</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <!--ORM-->
+
+            <!--JSON 序列化（Outbox payload_json 等）-->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <!-- Jackson JSR-310 (java.time.Instant 等) 支持：PayloadSerializer 序列化 AbstractDomainEvent -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <!--JSON 序列化-->
+
+            <!--测试断言-->
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!--Mock 对象（Dispatcher / 复杂组件单元测试）-->
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <!--Mock 对象-->
+
+            <!-- 集成测试：Spring Boot test/jdbc starter 与 mybatis-plus boot3 自动配置 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-jdbc</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis-plus-spring-boot3.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.awaitility</groupId>
+                <artifactId>awaitility</artifactId>
+                <version>${awaitility.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!--JobRunr（可选模块 ddd-messaging-jobrunr 的 Outbox Dispatcher）-->
+            <dependency>
+                <groupId>org.jobrunr</groupId>
+                <artifactId>jobrunr-spring-boot-3-starter</artifactId>
+                <version>${jobrunr.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jobrunr</groupId>
+                <artifactId>jobrunr</artifactId>
+                <version>${jobrunr.version}</version>
+            </dependency>
+            <!--JobRunr-->
+
+            <!-- snakeyaml: pinned 2.2 to override JobRunr's 1.33 (Spring Boot YAML parser requires TagInspector) -->
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+</project>

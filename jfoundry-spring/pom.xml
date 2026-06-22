@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>jfoundry-spring</artifactId>
+    <name>jfoundry-spring</name>
+    <description>
+        DDD Spring 整合层聚合 pom：托管基于 Spring Boot 的 @AutoConfiguration 装配和具体 starter。
+        本模块仅作为容器（packaging=pom，无 Java 代码）。与 ddd-infrastructure（按基础设施关注点
+        纵向切分）形成正交的"按整合框架横向切分"维度——未来接入 Quarkus 等其他框架时，新建平级
+        聚合（如 ddd-quarkus）即可。
+    </description>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>jfoundry-autoconfigure</module>
+        <module>jfoundry-mybatis-plus-starter</module>
+    </modules>
+</project>

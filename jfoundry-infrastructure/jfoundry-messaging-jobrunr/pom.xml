@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-infrastructure</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>jfoundry-messaging-jobrunr</artifactId>
+    <name>DDD Framework - Messaging JobRunr (Optional)</name>
+    <description>
+        Optional module providing JobRunr-based Outbox Dispatcher.
+        Business side introduces this jar to switch from Spring @Scheduled to JobRunr.
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jobrunr</groupId>
+            <artifactId>jobrunr-spring-boot-3-starter</artifactId>
+            <scope>provided</scope>
+            <exclusions>
+                <!--
+                  JobRunr 6.3.5 declares snakeyaml 1.33 (which lacks TagInspector,
+                  required by Spring Boot 3.2 for YAML config parsing).
+                  Spring Boot 3.2.7 brings snakeyaml 2.2 transitively via
+                  spring-boot-starter-jdbc; exclude JobRunr's version to avoid
+                  ClassNotFoundException on test context startup.
+                -->
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                </exclusion>
+                <!--
+                  JobRunr 6.3.5 brings spring-boot-starter / starter-actuator 3.1.4
+                  in provided scope. These shadow the project's 3.2.7 versions and
+                  break tests (3.1.4 lacks ThreadPoolTaskExecutorBuilder, which
+                  Spring Boot 3.2.7 components expect). The starter / actuator
+                  transitives aren't needed to compile against JobRunr's API.
+                -->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-actuator</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Integration test: Spring Boot JDBC starter (DataSource + HikariCP + TransactionManager auto-config) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Integration test: MyBatis-Plus Spring Boot 3 auto-config for @MapperScan -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Integration test: H2 in-memory database (MySQL mode) -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.220</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Integration test: async assertions (wait for JobRunr scheduler to fire) -->
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+          snakeyaml: JobRunr 6.3.5 declares 1.33 (lacks TagInspector, breaks Boot 3.2);
+          excluded above. snakeyaml 2.2 is provided transitively by spring-boot-starter-jdbc
+          above, with version pinned by ddd-dependencies BOM. No explicit declaration needed.
+        -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

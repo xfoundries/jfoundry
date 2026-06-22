@@ -1,0 +1,111 @@
+package org.jfoundry.infrastructure.messaging.outbox;
+
+import java.time.Instant;
+
+/// Outbox 表 SPI 数据对象 + 状态机方法。
+/// <p>
+/// 字段对应表 {@code ddd_outbox_event}，但本类不携带任何 ORM 注解 —— 具体的表名/主键策略
+/// 由各持久化实现自行建模（例如 ddd-persistence-mybatis-plus 模块的 {@code OutboxData}）。
+/// <p>
+/// 状态流转（PENDING / FAILED / PUBLISHED / DEAD_LETTERED）由 {@link #markPublished()} /
+/// {@link #markFailed(String, int, BackoffStrategy)} / {@link #reactivate()} 封装。
+public class OutboxEntry {
+
+    private String eventId;
+    private String topic;
+    private String payloadKey;
+    private String payloadType;
+    private String payloadJson;
+    private String status;
+    private int retryCount;
+    private String errorMessage;
+    private Instant occurredAt;
+    private Instant lastAttemptAt;
+    private Instant nextRetryAt;
+    private Instant createdAt;
+    private Instant updatedAt;
+
+    public static OutboxEntry newPending(String eventId, String topic, String payloadKey,
+                                          String payloadType, String payloadJson, Instant occurredAt) {
+        OutboxEntry entry = new OutboxEntry();
+        Instant now = Instant.now();
+        entry.eventId = eventId;
+        entry.topic = topic;
+        entry.payloadKey = payloadKey;
+        entry.payloadType = payloadType;
+        entry.payloadJson = payloadJson;
+        entry.status = OutboxStatus.PENDING.name();
+        entry.retryCount = 0;
+        entry.errorMessage = null;
+        entry.occurredAt = occurredAt;
+        entry.lastAttemptAt = null;
+        entry.nextRetryAt = null;
+        entry.createdAt = now;
+        entry.updatedAt = now;
+        return entry;
+    }
+
+    public void markPublished() {
+        Instant now = Instant.now();
+        this.status = OutboxStatus.PUBLISHED.name();
+        this.lastAttemptAt = now;
+        this.updatedAt = now;
+    }
+
+    public void markFailed(String errorMessage, int maxRetries, BackoffStrategy backoff) {
+        int retryCountBefore = this.retryCount;
+        Instant now = Instant.now();
+        this.lastAttemptAt = now;
+        this.errorMessage = errorMessage;
+        java.time.Duration delay = backoff.nextDelay(retryCountBefore);
+        this.retryCount = retryCountBefore + 1;
+        if (this.retryCount >= maxRetries) {
+            this.status = OutboxStatus.DEAD_LETTERED.name();
+            this.nextRetryAt = null;
+        } else {
+            this.status = OutboxStatus.FAILED.name();
+            this.nextRetryAt = now.plus(delay);
+        }
+        this.updatedAt = now;
+    }
+
+    public void reactivate() {
+        if (!OutboxStatus.DEAD_LETTERED.name().equals(this.status)) {
+            throw new IllegalStateException(
+                    "reactivate 仅允许从 DEAD_LETTERED 状态转入 PENDING，当前状态: " + this.status);
+        }
+        Instant now = Instant.now();
+        this.status = OutboxStatus.PENDING.name();
+        this.retryCount = 0;
+        this.nextRetryAt = now;
+        this.errorMessage = null;
+        this.updatedAt = now;
+    }
+
+    public String getEventId() { return eventId; }
+    public void setEventId(String eventId) { this.eventId = eventId; }
+    public String getTopic() { return topic; }
+    public void setTopic(String topic) { this.topic = topic; }
+    public String getPayloadKey() { return payloadKey; }
+    public void setPayloadKey(String payloadKey) { this.payloadKey = payloadKey; }
+    public String getPayloadType() { return payloadType; }
+    public void setPayloadType(String payloadType) { this.payloadType = payloadType; }
+    public String getPayloadJson() { return payloadJson; }
+    public void setPayloadJson(String payloadJson) { this.payloadJson = payloadJson; }
+    public OutboxStatus getStatus() { return OutboxStatus.valueOf(status); }
+    public void setStatus(OutboxStatus status) { this.status = status.name(); }
+    public int getRetryCount() { return retryCount; }
+    public void setRetryCount(int retryCount) { this.retryCount = retryCount; }
+    public String getErrorMessage() { return errorMessage; }
+    public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+    public Instant getOccurredAt() { return occurredAt; }
+    public void setOccurredAt(Instant occurredAt) { this.occurredAt = occurredAt; }
+    public Instant getLastAttemptAt() { return lastAttemptAt; }
+    public void setLastAttemptAt(Instant lastAttemptAt) { this.lastAttemptAt = lastAttemptAt; }
+    public Instant getNextRetryAt() { return nextRetryAt; }
+    public void setNextRetryAt(Instant nextRetryAt) { this.nextRetryAt = nextRetryAt; }
+    public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+}

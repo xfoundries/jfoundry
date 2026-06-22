@@ -1,0 +1,23 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>jfoundry-infrastructure</artifactId>
+    <name>jfoundry-infrastructure</name>
+    <description>DDD infrastructure aggregator: SPI + persistence + messaging sub-modules.</description>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>jfoundry-persistence-core</module>
+        <module>jfoundry-messaging-core</module>
+        <module>jfoundry-persistence-mybatis-plus</module>
+        <module>jfoundry-messaging-mybatis-plus</module>
+        <module>jfoundry-messaging-spring</module>
+        <module>jfoundry-messaging-jobrunr</module>
+    </modules>
+</project>

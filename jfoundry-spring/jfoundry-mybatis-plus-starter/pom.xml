@@ -1,0 +1,55 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-spring</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>jfoundry-spring-mybatis-plus-starter</artifactId>
+    <name>jfoundry-spring-mybatis-plus-starter</name>
+    <description>
+        Aggregate starter for the MyBatis-Plus stack: pulls in ddd-spring-autoconfigure (Spring Boot
+        AutoConfigurations) plus all ddd-persistence-mybatis-plus / ddd-messaging-* runtime
+        modules. This pom contains no code — business side just imports this artifact.
+    </description>
+
+    <dependencies>
+        <!-- All AutoConfigurations live here; business side gets Spring Boot auto-wiring by
+             depending on this starter transitively. -->
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-spring-autoconfigure</artifactId>
+        </dependency>
+
+        <!-- Aggregate all DDD infrastructure runtime implementations.
+             Future JPA/Mongo stack would publish its own starter (e.g. ddd-spring-jpa-starter)
+             pointing at a different persistence module — this starter remains MP-specific. -->
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-domain</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-persistence-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-persistence-mybatis-plus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-mybatis-plus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-spring</artifactId>
+        </dependency>
+    </dependencies>
+</project>
