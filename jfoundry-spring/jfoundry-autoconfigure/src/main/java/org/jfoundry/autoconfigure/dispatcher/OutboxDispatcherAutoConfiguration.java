@@ -33,7 +33,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         MessageSenderAutoConfiguration.class,
         OutboxMybatisPlusAutoConfiguration.class
 })
-@EnableConfigurationProperties(OutboxDispatcherProperties.class)
+@EnableConfigurationProperties({OutboxDispatcherProperties.class, OutboxRecoveryProperties.class})
 @ConditionalOnProperty(prefix = "jfoundry.outbox.dispatcher", name = "enabled",
                        havingValue = "true", matchIfMissing = true)
 @EnableScheduling
@@ -56,5 +56,17 @@ public class OutboxDispatcherAutoConfiguration {
             OutboxDispatcherProperties properties) {
         return new ScheduledOutboxDispatcher(outboxRepository, messageSender,
                 properties.getMaxRetries(), backoffStrategy, properties.getBatchSize());
+    }
+
+    /// P2-1 stuck-DISPATCHING recovery job。
+    /// <p>
+    /// 仅在 {@link OutboxRepository} 存在时注册；与 dispatcher mode 解耦，
+    /// 即使 {@code mode=jobrunr} 也能独立回收 stuck 记录。
+    @Bean
+    @ConditionalOnBean({OutboxRepository.class})
+    @ConditionalOnMissingBean(OutboxRecoveryJob.class)
+    public OutboxRecoveryJob outboxRecoveryJob(OutboxRepository outboxRepository,
+                                               OutboxRecoveryProperties recoveryProperties) {
+        return new OutboxRecoveryJob(outboxRepository, recoveryProperties);
     }
 }

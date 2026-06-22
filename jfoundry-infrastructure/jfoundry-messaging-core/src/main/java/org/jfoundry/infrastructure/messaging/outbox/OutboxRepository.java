@@ -58,4 +58,24 @@ public interface OutboxRepository {
     ///   <li>{@code claimerId} 为 null 或空白抛 {@link IllegalArgumentException}</li>
     /// </ul>
     List<OutboxEntry> claimDispatchable(int limit, String claimerId);
+
+    /// 恢复卡住的 DISPATCHING 记录：claimedAt 早于 {@code cutoff} 的记录回滚为 PENDING。
+    /// <p>
+    /// 实现 SQL 形如（跨方言）：
+    /// <pre>
+    /// UPDATE ddd_outbox_event
+    ///   SET status = 'PENDING', claimed_at = NULL, claimed_by = NULL
+    ///   WHERE status = 'DISPATCHING' AND claimed_at &lt; #{cutoff};
+    /// </pre>
+    /// <p>
+    /// 场景：pod 在 DISPATCHING 中途崩溃 / kill -9，记录残留在 DISPATCHING 状态。
+    /// 周期性调用本方法（传入 {@code Instant.now().minus(stuckTimeout)}）即可回收。
+    /// <p>
+    /// 参数约束：
+    /// <ul>
+    ///   <li>{@code cutoff} 为 null 抛 {@link IllegalArgumentException}</li>
+    /// </ul>
+    /// @param cutoff 截止时刻，claimedAt 严格早于该时刻的 DISPATCHING 记录被回滚
+    /// @return 回滚的记录数（0 表示没有卡住的记录）
+    int recoverStuckDispatching(Instant cutoff);
 }

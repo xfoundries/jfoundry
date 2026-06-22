@@ -64,7 +64,7 @@ class DomainEventExternalizerConditionTest {
         }
     }
 
-    /// OutboxRepository 5-method stub. DomainEventExternalizer only invokes
+    /// OutboxRepository stub. DomainEventExternalizer only invokes
     /// {@link OutboxRepository#append(OutboxEntry)}; the rest satisfy the
     /// interface contract so the test compiles.
     static class StubOutboxRepository implements OutboxRepository {
@@ -91,6 +91,16 @@ class DomainEventExternalizerConditionTest {
         @Override
         public void reactivate(String eventId) {
             // no-op
+        }
+
+        @Override
+        public List<OutboxEntry> claimDispatchable(int limit, String claimerId) {
+            return List.of();
+        }
+
+        @Override
+        public int recoverStuckDispatching(java.time.Instant cutoff) {
+            return 0;
         }
     }
 

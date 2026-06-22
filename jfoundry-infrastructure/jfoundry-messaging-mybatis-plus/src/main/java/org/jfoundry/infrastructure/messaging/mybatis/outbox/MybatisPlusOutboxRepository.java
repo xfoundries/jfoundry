@@ -114,4 +114,15 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
                 .map(OutboxData::toEntry)
                 .toList();
     }
+
+    @Override
+    public int recoverStuckDispatching(Instant cutoff) {
+        if (cutoff == null) {
+            throw new IllegalArgumentException("cutoff must not be null");
+        }
+        // Single-row-lock UPDATE across multiple rows, portable across MySQL / H2 / DM.
+        // Pod 崩溃 / kill -9 后 DISPATCHING 中途残留的记录在此被回滚为 PENDING，
+        // 下一个 dispatcher 周期会重新 claim。
+        return mapper.resetStuckDispatching(cutoff);
+    }
 }

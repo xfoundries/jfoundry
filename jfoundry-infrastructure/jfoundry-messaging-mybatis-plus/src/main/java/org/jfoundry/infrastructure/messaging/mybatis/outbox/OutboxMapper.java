@@ -6,17 +6,21 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.time.Instant;
 import java.util.List;
 
 /// Outbox 表 MyBatis-Plus Mapper。
 /// <p>
 /// 继承 {@link BaseMapper} 标准能力（insert/selectById/updateById 等），并在 P2-1 中追加
-/// 原子 claim 相关的自定义 SQL：
+/// 原子 claim + stuck 恢复相关的自定义 SQL：
 /// <ul>
 ///   <li>{@link #claimPending(int, String)}：MySQL/H2 方言，{@code UPDATE ... WHERE id IN (LIMIT subquery)}。
 ///       使用 {@code CURRENT_TIMESTAMP} 而非 {@code NOW(3)} 以兼容 H2 测试与 MySQL 生产。</li>
 ///   <li>{@link #claimPendingDm(int, String)}：达梦方言，用 {@code ROWNUM <= #{limit}} 替代 {@code LIMIT}。</li>
 ///   <li>{@link #selectByClaimer(String)}：claim 完成后，按 {@code claimed_by + DISPATCHING} 回读刚 claim 的条目。</li>
+///   <li>{@link #resetStuckDispatching(Instant)}：P2-1 recovery job 的底层 UPDATE，
+///       把 {@code claimed_at < cutoff} 的 DISPATCHING 记录回滚为 PENDING。</li>
+///   <li>{@link #ageClaimedAt(String, Instant)}：测试专用，覆写 claimed_at 模拟陈旧 claim。</li>
 /// </ul>
 /// <p>
 /// 方言分派（默认走 MySQL/H2）由 {@code MybatisPlusOutboxRepository.claimDispatchable} 决定；
@@ -77,4 +81,22 @@ public interface OutboxMapper extends BaseMapper<OutboxData> {
     /// 的 claimed_by 互不相同，因此结果集天然隔离。
     @Select("SELECT * FROM ddd_outbox_event WHERE claimed_by = #{claimerId} AND status = 'DISPATCHING'")
     List<OutboxData> selectByClaimer(@Param("claimerId") String claimerId);
+
+    /// P2-1 stuck-DISPATCHING 恢复：把 {@code claimed_at < cutoff} 的 DISPATCHING 记录
+    /// 回滚为 PENDING，清空 claimed_at / claimed_by。
+    /// <p>
+    /// 单条 UPDATE 跨多行，由数据库行级锁保证原子性；没有候选集快照问题
+    /// （不像 {@link #claimPendingDm} 的子查询形态）。
+    /// <p>
+    /// 场景：pod 在 DISPATCHING 中途崩溃，周期性 recovery job 调用本方法回收半完成记录。
+    /// 同一 SQL 兼容 MySQL / H2 / 达梦。
+    @Update("UPDATE ddd_outbox_event " +
+            "SET status = 'PENDING', claimed_at = NULL, claimed_by = NULL " +
+            "WHERE status = 'DISPATCHING' AND claimed_at < #{cutoff}")
+    int resetStuckDispatching(@Param("cutoff") Instant cutoff);
+
+    /// 测试辅助：直接覆写指定 event 的 claimed_at，用于模拟 "pod 在 DISPATCHING 中
+    /// 崩溃后留下的陈旧 claim 时间戳"。生产代码不得调用。
+    @Update("UPDATE ddd_outbox_event SET claimed_at = #{oldTimestamp} WHERE event_id = #{eventId}")
+    void ageClaimedAt(@Param("eventId") String eventId, @Param("oldTimestamp") Instant oldTimestamp);
 }
