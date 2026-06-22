@@ -7,8 +7,10 @@ import java.time.Instant;
 /// 字段对应表 {@code ddd_outbox_event}，但本类不携带任何 ORM 注解 —— 具体的表名/主键策略
 /// 由各持久化实现自行建模（例如 ddd-persistence-mybatis-plus 模块的 {@code OutboxData}）。
 /// <p>
-/// 状态流转（PENDING / FAILED / PUBLISHED / DEAD_LETTERED）由 {@link #markPublished()} /
-/// {@link #markFailed(String, int, BackoffStrategy)} / {@link #reactivate()} 封装。
+/// 状态流转（PENDING / DISPATCHING / FAILED / PUBLISHED / DEAD_LETTERED）由
+/// {@link #markPublished()} / {@link #markFailed(String, int, BackoffStrategy)} /
+/// {@link #reactivate()} 封装；{@code DISPATCHING} 状态的进入/退出由 P2-1 的原子 claim
+/// 与 recovery 任务负责（见 {@code claimDispatchable}）。
 public class OutboxEntry {
 
     private String eventId;
@@ -24,6 +26,11 @@ public class OutboxEntry {
     private Instant nextRetryAt;
     private Instant createdAt;
     private Instant updatedAt;
+    /// P2-1: 最近一次成功原子 claim 的时间，配合 {@code idx_outbox_claim (status, claimed_at)}
+    /// 用于 DISPATCHING stuck 检测与回滚。
+    private Instant claimedAt;
+    /// P2-1: claim 该条目的 pod 标识（hostname + 短 UUID），用于诊断与多实例互斥。
+    private String claimedBy;
 
     public static OutboxEntry newPending(String eventId, String topic, String payloadKey,
                                           String payloadType, String payloadJson, Instant occurredAt) {
@@ -108,4 +115,8 @@ public class OutboxEntry {
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+    public Instant getClaimedAt() { return claimedAt; }
+    public void setClaimedAt(Instant claimedAt) { this.claimedAt = claimedAt; }
+    public String getClaimedBy() { return claimedBy; }
+    public void setClaimedBy(String claimedBy) { this.claimedBy = claimedBy; }
 }
