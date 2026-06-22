@@ -53,14 +53,20 @@ public interface AggregateRepository<T extends AggregateRoot<T, ID>, ID extends 
 
     /// 批量加入聚合集合(新建)。
     /// <p>
-    /// 事务性保证:整个批量操作在单个事务中执行。如果部分失败,所有操作都会回滚。
+    /// 批量语义：逐个调用 {@link #add} 顺序执行。<b>本方法不提供事务边界</b>——
+    /// 部分失败时已完成的写入不会回滚。
+    /// <p>
+    /// 事务边界归属应用层。如需原子性，调用方应在应用服务方法上显式标注 {@code @Transactional}，
+    /// 并优先按 "一个事务修改一个聚合根" 的 DDD 原则拆分聚合边界。
     ///
     /// @param entities 聚合根集合
     void addAll(Collection<T> entities);
 
     /// 批量修改聚合集合中已存在的元素。
     /// <p>
-    /// 事务性保证:整个批量操作在单个事务中执行。任一元素受影响行数为 0 时抛出 {@link IllegalStateException}。
+    /// 批量语义：逐个调用 {@link #modify} 顺序执行。<b>本方法不提供事务边界</b>——
+    /// 部分失败时已完成的写入不会回滚。任一元素受影响行数为 0 时抛出 {@link IllegalStateException}。
+    /// 如需原子性，请在应用层显式管理事务。
     ///
     /// @param entities 聚合根集合
     void modifyAll(Collection<T> entities);
