@@ -11,7 +11,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-spring-autoconfigure</artifactId>
+    <artifactId>jfoundry-autoconfigure</artifactId>
     <name>jfoundry-spring-autoconfigure</name>
     <description>
         Spring Boot AutoConfiguration for ddd-framework: MessageSender, DomainEventExternalizer,

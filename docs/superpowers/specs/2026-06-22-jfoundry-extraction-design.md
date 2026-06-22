@@ -236,7 +236,7 @@ public class DomainEventPublisherAutoConfiguration {
 
 **验收**：
 - 集成测试：空 Spring Boot app + jfoundry classpath → `DomainEventPublisher` bean 存在
-- ArchUnit：`jfoundry-spring-autoconfigure` 模块禁止 `@Component`
+- ArchUnit：`jfoundry-autoconfigure` 模块禁止 `@Component`
 
 ### 6.2 P1-2 DomainEventExternalizer 条件判断类型错误
 

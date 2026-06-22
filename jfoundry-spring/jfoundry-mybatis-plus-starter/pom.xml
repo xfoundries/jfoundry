@@ -8,7 +8,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-spring-mybatis-plus-starter</artifactId>
+    <artifactId>jfoundry-mybatis-plus-starter</artifactId>
     <name>jfoundry-spring-mybatis-plus-starter</name>
     <description>
         Aggregate starter for the MyBatis-Plus stack: pulls in ddd-spring-autoconfigure (Spring Boot
@@ -21,7 +21,7 @@
              depending on this starter transitively. -->
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-spring-autoconfigure</artifactId>
+            <artifactId>jfoundry-autoconfigure</artifactId>
         </dependency>
 
         <!-- Aggregate all DDD infrastructure runtime implementations.

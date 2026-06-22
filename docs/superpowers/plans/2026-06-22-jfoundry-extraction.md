@@ -4,7 +4,7 @@
 
 **Goal:** Extract `devcloud-ci-service/ddd-framework` into standalone project **jfoundry** at `/Users/huangxiao/Workspace/mine/jfoundry/`, fixing 4 P1 contract defects, adding 5 P2 production capabilities, and completing 3 P3 DDD concept integrations.
 
-**Architecture:** Maven multi-module project under `org.jfoundry:jfoundry-parent`. Pure Java types in `jfoundry-domain` and `jfoundry-architecture-layered` (zero Spring dependency). Spring integration in `jfoundry-spring-autoconfigure` via autoconfig imports. MyBatis-Plus persistence + Outbox pattern in `jfoundry-infrastructure`. ArchUnit rules aggregated in `jfoundry-test`.
+**Architecture:** Maven multi-module project under `org.jfoundry:jfoundry-parent`. Pure Java types in `jfoundry-domain` and `jfoundry-architecture-layered` (zero Spring dependency). Spring integration in `jfoundry-autoconfigure` via autoconfig imports. MyBatis-Plus persistence + Outbox pattern in `jfoundry-infrastructure`. ArchUnit rules aggregated in `jfoundry-test`.
 
 **Tech Stack:** Java 21, Maven, Spring Boot 3.2.7, MyBatis-Plus 3.5.12, jmolecules 2025.0.2, ArchUnit 1.4.2, Jackson 2.17.1, JobRunr 6.3.5 (optional), Flyway (via Spring Boot), JUnit 5.
 
@@ -767,9 +767,9 @@ git commit -m "refactor: rename config property prefix ddd.* → jfoundry.* and 
 
 **Files:**
 - Modify: `jfoundry-infrastructure/jfoundry-messaging-spring/src/main/java/org/jfoundry/infrastructure/messaging/spring/publisher/SpringDomainEventPublisher.java` (delete `@Component`, `@Autowired`)
-- Create: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/messaging/DomainEventPublisherAutoConfiguration.java`
-- Modify: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
-- Test: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/DomainEventPublisherAutoConfigurationTest.java`
+- Create: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/messaging/DomainEventPublisherAutoConfiguration.java`
+- Modify: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+- Test: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/DomainEventPublisherAutoConfigurationTest.java`
 
 **Interfaces:**
 - Consumes: `DomainEventPublisher` interface (already in `org.jfoundry.domain.event`), `DomainEventSink` interface (already in `org.jfoundry.infrastructure.messaging.externalization`)
@@ -777,7 +777,7 @@ git commit -m "refactor: rename config property prefix ddd.* → jfoundry.* and 
 
 - [ ] **Step 1: Write failing integration test**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/DomainEventPublisherAutoConfigurationTest.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/DomainEventPublisherAutoConfigurationTest.java`
 
 ```java
 package org.jfoundry.autoconfigure;
@@ -859,7 +859,7 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
 
 - [ ] **Step 4: Create `DomainEventPublisherAutoConfiguration`**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/messaging/DomainEventPublisherAutoConfiguration.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/messaging/DomainEventPublisherAutoConfiguration.java`
 
 ```java
 package org.jfoundry.autoconfigure.messaging;
@@ -901,7 +901,7 @@ public class DomainEventPublisherAutoConfiguration {
 
 - [ ] **Step 5: Register autoconfig in imports file**
 
-Edit `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`:
+Edit `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`:
 
 Replace the 4-line content with:
 ```
@@ -953,9 +953,9 @@ in AutoConfiguration.imports."
 ### Task 1.2: Correct DomainEventExternalizer condition type (P1-2)
 
 **Files:**
-- Modify: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/messaging/DomainEventExternalizerAutoConfiguration.java`
+- Modify: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/messaging/DomainEventExternalizerAutoConfiguration.java`
 - Modify: `jfoundry-infrastructure/jfoundry-messaging-core/src/main/java/org/jfoundry/infrastructure/messaging/externalization/DomainEventSink.java` (javadoc only)
-- Test: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/DomainEventExternalizerConditionTest.java`
+- Test: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/DomainEventExternalizerConditionTest.java`
 
 **Interfaces:**
 - Consumes: `OutboxRepository`, `DomainEventExternalizer`, `DomainEventSink` (already defined)
@@ -963,7 +963,7 @@ in AutoConfiguration.imports."
 
 - [ ] **Step 1: Write failing integration test**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/DomainEventExternalizerConditionTest.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/DomainEventExternalizerConditionTest.java`
 
 ```java
 package org.jfoundry.autoconfigure;
@@ -1049,7 +1049,7 @@ Expected: FAIL — `DomainEventExternalizer` bean is missing because current `@C
 
 - [ ] **Step 3: Fix the condition type**
 
-Edit `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/messaging/DomainEventExternalizerAutoConfiguration.java`. Replace the `@Bean` block for `domainEventExternalizer` (currently lines 25–33):
+Edit `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/messaging/DomainEventExternalizerAutoConfiguration.java`. Replace the `@Bean` block for `domainEventExternalizer` (currently lines 25–33):
 
 ```java
     @Bean
@@ -1381,8 +1381,8 @@ Both rules pass against jfoundry's own source."
 ### Task 1.5: Honor `jfoundry.outbox.dispatcher.enabled=false` (P1-4)
 
 **Files:**
-- Modify: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxDispatcherAutoConfiguration.java`
-- Test: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/OutboxDispatcherEnabledTest.java`
+- Modify: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxDispatcherAutoConfiguration.java`
+- Test: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/OutboxDispatcherEnabledTest.java`
 
 **Interfaces:**
 - Consumes: existing `OutboxDispatcherProperties` (prefix `jfoundry.outbox.dispatcher`)
@@ -1390,7 +1390,7 @@ Both rules pass against jfoundry's own source."
 
 - [ ] **Step 1: Write failing integration test**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/OutboxDispatcherEnabledTest.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/OutboxDispatcherEnabledTest.java`
 
 ```java
 package org.jfoundry.autoconfigure;
@@ -1457,7 +1457,7 @@ Expected: FAIL — `noOutboxDispatcherBeanWhenDisabled` fails because `OutboxDis
 
 - [ ] **Step 3: Add `@ConditionalOnProperty` to `OutboxDispatcherAutoConfiguration`**
 
-Edit `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxDispatcherAutoConfiguration.java`. Add `@ConditionalOnProperty` to the class (and update the now-stale javadoc):
+Edit `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxDispatcherAutoConfiguration.java`. Add `@ConditionalOnProperty` to the class (and update the now-stale javadoc):
 
 ```java
 package org.jfoundry.autoconfigure.dispatcher;
@@ -1965,10 +1965,10 @@ MySQL/H2; DM variant uses ROWNUM (dialect dispatch in Task 2.5)."
 - Modify: `jfoundry-infrastructure/jfoundry-messaging-core/src/main/java/org/jfoundry/infrastructure/messaging/outbox/OutboxRepository.java` (add `recoverStuckDispatching`)
 - Modify: `jfoundry-infrastructure/jfoundry-messaging-mybatis-plus/src/main/java/org/jfoundry/infrastructure/messaging/mybatis/outbox/OutboxMapper.java` (add `resetStuckDispatching`)
 - Modify: `jfoundry-infrastructure/jfoundry-messaging-mybatis-plus/src/main/java/org/jfoundry/infrastructure/messaging/mybatis/outbox/MybatisPlusOutboxRepository.java`
-- Create: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxRecoveryJob.java`
-- Create: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxRecoveryProperties.java`
-- Modify: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxDispatcherAutoConfiguration.java` (register the job)
-- Test: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/dispatcher/OutboxRecoveryJobTest.java`
+- Create: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxRecoveryJob.java`
+- Create: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxRecoveryProperties.java`
+- Modify: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxDispatcherAutoConfiguration.java` (register the job)
+- Test: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/dispatcher/OutboxRecoveryJobTest.java`
 
 **Interfaces:**
 - Consumes: 5-state `OutboxStatus` and `DISPATCHING` schema from Task 2.1
@@ -1976,7 +1976,7 @@ MySQL/H2; DM variant uses ROWNUM (dialect dispatch in Task 2.5)."
 
 - [ ] **Step 1: Write failing test**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/dispatcher/OutboxRecoveryJobTest.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/dispatcher/OutboxRecoveryJobTest.java`
 
 ```java
 package org.jfoundry.autoconfigure.dispatcher;
@@ -2096,7 +2096,7 @@ Edit `MybatisPlusOutboxRepository.java`. Implement:
 
 - [ ] **Step 4: Create `OutboxRecoveryProperties`**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxRecoveryProperties.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxRecoveryProperties.java`
 
 ```java
 package org.jfoundry.autoconfigure.dispatcher;
@@ -2127,7 +2127,7 @@ public class OutboxRecoveryProperties {
 
 - [ ] **Step 5: Create `OutboxRecoveryJob`**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxRecoveryJob.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxRecoveryJob.java`
 
 ```java
 package org.jfoundry.autoconfigure.dispatcher;
@@ -2174,7 +2174,7 @@ public class OutboxRecoveryJob {
 
 - [ ] **Step 6: Register `OutboxRecoveryJob` in `OutboxDispatcherAutoConfiguration`**
 
-Edit `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxDispatcherAutoConfiguration.java`. Add inside the class body:
+Edit `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxDispatcherAutoConfiguration.java`. Add inside the class body:
 
 ```java
     @Bean
@@ -2236,9 +2236,9 @@ DISPATCHING records older than jfoundry.outbox.recovery.stuck-timeout
 
 **Files:**
 - Modify: `jfoundry-infrastructure/jfoundry-messaging-mybatis-plus/src/main/java/org/jfoundry/infrastructure/messaging/mybatis/outbox/OutboxData.java` (delete `@TableName("ddd_outbox_event")`)
-- Create: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/JfoundryOutboxProperties.java`
-- Modify: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/OutboxMybatisPlusAutoConfiguration.java` (register `TableNameHandler`)
-- Test: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/persistence/OutboxTableNameOverrideTest.java`
+- Create: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/JfoundryOutboxProperties.java`
+- Modify: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/OutboxMybatisPlusAutoConfiguration.java` (register `TableNameHandler`)
+- Test: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/persistence/OutboxTableNameOverrideTest.java`
 
 **Interfaces:**
 - Consumes: existing `OutboxData` entity
@@ -2246,7 +2246,7 @@ DISPATCHING records older than jfoundry.outbox.recovery.stuck-timeout
 
 - [ ] **Step 1: Write failing test**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/persistence/OutboxTableNameOverrideTest.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/persistence/OutboxTableNameOverrideTest.java`
 
 ```java
 package org.jfoundry.autoconfigure.persistence;
@@ -2315,7 +2315,7 @@ class OutboxTableNameOverrideTest {
 
 Also: the test fixture SQL needs to create both `ddd_outbox_event` and `custom_outbox` tables. Add to test resources:
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/resources/outbox_event.sql` (append, don't overwrite):
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/resources/outbox_event.sql` (append, don't overwrite):
 
 ```sql
 -- Existing ddd_outbox_event table definition stays.
@@ -2361,7 +2361,7 @@ public class OutboxData {
 
 - [ ] **Step 4: Create `JfoundryOutboxProperties`**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/JfoundryOutboxProperties.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/JfoundryOutboxProperties.java`
 
 ```java
 package org.jfoundry.autoconfigure.persistence;
@@ -2384,7 +2384,7 @@ public class JfoundryOutboxProperties {
 
 - [ ] **Step 5: Register `TableNameHandler` in `OutboxMybatisPlusAutoConfiguration`**
 
-Edit `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/OutboxMybatisPlusAutoConfiguration.java`. Add the handler registration. The `TableNameHandler` must be registered **before** Mybatis-Plus initializes its `MybatisConfiguration`, which means using a `BeanDefinitionRegistryPostProcessor` or the Mybatis-Plus `MybatisPlusProperties.Customizer` — the canonical approach in 3.5.x is the static `TableNameHandler` registration via `GlobalConfig`:
+Edit `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/OutboxMybatisPlusAutoConfiguration.java`. Add the handler registration. The `TableNameHandler` must be registered **before** Mybatis-Plus initializes its `MybatisConfiguration`, which means using a `BeanDefinitionRegistryPostProcessor` or the Mybatis-Plus `MybatisPlusProperties.Customizer` — the canonical approach in 3.5.x is the static `TableNameHandler` registration via `GlobalConfig`:
 
 Read the existing file first:
 ```bash
@@ -2470,10 +2470,10 @@ that redirects the default name to the configured one."
 ### Task 2.5: Explicit `DbType` for `PaginationInnerInterceptor` (P2-3)
 
 **Files:**
-- Create: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/JfoundryPersistenceProperties.java`
-- Create: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/DbTypeResolver.java`
-- Modify: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/MybatisPlusAutoConfiguration.java` (or whichever class currently registers `PaginationInnerInterceptor`)
-- Test: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/persistence/DbTypeResolutionTest.java`
+- Create: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/JfoundryPersistenceProperties.java`
+- Create: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/DbTypeResolver.java`
+- Modify: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/MybatisPlusAutoConfiguration.java` (or whichever class currently registers `PaginationInnerInterceptor`)
+- Test: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/persistence/DbTypeResolutionTest.java`
 
 **Interfaces:**
 - Consumes: existing `PaginationInnerInterceptor` registration
@@ -2481,7 +2481,7 @@ that redirects the default name to the configured one."
 
 - [ ] **Step 1: Write failing test**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/persistence/DbTypeResolutionTest.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/persistence/DbTypeResolutionTest.java`
 
 ```java
 package org.jfoundry.autoconfigure.persistence;
@@ -2560,7 +2560,7 @@ Expected: FAIL — `JfoundryPersistenceProperties` and `DbTypeResolver` don't ex
 
 - [ ] **Step 3: Create `JfoundryPersistenceProperties`**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/JfoundryPersistenceProperties.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/JfoundryPersistenceProperties.java`
 
 ```java
 package org.jfoundry.autoconfigure.persistence;
@@ -2584,7 +2584,7 @@ public class JfoundryPersistenceProperties {
 
 - [ ] **Step 4: Create `DbTypeResolver`**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/DbTypeResolver.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/persistence/DbTypeResolver.java`
 
 ```java
 package org.jfoundry.autoconfigure.persistence;
@@ -2862,10 +2862,10 @@ large domain payloads."
 - Modify: `jfoundry-infrastructure/jfoundry-messaging-core/src/main/java/org/jfoundry/infrastructure/messaging/outbox/OutboxRepository.java` (add `deleteByStatusAndCreatedAtBefore`)
 - Modify: `jfoundry-infrastructure/jfoundry-messaging-mybatis-plus/src/main/java/org/jfoundry/infrastructure/messaging/mybatis/outbox/OutboxMapper.java`
 - Modify: `jfoundry-infrastructure/jfoundry-messaging-mybatis-plus/src/main/java/org/jfoundry/infrastructure/messaging/mybatis/outbox/MybatisPlusOutboxRepository.java`
-- Create: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxCleanupProperties.java`
-- Create: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxCleanupJob.java`
-- Modify: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxDispatcherAutoConfiguration.java`
-- Test: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/dispatcher/OutboxCleanupJobTest.java`
+- Create: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxCleanupProperties.java`
+- Create: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxCleanupJob.java`
+- Modify: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxDispatcherAutoConfiguration.java`
+- Test: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/dispatcher/OutboxCleanupJobTest.java`
 
 **Interfaces:**
 - Consumes: existing `OutboxRepository`, `OutboxStatus.PUBLISHED` / `DEAD_LETTERED` terminal states
@@ -2873,7 +2873,7 @@ large domain payloads."
 
 - [ ] **Step 1: Write failing test**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/dispatcher/OutboxCleanupJobTest.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/dispatcher/OutboxCleanupJobTest.java`
 
 ```java
 package org.jfoundry.autoconfigure.dispatcher;
@@ -2999,7 +2999,7 @@ Edit `MybatisPlusOutboxRepository.java`. Implement:
 
 - [ ] **Step 4: Create `OutboxCleanupProperties`**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxCleanupProperties.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxCleanupProperties.java`
 
 ```java
 package org.jfoundry.autoconfigure.dispatcher;
@@ -3036,7 +3036,7 @@ public class OutboxCleanupProperties {
 
 - [ ] **Step 5: Create `OutboxCleanupJob`**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxCleanupJob.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/dispatcher/OutboxCleanupJob.java`
 
 ```java
 package org.jfoundry.autoconfigure.dispatcher;
@@ -4188,10 +4188,10 @@ Adds jmolecules-archunit dependency (pinned in BOM at 0.34.0)."
 
 **Files:**
 - Modify: `jfoundry-dependencies/pom.xml` (jmolecules-jackson already pinned in Task 3.5; verify here)
-- Modify: `jfoundry-spring/jfoundry-spring-autoconfigure/pom.xml` (add `jmolecules-jackson` dependency)
-- Create: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/jackson/JfoundryJacksonAutoConfiguration.java`
-- Modify: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
-- Test: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/jackson/JfoundryJacksonAutoConfigurationTest.java`
+- Modify: `../../../jfoundry-spring/jfoundry-autoconfigure/pom.xml` (add `jmolecules-jackson` dependency)
+- Create: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/jackson/JfoundryJacksonAutoConfiguration.java`
+- Modify: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+- Test: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/jackson/JfoundryJacksonAutoConfigurationTest.java`
 
 **Interfaces:**
 - Consumes: `org.jmolecules.jackson.JMoleculesModule` (from jmolecules-jackson)
@@ -4199,7 +4199,7 @@ Adds jmolecules-archunit dependency (pinned in BOM at 0.34.0)."
 
 - [ ] **Step 1: Write failing integration test**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/test/java/org/jfoundry/autoconfigure/jackson/JfoundryJacksonAutoConfigurationTest.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/test/java/org/jfoundry/autoconfigure/jackson/JfoundryJacksonAutoConfigurationTest.java`
 
 ```java
 package org.jfoundry.autoconfigure.jackson;
@@ -4255,9 +4255,9 @@ mvn test -pl jfoundry-spring/jfoundry-spring-autoconfigure -Dtest=JfoundryJackso
 
 Expected: FAIL — `jmolecules-module` not in registered modules (jmolecules-jackson not on classpath, autoconfig doesn't exist).
 
-- [ ] **Step 3: Add `jmolecules-jackson` dependency to `jfoundry-spring-autoconfigure`**
+- [ ] **Step 3: Add `jmolecules-jackson` dependency to `jfoundry-autoconfigure`**
 
-Edit `jfoundry-spring/jfoundry-spring-autoconfigure/pom.xml`. Add inside `<dependencies>`:
+Edit `../../../jfoundry-spring/jfoundry-autoconfigure/pom.xml`. Add inside `<dependencies>`:
 
 ```xml
         <dependency>
@@ -4274,7 +4274,7 @@ Edit `jfoundry-spring/jfoundry-spring-autoconfigure/pom.xml`. Add inside `<depen
 
 - [ ] **Step 4: Create `JfoundryJacksonAutoConfiguration`**
 
-Path: `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/java/org/jfoundry/autoconfigure/jackson/JfoundryJacksonAutoConfiguration.java`
+Path: `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/java/org/jfoundry/autoconfigure/jackson/JfoundryJacksonAutoConfiguration.java`
 
 ```java
 package org.jfoundry.autoconfigure.jackson;
@@ -4308,7 +4308,7 @@ public class JfoundryJacksonAutoConfiguration {
 
 - [ ] **Step 5: Register autoconfig in imports file**
 
-Edit `jfoundry-spring/jfoundry-spring-autoconfigure/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`. Append the new line (keep existing 5 entries from Phase 1):
+Edit `../../../jfoundry-spring/jfoundry-autoconfigure/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`. Append the new line (keep existing 5 entries from Phase 1):
 
 ```
 org.jfoundry.autoconfigure.messaging.DomainEventPublisherAutoConfiguration

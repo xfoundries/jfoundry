@@ -7,7 +7,7 @@
     <packaging>pom</packaging>
 
     <name>jfoundry-dependencies</name>
-    
+
     <properties>
         <spring.version>6.1.10</spring.version>
         <spring-boot.version>3.2.7</spring-boot.version>
@@ -88,7 +88,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-spring-autoconfigure</artifactId>
+                <artifactId>jfoundry-autoconfigure</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -98,7 +98,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-spring-mybatis-plus-starter</artifactId>
+                <artifactId>jfoundry-mybatis-plus-starter</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <!--新增子模块声明-->
@@ -159,10 +159,12 @@
             </dependency>
             <!--
               jmolecules-integrations：jmolecules 官方提供的 ArchUnit / Jackson 等适配器。
-              0.34.0 是与 jmolecules 2025.0.2 兼容的最新 integrations 版本。
-              - jmolecules-archunit：JMoleculesRules.ddd()/layeredArchitecture() 等原生规则
-                供 JFoundryRules.jmoleculesNative() 聚合
-              - jmolecules-jackson：聚合根/值对象的 Jackson 序列化支持（Task 3.6 将使用）
+              jmolecules-bom 2025.0.2 自身将 integrations 锁定到 0.33.0；
+              0.34.0 在 Maven Central 不存在（版本号 0.33.0 后直接跳到 1.6.0）。
+              - jmolecules-archunit：JMoleculesDddRules.aggregateReferencesShouldBeViaIdOrAssociation()
+                / valueObjectsMustNotReferToIdentifiables()、JMoleculesArchitectureRules.ensureLayering()
+                等原生规则，供 JFoundryRules.jmoleculesNative() 聚合
+              - jmolecules-jackson：聚合根/值对象的 Jackson 序列化支持（Task 3.6 使用）
             -->
             <dependency>
                 <groupId>org.jmolecules.integrations</groupId>
