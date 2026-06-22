@@ -1,10 +1,12 @@
 package org.jfoundry.infrastructure.messaging.mybatis.outbox;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.jfoundry.infrastructure.messaging.outbox.OutboxStatus;
 
 import java.time.Instant;
 import java.util.List;
@@ -99,4 +101,33 @@ public interface OutboxMapper extends BaseMapper<OutboxData> {
     /// 崩溃后留下的陈旧 claim 时间戳"。生产代码不得调用。
     @Update("UPDATE ddd_outbox_event SET claimed_at = #{oldTimestamp} WHERE event_id = #{eventId}")
     void ageClaimedAt(@Param("eventId") String eventId, @Param("oldTimestamp") Instant oldTimestamp);
+
+    /// P2-5 cleanup: 批量删除指定终态（PUBLISHED / DEAD_LETTERED）且 occurred_at 早于 cutoff
+    /// 的记录，单批最多 {@code batchSize} 条。
+    /// <p>
+    /// 子查询 + LIMIT 形式兼容 MySQL 与 H2；DM 方言需要 ROWNUM 改写（暂未启用，方言分派
+    /// 在后续任务接入）。子查询保证 {@code DELETE} 不受 MySQL/H2 早期版本对
+    /// {@code DELETE...LIMIT} 支持差异影响。
+    /// <p>
+    /// {@code ORDER BY event_id ASC} 确保多批循环删除时顺序稳定，避免同一条记录
+    /// 被多次扫描（虽然 DELETE 是幂等的，但稳定顺序便于测试断言与运维观测）。
+    @Delete("""
+            DELETE FROM ddd_outbox_event
+            WHERE event_id IN (
+                SELECT event_id FROM ddd_outbox_event
+                WHERE status = #{status} AND occurred_at < #{cutoff}
+                ORDER BY event_id ASC
+                LIMIT #{batchSize}
+            )
+            """)
+    int deleteBatchByStatusAndOccurredBefore(@Param("status") String status,
+                                             @Param("cutoff") Instant cutoff,
+                                             @Param("batchSize") int batchSize);
+
+    /// 测试辅助：直接覆写指定 event 的 status，用于把 {@code OutboxEntry.newPending}
+    /// 创建的 PENDING 记录强制置为 PUBLISHED / DEAD_LETTERED 终态，供 cleanup job 测试。
+    /// 生产代码不得调用——生产链路中状态流转只能通过 {@code markPublished} /
+    /// {@code markFailed(...)} 完成。
+    @Update("UPDATE ddd_outbox_event SET status = #{status} WHERE event_id = #{eventId}")
+    void updateStatus(@Param("eventId") String eventId, @Param("status") OutboxStatus status);
 }

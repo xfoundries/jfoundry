@@ -125,4 +125,33 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
         // 下一个 dispatcher 周期会重新 claim。
         return mapper.resetStuckDispatching(cutoff);
     }
+
+    /// P2-5 cleanup: 循环调用 mapper 的 batch delete，直到返回 &lt; batchSize，保证把所有
+    /// 匹配的终态记录删干净。
+    /// <p>
+    /// 循环而非单条 SQL 原因：单批 DELETE 拿锁较多且长事务影响 claim/dispatch；
+    /// 分批每批只锁 batchSize 行，批次间释放锁，其它事务能穿插。{@code deleted == batchSize}
+    /// 判定表示可能还有剩余记录，继续下一批；{@code deleted < batchSize} 表示候选集已耗尽。
+    /// <p>
+    /// 候选集快照问题：每批 DELETE 的子查询是该批语句开始时的快照，但 DELETE 会对匹配行
+    /// 加排他锁，与并发 claim/dispatch 互不干扰——cleanup 目标是终态记录，不会被主链路改写。
+    @Override
+    public int deleteByStatusAndCreatedAtBefore(OutboxStatus status, Instant cutoff, int batchSize) {
+        if (status == null) {
+            throw new IllegalArgumentException("status must not be null");
+        }
+        if (cutoff == null) {
+            throw new IllegalArgumentException("cutoff must not be null");
+        }
+        if (batchSize <= 0) {
+            throw new IllegalArgumentException("batchSize must be positive: " + batchSize);
+        }
+        int total = 0;
+        int deleted;
+        do {
+            deleted = mapper.deleteBatchByStatusAndOccurredBefore(status.name(), cutoff, batchSize);
+            total += deleted;
+        } while (deleted == batchSize);
+        return total;
+    }
 }

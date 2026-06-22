@@ -78,4 +78,37 @@ public interface OutboxRepository {
     /// @param cutoff 截止时刻，claimedAt 严格早于该时刻的 DISPATCHING 记录被回滚
     /// @return 回滚的记录数（0 表示没有卡住的记录）
     int recoverStuckDispatching(Instant cutoff);
+
+    /// P2-5: 批量删除指定终态（PUBLISHED / DEAD_LETTERED）且 {@code occurredAt} 早于
+    /// {@code cutoff} 的记录，单批最多 {@code batchSize} 条。
+    /// <p>
+    /// 实现 SQL 形如（MySQL/H2 方言，子查询 + LIMIT 保证单批删干净且可跨方言）：
+    /// <pre>
+    /// DELETE FROM ddd_outbox_event
+    ///   WHERE event_id IN (
+    ///     SELECT event_id FROM ddd_outbox_event
+    ///     WHERE status = #{status} AND occurred_at &lt; #{cutoff}
+    ///     ORDER BY event_id ASC
+    ///     LIMIT #{batchSize}
+    ///   );
+    /// </pre>
+    /// <p>
+    /// 实现侧契约：循环调用 mapper 的 batch delete，直到返回 &lt; batchSize，把所有匹配记录
+    /// 删干净（每次循环最多删 batchSize 条）。最终返回累计删除的记录总数。
+    /// <p>
+    /// 场景：Outbox 表中 PUBLISHED / DEAD_LETTERED 记录堆积会拖慢 claim/dispatch 查询，
+    /// 周期性调用本方法（传入 {@code Instant.now().minus(retentionDays)}）即可按保留期清理。
+    /// 任务幂等——重复执行无副作用；失败不影响 Outbox 主链路。
+    /// <p>
+    /// 参数约束：
+    /// <ul>
+    ///   <li>{@code status} 为 null 抛 {@link IllegalArgumentException}</li>
+    ///   <li>{@code cutoff} 为 null 抛 {@link IllegalArgumentException}</li>
+    ///   <li>{@code batchSize &lt;= 0} 抛 {@link IllegalArgumentException}</li>
+    /// </ul>
+    /// @param status    目标终态（PUBLISHED / DEAD_LETTERED）
+    /// @param cutoff    截止时刻，occurredAt 严格早于该时刻的记录被删除
+    /// @param batchSize 单批最多删除的记录数（实现侧循环到删干净）
+    /// @return 累计删除的记录总数（0 表示没有匹配的记录）
+    int deleteByStatusAndCreatedAtBefore(OutboxStatus status, Instant cutoff, int batchSize);
 }

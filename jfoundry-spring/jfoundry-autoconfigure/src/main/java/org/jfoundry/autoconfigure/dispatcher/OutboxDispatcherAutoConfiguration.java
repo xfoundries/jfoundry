@@ -33,7 +33,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         MessageSenderAutoConfiguration.class,
         OutboxMybatisPlusAutoConfiguration.class
 })
-@EnableConfigurationProperties({OutboxDispatcherProperties.class, OutboxRecoveryProperties.class})
+@EnableConfigurationProperties({OutboxDispatcherProperties.class, OutboxRecoveryProperties.class, OutboxCleanupProperties.class})
 @ConditionalOnProperty(prefix = "jfoundry.outbox.dispatcher", name = "enabled",
                        havingValue = "true", matchIfMissing = true)
 @EnableScheduling
@@ -68,5 +68,19 @@ public class OutboxDispatcherAutoConfiguration {
     public OutboxRecoveryJob outboxRecoveryJob(OutboxRepository outboxRepository,
                                                OutboxRecoveryProperties recoveryProperties) {
         return new OutboxRecoveryJob(outboxRepository, recoveryProperties);
+    }
+
+    /// P2-5 terminal-state cleanup job。
+    /// <p>
+    /// 仅在 {@link OutboxRepository} 存在时注册；与 dispatcher mode 解耦，
+    /// 即使 {@code mode=jobrunr} 也能独立清理 PUBLISHED / DEAD_LETTERED 记录。
+    /// 任务的启停通过 {@link OutboxCleanupProperties#isEnabled()} 控制
+    /// （默认 {@code true}），无需重启 ApplicationContext。
+    @Bean
+    @ConditionalOnBean({OutboxRepository.class})
+    @ConditionalOnMissingBean(OutboxCleanupJob.class)
+    public OutboxCleanupJob outboxCleanupJob(OutboxRepository outboxRepository,
+                                             OutboxCleanupProperties cleanupProperties) {
+        return new OutboxCleanupJob(outboxRepository, cleanupProperties);
     }
 }

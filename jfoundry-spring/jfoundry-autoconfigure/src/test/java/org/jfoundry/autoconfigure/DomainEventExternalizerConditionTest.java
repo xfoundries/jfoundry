@@ -102,6 +102,13 @@ class DomainEventExternalizerConditionTest {
         public int recoverStuckDispatching(java.time.Instant cutoff) {
             return 0;
         }
+
+        @Override
+        public int deleteByStatusAndCreatedAtBefore(
+                org.jfoundry.infrastructure.messaging.outbox.OutboxStatus status,
+                java.time.Instant cutoff, int batchSize) {
+            return 0;
+        }
     }
 
     @Autowired

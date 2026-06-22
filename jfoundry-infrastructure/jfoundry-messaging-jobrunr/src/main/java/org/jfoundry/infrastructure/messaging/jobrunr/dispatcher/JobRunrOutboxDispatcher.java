@@ -52,7 +52,7 @@ public class JobRunrOutboxDispatcher implements OutboxDispatcher {
     }
 
     @Job(name = "outbox-dispatch", retries = 3)
-    @Recurring(id = "ddd-outbox-dispatch", cron = "${ddd.outbox.dispatcher.cron:*/10 * * * * *}")
+    @Recurring(id = "jfoundry-outbox-dispatch", cron = "${jfoundry.outbox.dispatcher.cron:*/10 * * * * *}")
     public void recurringDispatch() {
         dispatchInternal(DEFAULT_BATCH_SIZE);
     }

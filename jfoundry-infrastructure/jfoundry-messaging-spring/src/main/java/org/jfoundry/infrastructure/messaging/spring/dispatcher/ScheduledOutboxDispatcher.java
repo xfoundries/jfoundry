@@ -45,7 +45,7 @@ public class ScheduledOutboxDispatcher implements OutboxDispatcher {
         this.batchSize = batchSize;
     }
 
-    @Scheduled(fixedDelayString = "${ddd.outbox.dispatcher.interval-ms:5000}")
+    @Scheduled(fixedDelayString = "${jfoundry.outbox.dispatcher.interval-ms:5000}")
     public void scheduledDispatch() {
         dispatch(batchSize);
     }
