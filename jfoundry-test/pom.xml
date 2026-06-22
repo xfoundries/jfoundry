@@ -17,6 +17,11 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-architecture-layered</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>com.tngtech.archunit</groupId>
             <artifactId>archunit-junit5</artifactId>
             <scope>compile</scope>

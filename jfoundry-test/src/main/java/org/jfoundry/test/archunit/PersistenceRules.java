@@ -25,19 +25,29 @@ public final class PersistenceRules {
     /// <p>
     /// ArchUnit 1.4.2 没有 {@code haveMethodsAnnotatedWith} API，因此用自定义 {@link ArchCondition}
     /// 同时检查类级别和方法级别的 {@code @Transactional}（含元注解）。
+    /// <p>
+    /// {@code allowEmptyShould(true)}：本规则由框架分发，业务代码可能在尚未引入 persistence
+    /// 实现或 autoconfig 模块时引用；ArchUnit 默认对空 should 报错是为捕获本地规则拼写错误，
+    /// 但库规则需要支持「尚未应用」的合法场景（与 {@link ValueObjectRules} 同样的处理方式，
+    /// 详见 Task 3.3 review 结论）。
     public static final ArchRule persistence_repository_must_not_use_transactional =
             noClasses()
                     .that().resideInAPackage("..infrastructure.persistence..")
                     .should(haveTransactionalAtClassOrMethodLevel())
+                    .allowEmptyShould(true)
                     .because("事务边界属于应用层；持久化层 @Transactional 是 P1-3 修复的契约漂移信号");
 
     /// autoconfig 模块禁止使用 {@code @Component}（P1-1 防护网）。
     /// <p>
     /// autoconfig 类应该用 {@code @AutoConfiguration} + {@code @Bean}，不允许 {@code @ComponentScan}。
+    /// <p>
+    /// {@code allowEmptyShould(true)}：本规则由框架分发，业务代码可能在尚未引入 autoconfig
+    /// 模块时引用；空匹配应视为 vacuously pass（与 {@link ValueObjectRules} 同样的处理方式）。
     public static final ArchRule autoconfig_must_not_use_component =
             noClasses()
                     .that().resideInAPackage("..autoconfigure..")
                     .should(beAnnotatedWithOrMetaAnnotatedWith(Component.class))
+                    .allowEmptyShould(true)
                     .because("autoconfig 模块应使用 @AutoConfiguration + @Bean，禁止 @Component/@ComponentScan (P1-1)");
 
     private static ArchCondition<JavaClass> haveTransactionalAtClassOrMethodLevel() {
