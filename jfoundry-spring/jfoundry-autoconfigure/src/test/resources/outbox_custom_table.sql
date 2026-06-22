@@ -1,0 +1,23 @@
+-- P2-2: additional custom_outbox table for OutboxTableNameOverrideTest.
+-- Schema mirrors ddd_outbox_event (see outbox_event.sql) so the TableNameHandler
+-- redirect is a pure name swap — no column/typing drift.
+CREATE TABLE IF NOT EXISTS custom_outbox (
+    event_id        VARCHAR(64)   NOT NULL,
+    topic           VARCHAR(255)  NOT NULL,
+    payload_key     VARCHAR(255),
+    payload_type    VARCHAR(500)  NOT NULL,
+    payload_json    TEXT          NOT NULL,
+    status          VARCHAR(32)   NOT NULL,
+    retry_count     INT           NOT NULL DEFAULT 0,
+    error_message   VARCHAR(2000),
+    occurred_at     TIMESTAMP     NOT NULL,
+    last_attempt_at TIMESTAMP,
+    next_retry_at   TIMESTAMP,
+    created_at      TIMESTAMP     NOT NULL,
+    updated_at      TIMESTAMP     NOT NULL,
+    claimed_at      TIMESTAMP,
+    claimed_by      VARCHAR(100),
+    PRIMARY KEY (event_id)
+);
+CREATE INDEX IF NOT EXISTS idx_custom_outbox_status_retry ON custom_outbox (status, next_retry_at);
+CREATE INDEX IF NOT EXISTS idx_custom_outbox_claim ON custom_outbox (status, claimed_at);
