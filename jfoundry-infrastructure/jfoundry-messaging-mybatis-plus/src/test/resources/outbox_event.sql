@@ -17,8 +17,12 @@ CREATE TABLE ddd_outbox_event (
     -- P2-1: atomic claim columns (DISPATCHING state)
     claimed_at      TIMESTAMP,
     claimed_by      VARCHAR(100),
+    -- P3-2: 每次 claimDispatchable 调用生成的唯一 token；回读时按 token 精确匹配。
+    claim_token     VARCHAR(36),
     PRIMARY KEY (event_id)
 );
 CREATE INDEX idx_outbox_status_retry ON ddd_outbox_event (status, next_retry_at);
 -- P2-1: composite index for atomic claimDispatchable WHERE clause
 CREATE INDEX idx_outbox_claim ON ddd_outbox_event (status, claimed_at);
+-- P3-2: lookup by claim_token
+CREATE INDEX idx_outbox_claim_token ON ddd_outbox_event (claim_token);

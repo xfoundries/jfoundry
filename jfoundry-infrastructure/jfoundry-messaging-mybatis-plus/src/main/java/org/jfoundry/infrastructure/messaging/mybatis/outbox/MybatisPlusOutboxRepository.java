@@ -12,13 +12,19 @@ import org.jfoundry.infrastructure.messaging.outbox.OutboxStatus;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 /// OutboxRepository 默认实现：基于 MyBatis-Plus。
 /// <p>
 /// SPI 层 {@link OutboxEntry} 不携带任何 ORM 注解，本类在边界处负责 entry ↔ {@link OutboxData}
 /// 互转。findDispatchable 通过 selectPage 表达"取前 N 条"，由 PaginationInnerInterceptor
 /// 自动生成对应方言的 SQL。markAsPublished / markAsFailed / reactivate 采用 read-then-update
-/// 模式，状态流转由 OutboxEntry 自身封装。非原子操作；多实例安全性由消费端幂等保证（v1 接受）。
+/// 模式，状态流转由 OutboxEntry 自身封装。
+/// <p>
+/// 多实例安全性：claim 主链路走 {@link #claimDispatchable(int, String)} —— 单语句原子
+/// {@code UPDATE...LIMIT N}（MySQL/H2）对候选行加排他锁，两个并发 pod 会被锁串行化，
+/// 自动选取不同行，无需应用层 retry。回读使用每次调用现生成的 {@code claimToken}，避免
+/// 按稳定 podId 回读时把前一批未完成状态更新的 DISPATCHING 旧记录一起带走（P3-2 修复）。
 /// <p>
 /// 构造时 fail-fast：检测传入的 MybatisPlusInterceptor 是否含 PaginationInnerInterceptor。
 public class MybatisPlusOutboxRepository implements OutboxRepository {
@@ -105,12 +111,16 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
         if (claimerId == null || claimerId.isBlank()) {
             throw new IllegalArgumentException("claimerId must not be blank");
         }
+        // P3-2: 每次调用现生成 UUID 作为 claimToken，写入 claim_token 列。
+        // 回读按 token 精确匹配，避开"按稳定 podId 回读时把前一批未完成状态更新的
+        // DISPATCHING 旧记录一起带走"的重复发送根因。
+        String claimToken = UUID.randomUUID().toString();
         // Default to MySQL/H2 dialect; dialect dispatch added in Task 2.5.
         // UPDATE...ORDER BY event_id LIMIT N 在 MySQL/H2 下是原子的：UPDATE 执行时对匹配行
         // 加排他锁，两个并发 UPDATE 会被锁串行化，后执行者看到的 PENDING 集合已不包含前者
         // claim 走的行，自动选取不同行。
-        mapper.claimPending(limit, claimerId);
-        return mapper.selectByClaimer(claimerId).stream()
+        mapper.claimPending(limit, claimerId, claimToken);
+        return mapper.selectByClaimToken(claimToken).stream()
                 .map(OutboxData::toEntry)
                 .toList();
     }

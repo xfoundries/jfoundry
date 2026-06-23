@@ -41,7 +41,8 @@ public class ScheduledOutboxDispatcher implements OutboxDispatcher {
     private final int batchSize;
     /// 稳定的 pod 标识（hostname + 短 UUID），跨 dispatch 调用复用，便于 stuck-recovery 诊断
     /// 与运维观测。{@link OutboxRepository#claimDispatchable(int, String)} 内部用它做
-    /// UPDATE...WHERE claimed_by=#{claimerId} + 后续 SELECT 回读本 pod 的条目。
+    /// UPDATE...WHERE claimed_by=#{claimerId}；回读使用每次调用现生成的 claimToken
+    /// （而非稳定 podId），避免重入或残骸导致重复发送。
     private final String podId;
 
     public ScheduledOutboxDispatcher(OutboxRepository repository,

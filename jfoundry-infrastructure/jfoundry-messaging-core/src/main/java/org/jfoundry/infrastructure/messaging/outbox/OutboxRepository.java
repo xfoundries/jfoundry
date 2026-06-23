@@ -37,15 +37,25 @@ public interface OutboxRepository {
     /// claim，候选集选取与加锁合并为单一原子操作，无需 retry）：
     /// <pre>
     /// UPDATE ddd_outbox_event
-    ///   SET status = 'DISPATCHING', claimed_at = CURRENT_TIMESTAMP, claimed_by = #{claimerId}
+    ///   SET status = 'DISPATCHING', claimed_at = CURRENT_TIMESTAMP,
+    ///       claimed_by = #{claimerId}, claim_token = #{claimToken}
     ///   WHERE status = 'PENDING'
     ///   ORDER BY event_id ASC
     ///   LIMIT #{limit};
-    /// SELECT * FROM ddd_outbox_event WHERE claimed_by = #{claimerId} AND status = 'DISPATCHING';
+    /// SELECT * FROM ddd_outbox_event
+    ///   WHERE claim_token = #{claimToken} AND status = 'DISPATCHING';
     /// </pre>
     /// <p>
     /// 多实例下，两个并发 UPDATE 会被行级锁串行化，后执行者看到的 PENDING 集合已不再
     /// 包含前者 claim 走的行，因此自动选取不同记录（无需应用层 retry）。
+    /// <p>
+    /// <b>回读使用 claimToken 而非稳定 podId（P3-2）。</b>每次调用内部现生成唯一
+    /// {@code claimToken}（UUID）写入 {@code claim_token} 列，回读按该 token 精确匹配。
+    /// 旧实现按 {@code claimed_by + DISPATCHING} 回读，在 pod 内重入 dispatch（例如上一批
+    /// 还在 send 循环中）或 {@code markAsPublished}/{@code markAsFailed} 状态更新失败留下
+    /// DISPATCHING 残骸时，会把旧批记录一起带回 —— 导致重复发送。token 在离开 DISPATCHING
+    /// 状态时（{@code markPublished} / {@code markFailed} / {@code reactivate} /
+    /// {@code recoverStuckDispatching}）会被清空，过期 token 查询自然返回空。
     /// <p>
     /// 实现侧注意：达梦数据库不支持 UPDATE...LIMIT，需走 ROWNUM/top-N 子查询改写
     /// （由 P2-3 dialect 机制分派；候选集快照模式，并发下可能需 Repository 层 retry）。
@@ -64,7 +74,7 @@ public interface OutboxRepository {
     /// 实现 SQL 形如（跨方言）：
     /// <pre>
     /// UPDATE ddd_outbox_event
-    ///   SET status = 'PENDING', claimed_at = NULL, claimed_by = NULL
+    ///   SET status = 'PENDING', claimed_at = NULL, claimed_by = NULL, claim_token = NULL
     ///   WHERE status = 'DISPATCHING' AND claimed_at &lt; #{cutoff};
     /// </pre>
     /// <p>

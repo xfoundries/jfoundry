@@ -31,6 +31,12 @@ public class OutboxEntry {
     private Instant claimedAt;
     /// P2-1: claim 该条目的 pod 标识（hostname + 短 UUID），用于诊断与多实例互斥。
     private String claimedBy;
+    /// P3-2: 本次 claimDispatchable 调用生成的唯一 token（UUID）。
+    /// <p>
+    /// 回读时按 token 精确匹配本批 claim 的条目，避免按稳定 podId 回读时把前一批
+    /// 因状态更新失败而残留的 DISPATCHING 旧记录一起带走（重复发送的根因）。
+    /// 离开 DISPATCHING 状态时清空。
+    private String claimToken;
 
     public static OutboxEntry newPending(String eventId, String topic, String payloadKey,
                                           String payloadType, String payloadJson, Instant occurredAt) {
@@ -59,6 +65,7 @@ public class OutboxEntry {
         // Claim 结束：本条记录不再被任何 pod 持有，清空 claim 元数据。
         this.claimedAt = null;
         this.claimedBy = null;
+        this.claimToken = null;
         this.updatedAt = now;
     }
 
@@ -80,6 +87,7 @@ public class OutboxEntry {
         // 清空 claim 元数据；下一次 retry 时由本 pod 或其它 pod 重新 claim。
         this.claimedAt = null;
         this.claimedBy = null;
+        this.claimToken = null;
         this.updatedAt = now;
     }
 
@@ -96,6 +104,7 @@ public class OutboxEntry {
         // Defensive：DEAD_LETTERED 已无 claim 持有者，但保证字段一致。
         this.claimedAt = null;
         this.claimedBy = null;
+        this.claimToken = null;
         this.updatedAt = now;
     }
 
@@ -129,4 +138,6 @@ public class OutboxEntry {
     public void setClaimedAt(Instant claimedAt) { this.claimedAt = claimedAt; }
     public String getClaimedBy() { return claimedBy; }
     public void setClaimedBy(String claimedBy) { this.claimedBy = claimedBy; }
+    public String getClaimToken() { return claimToken; }
+    public void setClaimToken(String claimToken) { this.claimToken = claimToken; }
 }

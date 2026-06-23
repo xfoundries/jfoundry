@@ -17,7 +17,10 @@ CREATE TABLE IF NOT EXISTS custom_outbox (
     updated_at      TIMESTAMP     NOT NULL,
     claimed_at      TIMESTAMP,
     claimed_by      VARCHAR(100),
+    -- P3-2: mirror ddd_outbox_event schema (claim_token added)
+    claim_token     VARCHAR(36),
     PRIMARY KEY (event_id)
 );
 CREATE INDEX IF NOT EXISTS idx_custom_outbox_status_retry ON custom_outbox (status, next_retry_at);
 CREATE INDEX IF NOT EXISTS idx_custom_outbox_claim ON custom_outbox (status, claimed_at);
+CREATE INDEX IF NOT EXISTS idx_custom_outbox_claim_token ON custom_outbox (claim_token);

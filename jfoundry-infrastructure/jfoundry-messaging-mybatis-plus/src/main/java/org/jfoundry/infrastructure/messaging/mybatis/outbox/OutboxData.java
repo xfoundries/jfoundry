@@ -35,6 +35,8 @@ public class OutboxData {
     private Instant claimedAt;
     /// P2-1: claim 该条目的 pod 标识 — 与 OutboxEntry.claimedBy 对齐。
     private String claimedBy;
+    /// P3-2: 本次 claimDispatchable 调用生成的唯一 token — 与 OutboxEntry.claimToken 对齐。
+    private String claimToken;
 
     public String getEventId() { return eventId; }
     public void setEventId(String eventId) { this.eventId = eventId; }
@@ -66,6 +68,8 @@ public class OutboxData {
     public void setClaimedAt(Instant claimedAt) { this.claimedAt = claimedAt; }
     public String getClaimedBy() { return claimedBy; }
     public void setClaimedBy(String claimedBy) { this.claimedBy = claimedBy; }
+    public String getClaimToken() { return claimToken; }
+    public void setClaimToken(String claimToken) { this.claimToken = claimToken; }
 
     /// SPI entry → MP data。
     /// <p>
@@ -88,6 +92,7 @@ public class OutboxData {
         data.updatedAt = entry.getUpdatedAt();
         data.claimedAt = entry.getClaimedAt();
         data.claimedBy = entry.getClaimedBy();
+        data.claimToken = entry.getClaimToken();
         return data;
     }
 
@@ -111,6 +116,7 @@ public class OutboxData {
         entry.setUpdatedAt(data.updatedAt);
         entry.setClaimedAt(data.claimedAt);
         entry.setClaimedBy(data.claimedBy);
+        entry.setClaimToken(data.claimToken);
         return entry;
     }
 }

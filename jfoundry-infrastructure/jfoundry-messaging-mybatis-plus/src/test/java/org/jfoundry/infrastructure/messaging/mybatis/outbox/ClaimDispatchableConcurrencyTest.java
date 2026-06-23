@@ -188,4 +188,40 @@ class ClaimDispatchableConcurrencyTest {
         return OutboxEntry.newPending(
                 eventId, "topic", null, "com.example.Foo", "{}", Instant.now());
     }
+
+    /// P3-2 regression: 同一 pod 重入 dispatch 时，回读必须按每次调用现生成的 claimToken
+    /// 精确匹配 —— 不能把前一批因 {@code markAsPublished}/{@code markAsFailed} 状态更新失败
+    /// （或 pod 在 send 循环中被重入）残留的 DISPATCHING 记录一起带走，否则会重复发送。
+    /// <p>
+    /// 旧实现（按稳定 {@code claimed_by + DISPATCHING} 回读）会在第二批 claim 时重新读回
+    /// 第一批的 R1/R2，导致它们被发送两次。修复后两批的 eventId 集合严格不相交。
+    @Test
+    void reentrantClaimOnSamePodDoesNotReReadPriorBatchStragglers() {
+        // Seed R1, R2 as batch 1.
+        repository.append(pendingEntry("batch1-1"));
+        repository.append(pendingEntry("batch1-2"));
+        List<OutboxEntry> batch1 = repository.claimDispatchable(2, "pod-A");
+        assertThat(batch1).extracting(OutboxEntry::getEventId)
+                .containsExactlyInAnyOrder("batch1-1", "batch1-2");
+
+        // 模拟状态更新失败：batch1 的两条记录仍处 DISPATCHING（markAsPublished/markAsFailed
+        // 未被调用，或调用失败回滚），claimed_by 仍是 "pod-A"。
+        // 此时 pod A 同线程重入 dispatch，又 claim 了一批新记录。
+        repository.append(pendingEntry("batch2-1"));
+        repository.append(pendingEntry("batch2-2"));
+        List<OutboxEntry> batch2 = repository.claimDispatchable(2, "pod-A");
+
+        // 关键断言：batch2 只能是 batch2-1 / batch2-2，不能重新带回 batch1 的两条记录。
+        assertThat(batch2).extracting(OutboxEntry::getEventId)
+                .containsExactlyInAnyOrder("batch2-1", "batch2-2");
+
+        // 互斥性兜底：两批eventId 严格不相交。
+        Set<String> batch1Ids = new HashSet<>(batch1.stream().map(OutboxEntry::getEventId).toList());
+        Set<String> batch2Ids = new HashSet<>(batch2.stream().map(OutboxEntry::getEventId).toList());
+        Set<String> intersection = new HashSet<>(batch1Ids);
+        intersection.retainAll(batch2Ids);
+        assertThat(intersection)
+                .as("同 pod 重入 dispatch 不应回读前一批 DISPATCHING 残骸（P3-2 修复）")
+                .isEmpty();
+    }
 }
