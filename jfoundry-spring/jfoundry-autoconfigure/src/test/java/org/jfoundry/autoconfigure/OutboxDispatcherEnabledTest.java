@@ -19,10 +19,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /// dispatcher bean registration. The existing config javadoc admitted the bug
 /// ("业务侧需要禁用调度时...自行关闭 @EnableScheduling") — this test pins the fix.
 /// <p>
-/// TestApp provides an ObjectMapper bean because DomainEventExternalizerAutoConfiguration's
-/// unconditional payloadSerializer bean requires Jackson (same pattern as
-/// DomainEventExternalizerConditionTest). Marking payloadSerializer conditional
-/// on ObjectMapper is out of Task 1.5 scope.
+/// TestApp provides an ObjectMapper bean so DomainEventExternalizerAutoConfiguration's
+/// payloadSerializer（@ConditionalOnBean(ObjectMapper.class)）能正常注册；
+/// 同时让 DomainEventExternalizer 的依赖链完整。
 @SpringBootTest(
         classes = {OutboxDispatcherEnabledTest.TestApp.class, OutboxDispatcherEnabledTest.DisabledConfig.class},
         properties = "jfoundry.outbox.dispatcher.enabled=false"

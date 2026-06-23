@@ -25,10 +25,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// of the sink chain; it should only retract when business provides its own
 /// DomainEventExternalizer.
 /// <p>
-/// TestApp provides an ObjectMapper bean because DomainEventExternalizerAutoConfiguration's
-/// unconditional payloadSerializer bean requires Jackson (same pattern as
-/// DomainEventPublisherAutoConfigurationTest). Marking payloadSerializer conditional
-/// on ObjectMapper is out of Task 1.2 scope.
+/// TestApp provides an ObjectMapper bean so DomainEventExternalizerAutoConfiguration's
+/// payloadSerializer（@ConditionalOnBean(ObjectMapper.class)）能正常注册，
+/// 让 DomainEventExternalizer 的依赖链完整。
 @SpringBootTest(classes = {
         DomainEventExternalizerConditionTest.TestApp.class,
         DomainEventExternalizerConditionTest.WithCustomSink.class

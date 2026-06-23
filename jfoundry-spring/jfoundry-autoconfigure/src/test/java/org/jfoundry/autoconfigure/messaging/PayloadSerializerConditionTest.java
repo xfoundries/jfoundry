@@ -1,0 +1,41 @@
+package org.jfoundry.autoconfigure.messaging;
+
+import org.jfoundry.infrastructure.messaging.PayloadSerializer;
+import org.jfoundry.infrastructure.messaging.outbox.OutboxRepository;
+import org.jfoundry.infrastructure.messaging.spring.externalization.DomainEventExternalizer;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+/// P2-4 regression: {@code payloadSerializer} 必须 {@code @ConditionalOnBean(ObjectMapper.class)}
+/// —— 业务侧无 Jackson 时不应因找不到 ObjectMapper bean 而启动失败。
+/// <p>
+/// 同时验证传递性：{@code domainEventExternalizer} 新增的
+/// {@code @ConditionalOnBean(PayloadSerializer.class)} 守护也生效 —— 没有 serializer
+/// 时 Externalizer 正确退让，而不是因为缺依赖报错。
+class PayloadSerializerConditionTest {
+
+    private final ApplicationContextRunner runner =
+            new ApplicationContextRunner()
+                    .withConfiguration(AutoConfigurations.of(DomainEventExternalizerAutoConfiguration.class))
+                    .withBean(OutboxRepository.class, () -> mock(OutboxRepository.class));
+
+    @Test
+    void contextStartsWithoutFailureWhenObjectMapperBeanIsMissing() {
+        runner.run(context -> {
+            assertThat(context).hasNotFailed();
+            assertThat(context).doesNotHaveBean(PayloadSerializer.class);
+        });
+    }
+
+    @Test
+    void externalizerAlsoRetractsWhenPayloadSerializerMissing() {
+        runner.run(context -> {
+            assertThat(context).hasNotFailed();
+            assertThat(context).doesNotHaveBean(DomainEventExternalizer.class);
+        });
+    }
+}
