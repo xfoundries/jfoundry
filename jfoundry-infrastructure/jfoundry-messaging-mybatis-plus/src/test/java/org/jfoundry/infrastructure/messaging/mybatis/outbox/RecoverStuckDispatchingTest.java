@@ -1,5 +1,6 @@
 package org.jfoundry.infrastructure.messaging.mybatis.outbox;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.jfoundry.infrastructure.messaging.outbox.OutboxEntry;
 import org.jfoundry.infrastructure.messaging.outbox.OutboxRepository;
 import org.jfoundry.infrastructure.messaging.outbox.OutboxStatus;
@@ -59,7 +60,11 @@ class RecoverStuckDispatchingTest {
         repository.claimDispatchable(1, "pod-stuck");
 
         // Manually age claimedAt to 10 minutes ago (simulating pod crash during DISPATCHING).
-        mapper.ageClaimedAt("evt-stuck", Instant.now().minus(Duration.ofMinutes(10)));
+        // 走标准 lambdaUpdate（mapper 上的自定义 SQL helper 已移除，所有 UPDATE 由 BaseMapper + Wrapper 完成）。
+        mapper.update(null,
+                Wrappers.lambdaUpdate(OutboxData.class)
+                        .set(OutboxData::getClaimedAt, Instant.now().minus(Duration.ofMinutes(10)))
+                        .eq(OutboxData::getEventId, "evt-stuck"));
 
         // Recover with 5-minute cutoff: claimedAt=now-10m is strictly older than now-5m.
         int recovered = repository.recoverStuckDispatching(Instant.now().minus(Duration.ofMinutes(5)));

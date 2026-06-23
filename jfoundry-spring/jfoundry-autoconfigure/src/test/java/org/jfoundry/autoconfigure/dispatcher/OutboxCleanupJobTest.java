@@ -1,5 +1,6 @@
 package org.jfoundry.autoconfigure.dispatcher;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.infrastructure.messaging.mybatis.outbox.OutboxData;
 import org.jfoundry.infrastructure.messaging.mybatis.outbox.OutboxMapper;
@@ -40,7 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// <p>
 /// Caveat 5 (brief): {@code OutboxEntry.newBuilder()} does not exist; the real factory is
 /// {@link OutboxEntry#newPending}. After {@code append}, the row is in PENDING, so we
-/// flip it to the target terminal state via {@link OutboxMapper#updateStatus}.
+/// flip it to the target terminal state via standard {@code lambdaUpdate}（mapper 上的自定义
+/// SQL helper 已移除，所有 UPDATE 由 BaseMapper + Wrapper 完成）。
 @SpringBootTest(classes = OutboxCleanupJobTest.TestApp.class)
 @TestPropertySource(properties = {
         "jfoundry.outbox.dispatcher.interval-ms=600000",
@@ -159,12 +161,15 @@ class OutboxCleanupJobTest {
     /// Helper: append a PENDING entry with the given occurredAt, then flip it to the target status.
     /// OutboxEntry.newPending is the only factory; status transitions via markPublished /
     /// markFailed are for the dispatcher path. For the cleanup test we bypass the state machine
-    /// and set status directly via mapper.updateStatus (test-only helper).
+    /// and set status directly via {@code lambdaUpdate}（mapper 上的自定义 SQL helper 已移除）。
     private void seed(String id, OutboxStatus status, Instant occurredAt) {
         OutboxEntry entry = OutboxEntry.newPending(
                 id, "test.event", null, "test.type", "{}", occurredAt);
         repository.append(entry);
-        mapper.updateStatus(id, status);
+        mapper.update(null,
+                Wrappers.lambdaUpdate(OutboxData.class)
+                        .set(OutboxData::getStatus, status.name())
+                        .eq(OutboxData::getEventId, id));
         // Sanity: verify the seed actually landed in the expected terminal state.
         OutboxData seeded = mapper.selectById(id);
         assertThat(seeded).as("seeded entry must exist with status=%s", status).isNotNull();
