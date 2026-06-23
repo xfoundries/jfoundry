@@ -56,6 +56,9 @@ public class OutboxEntry {
         Instant now = Instant.now();
         this.status = OutboxStatus.PUBLISHED.name();
         this.lastAttemptAt = now;
+        // Claim 结束：本条记录不再被任何 pod 持有，清空 claim 元数据。
+        this.claimedAt = null;
+        this.claimedBy = null;
         this.updatedAt = now;
     }
 
@@ -73,6 +76,10 @@ public class OutboxEntry {
             this.status = OutboxStatus.FAILED.name();
             this.nextRetryAt = now.plus(delay);
         }
+        // Claim 结束（DISPATCHING → FAILED / DEAD_LETTERED）：本条记录不再被任何 pod 持有，
+        // 清空 claim 元数据；下一次 retry 时由本 pod 或其它 pod 重新 claim。
+        this.claimedAt = null;
+        this.claimedBy = null;
         this.updatedAt = now;
     }
 
@@ -86,6 +93,9 @@ public class OutboxEntry {
         this.retryCount = 0;
         this.nextRetryAt = now;
         this.errorMessage = null;
+        // Defensive：DEAD_LETTERED 已无 claim 持有者，但保证字段一致。
+        this.claimedAt = null;
+        this.claimedBy = null;
         this.updatedAt = now;
     }
 

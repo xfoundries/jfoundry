@@ -7,7 +7,6 @@ import org.jfoundry.infrastructure.messaging.outbox.OutboxEntry;
 import org.jfoundry.infrastructure.messaging.outbox.OutboxRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -34,7 +33,7 @@ class ScheduledOutboxDispatcherTest {
     @Test
     void marksAsPublishedOnSendSuccess() {
         OutboxEntry entry = entry("evt-1");
-        when(repository.findDispatchable(eq(5), any())).thenReturn(List.of(entry));
+        when(repository.claimDispatchable(eq(5), any())).thenReturn(List.of(entry));
         when(messageSender.send(any(), any(), any())).thenReturn(SendResult.ok());
 
         dispatcher.dispatch(5);
@@ -46,7 +45,7 @@ class ScheduledOutboxDispatcherTest {
     @Test
     void marksAsFailedOnSendFailure() {
         OutboxEntry entry = entry("evt-1");
-        when(repository.findDispatchable(eq(5), any())).thenReturn(List.of(entry));
+        when(repository.claimDispatchable(eq(5), any())).thenReturn(List.of(entry));
         when(messageSender.send(any(), any(), any())).thenReturn(SendResult.fail("conn refused"));
 
         dispatcher.dispatch(5);
@@ -58,7 +57,7 @@ class ScheduledOutboxDispatcherTest {
     @Test
     void marksAsFailedOnSendException() {
         OutboxEntry entry = entry("evt-1");
-        when(repository.findDispatchable(eq(5), any())).thenReturn(List.of(entry));
+        when(repository.claimDispatchable(eq(5), any())).thenReturn(List.of(entry));
         when(messageSender.send(any(), any(), any())).thenThrow(new RuntimeException("kafka down"));
 
         dispatcher.dispatch(5);
@@ -70,7 +69,7 @@ class ScheduledOutboxDispatcherTest {
     void singleFailureDoesNotBlockRemainingEntries() {
         OutboxEntry first = entry("evt-1");
         OutboxEntry second = entry("evt-2");
-        when(repository.findDispatchable(eq(5), any())).thenReturn(List.of(first, second));
+        when(repository.claimDispatchable(eq(5), any())).thenReturn(List.of(first, second));
         when(messageSender.send(eq("topic"), any(), eq("payload-evt-1")))
                 .thenThrow(new RuntimeException("fail"));
         when(messageSender.send(eq("topic"), any(), eq("payload-evt-2")))
@@ -86,7 +85,7 @@ class ScheduledOutboxDispatcherTest {
     void passesPayloadKeyToSender() {
         OutboxEntry entry = entry("evt-1");
         entry.setPayloadKey("key-A");
-        when(repository.findDispatchable(eq(5), any())).thenReturn(List.of(entry));
+        when(repository.claimDispatchable(eq(5), any())).thenReturn(List.of(entry));
         when(messageSender.send(any(), any(), any())).thenReturn(SendResult.ok());
 
         dispatcher.dispatch(5);

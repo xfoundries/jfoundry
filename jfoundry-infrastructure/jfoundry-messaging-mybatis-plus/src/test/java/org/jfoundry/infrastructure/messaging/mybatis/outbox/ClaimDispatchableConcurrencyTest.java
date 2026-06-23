@@ -106,6 +106,46 @@ class ClaimDispatchableConcurrencyTest {
                 .containsExactlyInAnyOrder("pending-1", "pending-2", "pending-3");
     }
 
+    /// P1-2 回归测试：claim 必须覆盖 retry-due FAILED（与 {@code findDispatchable} 候选集语义一致），
+    /// 否则切到 claim 模式后失败重试会饿死。
+    @Test
+    void claimDispatchableAlsoTakesRetryDueFailed() {
+        repository.append(pendingEntry("pending-1"));
+
+        OutboxEntry failedDue = pendingEntry("failed-due-1");
+        failedDue.setStatus(OutboxStatus.FAILED);
+        failedDue.setNextRetryAt(Instant.now().minusSeconds(60));
+        repository.append(failedDue);
+
+        List<OutboxEntry> claimed = repository.claimDispatchable(10, "pod-X");
+
+        assertThat(claimed).extracting(OutboxEntry::getEventId)
+                .containsExactlyInAnyOrder("pending-1", "failed-due-1");
+    }
+
+    @Test
+    void claimDispatchableSkipsFailedNotYetDue() {
+        OutboxEntry failedFuture = pendingEntry("failed-future-1");
+        failedFuture.setStatus(OutboxStatus.FAILED);
+        failedFuture.setNextRetryAt(Instant.now().plusSeconds(600));
+        repository.append(failedFuture);
+
+        List<OutboxEntry> claimed = repository.claimDispatchable(10, "pod-X");
+
+        assertThat(claimed).isEmpty();
+    }
+
+    @Test
+    void claimDispatchableSkipsDeadLettered() {
+        OutboxEntry deadLettered = pendingEntry("dead-1");
+        deadLettered.setStatus(OutboxStatus.DEAD_LETTERED);
+        repository.append(deadLettered);
+
+        List<OutboxEntry> claimed = repository.claimDispatchable(10, "pod-X");
+
+        assertThat(claimed).isEmpty();
+    }
+
     @Test
     void claimDispatchableUpdatesStatusToDispatching() {
         repository.append(pendingEntry("evt-1"));

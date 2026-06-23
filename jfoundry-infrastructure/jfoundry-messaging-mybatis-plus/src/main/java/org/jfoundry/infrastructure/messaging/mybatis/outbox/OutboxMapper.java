@@ -35,10 +35,14 @@ public interface OutboxMapper extends BaseMapper<OutboxData> {
 
     /// MySQL/H2 方言：原子 UPDATE...LIMIT + 后续 SELECT。
     /// <p>
-    /// {@code UPDATE ... WHERE status='PENDING' ORDER BY event_id LIMIT N} 是 MySQL/H2 的
-    /// 原子 top-N claim 惯用法 —— UPDATE 语句在执行时对匹配的行加排他锁，按 ORDER BY 顺序
-    /// 处理 LIMIT N 行；两个并发 UPDATE 会被行级锁串行化，后执行者看到的 PENDING 集合已经
-    /// 不再包含前者 claim 走的行，因此自动选取不同的行。
+    /// {@code UPDATE ... WHERE (status='PENDING' OR retry-due FAILED) ORDER BY event_id LIMIT N}
+    /// 是 MySQL/H2 的原子 top-N claim 惯用法 —— UPDATE 语句在执行时对匹配的行加排他锁，
+    /// 按 ORDER BY 顺序处理 LIMIT N 行；两个并发 UPDATE 会被行级锁串行化，后执行者看到的
+    /// 候选集合已经不再包含前者 claim 走的行，因此自动选取不同的行。
+    /// <p>
+    /// 候选集语义与 {@link com.baomidou.mybatisplus.core.mapper.BaseMapper#selectPage} 形态的
+    /// {@code findDispatchable} 对齐：覆盖 PENDING 全部 + FAILED 已到 {@code next_retry_at} 的
+    /// 那部分。切到 claim 模式后，FAILED 重试语义不会丢失。
     /// <p>
     /// 与 "UPDATE...WHERE id IN (SELECT LIMIT N)" 的关键差异：后者 inner SELECT 的候选集
     /// 是语句开始时的快照，当 Tx A 已 claim 走候选集内若干行时，Tx B 的 outer UPDATE 即使
@@ -51,7 +55,9 @@ public interface OutboxMapper extends BaseMapper<OutboxData> {
             SET status = 'DISPATCHING',
                 claimed_at = CURRENT_TIMESTAMP,
                 claimed_by = #{claimerId}
-            WHERE status = 'PENDING'
+            WHERE (status = 'PENDING'
+                   OR (status = 'FAILED'
+                       AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)))
             ORDER BY event_id ASC
             LIMIT #{limit}
             """)
@@ -61,16 +67,23 @@ public interface OutboxMapper extends BaseMapper<OutboxData> {
     /// <p>
     /// 暂未启用，方言分派在 Task 2.5 接入。并发场景下若 inner SELECT 的候选集被其他实例
     /// 先 claim 走，需要 Repository 层 retry（与原 UPDATE...IN (LIMIT) 方案相同的限制）。
+    /// <p>
+    /// 候选集语义与 MySQL/H2 版本一致：PENDING 全部 + FAILED 已到 {@code next_retry_at}。
     @Update("""
             UPDATE ddd_outbox_event
             SET status = 'DISPATCHING',
                 claimed_at = CURRENT_TIMESTAMP,
                 claimed_by = #{claimerId}
-            WHERE status = 'PENDING'
+            WHERE (status = 'PENDING'
+                   OR (status = 'FAILED'
+                       AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)))
               AND event_id IN (
                 SELECT id FROM (
                     SELECT event_id AS id FROM ddd_outbox_event
-                    WHERE status = 'PENDING' AND ROWNUM <= #{limit}
+                    WHERE (status = 'PENDING'
+                           OR (status = 'FAILED'
+                               AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)))
+                    AND ROWNUM <= #{limit}
                     ORDER BY event_id
                 ) t
             )

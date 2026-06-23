@@ -26,6 +26,9 @@ import static org.mockito.Mockito.when;
 
 class JobRunrOutboxDispatcherTest {
 
+    private static final int BATCH_SIZE = 50;
+    private static final int MAX_RETRIES = 5;
+
     private OutboxRepository outboxRepository;
     private MessageSender messageSender;
     private BackoffStrategy backoff;
@@ -36,16 +39,16 @@ class JobRunrOutboxDispatcherTest {
         outboxRepository = mock(OutboxRepository.class);
         messageSender = mock(MessageSender.class);
         backoff = failedAttempts -> Duration.ofSeconds(1);
-        dispatcher = new JobRunrOutboxDispatcher(outboxRepository, messageSender, 5, backoff);
+        dispatcher = new JobRunrOutboxDispatcher(outboxRepository, messageSender, BATCH_SIZE, MAX_RETRIES, backoff);
     }
 
     @Test
     void dispatchMarksPublishedOnSuccess() {
         OutboxEntry entry = entry("evt-1");
-        when(outboxRepository.findDispatchable(anyInt(), any())).thenReturn(List.of(entry));
+        when(outboxRepository.claimDispatchable(anyInt(), any())).thenReturn(List.of(entry));
         when(messageSender.send(any(), any(), any())).thenReturn(SendResult.ok());
 
-        dispatcher.dispatch(50);
+        dispatcher.dispatch(BATCH_SIZE);
 
         verify(outboxRepository).markAsPublished("evt-1");
         verify(outboxRepository, never()).markAsFailed(any(), any(), anyInt(), any());
@@ -54,41 +57,41 @@ class JobRunrOutboxDispatcherTest {
     @Test
     void dispatchMarksFailedOnSenderException() {
         OutboxEntry entry = entry("evt-1");
-        when(outboxRepository.findDispatchable(anyInt(), any())).thenReturn(List.of(entry));
+        when(outboxRepository.claimDispatchable(anyInt(), any())).thenReturn(List.of(entry));
         when(messageSender.send(any(), any(), any())).thenThrow(new RuntimeException("kafka unavailable"));
 
-        dispatcher.dispatch(50);
+        dispatcher.dispatch(BATCH_SIZE);
 
-        verify(outboxRepository).markAsFailed(eq("evt-1"), contains("kafka unavailable"), eq(5), same(backoff));
+        verify(outboxRepository).markAsFailed(eq("evt-1"), contains("kafka unavailable"), eq(MAX_RETRIES), same(backoff));
     }
 
     @Test
     void dispatchMarksFailedOnSendFailureResult() {
         OutboxEntry entry = entry("evt-1");
-        when(outboxRepository.findDispatchable(anyInt(), any())).thenReturn(List.of(entry));
+        when(outboxRepository.claimDispatchable(anyInt(), any())).thenReturn(List.of(entry));
         when(messageSender.send(any(), any(), any())).thenReturn(SendResult.fail("conn refused"));
 
-        dispatcher.dispatch(50);
+        dispatcher.dispatch(BATCH_SIZE);
 
-        verify(outboxRepository).markAsFailed(eq("evt-1"), eq("conn refused"), eq(5), same(backoff));
+        verify(outboxRepository).markAsFailed(eq("evt-1"), eq("conn refused"), eq(MAX_RETRIES), same(backoff));
     }
 
     @Test
-    void recurringDispatchInvokesInternalWithDefaultBatchSize() {
-        when(outboxRepository.findDispatchable(anyInt(), any())).thenReturn(List.of());
+    void recurringDispatchUsesConfiguredBatchSize() {
+        when(outboxRepository.claimDispatchable(anyInt(), any())).thenReturn(List.of());
 
         dispatcher.recurringDispatch();
 
-        verify(outboxRepository).findDispatchable(eq(50), any());
+        verify(outboxRepository).claimDispatchable(eq(BATCH_SIZE), any());
     }
 
     @Test
     void dispatchPassesTopicAndPayloadToSender() {
         OutboxEntry entry = entry("evt-1");
-        when(outboxRepository.findDispatchable(anyInt(), any())).thenReturn(List.of(entry));
+        when(outboxRepository.claimDispatchable(anyInt(), any())).thenReturn(List.of(entry));
         when(messageSender.send(any(), any(), any())).thenReturn(SendResult.ok());
 
-        dispatcher.dispatch(50);
+        dispatcher.dispatch(BATCH_SIZE);
 
         ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
         verify(messageSender).send(topicCaptor.capture(), eq("key-A"), eq("payload-evt-1"));
