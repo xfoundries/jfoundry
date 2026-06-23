@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// and leave recent PUBLISHED records alone. Same applies to DEAD_LETTERED.
 /// <p>
 /// Test isolation: the dedicated H2 DB name {@code jfoundry-cleanup-test} avoids sharing
-/// state with other autoconfigure tests that use {@code ddd-outbox-test} or
+/// state with other autoconfigure tests that use {@code jfoundry-outbox-test} or
 /// {@code jfoundry-starter-test}. We do NOT set {@code jfoundry.outbox.dispatcher.enabled=false}
 /// because that flag disables the entire {@link OutboxDispatcherAutoConfiguration}
 /// (including the {@link OutboxCleanupJob} bean we are testing). Instead, we rely on the

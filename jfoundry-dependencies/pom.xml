@@ -31,7 +31,7 @@
         <!--
           snakeyaml: Spring Boot 3.2.7 brings 2.2 (has TagInspector);
           JobRunr 6.3.5 declares 1.33 (lacks TagInspector, breaks Boot YAML parsing).
-          Pin 2.2 explicitly so ddd-messaging-jobrunr tests get the working version
+          Pin 2.2 explicitly so jfoundry-messaging-jobrunr tests get the working version
           after excluding JobRunr's 1.33.
         -->
         <snakeyaml.version>2.2</snakeyaml.version>
@@ -193,7 +193,7 @@
             <!--ORM-->
             <!--
               mybatis-plus-annotation：OutboxData / 业务 Data 类需 @TableName/@TableId 注解。
-              ddd-persistence-mybatis-plus / ddd-messaging-mybatis-plus 模块编译时通过
+              jfoundry-persistence-mybatis-plus / jfoundry-messaging-mybatis-plus 模块编译时通过
               mybatis-plus-core 间接获得；业务侧运行时通过 mybatis-plus-spring-boot3-starter
               提供。core SPI（OutboxEntry / BaseData）刻意不带 ORM 注解，避免被特定 ORM 绑定。
             -->
@@ -282,7 +282,7 @@
                 <scope>test</scope>
             </dependency>
 
-            <!--JobRunr（可选模块 ddd-messaging-jobrunr 的 Outbox Dispatcher）-->
+            <!--JobRunr（可选模块 jfoundry-messaging-jobrunr 的 Outbox Dispatcher）-->
             <dependency>
                 <groupId>org.jobrunr</groupId>
                 <artifactId>jobrunr-spring-boot-3-starter</artifactId>

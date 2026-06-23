@@ -24,7 +24,7 @@ import java.util.List;
 /// - {@link #deleteDataById}:按 ID 删除,返回受影响行数
 /// - {@link #selectDataById}:按 ID 查询
 /// <p>
-/// 具体实现示例:{@code ddd-persistence-mybatis-plus} 模块的 {@code MybatisPlusRepository}(基于 MyBatis-Plus BaseMapper)。
+/// 具体实现示例:{@code jfoundry-persistence-mybatis-plus} 模块的 {@code MybatisPlusRepository}(基于 MyBatis-Plus BaseMapper)。
 /// 未来可扩展 JPA / Mongo 等同位模块。
 ///
 /// @param <T>  聚合根类型,必须同时是 jMolecules AggregateRoot 和 framework EventRecordable

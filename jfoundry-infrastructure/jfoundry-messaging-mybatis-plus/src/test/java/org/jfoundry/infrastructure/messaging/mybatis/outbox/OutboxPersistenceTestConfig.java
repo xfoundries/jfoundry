@@ -21,7 +21,7 @@ class OutboxPersistenceTestConfig {
     DataSource dataSource() {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
-                .setName("ddd-outbox-test")
+                .setName("jfoundry-outbox-test")
                 .addScript("classpath:outbox_event.sql")
                 .build();
     }

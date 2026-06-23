@@ -13,7 +13,7 @@
     </parent>
 
     <artifactId>jfoundry-messaging-jobrunr</artifactId>
-    <name>DDD Framework - Messaging JobRunr (Optional)</name>
+    <name>jfoundry-messaging-jobrunr (Optional)</name>
     <description>
         Optional module providing JobRunr-based Outbox Dispatcher.
         Business side introduces this jar to switch from Spring @Scheduled to JobRunr.
@@ -101,7 +101,7 @@
         <!--
           snakeyaml: JobRunr 6.3.5 declares 1.33 (lacks TagInspector, breaks Boot 3.2);
           excluded above. snakeyaml 2.2 is provided transitively by spring-boot-starter-jdbc
-          above, with version pinned by ddd-dependencies BOM. No explicit declaration needed.
+          above, with version pinned by jfoundry-dependencies BOM. No explicit declaration needed.
         -->
     </dependencies>
 

@@ -12,9 +12,9 @@
     <name>jfoundry-messaging-mybatis-plus</name>
     <description>
         MyBatis-Plus Outbox persistence adapter: OutboxData (table DO),
-        OutboxMapper, MybatisPlusOutboxRepository implementing ddd-messaging-core SPI.
-        Depends only on ddd-messaging-core + MyBatis-Plus — does NOT pull in
-        ddd-persistence-core / business Repository infrastructure.
+        OutboxMapper, MybatisPlusOutboxRepository implementing jfoundry-messaging-core SPI.
+        Depends only on jfoundry-messaging-core + MyBatis-Plus — does NOT pull in
+        jfoundry-persistence-core / business Repository infrastructure.
     </description>
 
     <dependencies>

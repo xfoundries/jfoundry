@@ -12,9 +12,9 @@
     </parent>
 
     <artifactId>jfoundry-autoconfigure</artifactId>
-    <name>jfoundry-spring-autoconfigure</name>
+    <name>jfoundry-autoconfigure</name>
     <description>
-        Spring Boot AutoConfiguration for ddd-framework: MessageSender, DomainEventExternalizer,
+        Spring Boot AutoConfiguration for jfoundry: MessageSender, DomainEventExternalizer,
         OutboxMybatisPlus, OutboxDispatcher. ORM-agnostic layout — future JPA/Mongo adapters
         register their own AutoConfiguration here without forcing a rename of any "mybatis-plus"
         starter.

@@ -11,9 +11,9 @@
     <name>jfoundry-spring</name>
     <description>
         DDD Spring 整合层聚合 pom：托管基于 Spring Boot 的 @AutoConfiguration 装配和具体 starter。
-        本模块仅作为容器（packaging=pom，无 Java 代码）。与 ddd-infrastructure（按基础设施关注点
+        本模块仅作为容器（packaging=pom，无 Java 代码）。与 jfoundry-infrastructure（按基础设施关注点
         纵向切分）形成正交的"按整合框架横向切分"维度——未来接入 Quarkus 等其他框架时，新建平级
-        聚合（如 ddd-quarkus）即可。
+        聚合（如 jfoundry-quarkus）即可。
     </description>
     <packaging>pom</packaging>
 

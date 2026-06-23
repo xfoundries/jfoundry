@@ -14,7 +14,7 @@
         DDD messaging SPI: MessageSender, DomainEventSink, ExternalizationRule resolver,
         Outbox (Entry/Repository/Dispatcher) abstractions, PayloadSerializer + default
         JacksonPayloadSerializer. ORM-agnostic — concrete Outbox persistence lives in
-        ddd-messaging-mybatis-plus (or future -jpa/-mongo siblings).
+        jfoundry-messaging-mybatis-plus (or future -jpa/-mongo siblings).
     </description>
 
     <dependencies>

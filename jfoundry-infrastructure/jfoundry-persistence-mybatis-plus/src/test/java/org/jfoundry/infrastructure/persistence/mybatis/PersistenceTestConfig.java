@@ -19,7 +19,7 @@ import javax.sql.DataSource;
 
 /// 集成测试 Spring 配置。
 /// <p>
-/// 镜像 ddd-messaging-mybatis-plus 的 OutboxPersistenceTestConfig 模式:
+/// 镜像 jfoundry-messaging-mybatis-plus 的 OutboxPersistenceTestConfig 模式:
 /// H2 embedded + 手写 @SpringBootConfiguration + @MapperScan。
 @SpringBootConfiguration
 @EnableAutoConfiguration
@@ -40,7 +40,7 @@ class PersistenceTestConfig {
     DataSource dataSource() {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
-                .setName("ddd-persistence-test")
+                .setName("jfoundry-persistence-test")
                 .addScript("classpath:test_order.sql")
                 .build();
     }
