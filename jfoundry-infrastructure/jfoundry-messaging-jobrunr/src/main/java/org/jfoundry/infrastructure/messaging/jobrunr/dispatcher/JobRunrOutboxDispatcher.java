@@ -11,23 +11,18 @@ import org.jobrunr.jobs.annotations.Job;
 import org.jobrunr.spring.annotations.Recurring;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /// 基于 JobRunr 的 Outbox Dispatcher 实现。
 /// <p>
+/// Bean 注册由 {@link JobRunrDispatcherAutoConfiguration} 负责（{@code @AutoConfiguration}），
 /// 启用条件：JobRunr 在 classpath 且 {@code jfoundry.outbox.dispatcher.mode=jobrunr}。
 /// bean 名 "jobRunrOutboxDispatcher" 是 ScheduledOutboxDispatcher 让位的互斥键，重命名会破坏互斥。
 /// <p>
 /// Claim 流程与 {@link ScheduledOutboxDispatcher} 一致：先原子
 /// {@link OutboxRepository#claimDispatchable(int, String)} 拿到本 pod 的条目，
 /// 再 send/markAsPublished/markAsFailed；多实例互斥由 claim 的原子 UPDATE...LIMIT 保证。
-@Component("jobRunrOutboxDispatcher")
-@ConditionalOnClass(name = "org.jobrunr.jobs.annotations.Job")
-@ConditionalOnProperty(prefix = "jfoundry.outbox.dispatcher", name = "mode", havingValue = "jobrunr")
 public class JobRunrOutboxDispatcher implements OutboxDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(JobRunrOutboxDispatcher.class);

@@ -1,10 +1,12 @@
-package org.jfoundry.autoconfigure.dispatcher;
+package org.jfoundry.infrastructure.messaging.spring.dispatcher;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /// Outbox Dispatcher 配置项。
 /// <p>
-/// 绑定 {@code ddd.outbox.dispatcher.*} 前缀。
+/// 绑定 {@code jfoundry.outbox.dispatcher.*} 前缀。本类位于 jfoundry-messaging-spring，
+/// 让 jfoundry-autoconfigure 和 jfoundry-messaging-jobrunr 都能引用同一份配置（避免循环依赖：
+/// jobrunr 已经依赖 messaging-spring，但反过来不能依赖 autoconfigure）。
 @ConfigurationProperties(prefix = "jfoundry.outbox.dispatcher")
 public class OutboxDispatcherProperties {
 

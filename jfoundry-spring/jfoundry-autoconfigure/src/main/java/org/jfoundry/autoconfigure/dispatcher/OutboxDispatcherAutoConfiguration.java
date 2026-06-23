@@ -7,6 +7,7 @@ import org.jfoundry.infrastructure.messaging.outbox.BackoffStrategy;
 import org.jfoundry.infrastructure.messaging.outbox.OutboxDispatcher;
 import org.jfoundry.infrastructure.messaging.outbox.OutboxRepository;
 import org.jfoundry.infrastructure.messaging.spring.backoff.ExponentialBackoffStrategy;
+import org.jfoundry.infrastructure.messaging.spring.dispatcher.OutboxDispatcherProperties;
 import org.jfoundry.infrastructure.messaging.spring.dispatcher.ScheduledOutboxDispatcher;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -22,7 +23,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /// 根据 {@code jfoundry.outbox.dispatcher.mode} 选择 Dispatcher 实现：
 /// <ul>
 ///   <li>{@code scheduled}（默认）：注册 ScheduledOutboxDispatcher（本类已加 @EnableScheduling）。</li>
-///   <li>{@code jobrunr}：要求 classpath 有 jfoundry-messaging-jobrunr，由业务侧或该模块自身的 AutoConfiguration 注册。</li>
+///   <li>{@code jobrunr}：要求 classpath 有 jfoundry-messaging-jobrunr。该模块自带
+///       {@code JobRunrDispatcherAutoConfiguration}（通过
+///       {@code META-INF/spring/AutoConfiguration.imports} 自注册），与本类互斥：
+///       两端都用 {@code @ConditionalOnMissingBean(OutboxDispatcher.class)} 守护，
+///       且 mode 分别匹配 {@code scheduled} / {@code jobrunr}，不会同时命中。</li>
 /// </ul>
 /// <p>
 /// 总开关：{@code jfoundry.outbox.dispatcher.enabled=false} 将关闭整个 AutoConfiguration，
