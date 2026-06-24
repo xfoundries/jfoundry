@@ -9,4 +9,3 @@ target/
 .factorypath
 *.log
 .DS_Store
-docs/superpowers/
