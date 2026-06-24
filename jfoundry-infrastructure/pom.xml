@@ -17,6 +17,7 @@
         <module>jfoundry-messaging-core</module>
         <module>jfoundry-messaging-jackson</module>
         <module>jfoundry-messaging-kafka</module>
+        <module>jfoundry-inbox-core</module>
         <module>jfoundry-outbox-core</module>
         <module>jfoundry-persistence-mybatis-plus</module>
         <module>jfoundry-outbox-mybatis-plus</module>

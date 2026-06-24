@@ -1,0 +1,41 @@
+package org.jfoundry.infrastructure.inbox;
+
+import java.time.Instant;
+
+public class InboxMessage {
+
+    private String messageId;
+    private String consumerName;
+    private InboxMessageStatus status;
+    private Instant processedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private String errorMessage;
+
+    public static InboxMessage processed(String messageId, String consumerName) {
+        Instant now = Instant.now();
+        InboxMessage message = new InboxMessage();
+        message.messageId = messageId;
+        message.consumerName = consumerName;
+        message.status = InboxMessageStatus.PROCESSED;
+        message.processedAt = now;
+        message.createdAt = now;
+        message.updatedAt = now;
+        return message;
+    }
+
+    public String getMessageId() { return messageId; }
+    public void setMessageId(String messageId) { this.messageId = messageId; }
+    public String getConsumerName() { return consumerName; }
+    public void setConsumerName(String consumerName) { this.consumerName = consumerName; }
+    public InboxMessageStatus getStatus() { return status; }
+    public void setStatus(InboxMessageStatus status) { this.status = status; }
+    public Instant getProcessedAt() { return processedAt; }
+    public void setProcessedAt(Instant processedAt) { this.processedAt = processedAt; }
+    public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+    public String getErrorMessage() { return errorMessage; }
+    public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+}
