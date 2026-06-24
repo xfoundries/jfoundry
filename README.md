@@ -13,6 +13,8 @@ jfoundry 基于 jMolecules 的领域建模语义，并复用 jMolecules integrat
 - **架构风格语义**：基于 jmolecules 的 Layered、Hexagonal、Onion 注解，配套 ArchUnit 规则强制依赖方向与风格选择
 - **聚合根 / 值对象**：提供 `ValueObject` 标记接口，强制不可变 + `equals/hashCode` 契约
 - **事务性发件箱 (Outbox)**：5 状态机（`PENDING` → `DISPATCHING` → `PUBLISHED` / `FAILED` / `DEAD_LETTERED`），原子化 `claimDispatchable` 避免多实例重复派发
+- **消费端幂等 (Inbox)**：提供 `InboxTemplate` 与 MyBatis-Plus 存储适配器，帮助消费者按 message/consumer 去重
+- **真实 broker adapter**：提供 Kafka `MessageSender` adapter；不进入默认 starter，需要业务侧显式引入
 - **多 ORM 抽象**：核心 SPI 与具体实现解耦，当前提供 MyBatis-Plus 实现，未来可扩展 JPA / Mongo
 - **多数据库支持**：MySQL（`MEDIUMTEXT`）、达梦 DM（`CLOB`），通过 Flyway 自动迁移
 - **Spring Boot 自动装配**：业务侧引入 starter 即可获得完整链路，零样板代码
@@ -34,6 +36,9 @@ jfoundry-parent
 │   ├── jfoundry-persistence-mybatis-plus         MyBatis-Plus 实现
 │   ├── jfoundry-messaging-core                   消息发送 / 事件外部化 SPI + PayloadSerializer
 │   ├── jfoundry-messaging-spring                 Spring 领域事件发布 + 默认 MessageSender
+│   ├── jfoundry-messaging-kafka                  Kafka MessageSender adapter（可选）
+│   ├── jfoundry-inbox-core                       消费端幂等 SPI + InboxTemplate
+│   ├── jfoundry-inbox-mybatis-plus               Inbox 的 MyBatis-Plus 存储适配器
 │   ├── jfoundry-outbox-core                      Transactional Outbox SPI + 状态机
 │   ├── jfoundry-outbox-mybatis-plus              Outbox 的 MyBatis-Plus 存储适配器
 │   ├── jfoundry-outbox-spring                    Outbox 的 Spring 外部化与 scheduled 派发器
@@ -42,6 +47,14 @@ jfoundry-parent
 │   ├── jfoundry-autoconfigure                    Spring Boot AutoConfiguration
 │   └── jfoundry-spring-boot-starter              面向业务侧的 Spring Boot 聚合 starter
 └── jfoundry-test                                 ArchUnit 规则库（业务侧测试直接引用）
+```
+
+默认 Outbox 表名是 `jfoundry_outbox_event`，可通过 `jfoundry.outbox.table-name` 覆盖物理表名；自定义表需要与默认 DDL 保持同构。Kafka 是当前第一个真实 broker adapter，业务侧如需使用需额外引入 `jfoundry-messaging-kafka` 并提供 `KafkaTemplate<String, String>`。消费者侧可注入 `InboxTemplate` 做幂等处理：
+
+```java
+inboxTemplate.executeOnce(eventId, "order-projection", () -> {
+    handler.handle(event);
+});
 ```
 
 ## 快速开始

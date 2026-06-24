@@ -13,7 +13,8 @@
     <description>
         Aggregate Spring Boot starter for jfoundry. It exposes a stable user-facing entry point
         while aggregating the current default runtime adapters: MyBatis-Plus persistence,
-        Transactional Outbox MyBatis-Plus storage, Spring messaging, and Spring Outbox runtime.
+        Transactional Outbox MyBatis-Plus storage, Inbox idempotency storage, Spring messaging,
+        and Spring Outbox runtime.
         This pom contains no code — business side just imports this artifact.
     </description>
 
@@ -44,6 +45,10 @@
             <artifactId>jfoundry-messaging-jackson</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-inbox-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jmolecules.integrations</groupId>
             <artifactId>jmolecules-jackson</artifactId>
         </dependency>
@@ -54,6 +59,10 @@
         <dependency>
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-outbox-mybatis-plus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-inbox-mybatis-plus</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>

@@ -19,6 +19,8 @@ Transactional Outbox（事务性发件箱）是一种可靠发布消息的通用
 
 `DomainEventPublisher` 默认由 Spring 实现：事务提交后通过 `ApplicationEventPublisher` 发布本地事件。同时，它会在事务内同步调用 `DomainEventSink`。jfoundry 内置的 `DomainEventExternalizer` 是一个 Sink，它只处理标记了 `@Externalized` 的事件，并把匹配的事件序列化写入 Outbox 表。
 
+jfoundry 当前实现的是 Transactional Outbox 的 polling publisher 变体：业务事务写入 `jfoundry_outbox_event`，后台 dispatcher 轮询并投递。transaction-log tailing / Debezium 不属于默认运行时；如果业务需要基于数据库日志的发布链路，应在应用外部组合 Debezium Outbox Event Router。
+
 典型链路：
 
 ```text
@@ -31,6 +33,8 @@ Aggregate/Application Service
   -> MessageSender
   -> MQ / external system
 ```
+
+Outbox 记录会携带 broker-neutral 的 aggregate metadata（`aggregate_type`、`aggregate_id`、`aggregate_version`），用于路由、观测或下游顺序控制。它不绑定 Kafka、RabbitMQ 或其他 MQ。
 
 ## 标记外部化事件
 
@@ -56,7 +60,7 @@ public final class OrderCreatedEvent extends AbstractDomainEvent {
 
 ## 配置
 
-默认 MyBatis-Plus starter 会提供 `OutboxRepository`，表名默认为 `jfoundry_outbox_event`。如需自定义表名，业务侧必须创建同结构表。
+默认 MyBatis-Plus starter 会提供 `OutboxRepository`，表名默认为 `jfoundry_outbox_event`。如需自定义表名，设置 `jfoundry.outbox.table-name`，并由业务侧创建同结构表。
 
 ```yaml
 jfoundry:
@@ -83,6 +87,12 @@ jfoundry:
 
 `mode: jobrunr` 可切换到 JobRunr 派发器，需要额外引入 `jfoundry-outbox-jobrunr`。
 
+## Broker adapter
+
+默认 starter 不携带具体 broker 客户端。未提供 `MessageSender` 时，jfoundry 使用 logging sender，适合本地开发和没有外部投递需求的场景。
+
+Kafka 是当前内置的第一个真实 broker adapter。业务侧显式引入 `jfoundry-messaging-kafka` 并提供 `KafkaTemplate<String, String>` 后，`KafkaMessageSender` 会把 `MessageSender` 的 `topic`、`key`、`payload` 分别映射为 Kafka 的 topic、key、value。未来增加 RabbitMQ、RocketMQ 等 adapter 时，只需实现同一个 `MessageSender` SPI，不需要改 Outbox 本体。
+
 ## 表结构与迁移
 
 MySQL 脚本位于：
@@ -97,7 +107,7 @@ jfoundry-infrastructure/jfoundry-outbox-mybatis-plus/src/main/resources/db/migra
 jfoundry-infrastructure/jfoundry-outbox-mybatis-plus/src/main/resources/db/migration/V20260617__create_outbox_event_dm.sql
 ```
 
-业务项目可通过 Flyway、Liquibase 或手工 DDL 创建表。核心字段包括 `event_id`、`topic`、`payload_key`、`payload_type`、`payload_json`、`status`、重试字段和 claim 字段。
+业务项目可通过 Flyway、Liquibase 或手工 DDL 创建表。核心字段包括 `event_id`、`topic`、`payload_key`、`payload_type`、`payload_json`、`aggregate_type`、`aggregate_id`、`aggregate_version`、`status`、重试字段和 claim 字段。
 
 ## 状态语义
 
@@ -111,4 +121,18 @@ jfoundry-infrastructure/jfoundry-outbox-mybatis-plus/src/main/resources/db/migra
 
 ## 使用建议
 
-消费者应按 `event_id` 做幂等处理。Outbox 能保证业务数据和待投递消息在同一数据库事务内落库，但消息系统仍可能出现重复投递、消费端重试或下游局部失败。业务侧的 `MessageSender` 实现应只负责向具体 MQ 发送消息，并把失败结果返回给 dispatcher。
+消费者应按 `event_id` 或业务消息 id 做幂等处理。Outbox 能保证业务数据和待投递消息在同一数据库事务内落库，但消息系统仍可能出现重复投递、消费端重试或下游局部失败。业务侧的 `MessageSender` 实现应只负责向具体 MQ 发送消息，并把失败结果返回给 dispatcher。
+
+jfoundry starter 会提供 `InboxTemplate` 和 MyBatis-Plus `InboxRepository`。消费者可以用 `executeOnce(...)` 包住处理逻辑，同一个 `messageId + consumerName` 只会处理一次：
+
+```java
+inboxTemplate.executeOnce(eventId, "order-projection", () -> {
+    handler.handle(event);
+});
+```
+
+默认 Inbox 表名是 `jfoundry_inbox_message`，迁移脚本位于：
+
+```text
+jfoundry-infrastructure/jfoundry-inbox-mybatis-plus/src/main/resources/db/migration/V20260624__create_inbox_message.sql
+```
