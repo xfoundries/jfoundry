@@ -2,14 +2,14 @@ package org.jfoundry.infrastructure.inbox.mybatis;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.jfoundry.application.inbox.InboxMessageStatus;
-import org.jfoundry.application.inbox.InboxRepository;
+import org.jfoundry.application.inbox.InboxMessageStore;
 import org.springframework.dao.DuplicateKeyException;
 
-public class MybatisPlusInboxRepository implements InboxRepository {
+public class MybatisPlusInboxMessageStore implements InboxMessageStore {
 
     private final InboxMessageMapper mapper;
 
-    public MybatisPlusInboxRepository(InboxMessageMapper mapper) {
+    public MybatisPlusInboxMessageStore(InboxMessageMapper mapper) {
         this.mapper = mapper;
     }
 

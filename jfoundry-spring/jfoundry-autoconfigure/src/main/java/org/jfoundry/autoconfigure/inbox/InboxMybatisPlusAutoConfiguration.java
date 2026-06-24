@@ -1,8 +1,8 @@
 package org.jfoundry.autoconfigure.inbox;
 
-import org.jfoundry.application.inbox.InboxRepository;
+import org.jfoundry.application.inbox.InboxMessageStore;
 import org.jfoundry.infrastructure.inbox.mybatis.InboxMessageMapper;
-import org.jfoundry.infrastructure.inbox.mybatis.MybatisPlusInboxRepository;
+import org.jfoundry.infrastructure.inbox.mybatis.MybatisPlusInboxMessageStore;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -16,12 +16,12 @@ import org.springframework.context.annotation.Bean;
 @AutoConfigureAfter(name = "com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration")
 @MapperScan(basePackages = "org.jfoundry.infrastructure.inbox.mybatis")
 @ConditionalOnBean(SqlSessionFactory.class)
-@ConditionalOnClass(MybatisPlusInboxRepository.class)
+@ConditionalOnClass(MybatisPlusInboxMessageStore.class)
 public class InboxMybatisPlusAutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean(InboxRepository.class)
-    public InboxRepository inboxRepository(InboxMessageMapper mapper) {
-        return new MybatisPlusInboxRepository(mapper);
+    @ConditionalOnMissingBean(InboxMessageStore.class)
+    public InboxMessageStore inboxMessageStore(InboxMessageMapper mapper) {
+        return new MybatisPlusInboxMessageStore(mapper);
     }
 }

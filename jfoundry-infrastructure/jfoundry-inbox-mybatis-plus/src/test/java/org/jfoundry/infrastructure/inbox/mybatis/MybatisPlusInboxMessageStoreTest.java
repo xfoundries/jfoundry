@@ -8,10 +8,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(classes = InboxPersistenceTestConfig.class)
-class MybatisPlusInboxRepositoryTest {
+class MybatisPlusInboxMessageStoreTest {
 
     @Autowired
-    private MybatisPlusInboxRepository repository;
+    private MybatisPlusInboxMessageStore store;
 
     @Autowired
     private InboxMessageMapper mapper;
@@ -23,33 +23,33 @@ class MybatisPlusInboxRepositoryTest {
 
     @Test
     void markProcessedPersistsProcessedMessage() {
-        repository.markProcessed("evt-1", "projection");
+        store.markProcessed("evt-1", "projection");
 
         assertThat(mapper.selectCount(null)).isEqualTo(1);
     }
 
     @Test
     void isProcessedReturnsTrueForExistingProcessedMessage() {
-        repository.markProcessed("evt-1", "projection");
+        store.markProcessed("evt-1", "projection");
 
-        assertThat(repository.isProcessed("evt-1", "projection")).isTrue();
+        assertThat(store.isProcessed("evt-1", "projection")).isTrue();
     }
 
     @Test
     void duplicateMarkProcessedIsIdempotent() {
-        repository.markProcessed("evt-1", "projection");
-        repository.markProcessed("evt-1", "projection");
+        store.markProcessed("evt-1", "projection");
+        store.markProcessed("evt-1", "projection");
 
         assertThat(mapper.selectCount(null)).isEqualTo(1);
     }
 
     @Test
     void differentConsumersCanProcessSameMessage() {
-        repository.markProcessed("evt-1", "projection-a");
-        repository.markProcessed("evt-1", "projection-b");
+        store.markProcessed("evt-1", "projection-a");
+        store.markProcessed("evt-1", "projection-b");
 
-        assertThat(repository.isProcessed("evt-1", "projection-a")).isTrue();
-        assertThat(repository.isProcessed("evt-1", "projection-b")).isTrue();
+        assertThat(store.isProcessed("evt-1", "projection-a")).isTrue();
+        assertThat(store.isProcessed("evt-1", "projection-b")).isTrue();
         assertThat(mapper.selectCount(null)).isEqualTo(2);
     }
 }

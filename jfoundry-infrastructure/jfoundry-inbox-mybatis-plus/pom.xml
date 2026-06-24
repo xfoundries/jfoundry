@@ -10,7 +10,7 @@
 
     <artifactId>jfoundry-inbox-mybatis-plus</artifactId>
     <name>jfoundry-inbox-mybatis-plus</name>
-    <description>MyBatis-Plus InboxRepository adapter for jfoundry inbox.</description>
+    <description>MyBatis-Plus InboxMessageStore adapter for jfoundry inbox.</description>
 
     <dependencies>
         <dependency>

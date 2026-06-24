@@ -123,7 +123,7 @@ jfoundry-infrastructure/jfoundry-outbox-mybatis-plus/src/main/resources/db/migra
 
 消费者应按 `event_id` 或业务消息 id 做幂等处理。Outbox 能保证业务数据和待投递消息在同一数据库事务内落库，但消息系统仍可能出现重复投递、消费端重试或下游局部失败。业务侧的 `MessageSender` 实现应只负责向具体 MQ 发送消息，并把失败结果返回给 dispatcher。
 
-jfoundry starter 会提供 `InboxTemplate` 和 MyBatis-Plus `InboxRepository`。消费者可以用 `executeOnce(...)` 包住处理逻辑，同一个 `messageId + consumerName` 只会处理一次：
+jfoundry starter 会提供 `InboxTemplate` 和 MyBatis-Plus `InboxMessageStore`。消费者可以用 `executeOnce(...)` 包住处理逻辑，同一个 `messageId + consumerName` 只会处理一次：
 
 ```java
 inboxTemplate.executeOnce(eventId, "order-projection", () -> {

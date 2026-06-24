@@ -11,9 +11,9 @@ class InboxTemplateTest {
 
     @Test
     void skipsAlreadyProcessedMessage() {
-        RecordingInboxRepository repository = new RecordingInboxRepository();
-        repository.processed = true;
-        InboxTemplate template = new InboxTemplate(repository);
+        RecordingInboxMessageStore store = new RecordingInboxMessageStore();
+        store.processed = true;
+        InboxTemplate template = new InboxTemplate(store);
         AtomicBoolean called = new AtomicBoolean(false);
 
         boolean executed = template.executeOnce("evt-1", "projection", () -> called.set(true));
@@ -24,38 +24,38 @@ class InboxTemplateTest {
 
     @Test
     void recordsProcessedAfterSuccessfulHandler() {
-        RecordingInboxRepository repository = new RecordingInboxRepository();
-        InboxTemplate template = new InboxTemplate(repository);
+        RecordingInboxMessageStore store = new RecordingInboxMessageStore();
+        InboxTemplate template = new InboxTemplate(store);
 
         boolean executed = template.executeOnce("evt-1", "projection", () -> {});
 
         assertThat(executed).isTrue();
-        assertThat(repository.recordedMessageId).isEqualTo("evt-1");
-        assertThat(repository.recordedConsumerName).isEqualTo("projection");
+        assertThat(store.recordedMessageId).isEqualTo("evt-1");
+        assertThat(store.recordedConsumerName).isEqualTo("projection");
     }
 
     @Test
     void doesNotRecordProcessedWhenHandlerFails() {
-        RecordingInboxRepository repository = new RecordingInboxRepository();
-        InboxTemplate template = new InboxTemplate(repository);
+        RecordingInboxMessageStore store = new RecordingInboxMessageStore();
+        InboxTemplate template = new InboxTemplate(store);
 
         assertThatThrownBy(() -> template.executeOnce("evt-1", "projection", () -> {
             throw new IllegalStateException("boom");
         })).isInstanceOf(IllegalStateException.class);
 
-        assertThat(repository.recordedMessageId).isNull();
+        assertThat(store.recordedMessageId).isNull();
     }
 
     @Test
     void rejectsBlankMessageId() {
-        InboxTemplate template = new InboxTemplate(new RecordingInboxRepository());
+        InboxTemplate template = new InboxTemplate(new RecordingInboxMessageStore());
 
         assertThatThrownBy(() -> template.executeOnce(" ", "projection", () -> {}))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("messageId");
     }
 
-    static class RecordingInboxRepository implements InboxRepository {
+    static class RecordingInboxMessageStore implements InboxMessageStore {
         boolean processed;
         String recordedMessageId;
         String recordedConsumerName;

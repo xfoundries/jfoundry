@@ -24,7 +24,7 @@ class InboxPersistenceTestConfig {
     }
 
     @Bean
-    MybatisPlusInboxRepository mybatisPlusInboxRepository(InboxMessageMapper mapper) {
-        return new MybatisPlusInboxRepository(mapper);
+    MybatisPlusInboxMessageStore mybatisPlusInboxMessageStore(InboxMessageMapper mapper) {
+        return new MybatisPlusInboxMessageStore(mapper);
     }
 }

@@ -1,9 +1,9 @@
 package org.jfoundry.autoconfigure.inbox;
 
-import org.jfoundry.application.inbox.InboxRepository;
+import org.jfoundry.application.inbox.InboxMessageStore;
 import org.jfoundry.application.inbox.InboxTemplate;
 import org.jfoundry.infrastructure.inbox.mybatis.InboxMessageMapper;
-import org.jfoundry.infrastructure.inbox.mybatis.MybatisPlusInboxRepository;
+import org.jfoundry.infrastructure.inbox.mybatis.MybatisPlusInboxMessageStore;
 import org.junit.jupiter.api.Test;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -20,8 +20,8 @@ class InboxAutoConfigurationTest {
                     InboxMybatisPlusAutoConfiguration.class));
 
     @Test
-    void createsInboxTemplateWhenRepositoryExists() {
-        runner.withBean(InboxRepository.class, StubInboxRepository::new)
+    void createsInboxTemplateWhenMessageStoreExists() {
+        runner.withBean(InboxMessageStore.class, StubInboxMessageStore::new)
                 .run(context -> {
                     assertThat(context).hasSingleBean(InboxTemplate.class);
                     assertThat(context.getBean(InboxTemplate.class)).isInstanceOf(InboxTemplate.class);
@@ -30,23 +30,23 @@ class InboxAutoConfigurationTest {
 
     @Test
     void backsOffWhenUserProvidesInboxTemplate() {
-        runner.withBean(InboxRepository.class, StubInboxRepository::new)
-                .withBean(InboxTemplate.class, () -> new InboxTemplate(new StubInboxRepository()))
+        runner.withBean(InboxMessageStore.class, StubInboxMessageStore::new)
+                .withBean(InboxTemplate.class, () -> new InboxTemplate(new StubInboxMessageStore()))
                 .run(context -> assertThat(context).hasSingleBean(InboxTemplate.class));
     }
 
     @Test
-    void createsMybatisPlusInboxRepositoryWhenMapperExists() {
+    void createsMybatisPlusInboxMessageStoreWhenMapperExists() {
         runner.withBean(InboxMessageMapper.class, () -> mock(InboxMessageMapper.class))
                 .withBean(SqlSessionFactory.class, () -> mock(SqlSessionFactory.class))
                 .run(context -> {
-                    assertThat(context).hasSingleBean(InboxRepository.class);
-                    assertThat(context.getBean(InboxRepository.class))
-                            .isInstanceOf(MybatisPlusInboxRepository.class);
+                    assertThat(context).hasSingleBean(InboxMessageStore.class);
+                    assertThat(context.getBean(InboxMessageStore.class))
+                            .isInstanceOf(MybatisPlusInboxMessageStore.class);
                 });
     }
 
-    static class StubInboxRepository implements InboxRepository {
+    static class StubInboxMessageStore implements InboxMessageStore {
 
         @Override
         public boolean isProcessed(String messageId, String consumerName) {

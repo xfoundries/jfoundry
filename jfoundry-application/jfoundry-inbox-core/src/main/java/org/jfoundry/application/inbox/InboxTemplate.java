@@ -4,10 +4,10 @@ import java.util.Objects;
 
 public class InboxTemplate {
 
-    private final InboxRepository repository;
+    private final InboxMessageStore store;
 
-    public InboxTemplate(InboxRepository repository) {
-        this.repository = Objects.requireNonNull(repository, "repository must not be null");
+    public InboxTemplate(InboxMessageStore store) {
+        this.store = Objects.requireNonNull(store, "store must not be null");
     }
 
     public boolean executeOnce(String messageId, String consumerName, InboxHandler handler) {
@@ -15,11 +15,11 @@ public class InboxTemplate {
         requireText(consumerName, "consumerName");
         Objects.requireNonNull(handler, "handler must not be null");
 
-        if (repository.isProcessed(messageId, consumerName)) {
+        if (store.isProcessed(messageId, consumerName)) {
             return false;
         }
         handler.handle();
-        repository.markProcessed(messageId, consumerName);
+        store.markProcessed(messageId, consumerName);
         return true;
     }
 

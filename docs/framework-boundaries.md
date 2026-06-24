@@ -56,7 +56,7 @@ starter 是业务项目优先依赖的聚合入口，例如 `jfoundry-spring-boo
 
 `jfoundry-outbox-core` 只保留 Outbox 状态模型、repository 契约、派发服务、重试/退避抽象和框架无关派发运行时。
 
-`jfoundry-inbox-core` 当前放在 infrastructure 下，提供消费端幂等的 `InboxRepository` 契约与 `InboxTemplate`。从分层/端口视角看，它更接近应用层可靠性能力，未来若引入 `jfoundry-application`，可再评估迁移；当前不扩大模块边界。
+`jfoundry-inbox-core` 当前放在 infrastructure 下，提供消费端幂等的 `InboxMessageStore` 契约与 `InboxTemplate`。从分层/端口视角看，它更接近应用层可靠性能力，未来若引入 `jfoundry-application`，可再评估迁移；当前不扩大模块边界。
 
 `jfoundry-messaging-spring` 只放 Spring-specific messaging adapter，例如 Spring 事件发布和事务感知事件 sink。
 
