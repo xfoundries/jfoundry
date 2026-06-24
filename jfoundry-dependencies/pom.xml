@@ -31,7 +31,7 @@
         <!--
           snakeyaml: Spring Boot 3.2.7 brings 2.2 (has TagInspector);
           JobRunr 6.3.5 declares 1.33 (lacks TagInspector, breaks Boot YAML parsing).
-          Pin 2.2 explicitly so jfoundry-messaging-jobrunr tests get the working version
+          Pin 2.2 explicitly so jfoundry-outbox-jobrunr tests get the working version
           after excluding JobRunr's 1.33.
         -->
         <snakeyaml.version>2.2</snakeyaml.version>
@@ -68,12 +68,17 @@
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-outbox-core</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
                 <artifactId>jfoundry-persistence-mybatis-plus</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-messaging-mybatis-plus</artifactId>
+                <artifactId>jfoundry-outbox-mybatis-plus</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -83,7 +88,12 @@
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-messaging-jobrunr</artifactId>
+                <artifactId>jfoundry-outbox-spring</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-outbox-jobrunr</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -98,7 +108,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-mybatis-plus-starter</artifactId>
+                <artifactId>jfoundry-spring-boot-starter</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <!--新增子模块声明-->
@@ -193,7 +203,7 @@
             <!--ORM-->
             <!--
               mybatis-plus-annotation：OutboxData / 业务 Data 类需 @TableName/@TableId 注解。
-              jfoundry-persistence-mybatis-plus / jfoundry-messaging-mybatis-plus 模块编译时通过
+              jfoundry-persistence-mybatis-plus / jfoundry-outbox-mybatis-plus 模块编译时通过
               mybatis-plus-core 间接获得；业务侧运行时通过 mybatis-plus-spring-boot3-starter
               提供。core SPI（OutboxEntry / BaseData）刻意不带 ORM 注解，避免被特定 ORM 绑定。
             -->
@@ -282,7 +292,7 @@
                 <scope>test</scope>
             </dependency>
 
-            <!--JobRunr（可选模块 jfoundry-messaging-jobrunr 的 Outbox Dispatcher）-->
+            <!--JobRunr（可选模块 jfoundry-outbox-jobrunr 的 Outbox Dispatcher）-->
             <dependency>
                 <groupId>org.jobrunr</groupId>
                 <artifactId>jobrunr-spring-boot-3-starter</artifactId>

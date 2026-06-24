@@ -5,8 +5,8 @@ import org.jfoundry.autoconfigure.persistence.OutboxMybatisPlusAutoConfiguration
 import org.jfoundry.infrastructure.messaging.JacksonPayloadSerializer;
 import org.jfoundry.infrastructure.messaging.PayloadSerializer;
 import org.jfoundry.infrastructure.messaging.externalization.ExternalizationRuleResolver;
-import org.jfoundry.infrastructure.messaging.outbox.OutboxRepository;
-import org.jfoundry.infrastructure.messaging.spring.externalization.DomainEventExternalizer;
+import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
+import org.jfoundry.infrastructure.outbox.spring.externalization.DomainEventExternalizer;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;

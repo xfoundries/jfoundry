@@ -10,7 +10,7 @@
 
     <artifactId>jfoundry-messaging-spring</artifactId>
     <name>jfoundry-messaging-spring</name>
-    <description>Spring runtime: SpringDomainEventPublisher, ExponentialBackoffStrategy, ScheduledOutboxDispatcher, DomainEventExternalizer, LoggingMessageSender.</description>
+    <description>Spring runtime for messaging: SpringDomainEventPublisher and LoggingMessageSender.</description>
 
     <dependencies>
         <dependency>

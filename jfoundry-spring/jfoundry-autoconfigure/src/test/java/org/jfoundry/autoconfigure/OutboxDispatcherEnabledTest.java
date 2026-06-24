@@ -1,7 +1,7 @@
 package org.jfoundry.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jfoundry.infrastructure.messaging.outbox.OutboxDispatcher;
+import org.jfoundry.infrastructure.outbox.core.OutboxDispatcher;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;

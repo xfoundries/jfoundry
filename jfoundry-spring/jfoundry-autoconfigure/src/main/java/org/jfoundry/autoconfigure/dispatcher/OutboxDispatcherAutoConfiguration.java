@@ -3,12 +3,12 @@ package org.jfoundry.autoconfigure.dispatcher;
 import org.jfoundry.autoconfigure.messaging.MessageSenderAutoConfiguration;
 import org.jfoundry.autoconfigure.persistence.OutboxMybatisPlusAutoConfiguration;
 import org.jfoundry.infrastructure.messaging.MessageSender;
-import org.jfoundry.infrastructure.messaging.outbox.BackoffStrategy;
-import org.jfoundry.infrastructure.messaging.outbox.OutboxDispatcher;
-import org.jfoundry.infrastructure.messaging.outbox.OutboxRepository;
-import org.jfoundry.infrastructure.messaging.spring.backoff.ExponentialBackoffStrategy;
-import org.jfoundry.infrastructure.messaging.spring.dispatcher.OutboxDispatcherProperties;
-import org.jfoundry.infrastructure.messaging.spring.dispatcher.ScheduledOutboxDispatcher;
+import org.jfoundry.infrastructure.outbox.core.BackoffStrategy;
+import org.jfoundry.infrastructure.outbox.core.OutboxDispatcher;
+import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
+import org.jfoundry.infrastructure.outbox.spring.backoff.ExponentialBackoffStrategy;
+import org.jfoundry.infrastructure.outbox.spring.dispatcher.OutboxDispatcherProperties;
+import org.jfoundry.infrastructure.outbox.spring.dispatcher.ScheduledOutboxDispatcher;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -23,7 +23,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /// 根据 {@code jfoundry.outbox.dispatcher.mode} 选择 Dispatcher 实现：
 /// <ul>
 ///   <li>{@code scheduled}（默认）：注册 ScheduledOutboxDispatcher（本类已加 @EnableScheduling）。</li>
-///   <li>{@code jobrunr}：要求 classpath 有 jfoundry-messaging-jobrunr。该模块自带
+///   <li>{@code jobrunr}：要求 classpath 有 jfoundry-outbox-jobrunr。该模块自带
 ///       {@code JobRunrDispatcherAutoConfiguration}（通过
 ///       {@code META-INF/spring/AutoConfiguration.imports} 自注册），与本类互斥：
 ///       两端都用 {@code @ConditionalOnMissingBean(OutboxDispatcher.class)} 守护，

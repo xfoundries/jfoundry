@@ -58,7 +58,7 @@ class DomainEventExternalizationIntegrationTest {
 
     @SpringBootConfiguration
     @EnableAutoConfiguration
-    @MapperScan(basePackages = "org.jfoundry.infrastructure.messaging.mybatis.outbox")
+    @MapperScan(basePackages = "org.jfoundry.infrastructure.outbox.mybatis")
     static class TestApp {
     }
 

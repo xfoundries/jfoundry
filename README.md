@@ -23,13 +23,15 @@ jfoundry-parent
 ├── jfoundry-infrastructure                       基础设施层聚合
 │   ├── jfoundry-persistence-core                 持久化抽象（AbstractPersistenceRepository）
 │   ├── jfoundry-persistence-mybatis-plus         MyBatis-Plus 实现
-│   ├── jfoundry-messaging-core                   Outbox SPI + PayloadSerializer
-│   ├── jfoundry-messaging-mybatis-plus           Outbox 的 MyBatis-Plus 实现
-│   ├── jfoundry-messaging-spring                 Spring 事件发布 + DomainEventExternalizer
-│   └── jfoundry-messaging-jobrunr                Outbox 的 JobRunr 派发器（可选）
+│   ├── jfoundry-messaging-core                   消息发送 / 事件外部化 SPI + PayloadSerializer
+│   ├── jfoundry-messaging-spring                 Spring 领域事件发布 + 默认 MessageSender
+│   ├── jfoundry-outbox-core                      Transactional Outbox SPI + 状态机
+│   ├── jfoundry-outbox-mybatis-plus              Outbox 的 MyBatis-Plus 存储适配器
+│   ├── jfoundry-outbox-spring                    Outbox 的 Spring 外部化与 scheduled 派发器
+│   └── jfoundry-outbox-jobrunr                   Outbox 的 JobRunr 派发器（可选）
 ├── jfoundry-spring                               Spring 整合层聚合
 │   ├── jfoundry-autoconfigure                    Spring Boot AutoConfiguration
-│   └── jfoundry-mybatis-plus-starter             MyBatis-Plus 全栈聚合 starter
+│   └── jfoundry-spring-boot-starter              面向业务侧的 Spring Boot 聚合 starter
 └── jfoundry-test                                 ArchUnit 规则库（业务侧测试直接引用）
 ```
 
@@ -37,7 +39,7 @@ jfoundry-parent
 
 ### 1. 引入依赖
 
-业务侧只需要引入 `jfoundry-mybatis-plus-starter`，它会聚合所需的所有运行时模块：
+业务侧只需要引入 `jfoundry-spring-boot-starter`，它会聚合所需的默认运行时模块。MyBatis-Plus、Outbox 存储等实现细节由 starter 内部选择：
 
 ```xml
 <dependencyManagement>
@@ -55,7 +57,7 @@ jfoundry-parent
 <dependencies>
     <dependency>
         <groupId>org.jfoundry</groupId>
-        <artifactId>jfoundry-mybatis-plus-starter</artifactId>
+        <artifactId>jfoundry-spring-boot-starter</artifactId>
     </dependency>
 </dependencies>
 ```
@@ -77,23 +79,7 @@ public class Order {
 }
 ```
 
-### 3. 配置 Outbox
-
-业务侧只要提供 `OutboxRepository` Bean（或让 starter 自动装配 MyBatis-Plus 实现），领域事件就会自动外部化到 Outbox 表：
-
-```yaml
-jfoundry:
-  outbox:
-    table-name: ddd_outbox_event       # 与 Flyway 迁移脚本一致
-    dispatcher:
-      enabled: true
-      mode: scheduled                  # 或 jobrunr（需额外引入 jfoundry-messaging-jobrunr）
-    cleanup:
-      published-retention-days: 7      # PUBLISHED 状态保留 7 天后清理
-      dead-lettered-retention-days: 30 # DEAD_LETTERED 保留 30 天
-```
-
-### 4. 启用架构守护（推荐）
+### 3. 启用架构守护（推荐）
 
 在业务模块的测试目录下添加一个 ArchUnit 测试，引用框架自带的规则：
 
@@ -112,11 +98,30 @@ class MyAppArchitectureTest {
 }
 ```
 
+### 4. 可选：配置领域事件外部化（Outbox）
+
+领域事件不强制使用 Outbox。默认 `DomainEventPublisher` 会在事务提交后通过 Spring `ApplicationEventPublisher` 发布本地事件；如果业务只需要进程内监听器，可不配置 Outbox。
+
+当事件需要可靠外部化、跨进程投递或失败重试时，再为事件标记 `@Externalized` / `@MessageRouting`，并启用 Outbox 存储与派发。业务侧只要提供 `OutboxRepository` Bean（或让 starter 自动装配 MyBatis-Plus 实现），匹配外部化规则的领域事件就会写入 Outbox 表：
+
+```yaml
+jfoundry:
+  outbox:
+    table-name: ddd_outbox_event       # 与 Flyway 迁移脚本一致
+    dispatcher:
+      enabled: true
+      mode: scheduled                  # 或 jobrunr（需额外引入 jfoundry-outbox-jobrunr）
+    cleanup:
+      published-retention-days: 7      # PUBLISHED 状态保留 7 天后清理
+      dead-lettered-retention-days: 30 # DEAD_LETTERED 保留 30 天
+```
+
 ## 文档
 
 - [值对象（Value Object）规范](docs/value-object.md)
 - [分层架构注解](docs/layered-architecture.md)
 - [ArchUnit 架构规则](docs/archunit-rules.md)
+- [Transactional Outbox 事务性发件箱](docs/transactional-outbox.md)
 
 ## 技术栈
 

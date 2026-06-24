@@ -15,9 +15,11 @@
     <modules>
         <module>jfoundry-persistence-core</module>
         <module>jfoundry-messaging-core</module>
+        <module>jfoundry-outbox-core</module>
         <module>jfoundry-persistence-mybatis-plus</module>
-        <module>jfoundry-messaging-mybatis-plus</module>
+        <module>jfoundry-outbox-mybatis-plus</module>
         <module>jfoundry-messaging-spring</module>
-        <module>jfoundry-messaging-jobrunr</module>
+        <module>jfoundry-outbox-spring</module>
+        <module>jfoundry-outbox-jobrunr</module>
     </modules>
 </project>

@@ -19,7 +19,7 @@ import javax.sql.DataSource;
 
 /// 集成测试 Spring 配置。
 /// <p>
-/// 镜像 jfoundry-messaging-mybatis-plus 的 OutboxPersistenceTestConfig 模式:
+/// 镜像 jfoundry-outbox-mybatis-plus 的 OutboxPersistenceTestConfig 模式:
 /// H2 embedded + 手写 @SpringBootConfiguration + @MapperScan。
 @SpringBootConfiguration
 @EnableAutoConfiguration

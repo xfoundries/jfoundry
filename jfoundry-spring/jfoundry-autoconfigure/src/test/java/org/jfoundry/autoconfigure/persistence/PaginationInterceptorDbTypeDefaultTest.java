@@ -42,7 +42,7 @@ class PaginationInterceptorDbTypeDefaultTest {
 
     @SpringBootConfiguration
     @EnableAutoConfiguration
-    @MapperScan(basePackages = "org.jfoundry.infrastructure.messaging.mybatis.outbox")
+    @MapperScan(basePackages = "org.jfoundry.infrastructure.outbox.mybatis")
     static class NoDbTypeTestApp {
         @Bean
         ObjectMapper objectMapper() {

@@ -5,9 +5,9 @@ import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.handler.TableNameHandler;
 import com.baomidou.mybatisplus.extension.plugins.inner.DynamicTableNameInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
-import org.jfoundry.infrastructure.messaging.outbox.OutboxRepository;
-import org.jfoundry.infrastructure.messaging.mybatis.outbox.MybatisPlusOutboxRepository;
-import org.jfoundry.infrastructure.messaging.mybatis.outbox.OutboxMapper;
+import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
+import org.jfoundry.infrastructure.outbox.mybatis.MybatisPlusOutboxRepository;
+import org.jfoundry.infrastructure.outbox.mybatis.OutboxMapper;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -35,7 +35,7 @@ import org.springframework.context.annotation.Bean;
 /// MapperScannerConfigurer 是 BeanDefinitionRegistryPostProcessor，注册时机晚于 @ConditionalOnBean
 /// 评估。OutboxMapper 通过构造器参数 @Autowired 注入，若 mapper 缺失会在 bean 创建时明确报错。
 @AutoConfiguration
-@MapperScan(basePackages = "org.jfoundry.infrastructure.messaging.mybatis.outbox")
+@MapperScan(basePackages = "org.jfoundry.infrastructure.outbox.mybatis")
 @EnableConfigurationProperties({JfoundryOutboxProperties.class, JfoundryPersistenceProperties.class})
 public class OutboxMybatisPlusAutoConfiguration {
 

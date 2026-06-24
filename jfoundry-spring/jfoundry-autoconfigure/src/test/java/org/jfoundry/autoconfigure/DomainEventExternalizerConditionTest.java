@@ -2,10 +2,10 @@ package org.jfoundry.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.infrastructure.messaging.externalization.DomainEventSink;
-import org.jfoundry.infrastructure.messaging.outbox.BackoffStrategy;
-import org.jfoundry.infrastructure.messaging.outbox.OutboxEntry;
-import org.jfoundry.infrastructure.messaging.outbox.OutboxRepository;
-import org.jfoundry.infrastructure.messaging.spring.externalization.DomainEventExternalizer;
+import org.jfoundry.infrastructure.outbox.core.BackoffStrategy;
+import org.jfoundry.infrastructure.outbox.core.OutboxEntry;
+import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
+import org.jfoundry.infrastructure.outbox.spring.externalization.DomainEventExternalizer;
 import org.jmolecules.event.types.DomainEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +104,7 @@ class DomainEventExternalizerConditionTest {
 
         @Override
         public int deleteByStatusAndCreatedAtBefore(
-                org.jfoundry.infrastructure.messaging.outbox.OutboxStatus status,
+                org.jfoundry.infrastructure.outbox.core.OutboxStatus status,
                 java.time.Instant cutoff, int batchSize) {
             return 0;
         }

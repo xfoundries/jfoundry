@@ -30,11 +30,15 @@
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-messaging-mybatis-plus</artifactId>
+            <artifactId>jfoundry-messaging-spring</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-messaging-spring</artifactId>
+            <artifactId>jfoundry-outbox-mybatis-plus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-outbox-spring</artifactId>
         </dependency>
 
         <!--

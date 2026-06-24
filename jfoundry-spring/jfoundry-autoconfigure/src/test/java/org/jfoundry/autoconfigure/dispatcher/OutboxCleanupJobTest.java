@@ -2,11 +2,11 @@ package org.jfoundry.autoconfigure.dispatcher;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jfoundry.infrastructure.messaging.mybatis.outbox.OutboxData;
-import org.jfoundry.infrastructure.messaging.mybatis.outbox.OutboxMapper;
-import org.jfoundry.infrastructure.messaging.outbox.OutboxEntry;
-import org.jfoundry.infrastructure.messaging.outbox.OutboxRepository;
-import org.jfoundry.infrastructure.messaging.outbox.OutboxStatus;
+import org.jfoundry.infrastructure.outbox.mybatis.OutboxData;
+import org.jfoundry.infrastructure.outbox.mybatis.OutboxMapper;
+import org.jfoundry.infrastructure.outbox.core.OutboxEntry;
+import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
+import org.jfoundry.infrastructure.outbox.core.OutboxStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.annotation.MapperScan;
@@ -56,7 +56,7 @@ class OutboxCleanupJobTest {
 
     @SpringBootConfiguration
     @EnableAutoConfiguration
-    @MapperScan(basePackages = "org.jfoundry.infrastructure.messaging.mybatis.outbox")
+    @MapperScan(basePackages = "org.jfoundry.infrastructure.outbox.mybatis")
     static class TestApp {
         /// DomainEventExternalizerAutoConfiguration's unconditional payloadSerializer bean
         /// pulls in Jackson. Same pattern as OutboxTableNameOverrideTest /
