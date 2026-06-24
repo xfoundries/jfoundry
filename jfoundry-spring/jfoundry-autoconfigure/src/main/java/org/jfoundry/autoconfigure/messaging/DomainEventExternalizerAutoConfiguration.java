@@ -6,7 +6,7 @@ import org.jfoundry.application.messaging.PayloadSerializer;
 import org.jfoundry.application.messaging.externalization.AggregateRoutingResolver;
 import org.jfoundry.application.messaging.externalization.ExternalizationRuleResolver;
 import org.jfoundry.infrastructure.messaging.jackson.JacksonPayloadSerializer;
-import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.spring.externalization.DomainEventExternalizer;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -18,13 +18,13 @@ import org.springframework.core.annotation.Order;
 
 /// DomainEventExternalizer 自动配置。
 /// <p>
-/// 当业务侧提供 OutboxRepository Bean 时启用 DomainEventExternalizer Sink。
+/// 当业务侧提供 OutboxMessageStore Bean 时启用 DomainEventExternalizer Sink。
 /// 默认 PayloadSerializer 使用 Jackson 实现；业务侧注册自己的 {@link PayloadSerializer} Bean 即可覆盖。
 /// <p>
 /// {@code payloadSerializer} 只在 classpath 上有 Jackson 时注册：避免业务侧不引入
 /// Jackson 时 autoconfig 因为找不到 ObjectMapper bean 而启动失败。
 /// <p>
-/// {@code domainEventExternalizer} 同时要求 OutboxRepository + PayloadSerializer 都存在 ——
+/// {@code domainEventExternalizer} 同时要求 OutboxMessageStore + PayloadSerializer 都存在 ——
 /// PayloadSerializer 缺失时（业务侧无 Jackson 也未自定义 serializer），Externalizer 缺少
 /// 必需依赖，正确退让而不是让上下文启动失败。业务侧无 Jackson 时需要自己注册
 /// {@link PayloadSerializer} 才能恢复 Externalizer 行为。
@@ -59,11 +59,11 @@ public class DomainEventExternalizerAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean({OutboxRepository.class, PayloadSerializer.class})
+    @ConditionalOnBean({OutboxMessageStore.class, PayloadSerializer.class})
     @ConditionalOnMissingBean(DomainEventExternalizer.class)
     @Order(Ordered.LOWEST_PRECEDENCE)
     public DomainEventExternalizer domainEventExternalizer(
-            OutboxRepository outboxRepository,
+            OutboxMessageStore outboxRepository,
             ExternalizationRuleResolver ruleResolver,
             AggregateRoutingResolver aggregateRoutingResolver,
             PayloadSerializer serializer) {

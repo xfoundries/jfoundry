@@ -1,9 +1,9 @@
 package org.jfoundry.infrastructure.outbox.mybatis;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import org.jfoundry.application.outbox.OutboxEntry;
-import org.jfoundry.application.outbox.OutboxRepository;
-import org.jfoundry.application.outbox.OutboxStatus;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.application.outbox.OutboxMessageStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ class RecoverStuckDispatchingTest {
     }
 
     @Autowired
-    private OutboxRepository repository;
+    private OutboxMessageStore repository;
 
     @Autowired
     private OutboxMapper mapper;
@@ -54,7 +54,7 @@ class RecoverStuckDispatchingTest {
     @Test
     void stuckDispatchingRecordIsResetToPending() {
         // Seed a PENDING record and atomically claim it -> DISPATCHING.
-        OutboxEntry entry = OutboxEntry.newPending(
+        OutboxMessage entry = OutboxMessage.newPending(
                 "evt-stuck", "test.event", null, "test.type", "{}", Instant.now());
         repository.append(entry);
         repository.claimDispatchable(1, "pod-stuck");
@@ -73,7 +73,7 @@ class RecoverStuckDispatchingTest {
 
         // Verify record is back to PENDING and claim columns cleared.
         OutboxData reset = mapper.selectById("evt-stuck");
-        assertThat(reset.getStatus()).isEqualTo(OutboxStatus.PENDING.name());
+        assertThat(reset.getStatus()).isEqualTo(OutboxMessageStatus.PENDING.name());
         assertThat(reset.getClaimedAt()).isNull();
         assertThat(reset.getClaimedBy()).isNull();
     }
@@ -81,7 +81,7 @@ class RecoverStuckDispatchingTest {
     @Test
     void freshDispatchingRecordIsNotReset() {
         // Seed + claim -> DISPATCHING with claimedAt = now (fresh).
-        OutboxEntry entry = OutboxEntry.newPending(
+        OutboxMessage entry = OutboxMessage.newPending(
                 "evt-fresh", "test.event", null, "test.type", "{}", Instant.now());
         repository.append(entry);
         repository.claimDispatchable(1, "pod-fresh");
@@ -92,7 +92,7 @@ class RecoverStuckDispatchingTest {
         assertThat(recovered).isZero();
 
         OutboxData untouched = mapper.selectById("evt-fresh");
-        assertThat(untouched.getStatus()).isEqualTo(OutboxStatus.DISPATCHING.name());
+        assertThat(untouched.getStatus()).isEqualTo(OutboxMessageStatus.DISPATCHING.name());
         assertThat(untouched.getClaimedBy()).isEqualTo("pod-fresh");
     }
 

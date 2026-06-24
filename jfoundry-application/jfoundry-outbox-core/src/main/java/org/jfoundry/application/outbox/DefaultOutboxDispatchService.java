@@ -16,13 +16,13 @@ public class DefaultOutboxDispatchService implements OutboxDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultOutboxDispatchService.class);
 
-    private final OutboxRepository repository;
+    private final OutboxMessageStore repository;
     private final MessageSender messageSender;
     private final int maxRetries;
     private final BackoffStrategy backoff;
     private final String claimerId;
 
-    public DefaultOutboxDispatchService(OutboxRepository repository,
+    public DefaultOutboxDispatchService(OutboxMessageStore repository,
                                         MessageSender messageSender,
                                         int maxRetries,
                                         BackoffStrategy backoff,
@@ -36,23 +36,23 @@ public class DefaultOutboxDispatchService implements OutboxDispatcher {
 
     @Override
     public void dispatch(int batchSize) {
-        List<OutboxEntry> entries = repository.claimDispatchable(batchSize, claimerId);
-        for (OutboxEntry entry : entries) {
-            dispatchEntry(entry);
+        List<OutboxMessage> messages = repository.claimDispatchable(batchSize, claimerId);
+        for (OutboxMessage message : messages) {
+            dispatchMessage(message);
         }
     }
 
-    private void dispatchEntry(OutboxEntry entry) {
+    private void dispatchMessage(OutboxMessage message) {
         try {
-            SendResult result = messageSender.send(entry.getTopic(), entry.getPayloadKey(), entry.getPayloadJson());
+            SendResult result = messageSender.send(message.getTopic(), message.getPayloadKey(), message.getPayloadJson());
             if (result.success()) {
-                repository.markAsPublished(entry.getEventId());
+                repository.markAsPublished(message.getEventId());
             } else {
-                repository.markAsFailed(entry.getEventId(), result.errorMessage(), maxRetries, backoff);
+                repository.markAsFailed(message.getEventId(), result.errorMessage(), maxRetries, backoff);
             }
         } catch (RuntimeException e) {
-            log.warn("dispatch entry {} failed with exception: {}", entry.getEventId(), e.getMessage());
-            repository.markAsFailed(entry.getEventId(), e.getMessage(), maxRetries, backoff);
+            log.warn("dispatch message {} failed with exception: {}", message.getEventId(), e.getMessage());
+            repository.markAsFailed(message.getEventId(), e.getMessage(), maxRetries, backoff);
         }
     }
 }

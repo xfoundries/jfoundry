@@ -12,7 +12,7 @@
     <name>jfoundry-outbox-mybatis-plus</name>
     <description>
         MyBatis-Plus Outbox persistence adapter: OutboxData (table DO),
-        OutboxMapper, MybatisPlusOutboxRepository implementing jfoundry-outbox-core SPI.
+        OutboxMapper, MybatisPlusOutboxMessageStore implementing jfoundry-outbox-core SPI.
         Depends only on jfoundry-outbox-core + MyBatis-Plus — does NOT pull in
         jfoundry-persistence-core / business Repository infrastructure.
     </description>
@@ -33,7 +33,7 @@
         </dependency>
         <!--
           mybatis-plus-jsqlparser：PaginationInnerInterceptor 依赖。
-          MybatisPlusOutboxRepository.findDispatchable 通过 selectPage 表达"取前 N 条"，
+          MybatisPlusOutboxMessageStore.findDispatchable 通过 selectPage 表达"取前 N 条"，
           由 PaginationInnerInterceptor 把分页 SQL 翻译成对应方言。
         -->
         <dependency>

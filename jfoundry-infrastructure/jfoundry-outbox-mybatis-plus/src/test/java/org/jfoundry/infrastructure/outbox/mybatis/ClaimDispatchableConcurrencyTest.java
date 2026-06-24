@@ -1,8 +1,8 @@
 package org.jfoundry.infrastructure.outbox.mybatis;
 
-import org.jfoundry.application.outbox.OutboxEntry;
-import org.jfoundry.application.outbox.OutboxRepository;
-import org.jfoundry.application.outbox.OutboxStatus;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.application.outbox.OutboxMessageStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ class ClaimDispatchableConcurrencyTest {
     }
 
     @Autowired
-    private OutboxRepository repository;
+    private OutboxMessageStore repository;
 
     @Autowired
     private OutboxMapper mapper;
@@ -47,7 +47,7 @@ class ClaimDispatchableConcurrencyTest {
     void twoConcurrentClaimersGetDisjointRecords() throws Exception {
         // Seed 20 PENDING records
         for (int i = 0; i < 20; i++) {
-            OutboxEntry e = OutboxEntry.newPending(
+            OutboxMessage e = OutboxMessage.newPending(
                     "evt-" + i, "test.event", null, "test.type", "{}", Instant.now());
             repository.append(e);
         }
@@ -88,21 +88,21 @@ class ClaimDispatchableConcurrencyTest {
     @Test
     void claimDispatchableOnlyTakesPendingRecords() {
         // Seed: 3 PENDING, 1 DISPATCHING, 1 PUBLISHED
-        repository.append(pendingEntry("pending-1"));
-        repository.append(pendingEntry("pending-2"));
-        repository.append(pendingEntry("pending-3"));
+        repository.append(pendingMessage("pending-1"));
+        repository.append(pendingMessage("pending-2"));
+        repository.append(pendingMessage("pending-3"));
 
-        OutboxEntry dispatching = pendingEntry("dispatching-1");
-        dispatching.setStatus(OutboxStatus.DISPATCHING);
+        OutboxMessage dispatching = pendingMessage("dispatching-1");
+        dispatching.setStatus(OutboxMessageStatus.DISPATCHING);
         repository.append(dispatching);
 
-        OutboxEntry published = pendingEntry("published-1");
-        published.setStatus(OutboxStatus.PUBLISHED);
+        OutboxMessage published = pendingMessage("published-1");
+        published.setStatus(OutboxMessageStatus.PUBLISHED);
         repository.append(published);
 
-        List<OutboxEntry> claimed = repository.claimDispatchable(10, "pod-X");
+        List<OutboxMessage> claimed = repository.claimDispatchable(10, "pod-X");
 
-        assertThat(claimed).extracting(OutboxEntry::getEventId)
+        assertThat(claimed).extracting(OutboxMessage::getEventId)
                 .containsExactlyInAnyOrder("pending-1", "pending-2", "pending-3");
     }
 
@@ -110,57 +110,57 @@ class ClaimDispatchableConcurrencyTest {
     /// 否则切到 claim 模式后失败重试会饿死。
     @Test
     void claimDispatchableAlsoTakesRetryDueFailed() {
-        repository.append(pendingEntry("pending-1"));
+        repository.append(pendingMessage("pending-1"));
 
-        OutboxEntry failedDue = pendingEntry("failed-due-1");
-        failedDue.setStatus(OutboxStatus.FAILED);
+        OutboxMessage failedDue = pendingMessage("failed-due-1");
+        failedDue.setStatus(OutboxMessageStatus.FAILED);
         failedDue.setNextRetryAt(Instant.now().minusSeconds(60));
         repository.append(failedDue);
 
-        List<OutboxEntry> claimed = repository.claimDispatchable(10, "pod-X");
+        List<OutboxMessage> claimed = repository.claimDispatchable(10, "pod-X");
 
-        assertThat(claimed).extracting(OutboxEntry::getEventId)
+        assertThat(claimed).extracting(OutboxMessage::getEventId)
                 .containsExactlyInAnyOrder("pending-1", "failed-due-1");
     }
 
     @Test
     void claimDispatchableSkipsFailedNotYetDue() {
-        OutboxEntry failedFuture = pendingEntry("failed-future-1");
-        failedFuture.setStatus(OutboxStatus.FAILED);
+        OutboxMessage failedFuture = pendingMessage("failed-future-1");
+        failedFuture.setStatus(OutboxMessageStatus.FAILED);
         failedFuture.setNextRetryAt(Instant.now().plusSeconds(600));
         repository.append(failedFuture);
 
-        List<OutboxEntry> claimed = repository.claimDispatchable(10, "pod-X");
+        List<OutboxMessage> claimed = repository.claimDispatchable(10, "pod-X");
 
         assertThat(claimed).isEmpty();
     }
 
     @Test
     void claimDispatchableSkipsDeadLettered() {
-        OutboxEntry deadLettered = pendingEntry("dead-1");
-        deadLettered.setStatus(OutboxStatus.DEAD_LETTERED);
+        OutboxMessage deadLettered = pendingMessage("dead-1");
+        deadLettered.setStatus(OutboxMessageStatus.DEAD_LETTERED);
         repository.append(deadLettered);
 
-        List<OutboxEntry> claimed = repository.claimDispatchable(10, "pod-X");
+        List<OutboxMessage> claimed = repository.claimDispatchable(10, "pod-X");
 
         assertThat(claimed).isEmpty();
     }
 
     @Test
     void claimDispatchableUpdatesStatusToDispatching() {
-        repository.append(pendingEntry("evt-1"));
+        repository.append(pendingMessage("evt-1"));
 
-        List<OutboxEntry> claimed = repository.claimDispatchable(10, "pod-X");
+        List<OutboxMessage> claimed = repository.claimDispatchable(10, "pod-X");
 
         assertThat(claimed).hasSize(1);
-        assertThat(claimed.get(0).getStatus()).isEqualTo(OutboxStatus.DISPATCHING);
+        assertThat(claimed.get(0).getStatus()).isEqualTo(OutboxMessageStatus.DISPATCHING);
         assertThat(claimed.get(0).getClaimedBy()).isEqualTo("pod-X");
         assertThat(claimed.get(0).getClaimedAt()).isNotNull();
     }
 
     @Test
     void claimDispatchableReturnsEmptyWhenNoPending() {
-        List<OutboxEntry> claimed = repository.claimDispatchable(10, "pod-X");
+        List<OutboxMessage> claimed = repository.claimDispatchable(10, "pod-X");
         assertThat(claimed).isEmpty();
     }
 
@@ -184,8 +184,8 @@ class ClaimDispatchableConcurrencyTest {
                 .hasMessageContaining("claimerId");
     }
 
-    private OutboxEntry pendingEntry(String eventId) {
-        return OutboxEntry.newPending(
+    private OutboxMessage pendingMessage(String eventId) {
+        return OutboxMessage.newPending(
                 eventId, "topic", null, "com.example.Foo", "{}", Instant.now());
     }
 
@@ -198,26 +198,26 @@ class ClaimDispatchableConcurrencyTest {
     @Test
     void reentrantClaimOnSamePodDoesNotReReadPriorBatchStragglers() {
         // Seed R1, R2 as batch 1.
-        repository.append(pendingEntry("batch1-1"));
-        repository.append(pendingEntry("batch1-2"));
-        List<OutboxEntry> batch1 = repository.claimDispatchable(2, "pod-A");
-        assertThat(batch1).extracting(OutboxEntry::getEventId)
+        repository.append(pendingMessage("batch1-1"));
+        repository.append(pendingMessage("batch1-2"));
+        List<OutboxMessage> batch1 = repository.claimDispatchable(2, "pod-A");
+        assertThat(batch1).extracting(OutboxMessage::getEventId)
                 .containsExactlyInAnyOrder("batch1-1", "batch1-2");
 
         // 模拟状态更新失败：batch1 的两条记录仍处 DISPATCHING（markAsPublished/markAsFailed
         // 未被调用，或调用失败回滚），claimed_by 仍是 "pod-A"。
         // 此时 pod A 同线程重入 dispatch，又 claim 了一批新记录。
-        repository.append(pendingEntry("batch2-1"));
-        repository.append(pendingEntry("batch2-2"));
-        List<OutboxEntry> batch2 = repository.claimDispatchable(2, "pod-A");
+        repository.append(pendingMessage("batch2-1"));
+        repository.append(pendingMessage("batch2-2"));
+        List<OutboxMessage> batch2 = repository.claimDispatchable(2, "pod-A");
 
         // 关键断言：batch2 只能是 batch2-1 / batch2-2，不能重新带回 batch1 的两条记录。
-        assertThat(batch2).extracting(OutboxEntry::getEventId)
+        assertThat(batch2).extracting(OutboxMessage::getEventId)
                 .containsExactlyInAnyOrder("batch2-1", "batch2-2");
 
         // 互斥性兜底：两批eventId 严格不相交。
-        Set<String> batch1Ids = new HashSet<>(batch1.stream().map(OutboxEntry::getEventId).toList());
-        Set<String> batch2Ids = new HashSet<>(batch2.stream().map(OutboxEntry::getEventId).toList());
+        Set<String> batch1Ids = new HashSet<>(batch1.stream().map(OutboxMessage::getEventId).toList());
+        Set<String> batch2Ids = new HashSet<>(batch2.stream().map(OutboxMessage::getEventId).toList());
         Set<String> intersection = new HashSet<>(batch1Ids);
         intersection.retainAll(batch2Ids);
         assertThat(intersection)

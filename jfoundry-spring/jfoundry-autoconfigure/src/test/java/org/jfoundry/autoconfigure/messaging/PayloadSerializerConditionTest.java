@@ -1,7 +1,7 @@
 package org.jfoundry.autoconfigure.messaging;
 
 import org.jfoundry.application.messaging.PayloadSerializer;
-import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.spring.externalization.DomainEventExternalizer;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -21,7 +21,7 @@ class PayloadSerializerConditionTest {
     private final ApplicationContextRunner runner =
             new ApplicationContextRunner()
                     .withConfiguration(AutoConfigurations.of(DomainEventExternalizerAutoConfiguration.class))
-                    .withBean(OutboxRepository.class, () -> mock(OutboxRepository.class));
+                    .withBean(OutboxMessageStore.class, () -> mock(OutboxMessageStore.class));
 
     @Test
     void contextStartsWithoutFailureWhenObjectMapperBeanIsMissing() {

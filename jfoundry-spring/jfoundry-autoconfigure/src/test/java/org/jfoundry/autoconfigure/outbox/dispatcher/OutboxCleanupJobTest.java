@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxData;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxMapper;
-import org.jfoundry.application.outbox.OutboxEntry;
-import org.jfoundry.application.outbox.OutboxRepository;
-import org.jfoundry.application.outbox.OutboxStatus;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.application.outbox.OutboxMessageStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.annotation.MapperScan;
@@ -35,12 +35,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// so the scheduled dispatcher doesn't run during the short test window ( belt-and-
 /// suspenders; terminal-state seed records wouldn't be picked anyway).
 /// <p>
-/// Caveat 1 (brief): {@code OutboxRepository.findById(...)} does not exist on the SPI —
+/// Caveat 1 (brief): {@code OutboxMessageStore.findById(...)} does not exist on the SPI —
 /// we verify deletion through {@link OutboxMapper#selectById(String)} instead (same
 /// pattern as {@code RecoverStuckDispatchingTest}).
 /// <p>
-/// Caveat 5 (brief): {@code OutboxEntry.newBuilder()} does not exist; the real factory is
-/// {@link OutboxEntry#newPending}. After {@code append}, the row is in PENDING, so we
+/// Caveat 5 (brief): {@code OutboxMessage.newBuilder()} does not exist; the real factory is
+/// {@link OutboxMessage#newPending}. After {@code append}, the row is in PENDING, so we
 /// flip it to the target terminal state via standard {@code lambdaUpdate}（mapper 上的自定义
 /// SQL helper 已移除，所有 UPDATE 由 BaseMapper + Wrapper 完成）。
 @SpringBootTest(classes = OutboxCleanupJobTest.TestApp.class)
@@ -69,7 +69,7 @@ class OutboxCleanupJobTest {
     }
 
     @Autowired
-    private OutboxRepository repository;
+    private OutboxMessageStore repository;
 
     @Autowired
     private OutboxMapper mapper;
@@ -83,8 +83,8 @@ class OutboxCleanupJobTest {
     void deletesOnlyOldTerminalRecords() {
         // Seed: 1 PUBLISHED 8 days ago (older than 7-day retention → deleted),
         //       1 PUBLISHED 1 day ago (within 7-day retention → kept).
-        seed("evt-old", OutboxStatus.PUBLISHED, Instant.now().minusSeconds(8 * 86400L));
-        seed("evt-recent", OutboxStatus.PUBLISHED, Instant.now().minusSeconds(86400L));
+        seed("evt-old", OutboxMessageStatus.PUBLISHED, Instant.now().minusSeconds(8 * 86400L));
+        seed("evt-recent", OutboxMessageStatus.PUBLISHED, Instant.now().minusSeconds(86400L));
 
         int deleted = cleanupJob().runOnce();
 
@@ -98,8 +98,8 @@ class OutboxCleanupJobTest {
         // DEAD_LETTERED has a longer retention (30d) than PUBLISHED (7d).
         // Seed: 1 DEAD_LETTERED 40 days ago (> 30d → deleted),
         //       1 DEAD_LETTERED 10 days ago (< 30d → kept even though > PUBLISHED retention).
-        seed("evt-dead-old", OutboxStatus.DEAD_LETTERED, Instant.now().minusSeconds(40L * 86400L));
-        seed("evt-dead-recent", OutboxStatus.DEAD_LETTERED, Instant.now().minusSeconds(10L * 86400L));
+        seed("evt-dead-old", OutboxMessageStatus.DEAD_LETTERED, Instant.now().minusSeconds(40L * 86400L));
+        seed("evt-dead-recent", OutboxMessageStatus.DEAD_LETTERED, Instant.now().minusSeconds(10L * 86400L));
 
         int deleted = cleanupJob().runOnce();
 
@@ -112,8 +112,8 @@ class OutboxCleanupJobTest {
     void preservesNonTerminalRecords() {
         // PENDING / DISPATCHING / FAILED records must NEVER be deleted by the cleanup job,
         // regardless of age — only terminal states (PUBLISHED / DEAD_LETTERED) are eligible.
-        seed("evt-pending", OutboxStatus.PENDING, Instant.now().minusSeconds(365L * 86400L));
-        seed("evt-failed", OutboxStatus.FAILED, Instant.now().minusSeconds(365L * 86400L));
+        seed("evt-pending", OutboxMessageStatus.PENDING, Instant.now().minusSeconds(365L * 86400L));
+        seed("evt-failed", OutboxMessageStatus.FAILED, Instant.now().minusSeconds(365L * 86400L));
 
         int deleted = cleanupJob().runOnce();
 
@@ -126,7 +126,7 @@ class OutboxCleanupJobTest {
     void disabledCleanupIsNoOp() {
         // Re-fetch the properties bean and disable it at runtime (no ApplicationContext restart).
         // Validates the @Scheduled method's short-circuit guard: disabled → return 0, no Repository call.
-        seed("evt-disabled", OutboxStatus.PUBLISHED, Instant.now().minusSeconds(365L * 86400L));
+        seed("evt-disabled", OutboxMessageStatus.PUBLISHED, Instant.now().minusSeconds(365L * 86400L));
 
         // Direct call with a job whose properties.isEnabled()=false
         OutboxCleanupProperties disabled = new OutboxCleanupProperties();
@@ -145,7 +145,7 @@ class OutboxCleanupJobTest {
         // batch-size=100 (from @TestPropertySource); seed 250 PUBLISHED records 1 year ago.
         Instant yearAgo = Instant.now().minusSeconds(365L * 86400L);
         for (int i = 0; i < 250; i++) {
-            seed("evt-batch-" + i, OutboxStatus.PUBLISHED, yearAgo);
+            seed("evt-batch-" + i, OutboxMessageStatus.PUBLISHED, yearAgo);
         }
 
         int deleted = cleanupJob().runOnce();
@@ -157,11 +157,11 @@ class OutboxCleanupJobTest {
     }
 
     /// Helper: append a PENDING entry with the given occurredAt, then flip it to the target status.
-    /// OutboxEntry.newPending is the only factory; status transitions via markPublished /
+    /// OutboxMessage.newPending is the only factory; status transitions via markPublished /
     /// markFailed are for the dispatcher path. For the cleanup test we bypass the state machine
     /// and set status directly via {@code lambdaUpdate}（mapper 上的自定义 SQL helper 已移除）。
-    private void seed(String id, OutboxStatus status, Instant occurredAt) {
-        OutboxEntry entry = OutboxEntry.newPending(
+    private void seed(String id, OutboxMessageStatus status, Instant occurredAt) {
+        OutboxMessage entry = OutboxMessage.newPending(
                 id, "test.event", null, "test.type", "{}", occurredAt);
         repository.append(entry);
         mapper.update(null,

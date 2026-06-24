@@ -34,8 +34,8 @@ class OutboxPersistenceTestConfig {
     }
 
     @Bean
-    MybatisPlusOutboxRepository mybatisPlusOutboxRepository(OutboxMapper outboxMapper,
+    MybatisPlusOutboxMessageStore mybatisPlusOutboxMessageStore(OutboxMapper outboxMapper,
                                                             MybatisPlusInterceptor mybatisPlusInterceptor) {
-        return new MybatisPlusOutboxRepository(outboxMapper, mybatisPlusInterceptor);
+        return new MybatisPlusOutboxMessageStore(outboxMapper, mybatisPlusInterceptor);
     }
 }

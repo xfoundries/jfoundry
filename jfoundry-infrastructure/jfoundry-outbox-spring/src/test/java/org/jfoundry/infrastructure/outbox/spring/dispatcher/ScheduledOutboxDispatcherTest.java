@@ -3,8 +3,8 @@ package org.jfoundry.infrastructure.outbox.spring.dispatcher;
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
 import org.jfoundry.application.outbox.BackoffStrategy;
-import org.jfoundry.application.outbox.OutboxEntry;
-import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,14 +17,14 @@ import static org.mockito.Mockito.*;
 
 class ScheduledOutboxDispatcherTest {
 
-    private OutboxRepository repository;
+    private OutboxMessageStore repository;
     private MessageSender messageSender;
     private BackoffStrategy backoff;
     private ScheduledOutboxDispatcher dispatcher;
 
     @BeforeEach
     void setUp() {
-        repository = mock(OutboxRepository.class);
+        repository = mock(OutboxMessageStore.class);
         messageSender = mock(MessageSender.class);
         backoff = failedAttempts -> Duration.ofSeconds(1);
         dispatcher = new ScheduledOutboxDispatcher(repository, messageSender, 5, backoff, 5);
@@ -32,8 +32,8 @@ class ScheduledOutboxDispatcherTest {
 
     @Test
     void marksAsPublishedOnSendSuccess() {
-        OutboxEntry entry = entry("evt-1");
-        when(repository.claimDispatchable(eq(5), any())).thenReturn(List.of(entry));
+        OutboxMessage message = message("evt-1");
+        when(repository.claimDispatchable(eq(5), any())).thenReturn(List.of(message));
         when(messageSender.send(any(), any(), any())).thenReturn(SendResult.ok());
 
         dispatcher.dispatch(5);
@@ -44,8 +44,8 @@ class ScheduledOutboxDispatcherTest {
 
     @Test
     void marksAsFailedOnSendFailure() {
-        OutboxEntry entry = entry("evt-1");
-        when(repository.claimDispatchable(eq(5), any())).thenReturn(List.of(entry));
+        OutboxMessage message = message("evt-1");
+        when(repository.claimDispatchable(eq(5), any())).thenReturn(List.of(message));
         when(messageSender.send(any(), any(), any())).thenReturn(SendResult.fail("conn refused"));
 
         dispatcher.dispatch(5);
@@ -56,8 +56,8 @@ class ScheduledOutboxDispatcherTest {
 
     @Test
     void marksAsFailedOnSendException() {
-        OutboxEntry entry = entry("evt-1");
-        when(repository.claimDispatchable(eq(5), any())).thenReturn(List.of(entry));
+        OutboxMessage message = message("evt-1");
+        when(repository.claimDispatchable(eq(5), any())).thenReturn(List.of(message));
         when(messageSender.send(any(), any(), any())).thenThrow(new RuntimeException("kafka down"));
 
         dispatcher.dispatch(5);
@@ -66,9 +66,9 @@ class ScheduledOutboxDispatcherTest {
     }
 
     @Test
-    void singleFailureDoesNotBlockRemainingEntries() {
-        OutboxEntry first = entry("evt-1");
-        OutboxEntry second = entry("evt-2");
+    void singleFailureDoesNotBlockRemainingMessages() {
+        OutboxMessage first = message("evt-1");
+        OutboxMessage second = message("evt-2");
         when(repository.claimDispatchable(eq(5), any())).thenReturn(List.of(first, second));
         when(messageSender.send(eq("topic"), any(), eq("payload-evt-1")))
                 .thenThrow(new RuntimeException("fail"));
@@ -83,9 +83,9 @@ class ScheduledOutboxDispatcherTest {
 
     @Test
     void passesPayloadKeyToSender() {
-        OutboxEntry entry = entry("evt-1");
-        entry.setPayloadKey("key-A");
-        when(repository.claimDispatchable(eq(5), any())).thenReturn(List.of(entry));
+        OutboxMessage message = message("evt-1");
+        message.setPayloadKey("key-A");
+        when(repository.claimDispatchable(eq(5), any())).thenReturn(List.of(message));
         when(messageSender.send(any(), any(), any())).thenReturn(SendResult.ok());
 
         dispatcher.dispatch(5);
@@ -93,8 +93,8 @@ class ScheduledOutboxDispatcherTest {
         verify(messageSender).send("topic", "key-A", "payload-evt-1");
     }
 
-    private OutboxEntry entry(String eventId) {
-        return OutboxEntry.newPending(
+    private OutboxMessage message(String eventId) {
+        return OutboxMessage.newPending(
                 eventId, "topic", null, "com.example.Foo", "payload-" + eventId, Instant.now());
     }
 }

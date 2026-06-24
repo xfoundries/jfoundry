@@ -1,9 +1,9 @@
 package org.jfoundry.autoconfigure.outbox.persistence;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jfoundry.application.outbox.OutboxEntry;
-import org.jfoundry.application.outbox.OutboxRepository;
-import org.jfoundry.application.outbox.OutboxStatus;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.application.outbox.OutboxMessageStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.annotation.MapperScan;
@@ -70,7 +70,7 @@ class OutboxTableNameOverrideTest {
     }
 
     @Autowired
-    private OutboxRepository repository;
+    private OutboxMessageStore repository;
 
     @Autowired
     private JdbcTemplate jdbc;
@@ -85,7 +85,7 @@ class OutboxTableNameOverrideTest {
 
     @Test
     void appendWritesToCustomTable() {
-        OutboxEntry entry = OutboxEntry.newPending(
+        OutboxMessage entry = OutboxMessage.newPending(
                 "evt-custom", "test.event", null, "test.type", "{}", Instant.now());
         repository.append(entry);
 
@@ -110,9 +110,9 @@ class OutboxTableNameOverrideTest {
         appendPending("evt-claim-1", "custom_outbox");
         appendPending("evt-claim-2", "custom_outbox");
 
-        List<OutboxEntry> claimed = repository.claimDispatchable(10, "pod-custom");
+        List<OutboxMessage> claimed = repository.claimDispatchable(10, "pod-custom");
 
-        assertThat(claimed).extracting(OutboxEntry::getEventId)
+        assertThat(claimed).extracting(OutboxMessage::getEventId)
                 .containsExactlyInAnyOrder("evt-claim-1", "evt-claim-2");
 
         // 两端确认：custom_outbox 里 status 已变 DISPATCHING；jfoundry_outbox_event 仍空。
@@ -148,7 +148,7 @@ class OutboxTableNameOverrideTest {
         String status = jdbc.queryForObject(
                 "SELECT status FROM custom_outbox WHERE event_id = ?",
                 String.class, "evt-stuck");
-        assertThat(status).isEqualTo(OutboxStatus.PENDING.name());
+        assertThat(status).isEqualTo(OutboxMessageStatus.PENDING.name());
 
         // 默认表从头到尾没有任何流量。
         Integer anyInDefault = jdbc.queryForObject(
@@ -167,17 +167,17 @@ class OutboxTableNameOverrideTest {
         // 直接 SQL 改 status（绕过 markPublished 的状态机；本测试只关心 DELETE 改写）。
         jdbc.update(
                 "UPDATE custom_outbox SET status = ?, occurred_at = ? WHERE event_id = ?",
-                OutboxStatus.PUBLISHED.name(),
+                OutboxMessageStatus.PUBLISHED.name(),
                 Instant.now().minus(Duration.ofDays(10)),
                 "evt-published-old");
         // 一条 PUBLISHED 但新鲜的记录，不应被清理。
         appendPending("evt-published-fresh", "custom_outbox");
         jdbc.update(
                 "UPDATE custom_outbox SET status = ? WHERE event_id = ?",
-                OutboxStatus.PUBLISHED.name(), "evt-published-fresh");
+                OutboxMessageStatus.PUBLISHED.name(), "evt-published-fresh");
 
         int deleted = repository.deleteByStatusAndOccurredAtBefore(
-                OutboxStatus.PUBLISHED, Instant.now().minus(Duration.ofDays(1)), 10);
+                OutboxMessageStatus.PUBLISHED, Instant.now().minus(Duration.ofDays(1)), 10);
 
         assertThat(deleted).isEqualTo(1);
 
@@ -200,7 +200,7 @@ class OutboxTableNameOverrideTest {
     }
 
     private void appendPending(String eventId, String table) {
-        OutboxEntry entry = OutboxEntry.newPending(
+        OutboxMessage entry = OutboxMessage.newPending(
                 eventId, "test.event", null, "test.type", "{}", Instant.now());
         repository.append(entry);
     }

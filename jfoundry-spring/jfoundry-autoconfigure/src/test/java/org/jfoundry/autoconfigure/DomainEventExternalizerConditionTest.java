@@ -3,8 +3,8 @@ package org.jfoundry.autoconfigure;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.application.messaging.externalization.DomainEventSink;
 import org.jfoundry.application.outbox.BackoffStrategy;
-import org.jfoundry.application.outbox.OutboxEntry;
-import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.spring.externalization.DomainEventExternalizer;
 import org.jmolecules.event.types.DomainEvent;
 import org.junit.jupiter.api.Test;
@@ -51,8 +51,8 @@ class DomainEventExternalizerConditionTest {
         }
 
         @Bean
-        OutboxRepository stubOutboxRepository() {
-            return new StubOutboxRepository();
+        OutboxMessageStore stubOutboxMessageStore() {
+            return new StubOutboxMessageStore();
         }
     }
 
@@ -63,17 +63,17 @@ class DomainEventExternalizerConditionTest {
         }
     }
 
-    /// OutboxRepository stub. DomainEventExternalizer only invokes
-    /// {@link OutboxRepository#append(OutboxEntry)}; the rest satisfy the
+    /// OutboxMessageStore stub. DomainEventExternalizer only invokes
+    /// {@link OutboxMessageStore#append(OutboxMessage)}; the rest satisfy the
     /// interface contract so the test compiles.
-    static class StubOutboxRepository implements OutboxRepository {
+    static class StubOutboxMessageStore implements OutboxMessageStore {
         @Override
-        public void append(OutboxEntry entry) {
+        public void append(OutboxMessage entry) {
             // no-op
         }
 
         @Override
-        public List<OutboxEntry> findDispatchable(int limit, Instant now) {
+        public List<OutboxMessage> findDispatchable(int limit, Instant now) {
             return List.of();
         }
 
@@ -93,7 +93,7 @@ class DomainEventExternalizerConditionTest {
         }
 
         @Override
-        public List<OutboxEntry> claimDispatchable(int limit, String claimerId) {
+        public List<OutboxMessage> claimDispatchable(int limit, String claimerId) {
             return List.of();
         }
 
@@ -104,7 +104,7 @@ class DomainEventExternalizerConditionTest {
 
         @Override
         public int deleteByStatusAndOccurredAtBefore(
-                org.jfoundry.application.outbox.OutboxStatus status,
+                org.jfoundry.application.outbox.OutboxMessageStatus status,
                 java.time.Instant cutoff, int batchSize) {
             return 0;
         }

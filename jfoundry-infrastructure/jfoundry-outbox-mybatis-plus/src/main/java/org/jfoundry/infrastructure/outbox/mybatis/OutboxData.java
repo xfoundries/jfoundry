@@ -3,17 +3,17 @@ package org.jfoundry.infrastructure.outbox.mybatis;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import org.jfoundry.application.outbox.OutboxEntry;
-import org.jfoundry.application.outbox.OutboxStatus;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStatus;
 
 import java.time.Instant;
 
 /// Outbox 表 MyBatis-Plus 持久化数据对象。
 /// <p>
-/// 与 SPI 层的 {@link OutboxEntry} 字段一一对应，但携带 MyBatis-Plus 注解
+/// 与 SPI 层的 {@link OutboxMessage} 字段一一对应，但携带 MyBatis-Plus 注解
 /// （{@code @TableName("jfoundry_outbox_event")} + {@code @TableId(type = IdType.INPUT)}）。
 /// SPI 层不绑定任何 ORM；本类把 Outbox 字段固定为 MyBatis-Plus 的实体视图，
-/// 由 {@link MybatisPlusOutboxRepository} 负责 entry ↔ data 互转。
+/// 由 {@link MybatisPlusOutboxMessageStore} 负责 entry ↔ data 互转。
 @TableName("jfoundry_outbox_event")
 public class OutboxData {
 
@@ -34,11 +34,11 @@ public class OutboxData {
     private Instant nextRetryAt;
     private Instant createdAt;
     private Instant updatedAt;
-    /// P2-1: atomic claim columns — 与 OutboxEntry.claimedAt 对齐，由 Task 2.1 schema 增补。
+    /// P2-1: atomic claim columns — 与 OutboxMessage.claimedAt 对齐，由 Task 2.1 schema 增补。
     private Instant claimedAt;
-    /// P2-1: claim 该条目的 pod 标识 — 与 OutboxEntry.claimedBy 对齐。
+    /// P2-1: claim 该条目的 pod 标识 — 与 OutboxMessage.claimedBy 对齐。
     private String claimedBy;
-    /// P3-2: 本次 claimDispatchable 调用生成的唯一 token — 与 OutboxEntry.claimToken 对齐。
+    /// P3-2: 本次 claimDispatchable 调用生成的唯一 token — 与 OutboxMessage.claimToken 对齐。
     private String claimToken;
 
     public String getEventId() { return eventId; }
@@ -82,8 +82,8 @@ public class OutboxData {
 
     /// SPI entry → MP data。
     /// <p>
-    /// 状态字符串以 raw 形式复制（保留 OutboxStatus.name() 字面量），由 SPI entry 自身维护一致性。
-    public static OutboxData fromEntry(OutboxEntry entry) {
+    /// 状态字符串以 raw 形式复制（保留 OutboxMessageStatus.name() 字面量），由 SPI entry 自身维护一致性。
+    public static OutboxData fromMessage(OutboxMessage entry) {
         OutboxData data = new OutboxData();
         data.eventId = entry.getEventId();
         data.topic = entry.getTopic();
@@ -93,7 +93,7 @@ public class OutboxData {
         data.aggregateType = entry.getAggregateType();
         data.aggregateId = entry.getAggregateId();
         data.aggregateVersion = entry.getAggregateVersion();
-        OutboxStatus status = entry.getStatus();
+        OutboxMessageStatus status = entry.getStatus();
         data.status = status != null ? status.name() : null;
         data.retryCount = entry.getRetryCount();
         data.errorMessage = entry.getErrorMessage();
@@ -109,8 +109,8 @@ public class OutboxData {
     }
 
     /// MP data → SPI entry。
-    public static OutboxEntry toEntry(OutboxData data) {
-        OutboxEntry entry = new OutboxEntry();
+    public static OutboxMessage toMessage(OutboxData data) {
+        OutboxMessage entry = new OutboxMessage();
         entry.setEventId(data.eventId);
         entry.setTopic(data.topic);
         entry.setPayloadKey(data.payloadKey);
@@ -120,7 +120,7 @@ public class OutboxData {
         entry.setAggregateId(data.aggregateId);
         entry.setAggregateVersion(data.aggregateVersion);
         if (data.status != null) {
-            entry.setStatus(OutboxStatus.valueOf(data.status));
+            entry.setStatus(OutboxMessageStatus.valueOf(data.status));
         }
         entry.setRetryCount(data.retryCount);
         entry.setErrorMessage(data.errorMessage);

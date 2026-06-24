@@ -12,7 +12,7 @@ import org.apache.ibatis.annotations.Mapper;
 /// 在运行时根据 {@link com.baomidou.mybatisplus.annotation.DbType} 生成对应方言 SQL，
 /// 不在源码层为每种数据库（MySQL / H2 / 达梦 / PostgreSQL / Oracle / ...）维护独立的 SQL 副本。
 /// <p>
-/// 关键操作实现策略（均在 {@link MybatisPlusOutboxRepository}）：
+/// 关键操作实现策略（均在 {@link MybatisPlusOutboxMessageStore}）：
 /// <ul>
 ///   <li><b>原子批量 claim</b>：放弃 MySQL 特有的 {@code UPDATE...ORDER BY...LIMIT N}，
 ///       改为 {@code selectPage(N) → 逐条 CAS UPDATE}。selectPage 的 LIMIT 由 PaginationInnerInterceptor
@@ -23,8 +23,8 @@ import org.apache.ibatis.annotations.Mapper;
 ///   <li><b>批量清理</b>：{@code selectPage(N) + removeByIds} 循环，跨方言分页。</li>
 /// </ul>
 /// <p>
-/// 实体类型为 {@link OutboxData}（MP 持久化视图），SPI 层 {@code OutboxEntry} 由
-/// {@link MybatisPlusOutboxRepository} 在边界处互转。
+/// 实体类型为 {@link OutboxData}（MP 持久化视图），SPI 层 {@code OutboxMessage} 由
+/// {@link MybatisPlusOutboxMessageStore} 在边界处互转。
 @Mapper
 public interface OutboxMapper extends BaseMapper<OutboxData> {
 }

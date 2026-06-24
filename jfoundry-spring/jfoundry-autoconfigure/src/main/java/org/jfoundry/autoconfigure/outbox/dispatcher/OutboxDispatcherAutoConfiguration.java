@@ -5,7 +5,7 @@ import org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfig
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.outbox.BackoffStrategy;
 import org.jfoundry.application.outbox.OutboxDispatcher;
-import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.spring.backoff.ExponentialBackoffStrategy;
 import org.jfoundry.infrastructure.outbox.spring.dispatcher.OutboxDispatcherProperties;
 import org.jfoundry.infrastructure.outbox.spring.dispatcher.ScheduledOutboxDispatcher;
@@ -51,11 +51,11 @@ public class OutboxDispatcherAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean({OutboxRepository.class, MessageSender.class, BackoffStrategy.class})
+    @ConditionalOnBean({OutboxMessageStore.class, MessageSender.class, BackoffStrategy.class})
     @ConditionalOnMissingBean(OutboxDispatcher.class)
     @ConditionalOnProperty(prefix = "jfoundry.outbox.dispatcher", name = "mode", havingValue = "scheduled", matchIfMissing = true)
     public ScheduledOutboxDispatcher scheduledOutboxDispatcher(
-            OutboxRepository outboxRepository,
+            OutboxMessageStore outboxRepository,
             MessageSender messageSender,
             BackoffStrategy backoffStrategy,
             OutboxDispatcherProperties properties) {
@@ -65,26 +65,26 @@ public class OutboxDispatcherAutoConfiguration {
 
     /// P2-1 stuck-DISPATCHING recovery job。
     /// <p>
-    /// 仅在 {@link OutboxRepository} 存在时注册；与 dispatcher mode 解耦，
+    /// 仅在 {@link OutboxMessageStore} 存在时注册；与 dispatcher mode 解耦，
     /// 即使 {@code mode=jobrunr} 也能独立回收 stuck 记录。
     @Bean
-    @ConditionalOnBean({OutboxRepository.class})
+    @ConditionalOnBean({OutboxMessageStore.class})
     @ConditionalOnMissingBean(OutboxRecoveryJob.class)
-    public OutboxRecoveryJob outboxRecoveryJob(OutboxRepository outboxRepository,
+    public OutboxRecoveryJob outboxRecoveryJob(OutboxMessageStore outboxRepository,
                                                OutboxRecoveryProperties recoveryProperties) {
         return new OutboxRecoveryJob(outboxRepository, recoveryProperties);
     }
 
     /// P2-5 terminal-state cleanup job。
     /// <p>
-    /// 仅在 {@link OutboxRepository} 存在时注册；与 dispatcher mode 解耦，
+    /// 仅在 {@link OutboxMessageStore} 存在时注册；与 dispatcher mode 解耦，
     /// 即使 {@code mode=jobrunr} 也能独立清理 PUBLISHED / DEAD_LETTERED 记录。
     /// 任务的启停通过 {@link OutboxCleanupProperties#isEnabled()} 控制
     /// （默认 {@code true}），无需重启 ApplicationContext。
     @Bean
-    @ConditionalOnBean({OutboxRepository.class})
+    @ConditionalOnBean({OutboxMessageStore.class})
     @ConditionalOnMissingBean(OutboxCleanupJob.class)
-    public OutboxCleanupJob outboxCleanupJob(OutboxRepository outboxRepository,
+    public OutboxCleanupJob outboxCleanupJob(OutboxMessageStore outboxRepository,
                                              OutboxCleanupProperties cleanupProperties) {
         return new OutboxCleanupJob(outboxRepository, cleanupProperties);
     }

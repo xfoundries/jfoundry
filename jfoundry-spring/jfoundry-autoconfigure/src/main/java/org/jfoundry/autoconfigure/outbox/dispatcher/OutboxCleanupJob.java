@@ -1,7 +1,7 @@
 package org.jfoundry.autoconfigure.outbox.dispatcher;
 
-import org.jfoundry.application.outbox.OutboxRepository;
-import org.jfoundry.application.outbox.OutboxStatus;
+import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.application.outbox.OutboxMessageStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +29,11 @@ public class OutboxCleanupJob {
 
     private static final Logger log = LoggerFactory.getLogger(OutboxCleanupJob.class);
 
-    private final OutboxRepository outboxRepository;
+    private final OutboxMessageStore outboxRepository;
     private final OutboxCleanupProperties properties;
 
     @Autowired
-    public OutboxCleanupJob(OutboxRepository outboxRepository, OutboxCleanupProperties properties) {
+    public OutboxCleanupJob(OutboxMessageStore outboxRepository, OutboxCleanupProperties properties) {
         this.outboxRepository = outboxRepository;
         this.properties = properties;
     }
@@ -54,9 +54,9 @@ public class OutboxCleanupJob {
         Instant deadCutoff = now.minus(Duration.ofDays(properties.getDeadLetteredRetentionDays()));
 
         int publishedDeleted = outboxRepository.deleteByStatusAndOccurredAtBefore(
-                OutboxStatus.PUBLISHED, publishedCutoff, properties.getBatchSize());
+                OutboxMessageStatus.PUBLISHED, publishedCutoff, properties.getBatchSize());
         int deadDeleted = outboxRepository.deleteByStatusAndOccurredAtBefore(
-                OutboxStatus.DEAD_LETTERED, deadCutoff, properties.getBatchSize());
+                OutboxMessageStatus.DEAD_LETTERED, deadCutoff, properties.getBatchSize());
 
         int total = publishedDeleted + deadDeleted;
         if (total > 0) {

@@ -3,8 +3,8 @@ package org.jfoundry.infrastructure.outbox.jobrunr.dispatcher;
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
 import org.jfoundry.application.outbox.BackoffStrategy;
-import org.jfoundry.application.outbox.OutboxEntry;
-import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -29,14 +29,14 @@ class JobRunrOutboxDispatcherTest {
     private static final int BATCH_SIZE = 50;
     private static final int MAX_RETRIES = 5;
 
-    private OutboxRepository outboxRepository;
+    private OutboxMessageStore outboxRepository;
     private MessageSender messageSender;
     private BackoffStrategy backoff;
     private JobRunrOutboxDispatcher dispatcher;
 
     @BeforeEach
     void setUp() {
-        outboxRepository = mock(OutboxRepository.class);
+        outboxRepository = mock(OutboxMessageStore.class);
         messageSender = mock(MessageSender.class);
         backoff = failedAttempts -> Duration.ofSeconds(1);
         dispatcher = new JobRunrOutboxDispatcher(outboxRepository, messageSender, BATCH_SIZE, MAX_RETRIES, backoff);
@@ -44,8 +44,8 @@ class JobRunrOutboxDispatcherTest {
 
     @Test
     void dispatchMarksPublishedOnSuccess() {
-        OutboxEntry entry = entry("evt-1");
-        when(outboxRepository.claimDispatchable(anyInt(), any())).thenReturn(List.of(entry));
+        OutboxMessage message = message("evt-1");
+        when(outboxRepository.claimDispatchable(anyInt(), any())).thenReturn(List.of(message));
         when(messageSender.send(any(), any(), any())).thenReturn(SendResult.ok());
 
         dispatcher.dispatch(BATCH_SIZE);
@@ -56,8 +56,8 @@ class JobRunrOutboxDispatcherTest {
 
     @Test
     void dispatchMarksFailedOnSenderException() {
-        OutboxEntry entry = entry("evt-1");
-        when(outboxRepository.claimDispatchable(anyInt(), any())).thenReturn(List.of(entry));
+        OutboxMessage message = message("evt-1");
+        when(outboxRepository.claimDispatchable(anyInt(), any())).thenReturn(List.of(message));
         when(messageSender.send(any(), any(), any())).thenThrow(new RuntimeException("kafka unavailable"));
 
         dispatcher.dispatch(BATCH_SIZE);
@@ -67,8 +67,8 @@ class JobRunrOutboxDispatcherTest {
 
     @Test
     void dispatchMarksFailedOnSendFailureResult() {
-        OutboxEntry entry = entry("evt-1");
-        when(outboxRepository.claimDispatchable(anyInt(), any())).thenReturn(List.of(entry));
+        OutboxMessage message = message("evt-1");
+        when(outboxRepository.claimDispatchable(anyInt(), any())).thenReturn(List.of(message));
         when(messageSender.send(any(), any(), any())).thenReturn(SendResult.fail("conn refused"));
 
         dispatcher.dispatch(BATCH_SIZE);
@@ -87,8 +87,8 @@ class JobRunrOutboxDispatcherTest {
 
     @Test
     void dispatchPassesTopicAndPayloadToSender() {
-        OutboxEntry entry = entry("evt-1");
-        when(outboxRepository.claimDispatchable(anyInt(), any())).thenReturn(List.of(entry));
+        OutboxMessage message = message("evt-1");
+        when(outboxRepository.claimDispatchable(anyInt(), any())).thenReturn(List.of(message));
         when(messageSender.send(any(), any(), any())).thenReturn(SendResult.ok());
 
         dispatcher.dispatch(BATCH_SIZE);
@@ -98,8 +98,8 @@ class JobRunrOutboxDispatcherTest {
         assertThat(topicCaptor.getValue()).isEqualTo("env.created");
     }
 
-    private OutboxEntry entry(String eventId) {
-        return OutboxEntry.newPending(
+    private OutboxMessage message(String eventId) {
+        return OutboxMessage.newPending(
                 eventId, "env.created", "key-A", "com.example.Foo", "payload-" + eventId, Instant.now());
     }
 }

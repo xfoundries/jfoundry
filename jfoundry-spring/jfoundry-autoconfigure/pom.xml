@@ -23,7 +23,7 @@
     <dependencies>
         <!-- Aggregate all DDD infrastructure implementations so AutoConfigurations can reference
              their concrete beans (DomainEventExternalizer, ScheduledOutboxDispatcher,
-             MybatisPlusOutboxRepository, LoggingMessageSender, JacksonPayloadSerializer). -->
+             MybatisPlusOutboxMessageStore, LoggingMessageSender, JacksonPayloadSerializer). -->
         <dependency>
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-messaging-core</artifactId>

@@ -11,7 +11,7 @@ import java.time.Instant;
 /// {@link #markPublished()} / {@link #markFailed(String, int, BackoffStrategy)} /
 /// {@link #reactivate()} 封装；{@code DISPATCHING} 状态的进入/退出由 P2-1 的原子 claim
 /// 与 recovery 任务负责（见 {@code claimDispatchable}）。
-public class OutboxEntry {
+public class OutboxMessage {
 
     private String eventId;
     private String topic;
@@ -41,16 +41,16 @@ public class OutboxEntry {
     /// 离开 DISPATCHING 状态时清空。
     private String claimToken;
 
-    public static OutboxEntry newPending(String eventId, String topic, String payloadKey,
+    public static OutboxMessage newPending(String eventId, String topic, String payloadKey,
                                           String payloadType, String payloadJson, Instant occurredAt) {
-        OutboxEntry entry = new OutboxEntry();
+        OutboxMessage entry = new OutboxMessage();
         Instant now = Instant.now();
         entry.eventId = eventId;
         entry.topic = topic;
         entry.payloadKey = payloadKey;
         entry.payloadType = payloadType;
         entry.payloadJson = payloadJson;
-        entry.status = OutboxStatus.PENDING.name();
+        entry.status = OutboxMessageStatus.PENDING.name();
         entry.retryCount = 0;
         entry.errorMessage = null;
         entry.occurredAt = occurredAt;
@@ -61,10 +61,10 @@ public class OutboxEntry {
         return entry;
     }
 
-    public static OutboxEntry newPending(String eventId, String topic, String payloadKey,
+    public static OutboxMessage newPending(String eventId, String topic, String payloadKey,
                                           String payloadType, String payloadJson, Instant occurredAt,
                                           String aggregateType, String aggregateId, Long aggregateVersion) {
-        OutboxEntry entry = newPending(eventId, topic, payloadKey, payloadType, payloadJson, occurredAt);
+        OutboxMessage entry = newPending(eventId, topic, payloadKey, payloadType, payloadJson, occurredAt);
         entry.aggregateType = aggregateType;
         entry.aggregateId = aggregateId;
         entry.aggregateVersion = aggregateVersion;
@@ -73,7 +73,7 @@ public class OutboxEntry {
 
     public void markPublished() {
         Instant now = Instant.now();
-        this.status = OutboxStatus.PUBLISHED.name();
+        this.status = OutboxMessageStatus.PUBLISHED.name();
         this.lastAttemptAt = now;
         // Claim 结束：本条记录不再被任何 pod 持有，清空 claim 元数据。
         this.claimedAt = null;
@@ -90,10 +90,10 @@ public class OutboxEntry {
         java.time.Duration delay = backoff.nextDelay(retryCountBefore);
         this.retryCount = retryCountBefore + 1;
         if (this.retryCount >= maxRetries) {
-            this.status = OutboxStatus.DEAD_LETTERED.name();
+            this.status = OutboxMessageStatus.DEAD_LETTERED.name();
             this.nextRetryAt = null;
         } else {
-            this.status = OutboxStatus.FAILED.name();
+            this.status = OutboxMessageStatus.FAILED.name();
             this.nextRetryAt = now.plus(delay);
         }
         // Claim 结束（DISPATCHING → FAILED / DEAD_LETTERED）：本条记录不再被任何 pod 持有，
@@ -105,12 +105,12 @@ public class OutboxEntry {
     }
 
     public void reactivate() {
-        if (!OutboxStatus.DEAD_LETTERED.name().equals(this.status)) {
+        if (!OutboxMessageStatus.DEAD_LETTERED.name().equals(this.status)) {
             throw new IllegalStateException(
                     "reactivate 仅允许从 DEAD_LETTERED 状态转入 PENDING，当前状态: " + this.status);
         }
         Instant now = Instant.now();
-        this.status = OutboxStatus.PENDING.name();
+        this.status = OutboxMessageStatus.PENDING.name();
         this.retryCount = 0;
         this.nextRetryAt = now;
         this.errorMessage = null;
@@ -137,8 +137,8 @@ public class OutboxEntry {
     public void setAggregateId(String aggregateId) { this.aggregateId = aggregateId; }
     public Long getAggregateVersion() { return aggregateVersion; }
     public void setAggregateVersion(Long aggregateVersion) { this.aggregateVersion = aggregateVersion; }
-    public OutboxStatus getStatus() { return OutboxStatus.valueOf(status); }
-    public void setStatus(OutboxStatus status) { this.status = status.name(); }
+    public OutboxMessageStatus getStatus() { return OutboxMessageStatus.valueOf(status); }
+    public void setStatus(OutboxMessageStatus status) { this.status = status.name(); }
     public int getRetryCount() { return retryCount; }
     public void setRetryCount(int retryCount) { this.retryCount = retryCount; }
     public String getErrorMessage() { return errorMessage; }

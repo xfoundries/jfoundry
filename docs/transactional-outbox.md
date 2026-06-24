@@ -27,7 +27,7 @@ jfoundry 当前实现的是 Transactional Outbox 的 polling publisher 变体：
 Aggregate/Application Service
   -> DomainEventPublisher
   -> DomainEventExternalizer
-  -> OutboxRepository
+  -> OutboxMessageStore
   -> jfoundry_outbox_event
   -> OutboxDispatcher
   -> MessageSender
@@ -60,7 +60,7 @@ public final class OrderCreatedEvent extends AbstractDomainEvent {
 
 ## 配置
 
-默认 MyBatis-Plus starter 会提供 `OutboxRepository`，表名默认为 `jfoundry_outbox_event`。如需自定义表名，设置 `jfoundry.outbox.table-name`，并由业务侧创建同结构表。
+默认 MyBatis-Plus starter 会提供 `OutboxMessageStore`，表名默认为 `jfoundry_outbox_event`。如需自定义表名，设置 `jfoundry.outbox.table-name`，并由业务侧创建同结构表。
 
 ```yaml
 jfoundry:

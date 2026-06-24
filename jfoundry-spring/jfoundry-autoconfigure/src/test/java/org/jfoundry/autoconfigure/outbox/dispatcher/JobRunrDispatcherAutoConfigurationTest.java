@@ -4,7 +4,7 @@ import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
 import org.jfoundry.application.outbox.BackoffStrategy;
 import org.jfoundry.application.outbox.OutboxDispatcher;
-import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.jobrunr.dispatcher.JobRunrOutboxDispatcher;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,7 +35,7 @@ class JobRunrDispatcherAutoConfigurationTest {
     private final ApplicationContextRunner runner =
             new ApplicationContextRunner()
                     .withConfiguration(AutoConfigurations.of(JobRunrDispatcherAutoConfiguration.class))
-                    .withBean(OutboxRepository.class, () -> mock(OutboxRepository.class))
+                    .withBean(OutboxMessageStore.class, () -> mock(OutboxMessageStore.class))
                     .withBean(MessageSender.class, () -> (MessageSender) (topic, key, payload) -> SendResult.ok())
                     .withBean(BackoffStrategy.class, () -> (BackoffStrategy) failedAttempts -> Duration.ofSeconds(1));
 
@@ -82,7 +82,7 @@ class JobRunrDispatcherAutoConfigurationTest {
                         "jfoundry.outbox.dispatcher.maxRetries=7"
                 )
                 .run(context -> {
-                    OutboxRepository repo = context.getBean(OutboxRepository.class);
+                    OutboxMessageStore repo = context.getBean(OutboxMessageStore.class);
                     when(repo.claimDispatchable(anyInt(), any())).thenReturn(List.of());
 
                     // recurringDispatch 走构造函数注入的 batchSize 字段（@Job 入口），
@@ -98,7 +98,7 @@ class JobRunrDispatcherAutoConfigurationTest {
     }
 
     @Test
-    void dispatcherIsAbsentWhenOutboxRepositoryBeanMissing() {
+    void dispatcherIsAbsentWhenOutboxMessageStoreBeanMissing() {
         new ApplicationContextRunner()
                 .withConfiguration(AutoConfigurations.of(JobRunrDispatcherAutoConfiguration.class))
                 .withBean(MessageSender.class, () -> (MessageSender) (topic, key, payload) -> SendResult.ok())

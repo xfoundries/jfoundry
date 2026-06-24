@@ -9,7 +9,7 @@ package org.jfoundry.application.outbox;
 ///   <li>{@code DISPATCHING} stuck → {@code PENDING}（recovery 任务回滚，见 P2-1）</li>
 ///   <li>{@code DEAD_LETTERED} → {@code PENDING}（reactivate）</li>
 /// </ul>
-public enum OutboxStatus {
+public enum OutboxMessageStatus {
     PENDING,
     DISPATCHING,
     PUBLISHED,

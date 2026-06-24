@@ -4,7 +4,7 @@ import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.outbox.BackoffStrategy;
 import org.jfoundry.application.outbox.DefaultOutboxDispatchService;
 import org.jfoundry.application.outbox.OutboxDispatcher;
-import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.application.outbox.OutboxRuntimeIds;
 import org.jobrunr.jobs.annotations.Job;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ public class JobRunrOutboxDispatcher implements OutboxDispatcher {
     private final OutboxDispatcher dispatchService;
     private final int batchSize;
 
-    public JobRunrOutboxDispatcher(OutboxRepository outboxRepository,
+    public JobRunrOutboxDispatcher(OutboxMessageStore outboxRepository,
                                     MessageSender messageSender,
                                     int batchSize,
                                     int maxRetries,
@@ -29,7 +29,7 @@ public class JobRunrOutboxDispatcher implements OutboxDispatcher {
 
     /// 测试专用：允许注入 podId 以断言并发互斥行为。生产构造函数走
     /// {@link OutboxRuntimeIds#generateClaimerId()}。
-    JobRunrOutboxDispatcher(OutboxRepository outboxRepository,
+    JobRunrOutboxDispatcher(OutboxMessageStore outboxRepository,
                             MessageSender messageSender,
                             int batchSize,
                             int maxRetries,

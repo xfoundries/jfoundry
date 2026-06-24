@@ -3,7 +3,7 @@ package org.jfoundry.autoconfigure.outbox.dispatcher;
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.outbox.BackoffStrategy;
 import org.jfoundry.application.outbox.OutboxDispatcher;
-import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.jobrunr.dispatcher.JobRunrOutboxDispatcher;
 import org.jfoundry.infrastructure.outbox.spring.dispatcher.OutboxDispatcherProperties;
 import org.jobrunr.scheduling.JobScheduler;
@@ -37,10 +37,10 @@ import org.springframework.context.annotation.Bean;
 public class JobRunrDispatcherAutoConfiguration {
 
     @Bean
-    @ConditionalOnBean({OutboxRepository.class, MessageSender.class, BackoffStrategy.class})
+    @ConditionalOnBean({OutboxMessageStore.class, MessageSender.class, BackoffStrategy.class})
     @ConditionalOnMissingBean(OutboxDispatcher.class)
     public JobRunrOutboxDispatcher jobRunrOutboxDispatcher(
-            OutboxRepository outboxRepository,
+            OutboxMessageStore outboxRepository,
             MessageSender messageSender,
             BackoffStrategy backoffStrategy,
             OutboxDispatcherProperties properties,

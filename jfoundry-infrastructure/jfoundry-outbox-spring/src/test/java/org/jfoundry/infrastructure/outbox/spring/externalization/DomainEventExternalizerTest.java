@@ -6,9 +6,9 @@ import org.jfoundry.application.messaging.externalization.AggregateRoutingResolv
 import org.jfoundry.application.messaging.externalization.ExternalizationRuleResolver;
 import org.jfoundry.application.messaging.externalization.MessageRouting;
 import org.jfoundry.application.outbox.BackoffStrategy;
-import org.jfoundry.application.outbox.OutboxEntry;
-import org.jfoundry.application.outbox.OutboxRepository;
-import org.jfoundry.application.outbox.OutboxStatus;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.application.outbox.OutboxMessageStatus;
 import org.jmolecules.event.annotation.Externalized;
 import org.jmolecules.event.types.DomainEvent;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DomainEventExternalizerTest {
 
-    private final CapturingOutboxRepository repository = new CapturingOutboxRepository();
+    private final CapturingOutboxMessageStore repository = new CapturingOutboxMessageStore();
     private final DomainEventExternalizer externalizer = new DomainEventExternalizer(
             repository,
             event -> "{}",
@@ -56,7 +56,7 @@ class DomainEventExternalizerTest {
     void storesAggregateMetadataAndUsesAggregateIdAsFallbackPayloadKey() {
         externalizer.handle(new OrderCreatedEvent());
 
-        OutboxEntry entry = repository.lastAppended;
+        OutboxMessage entry = repository.lastAppended;
         assertThat(entry.getTopic()).isEqualTo("order.created");
         assertThat(entry.getPayloadKey()).isEqualTo("order-1");
         assertThat(entry.getAggregateType()).isEqualTo("Order");
@@ -68,21 +68,21 @@ class DomainEventExternalizerTest {
     void explicitPayloadKeyWinsOverAggregateId() {
         externalizer.handle(new ExplicitKeyEvent());
 
-        OutboxEntry entry = repository.lastAppended;
+        OutboxMessage entry = repository.lastAppended;
         assertThat(entry.getPayloadKey()).isEqualTo("tenant-1");
         assertThat(entry.getAggregateId()).isEqualTo("order-2");
     }
 
-    static class CapturingOutboxRepository implements OutboxRepository {
-        private OutboxEntry lastAppended;
+    static class CapturingOutboxMessageStore implements OutboxMessageStore {
+        private OutboxMessage lastAppended;
 
         @Override
-        public void append(OutboxEntry entry) {
+        public void append(OutboxMessage entry) {
             this.lastAppended = entry;
         }
 
         @Override
-        public List<OutboxEntry> findDispatchable(int limit, Instant now) {
+        public List<OutboxMessage> findDispatchable(int limit, Instant now) {
             throw new UnsupportedOperationException();
         }
 
@@ -102,7 +102,7 @@ class DomainEventExternalizerTest {
         }
 
         @Override
-        public List<OutboxEntry> claimDispatchable(int limit, String claimerId) {
+        public List<OutboxMessage> claimDispatchable(int limit, String claimerId) {
             throw new UnsupportedOperationException();
         }
 
@@ -112,7 +112,7 @@ class DomainEventExternalizerTest {
         }
 
         @Override
-        public int deleteByStatusAndOccurredAtBefore(OutboxStatus status, Instant cutoff, int batchSize) {
+        public int deleteByStatusAndOccurredAtBefore(OutboxMessageStatus status, Instant cutoff, int batchSize) {
             throw new UnsupportedOperationException();
         }
     }

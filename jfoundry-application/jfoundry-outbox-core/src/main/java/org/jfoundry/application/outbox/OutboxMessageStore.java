@@ -9,13 +9,13 @@ import java.util.List;
 /// <ul>
 ///   <li>{@link #markAsPublished(String)} / {@link #markAsFailed(String, String, int, BackoffStrategy)}
 ///       / {@link #reactivate(String)} 均为 load → mutate → save。entry 不存在时静默返回。</li>
-///   <li>{@link #reactivate(String)} 当 entry 非 DEAD_LETTERED 时由 {@link OutboxEntry#reactivate()}
+///   <li>{@link #reactivate(String)} 当 entry 非 DEAD_LETTERED 时由 {@link OutboxMessage#reactivate()}
 ///       抛 {@link IllegalStateException}（fail-fast）。</li>
 /// </ul>
 /// 多实例安全性：v1 不实现分布式锁，依赖消费端幂等（详见 spec §5.8）。
-public interface OutboxRepository {
+public interface OutboxMessageStore {
 
-    void append(OutboxEntry entry);
+    void append(OutboxMessage entry);
 
     /// 取出待 dispatch 的条目：
     /// <pre>
@@ -23,7 +23,7 @@ public interface OutboxRepository {
     /// ORDER BY occurredAt ASC
     /// LIMIT n
     /// </pre>
-    List<OutboxEntry> findDispatchable(int limit, Instant now);
+    List<OutboxMessage> findDispatchable(int limit, Instant now);
 
     void markAsPublished(String eventId);
 
@@ -67,7 +67,7 @@ public interface OutboxRepository {
     ///   <li>{@code limit <= 0} 抛 {@link IllegalArgumentException}</li>
     ///   <li>{@code claimerId} 为 null 或空白抛 {@link IllegalArgumentException}</li>
     /// </ul>
-    List<OutboxEntry> claimDispatchable(int limit, String claimerId);
+    List<OutboxMessage> claimDispatchable(int limit, String claimerId);
 
     /// 恢复卡住的 DISPATCHING 记录：claimedAt 早于 {@code cutoff} 的记录回滚为 PENDING。
     /// <p>
@@ -120,5 +120,5 @@ public interface OutboxRepository {
     /// @param cutoff    截止时刻，occurredAt 严格早于该时刻的记录被删除
     /// @param batchSize 单批最多删除的记录数（实现侧循环到删干净）
     /// @return 累计删除的记录总数（0 表示没有匹配的记录）
-    int deleteByStatusAndOccurredAtBefore(OutboxStatus status, Instant cutoff, int batchSize);
+    int deleteByStatusAndOccurredAtBefore(OutboxMessageStatus status, Instant cutoff, int batchSize);
 }

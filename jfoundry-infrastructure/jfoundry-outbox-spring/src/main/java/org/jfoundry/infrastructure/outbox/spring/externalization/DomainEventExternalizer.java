@@ -7,8 +7,8 @@ import org.jfoundry.application.messaging.externalization.AggregateRoutingResolv
 import org.jfoundry.application.messaging.externalization.DomainEventSink;
 import org.jfoundry.application.messaging.externalization.ExternalizationRule;
 import org.jfoundry.application.messaging.externalization.ExternalizationRuleResolver;
-import org.jfoundry.application.outbox.OutboxEntry;
-import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jmolecules.event.types.DomainEvent;
 
 import java.time.Instant;
@@ -19,18 +19,18 @@ import java.time.Instant;
 /// 不再额外监听 ApplicationEvent —— 否则同一事件会被同步调用与监听器调用各处理一次，导致重复写 Outbox。
 public class DomainEventExternalizer implements DomainEventSink {
 
-    private final OutboxRepository outboxRepository;
+    private final OutboxMessageStore outboxRepository;
     private final PayloadSerializer payloadSerializer;
     private final ExternalizationRuleResolver ruleResolver;
     private final AggregateRoutingResolver aggregateRoutingResolver;
 
-    public DomainEventExternalizer(OutboxRepository outboxRepository,
+    public DomainEventExternalizer(OutboxMessageStore outboxRepository,
                                     PayloadSerializer payloadSerializer,
                                     ExternalizationRuleResolver ruleResolver) {
         this(outboxRepository, payloadSerializer, ruleResolver, new AggregateRoutingResolver());
     }
 
-    public DomainEventExternalizer(OutboxRepository outboxRepository,
+    public DomainEventExternalizer(OutboxMessageStore outboxRepository,
                                     PayloadSerializer payloadSerializer,
                                     ExternalizationRuleResolver ruleResolver,
                                     AggregateRoutingResolver aggregateRoutingResolver) {
@@ -55,7 +55,7 @@ public class DomainEventExternalizer implements DomainEventSink {
         if (payloadKey == null && aggregate != null) {
             payloadKey = aggregate.aggregateId();
         }
-        OutboxEntry entry = OutboxEntry.newPending(
+        OutboxMessage entry = OutboxMessage.newPending(
                 eventId,
                 rule.topic(),
                 payloadKey,

@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerIntercept
 import org.jfoundry.autoconfigure.outbox.JfoundryOutboxProperties;
 import org.jfoundry.autoconfigure.persistence.DbTypeResolver;
 import org.jfoundry.autoconfigure.persistence.JfoundryPersistenceProperties;
-import org.jfoundry.application.outbox.OutboxRepository;
-import org.jfoundry.infrastructure.outbox.mybatis.MybatisPlusOutboxRepository;
+import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.infrastructure.outbox.mybatis.MybatisPlusOutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxMapper;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.BeansException;
@@ -23,7 +23,7 @@ import org.springframework.core.env.Environment;
 ///   <li>@MapperScan 显式扫描 OutboxMapper 包，由 ImportBeanDefinitionRegistrar 在 ConfigurationClassParser
 ///       阶段注册 bean 定义，供下游 AutoConfiguration 在 @Autowired 注入时解析。</li>
 ///   <li>未注册任何 MybatisPlusInterceptor 时提供仅含 PaginationInnerInterceptor 的默认实例。</li>
-///   <li>注册 MybatisPlusOutboxRepository 作为 OutboxRepository 默认实现。</li>
+///   <li>注册 MybatisPlusOutboxMessageStore 作为 OutboxMessageStore 默认实现。</li>
 ///   <li>P2-2: 在 MybatisPlusInterceptor 中追加 outbox 动态表名 inner interceptor，
 ///       把 OutboxData 的逻辑表名 {@code jfoundry_outbox_event} 重写为业务配置的
 ///       {@code jfoundry.outbox.table-name}。</li>
@@ -35,7 +35,7 @@ import org.springframework.core.env.Environment;
 ///       启动阶段触发 DataSource 提前初始化（影响其它依赖启动时序的测试）。</li>
 /// </ul>
 /// <p>
-/// 注：不在 mybatisPlusOutboxRepository 上加 @ConditionalOnBean(OutboxMapper.class) —— 因为
+/// 注：不在 mybatisPlusOutboxMessageStore 上加 @ConditionalOnBean(OutboxMapper.class) —— 因为
 /// MapperScannerConfigurer 是 BeanDefinitionRegistryPostProcessor，注册时机晚于 @ConditionalOnBean
 /// 评估。OutboxMapper 通过构造器参数 @Autowired 注入，若 mapper 缺失会在 bean 创建时明确报错。
 @AutoConfiguration
@@ -97,10 +97,10 @@ public class OutboxMybatisPlusAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(OutboxRepository.class)
-    public OutboxRepository mybatisPlusOutboxRepository(
+    @ConditionalOnMissingBean(OutboxMessageStore.class)
+    public OutboxMessageStore mybatisPlusOutboxMessageStore(
             OutboxMapper outboxMapper,
             MybatisPlusInterceptor mybatisPlusInterceptor) {
-        return new MybatisPlusOutboxRepository(outboxMapper, mybatisPlusInterceptor);
+        return new MybatisPlusOutboxMessageStore(outboxMapper, mybatisPlusInterceptor);
     }
 }

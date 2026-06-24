@@ -7,18 +7,18 @@ import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.jfoundry.application.outbox.BackoffStrategy;
-import org.jfoundry.application.outbox.OutboxEntry;
-import org.jfoundry.application.outbox.OutboxRepository;
-import org.jfoundry.application.outbox.OutboxStatus;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.application.outbox.OutboxMessageStatus;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/// OutboxRepository 默认实现：基于 MyBatis-Plus。
+/// OutboxMessageStore 默认实现：基于 MyBatis-Plus。
 /// <p>
-/// SPI 层 {@link OutboxEntry} 不携带任何 ORM 注解，本类在边界处负责 entry ↔ {@link OutboxData}
+/// SPI 层 {@link OutboxMessage} 不携带任何 ORM 注解，本类在边界处负责 entry ↔ {@link OutboxData}
 /// 互转。所有数据库操作走 {@link com.baomidou.mybatisplus.core.mapper.BaseMapper} 标准 API
 /// （selectPage / update / deleteBatchIds 等），跨方言 SQL 由 MyBatis-Plus +
 /// {@link PaginationInnerInterceptor} 在运行时按 {@link com.baomidou.mybatisplus.annotation.DbType}
@@ -38,11 +38,11 @@ import java.util.UUID;
 /// 用于运维观测与 P3-2 语义对齐，但 CAS 模式下不再依赖 token 做回读去重。
 /// <p>
 /// 构造时 fail-fast：检测传入的 MybatisPlusInterceptor 是否含 PaginationInnerInterceptor。
-public class MybatisPlusOutboxRepository implements OutboxRepository {
+public class MybatisPlusOutboxMessageStore implements OutboxMessageStore {
 
     private final OutboxMapper mapper;
 
-    public MybatisPlusOutboxRepository(OutboxMapper mapper,
+    public MybatisPlusOutboxMessageStore(OutboxMapper mapper,
                                        MybatisPlusInterceptor mybatisPlusInterceptor) {
         this.mapper = mapper;
         verifyPaginationInterceptor(mybatisPlusInterceptor);
@@ -54,7 +54,7 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
         if (!hasPagination) {
             throw new IllegalStateException(
                     "MybatisPlusInterceptor 中未包含 PaginationInnerInterceptor，"
-                            + "OutboxRepository 多处依赖 selectPage 生成方言 SQL（findDispatchable / "
+                            + "OutboxMessageStore 多处依赖 selectPage 生成方言 SQL（findDispatchable / "
                             + "claimDispatchable / deleteByStatusAndOccurredAtBefore），"
                             + "未注册时 selectPage 会 silently 返回全表。"
                             + "请将 PaginationInnerInterceptor 加入 MybatisPlusInterceptor。");
@@ -62,16 +62,16 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
     }
 
     @Override
-    public void append(OutboxEntry entry) {
-        mapper.insert(OutboxData.fromEntry(entry));
+    public void append(OutboxMessage entry) {
+        mapper.insert(OutboxData.fromMessage(entry));
     }
 
     @Override
-    public List<OutboxEntry> findDispatchable(int limit, Instant now) {
+    public List<OutboxMessage> findDispatchable(int limit, Instant now) {
         Page<OutboxData> page = new Page<>(1, limit, false);
         IPage<OutboxData> result = mapper.selectPage(page,
                 dispatchableCandidatesQuery(now).orderByAsc(OutboxData::getOccurredAt));
-        return result.getRecords().stream().map(OutboxData::toEntry).toList();
+        return result.getRecords().stream().map(OutboxData::toMessage).toList();
     }
 
     /// "可派发候选" 的 WHERE 条件：{@code status IN (PENDING, FAILED) AND retry-due}。
@@ -81,8 +81,8 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
     private static LambdaQueryWrapper<OutboxData> dispatchableCandidatesQuery(Instant now) {
         return Wrappers.lambdaQuery(OutboxData.class)
                 .in(OutboxData::getStatus,
-                        OutboxStatus.PENDING.name(),
-                        OutboxStatus.FAILED.name())
+                        OutboxMessageStatus.PENDING.name(),
+                        OutboxMessageStatus.FAILED.name())
                 .and(wrapper -> wrapper
                         .isNull(OutboxData::getNextRetryAt)
                         .or()
@@ -95,9 +95,9 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
         if (data == null) {
             return;
         }
-        OutboxEntry entry = OutboxData.toEntry(data);
+        OutboxMessage entry = OutboxData.toMessage(data);
         entry.markPublished();
-        mapper.updateById(OutboxData.fromEntry(entry));
+        mapper.updateById(OutboxData.fromMessage(entry));
     }
 
     @Override
@@ -106,9 +106,9 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
         if (data == null) {
             return;
         }
-        OutboxEntry entry = OutboxData.toEntry(data);
+        OutboxMessage entry = OutboxData.toMessage(data);
         entry.markFailed(errorMessage, maxRetries, backoff);
-        mapper.updateById(OutboxData.fromEntry(entry));
+        mapper.updateById(OutboxData.fromMessage(entry));
     }
 
     @Override
@@ -117,9 +117,9 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
         if (data == null) {
             return;
         }
-        OutboxEntry entry = OutboxData.toEntry(data);
+        OutboxMessage entry = OutboxData.toMessage(data);
         entry.reactivate();
-        mapper.updateById(OutboxData.fromEntry(entry));
+        mapper.updateById(OutboxData.fromMessage(entry));
     }
 
     /// CAS 两步法 claim：候选集 selectPage + 逐条 CAS UPDATE，外层 retry 直到拿满 limit 或候选耗尽。
@@ -132,7 +132,7 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
     /// <p>
     /// 调用方契约：返回值 ≤ {@code limit}。候选池不足时返回 < limit（dispatcher 下一轮再 dispatch）。
     @Override
-    public List<OutboxEntry> claimDispatchable(int limit, String claimerId) {
+    public List<OutboxMessage> claimDispatchable(int limit, String claimerId) {
         if (limit <= 0) {
             throw new IllegalArgumentException("limit must be positive: " + limit);
         }
@@ -144,7 +144,7 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
         String claimToken = UUID.randomUUID().toString();
         Instant now = Instant.now();
 
-        List<OutboxEntry> claimed = new ArrayList<>(limit);
+        List<OutboxMessage> claimed = new ArrayList<>(limit);
         while (claimed.size() < limit) {
             int remaining = limit - claimed.size();
             // step 1: 候选集 selectPage（LIMIT 由 PaginationInnerInterceptor 按方言生成）。
@@ -163,7 +163,7 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
                 Instant claimTime = Instant.now();
                 int updated = mapper.update(null,
                         Wrappers.lambdaUpdate(OutboxData.class)
-                                .set(OutboxData::getStatus, OutboxStatus.DISPATCHING.name())
+                                .set(OutboxData::getStatus, OutboxMessageStatus.DISPATCHING.name())
                                 .set(OutboxData::getClaimedBy, claimerId)
                                 .set(OutboxData::getClaimToken, claimToken)
                                 .set(OutboxData::getClaimedAt, claimTime)
@@ -171,11 +171,11 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
                                 .eq(OutboxData::getStatus, candidate.getStatus()));
                 if (updated == 1) {
                     // 返回值反映 claim 后的状态（DB 已写入，candidate 内存副本同步）。
-                    candidate.setStatus(OutboxStatus.DISPATCHING.name());
+                    candidate.setStatus(OutboxMessageStatus.DISPATCHING.name());
                     candidate.setClaimedBy(claimerId);
                     candidate.setClaimToken(claimToken);
                     candidate.setClaimedAt(claimTime);
-                    claimed.add(OutboxData.toEntry(candidate));
+                    claimed.add(OutboxData.toMessage(candidate));
                 }
                 // CAS 失败（updated=0）说明并发 claimer 已抢走该行，跳过；
                 // 外层 while 会重新 selectPage 拿下一批候选补齐 limit。
@@ -196,11 +196,11 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
         }
         return mapper.update(null,
                 Wrappers.lambdaUpdate(OutboxData.class)
-                        .set(OutboxData::getStatus, OutboxStatus.PENDING.name())
+                        .set(OutboxData::getStatus, OutboxMessageStatus.PENDING.name())
                         .set(OutboxData::getClaimedAt, null)
                         .set(OutboxData::getClaimedBy, null)
                         .set(OutboxData::getClaimToken, null)
-                        .eq(OutboxData::getStatus, OutboxStatus.DISPATCHING.name())
+                        .eq(OutboxData::getStatus, OutboxMessageStatus.DISPATCHING.name())
                         .lt(OutboxData::getClaimedAt, cutoff));
     }
 
@@ -213,7 +213,7 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
     /// 循环而非单条 SQL 原因：单批 DELETE 拿锁较多且长事务影响 claim/dispatch；分批每批只锁 batchSize 行，
     /// 批次间释放锁，其它事务能穿插。{@code deleted < batchSize} 表示候选集已耗尽。
     @Override
-    public int deleteByStatusAndOccurredAtBefore(OutboxStatus status, Instant cutoff, int batchSize) {
+    public int deleteByStatusAndOccurredAtBefore(OutboxMessageStatus status, Instant cutoff, int batchSize) {
         if (status == null) {
             throw new IllegalArgumentException("status must not be null");
         }

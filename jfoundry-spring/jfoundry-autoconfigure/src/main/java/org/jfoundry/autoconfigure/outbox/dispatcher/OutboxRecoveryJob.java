@@ -1,6 +1,6 @@
 package org.jfoundry.autoconfigure.outbox.dispatcher;
 
-import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +22,11 @@ public class OutboxRecoveryJob {
 
     private static final Logger log = LoggerFactory.getLogger(OutboxRecoveryJob.class);
 
-    private final OutboxRepository outboxRepository;
+    private final OutboxMessageStore outboxRepository;
     private final OutboxRecoveryProperties properties;
 
     @Autowired
-    public OutboxRecoveryJob(OutboxRepository outboxRepository, OutboxRecoveryProperties properties) {
+    public OutboxRecoveryJob(OutboxMessageStore outboxRepository, OutboxRecoveryProperties properties) {
         this.outboxRepository = outboxRepository;
         this.properties = properties;
     }

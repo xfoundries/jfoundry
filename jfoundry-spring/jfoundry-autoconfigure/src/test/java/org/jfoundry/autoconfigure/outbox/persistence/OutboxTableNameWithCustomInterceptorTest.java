@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jfoundry.application.outbox.OutboxEntry;
-import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.annotation.MapperScan;
@@ -51,7 +51,7 @@ class OutboxTableNameWithCustomInterceptorTest {
     }
 
     @Autowired
-    private OutboxRepository repository;
+    private OutboxMessageStore repository;
 
     @Autowired
     private JdbcTemplate jdbc;
@@ -64,7 +64,7 @@ class OutboxTableNameWithCustomInterceptorTest {
 
     @Test
     void customInterceptorStillReceivesOutboxTableRewrite() {
-        OutboxEntry entry = OutboxEntry.newPending(
+        OutboxMessage entry = OutboxMessage.newPending(
                 "evt-custom-interceptor", "test.event", null, "test.type", "{}", Instant.now());
 
         repository.append(entry);

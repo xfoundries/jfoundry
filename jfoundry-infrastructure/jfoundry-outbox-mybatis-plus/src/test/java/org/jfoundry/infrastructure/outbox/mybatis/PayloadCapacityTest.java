@@ -1,7 +1,7 @@
 package org.jfoundry.infrastructure.outbox.mybatis;
 
-import org.jfoundry.application.outbox.OutboxEntry;
-import org.jfoundry.application.outbox.OutboxStatus;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PayloadCapacityTest {
 
     @Autowired
-    private MybatisPlusOutboxRepository repository;
+    private MybatisPlusOutboxMessageStore repository;
 
     @BeforeEach
     void cleanDb(@Autowired OutboxMapper mapper) {
@@ -44,7 +44,7 @@ class PayloadCapacityTest {
                 .collect(Collectors.joining());
         String payload = "{\"msg\":\"" + big + "\"}";
 
-        OutboxEntry entry = OutboxEntry.newPending(
+        OutboxMessage entry = OutboxMessage.newPending(
                 "evt-big", "topic", null, "com.example.LargePayload", payload, Instant.now());
 
         repository.append(entry);
@@ -52,10 +52,10 @@ class PayloadCapacityTest {
         // No exception — column type accepts 1MB payloads.
         assertThat(entry.getEventId()).isEqualTo("evt-big");
         assertThat(repository.findDispatchable(100, Instant.now()))
-                .extracting(OutboxEntry::getEventId)
+                .extracting(OutboxMessage::getEventId)
                 .contains("evt-big");
-        // Sanity: verify the persisted payload is intact (OutboxStatus used only
+        // Sanity: verify the persisted payload is intact (OutboxMessageStatus used only
         // to document the post-append state — PENDING awaiting dispatch).
-        assertThat(entry.getStatus()).isEqualTo(OutboxStatus.PENDING);
+        assertThat(entry.getStatus()).isEqualTo(OutboxMessageStatus.PENDING);
     }
 }

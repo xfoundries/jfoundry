@@ -6,8 +6,8 @@ import org.jfoundry.application.messaging.SendResult;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxData;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxMapper;
 import org.jfoundry.application.outbox.BackoffStrategy;
-import org.jfoundry.application.outbox.OutboxEntry;
-import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.spring.dispatcher.ScheduledOutboxDispatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /// P1-1 回归测试：两个 ScheduledOutboxDispatcher 实例（不同 podId）共享同一个
-/// OutboxRepository + 真实 H2 db，并发 dispatch 一批 PENDING 记录，断言每条记录
+/// OutboxMessageStore + 真实 H2 db，并发 dispatch 一批 PENDING 记录，断言每条记录
 /// 只被 MessageSender.send 调用一次 —— 即多实例互斥由 claimDispatchable 原子性保证，
 /// 而不是依赖业务侧幂等。
 /// <p>
@@ -63,7 +63,7 @@ class DispatcherConcurrencyIntegrationTest {
     }
 
     @Autowired
-    private OutboxRepository repository;
+    private OutboxMessageStore repository;
 
     @Autowired
     private OutboxMapper mapper;
@@ -78,7 +78,7 @@ class DispatcherConcurrencyIntegrationTest {
         int total = 100;
         for (int i = 0; i < total; i++) {
             // Distinct payload per entry so the sender can dedup.
-            repository.append(OutboxEntry.newPending(
+            repository.append(OutboxMessage.newPending(
                     "evt-" + i, "topic", null, "type", "{\"id\":\"evt-" + i + "\"}", Instant.now()));
         }
 
@@ -124,7 +124,7 @@ class DispatcherConcurrencyIntegrationTest {
         // Sequential sanity check: pod A claims first, pod B claims next — B should see
         // the remaining records A didn't claim (claim → DISPATCHING excludes them).
         for (int i = 0; i < 20; i++) {
-            repository.append(OutboxEntry.newPending(
+            repository.append(OutboxMessage.newPending(
                     "evt-" + i, "topic", null, "type", "{\"id\":\"evt-" + i + "\"}", Instant.now()));
         }
 
