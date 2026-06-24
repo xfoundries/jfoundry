@@ -1,5 +1,5 @@
 -- P2-2: additional custom_outbox table for OutboxTableNameOverrideTest.
--- Schema mirrors ddd_outbox_event (see outbox_event.sql) so the TableNameHandler
+-- Schema mirrors jfoundry_outbox_event (see outbox_event.sql) so the TableNameHandler
 -- redirect is a pure name swap — no column/typing drift.
 CREATE TABLE IF NOT EXISTS custom_outbox (
     event_id        VARCHAR(64)   NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS custom_outbox (
     updated_at      TIMESTAMP     NOT NULL,
     claimed_at      TIMESTAMP,
     claimed_by      VARCHAR(100),
-    -- P3-2: mirror ddd_outbox_event schema (claim_token added)
+    -- P3-2: mirror jfoundry_outbox_event schema (claim_token added)
     claim_token     VARCHAR(36),
     PRIMARY KEY (event_id)
 );

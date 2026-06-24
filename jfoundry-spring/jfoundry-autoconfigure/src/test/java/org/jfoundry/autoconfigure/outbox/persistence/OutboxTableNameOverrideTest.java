@@ -1,4 +1,4 @@
-package org.jfoundry.autoconfigure.persistence;
+package org.jfoundry.autoconfigure.outbox.persistence;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.infrastructure.outbox.core.OutboxEntry;
@@ -24,9 +24,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// P2-2: {@code jfoundry.outbox.table-name} must redirect OutboxData persistence to a
 /// custom-named physical table. The {@link OutboxMybatisPlusAutoConfiguration} registers
 /// a {@code DynamicTableNameInnerInterceptor} that rewrites the logical name
-/// {@code ddd_outbox_event} to whatever business configures.
+/// {@code jfoundry_outbox_event} to whatever business configures.
 /// <p>
-/// Side assertion: the default {@code ddd_outbox_event} table (also created by the test
+/// Side assertion: the default {@code jfoundry_outbox_event} table (also created by the test
 /// fixture) must stay empty — proving the rewrite happened, not that we widened the write.
 /// <p>
 /// P3-3: 之前只覆盖 append；现在补 claimDispatchable / recoverStuckDispatching /
@@ -80,7 +80,7 @@ class OutboxTableNameOverrideTest {
         // DB_CLOSE_DELAY=-1 让 H2 跨测试保留数据，必须 @BeforeEach 清空两张表，
         // 否则 appendWritesToCustomTable 写入的 evt-custom 会污染下一个测试的 claim/assertion。
         jdbc.update("DELETE FROM custom_outbox");
-        jdbc.update("DELETE FROM ddd_outbox_event");
+        jdbc.update("DELETE FROM jfoundry_outbox_event");
     }
 
     @Test
@@ -95,7 +95,7 @@ class OutboxTableNameOverrideTest {
         assertThat(count).isEqualTo(1);
 
         Integer defaultCount = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM ddd_outbox_event WHERE event_id = ?",
+                "SELECT COUNT(*) FROM jfoundry_outbox_event WHERE event_id = ?",
                 Integer.class, "evt-custom");
         assertThat(defaultCount)
                 .as("default table must be empty when table-name override is set")
@@ -115,14 +115,14 @@ class OutboxTableNameOverrideTest {
         assertThat(claimed).extracting(OutboxEntry::getEventId)
                 .containsExactlyInAnyOrder("evt-claim-1", "evt-claim-2");
 
-        // 两端确认：custom_outbox 里 status 已变 DISPATCHING；ddd_outbox_event 仍空。
+        // 两端确认：custom_outbox 里 status 已变 DISPATCHING；jfoundry_outbox_event 仍空。
         Integer dispatchingInCustom = jdbc.queryForObject(
                 "SELECT COUNT(*) FROM custom_outbox WHERE status = 'DISPATCHING'",
                 Integer.class);
         assertThat(dispatchingInCustom).isEqualTo(2);
 
         Integer anyInDefault = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM ddd_outbox_event",
+                "SELECT COUNT(*) FROM jfoundry_outbox_event",
                 Integer.class);
         assertThat(anyInDefault)
                 .as("claim 的 UPDATE/SELECT 也必须走 custom_outbox，默认表保持空")
@@ -152,7 +152,7 @@ class OutboxTableNameOverrideTest {
 
         // 默认表从头到尾没有任何流量。
         Integer anyInDefault = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM ddd_outbox_event",
+                "SELECT COUNT(*) FROM jfoundry_outbox_event",
                 Integer.class);
         assertThat(anyInDefault).isEqualTo(0);
     }
@@ -194,7 +194,7 @@ class OutboxTableNameOverrideTest {
                 .isEqualTo(1);
 
         Integer anyInDefault = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM ddd_outbox_event",
+                "SELECT COUNT(*) FROM jfoundry_outbox_event",
                 Integer.class);
         assertThat(anyInDefault).isEqualTo(0);
     }

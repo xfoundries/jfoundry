@@ -1,4 +1,4 @@
-package org.jfoundry.autoconfigure.dispatcher;
+package org.jfoundry.autoconfigure.outbox.dispatcher;
 
 import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
 import org.slf4j.Logger;

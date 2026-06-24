@@ -26,7 +26,7 @@ Aggregate/Application Service
   -> DomainEventPublisher
   -> DomainEventExternalizer
   -> OutboxRepository
-  -> ddd_outbox_event
+  -> jfoundry_outbox_event
   -> OutboxDispatcher
   -> MessageSender
   -> MQ / external system
@@ -56,12 +56,12 @@ public final class OrderCreatedEvent extends AbstractDomainEvent {
 
 ## 配置
 
-默认 MyBatis-Plus starter 会提供 `OutboxRepository`，表名默认为 `ddd_outbox_event`。如需自定义表名，业务侧必须创建同结构表。
+默认 MyBatis-Plus starter 会提供 `OutboxRepository`，表名默认为 `jfoundry_outbox_event`。如需自定义表名，业务侧必须创建同结构表。
 
 ```yaml
 jfoundry:
   outbox:
-    table-name: ddd_outbox_event
+    table-name: jfoundry_outbox_event
     dispatcher:
       enabled: true
       mode: scheduled

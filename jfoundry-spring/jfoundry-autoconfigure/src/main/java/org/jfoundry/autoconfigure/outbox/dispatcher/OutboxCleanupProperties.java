@@ -1,4 +1,4 @@
-package org.jfoundry.autoconfigure.dispatcher;
+package org.jfoundry.autoconfigure.outbox.dispatcher;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

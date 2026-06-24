@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS ddd_outbox_event;
-CREATE TABLE ddd_outbox_event (
+DROP TABLE IF EXISTS jfoundry_outbox_event;
+CREATE TABLE jfoundry_outbox_event (
     event_id        VARCHAR(64)   NOT NULL,
     topic           VARCHAR(255)  NOT NULL,
     payload_key     VARCHAR(255),
@@ -21,8 +21,8 @@ CREATE TABLE ddd_outbox_event (
     claim_token     VARCHAR(36),
     PRIMARY KEY (event_id)
 );
-CREATE INDEX idx_outbox_status_retry ON ddd_outbox_event (status, next_retry_at);
+CREATE INDEX idx_outbox_status_retry ON jfoundry_outbox_event (status, next_retry_at);
 -- P2-1: composite index for atomic claimDispatchable WHERE clause
-CREATE INDEX idx_outbox_claim ON ddd_outbox_event (status, claimed_at);
+CREATE INDEX idx_outbox_claim ON jfoundry_outbox_event (status, claimed_at);
 -- P3-2: lookup by claim_token
-CREATE INDEX idx_outbox_claim_token ON ddd_outbox_event (claim_token);
+CREATE INDEX idx_outbox_claim_token ON jfoundry_outbox_event (claim_token);

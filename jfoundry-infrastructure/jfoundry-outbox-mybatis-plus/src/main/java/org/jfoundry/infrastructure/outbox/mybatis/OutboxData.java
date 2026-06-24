@@ -11,10 +11,10 @@ import java.time.Instant;
 /// Outbox 表 MyBatis-Plus 持久化数据对象。
 /// <p>
 /// 与 SPI 层的 {@link OutboxEntry} 字段一一对应，但携带 MyBatis-Plus 注解
-/// （{@code @TableName("ddd_outbox_event")} + {@code @TableId(type = IdType.INPUT)}）。
+/// （{@code @TableName("jfoundry_outbox_event")} + {@code @TableId(type = IdType.INPUT)}）。
 /// SPI 层不绑定任何 ORM；本类把 Outbox 字段固定为 MyBatis-Plus 的实体视图，
 /// 由 {@link MybatisPlusOutboxRepository} 负责 entry ↔ data 互转。
-@TableName("ddd_outbox_event")
+@TableName("jfoundry_outbox_event")
 public class OutboxData {
 
     @TableId(type = IdType.INPUT)

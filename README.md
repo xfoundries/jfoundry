@@ -116,7 +116,7 @@ class MyAppArchitectureTest {
 ```yaml
 jfoundry:
   outbox:
-    table-name: ddd_outbox_event       # 与 Flyway 迁移脚本一致
+    table-name: jfoundry_outbox_event       # 与 Flyway 迁移脚本一致
     dispatcher:
       enabled: true
       mode: scheduled                  # 或 jobrunr（需额外引入 jfoundry-outbox-jobrunr）

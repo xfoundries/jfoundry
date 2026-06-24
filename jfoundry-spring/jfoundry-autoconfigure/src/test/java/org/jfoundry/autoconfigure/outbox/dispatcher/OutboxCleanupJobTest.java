@@ -1,4 +1,4 @@
-package org.jfoundry.autoconfigure.dispatcher;
+package org.jfoundry.autoconfigure.outbox.dispatcher;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.databind.ObjectMapper;

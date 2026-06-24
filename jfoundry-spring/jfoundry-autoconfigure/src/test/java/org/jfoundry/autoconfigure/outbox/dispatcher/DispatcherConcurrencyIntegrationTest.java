@@ -1,4 +1,4 @@
-package org.jfoundry.autoconfigure.dispatcher;
+package org.jfoundry.autoconfigure.outbox.dispatcher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.infrastructure.messaging.MessageSender;

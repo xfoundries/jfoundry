@@ -36,13 +36,13 @@ public interface OutboxRepository {
     /// 实现 SQL 形如（MySQL/H2 方言，{@code UPDATE...ORDER BY...LIMIT N} 单语句原子 top-N
     /// claim，候选集选取与加锁合并为单一原子操作，无需 retry）：
     /// <pre>
-    /// UPDATE ddd_outbox_event
+    /// UPDATE jfoundry_outbox_event
     ///   SET status = 'DISPATCHING', claimed_at = CURRENT_TIMESTAMP,
     ///       claimed_by = #{claimerId}, claim_token = #{claimToken}
     ///   WHERE status = 'PENDING'
     ///   ORDER BY event_id ASC
     ///   LIMIT #{limit};
-    /// SELECT * FROM ddd_outbox_event
+    /// SELECT * FROM jfoundry_outbox_event
     ///   WHERE claim_token = #{claimToken} AND status = 'DISPATCHING';
     /// </pre>
     /// <p>
@@ -73,7 +73,7 @@ public interface OutboxRepository {
     /// <p>
     /// 实现 SQL 形如（跨方言）：
     /// <pre>
-    /// UPDATE ddd_outbox_event
+    /// UPDATE jfoundry_outbox_event
     ///   SET status = 'PENDING', claimed_at = NULL, claimed_by = NULL, claim_token = NULL
     ///   WHERE status = 'DISPATCHING' AND claimed_at &lt; #{cutoff};
     /// </pre>
@@ -94,9 +94,9 @@ public interface OutboxRepository {
     /// <p>
     /// 实现 SQL 形如（MySQL/H2 方言，子查询 + LIMIT 保证单批删干净且可跨方言）：
     /// <pre>
-    /// DELETE FROM ddd_outbox_event
+    /// DELETE FROM jfoundry_outbox_event
     ///   WHERE event_id IN (
-    ///     SELECT event_id FROM ddd_outbox_event
+    ///     SELECT event_id FROM jfoundry_outbox_event
     ///     WHERE status = #{status} AND occurred_at &lt; #{cutoff}
     ///     ORDER BY event_id ASC
     ///     LIMIT #{batchSize}

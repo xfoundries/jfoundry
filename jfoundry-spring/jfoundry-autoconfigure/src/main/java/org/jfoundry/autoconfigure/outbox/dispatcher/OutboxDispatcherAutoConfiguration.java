@@ -1,7 +1,7 @@
-package org.jfoundry.autoconfigure.dispatcher;
+package org.jfoundry.autoconfigure.outbox.dispatcher;
 
 import org.jfoundry.autoconfigure.messaging.MessageSenderAutoConfiguration;
-import org.jfoundry.autoconfigure.persistence.OutboxMybatisPlusAutoConfiguration;
+import org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration;
 import org.jfoundry.infrastructure.messaging.MessageSender;
 import org.jfoundry.infrastructure.outbox.core.BackoffStrategy;
 import org.jfoundry.infrastructure.outbox.core.OutboxDispatcher;

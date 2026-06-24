@@ -4,7 +4,7 @@ import java.time.Instant;
 
 /// Outbox 表 SPI 数据对象 + 状态机方法。
 /// <p>
-/// 字段对应表 {@code ddd_outbox_event}，但本类不携带任何 ORM 注解 —— 具体的表名/主键策略
+/// 字段对应表 {@code jfoundry_outbox_event}，但本类不携带任何 ORM 注解 —— 具体的表名/主键策略
 /// 由各持久化实现自行建模（例如 jfoundry-persistence-mybatis-plus 模块的 {@code OutboxData}）。
 /// <p>
 /// 状态流转（PENDING / DISPATCHING / FAILED / PUBLISHED / DEAD_LETTERED）由
