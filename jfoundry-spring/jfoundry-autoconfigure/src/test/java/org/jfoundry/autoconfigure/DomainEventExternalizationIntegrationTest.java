@@ -2,8 +2,8 @@ package org.jfoundry.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.domain.event.AbstractDomainEvent;
-import org.jfoundry.infrastructure.messaging.MessageSender;
-import org.jfoundry.infrastructure.messaging.SendResult;
+import org.jfoundry.application.messaging.MessageSender;
+import org.jfoundry.application.messaging.SendResult;
 import org.jfoundry.infrastructure.messaging.spring.publisher.SpringDomainEventPublisher;
 import org.awaitility.Awaitility;
 import org.jmolecules.event.annotation.Externalized;

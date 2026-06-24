@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerIntercept
 import org.jfoundry.autoconfigure.outbox.JfoundryOutboxProperties;
 import org.jfoundry.autoconfigure.persistence.DbTypeResolver;
 import org.jfoundry.autoconfigure.persistence.JfoundryPersistenceProperties;
-import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxRepository;
 import org.jfoundry.infrastructure.outbox.mybatis.MybatisPlusOutboxRepository;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxMapper;
 import org.mybatis.spring.annotation.MapperScan;

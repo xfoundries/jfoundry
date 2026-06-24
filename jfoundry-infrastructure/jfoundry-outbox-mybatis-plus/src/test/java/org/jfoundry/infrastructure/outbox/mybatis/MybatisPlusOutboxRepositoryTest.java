@@ -2,9 +2,9 @@ package org.jfoundry.infrastructure.outbox.mybatis;
 
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
-import org.jfoundry.infrastructure.outbox.core.BackoffStrategy;
-import org.jfoundry.infrastructure.outbox.core.OutboxEntry;
-import org.jfoundry.infrastructure.outbox.core.OutboxStatus;
+import org.jfoundry.application.outbox.BackoffStrategy;
+import org.jfoundry.application.outbox.OutboxEntry;
+import org.jfoundry.application.outbox.OutboxStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

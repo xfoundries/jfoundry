@@ -3,8 +3,8 @@ package org.jfoundry.infrastructure.outbox.mybatis;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import org.jfoundry.infrastructure.outbox.core.OutboxEntry;
-import org.jfoundry.infrastructure.outbox.core.OutboxStatus;
+import org.jfoundry.application.outbox.OutboxEntry;
+import org.jfoundry.application.outbox.OutboxStatus;
 
 import java.time.Instant;
 

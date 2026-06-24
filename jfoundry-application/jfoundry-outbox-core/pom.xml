@@ -18,6 +18,14 @@
             <artifactId>jfoundry-messaging-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-layered</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-hexagonal</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <scope>provided</scope>

@@ -1,7 +1,7 @@
 package org.jfoundry.infrastructure.messaging.spring.sender;
 
-import org.jfoundry.infrastructure.messaging.MessageSender;
-import org.jfoundry.infrastructure.messaging.SendResult;
+import org.jfoundry.application.messaging.MessageSender;
+import org.jfoundry.application.messaging.SendResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,9 +1,9 @@
 package org.jfoundry.autoconfigure.outbox.persistence;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jfoundry.infrastructure.outbox.core.OutboxEntry;
-import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
-import org.jfoundry.infrastructure.outbox.core.OutboxStatus;
+import org.jfoundry.application.outbox.OutboxEntry;
+import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.annotation.MapperScan;

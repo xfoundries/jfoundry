@@ -1,7 +1,7 @@
 package org.jfoundry.infrastructure.messaging.kafka;
 
-import org.jfoundry.infrastructure.messaging.MessageSender;
-import org.jfoundry.infrastructure.messaging.SendResult;
+import org.jfoundry.application.messaging.MessageSender;
+import org.jfoundry.application.messaging.SendResult;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.Duration;

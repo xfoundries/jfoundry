@@ -1,6 +1,6 @@
 package org.jfoundry.infrastructure.outbox.spring.backoff;
 
-import org.jfoundry.infrastructure.outbox.core.BackoffStrategy;
+import org.jfoundry.application.outbox.BackoffStrategy;
 
 import java.time.Duration;
 

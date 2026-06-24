@@ -1,11 +1,11 @@
 package org.jfoundry.infrastructure.outbox.jobrunr.dispatcher;
 
-import org.jfoundry.infrastructure.messaging.MessageSender;
-import org.jfoundry.infrastructure.outbox.core.BackoffStrategy;
-import org.jfoundry.infrastructure.outbox.core.DefaultOutboxDispatchService;
-import org.jfoundry.infrastructure.outbox.core.OutboxDispatcher;
-import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
-import org.jfoundry.infrastructure.outbox.core.OutboxRuntimeIds;
+import org.jfoundry.application.messaging.MessageSender;
+import org.jfoundry.application.outbox.BackoffStrategy;
+import org.jfoundry.application.outbox.DefaultOutboxDispatchService;
+import org.jfoundry.application.outbox.OutboxDispatcher;
+import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxRuntimeIds;
 import org.jobrunr.jobs.annotations.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

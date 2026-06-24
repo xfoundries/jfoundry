@@ -1,7 +1,7 @@
 package org.jfoundry.autoconfigure.inbox;
 
-import org.jfoundry.infrastructure.inbox.InboxRepository;
-import org.jfoundry.infrastructure.inbox.InboxTemplate;
+import org.jfoundry.application.inbox.InboxRepository;
+import org.jfoundry.application.inbox.InboxTemplate;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

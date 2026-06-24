@@ -6,10 +6,10 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.jfoundry.infrastructure.outbox.core.BackoffStrategy;
-import org.jfoundry.infrastructure.outbox.core.OutboxEntry;
-import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
-import org.jfoundry.infrastructure.outbox.core.OutboxStatus;
+import org.jfoundry.application.outbox.BackoffStrategy;
+import org.jfoundry.application.outbox.OutboxEntry;
+import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxStatus;
 
 import java.time.Instant;
 import java.util.ArrayList;

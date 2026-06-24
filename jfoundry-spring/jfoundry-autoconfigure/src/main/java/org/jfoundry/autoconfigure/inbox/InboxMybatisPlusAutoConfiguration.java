@@ -1,6 +1,6 @@
 package org.jfoundry.autoconfigure.inbox;
 
-import org.jfoundry.infrastructure.inbox.InboxRepository;
+import org.jfoundry.application.inbox.InboxRepository;
 import org.jfoundry.infrastructure.inbox.mybatis.InboxMessageMapper;
 import org.jfoundry.infrastructure.inbox.mybatis.MybatisPlusInboxRepository;
 import org.apache.ibatis.session.SqlSessionFactory;

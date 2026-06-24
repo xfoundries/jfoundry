@@ -1,7 +1,7 @@
 package org.jfoundry.autoconfigure.messaging;
 
-import org.jfoundry.infrastructure.messaging.PayloadSerializer;
-import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
+import org.jfoundry.application.messaging.PayloadSerializer;
+import org.jfoundry.application.outbox.OutboxRepository;
 import org.jfoundry.infrastructure.outbox.spring.externalization.DomainEventExternalizer;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;

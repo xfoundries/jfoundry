@@ -1,6 +1,6 @@
 package org.jfoundry.infrastructure.messaging.kafka;
 
-import org.jfoundry.infrastructure.messaging.SendResult;
+import org.jfoundry.application.messaging.SendResult;
 import org.junit.jupiter.api.Test;
 import org.springframework.kafka.core.KafkaTemplate;
 

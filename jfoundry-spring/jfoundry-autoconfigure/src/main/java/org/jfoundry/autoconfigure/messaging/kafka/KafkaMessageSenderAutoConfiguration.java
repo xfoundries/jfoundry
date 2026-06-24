@@ -1,7 +1,7 @@
 package org.jfoundry.autoconfigure.messaging.kafka;
 
 import org.jfoundry.autoconfigure.messaging.MessageSenderAutoConfiguration;
-import org.jfoundry.infrastructure.messaging.MessageSender;
+import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.infrastructure.messaging.kafka.KafkaMessageSender;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;

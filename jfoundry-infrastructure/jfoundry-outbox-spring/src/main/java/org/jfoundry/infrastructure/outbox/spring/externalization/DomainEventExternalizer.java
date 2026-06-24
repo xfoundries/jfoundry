@@ -1,14 +1,14 @@
 package org.jfoundry.infrastructure.outbox.spring.externalization;
 
 import org.jfoundry.domain.event.AbstractDomainEvent;
-import org.jfoundry.infrastructure.messaging.PayloadSerializer;
-import org.jfoundry.infrastructure.messaging.externalization.AggregateRoutingMetadata;
-import org.jfoundry.infrastructure.messaging.externalization.AggregateRoutingResolver;
-import org.jfoundry.infrastructure.messaging.externalization.DomainEventSink;
-import org.jfoundry.infrastructure.messaging.externalization.ExternalizationRule;
-import org.jfoundry.infrastructure.messaging.externalization.ExternalizationRuleResolver;
-import org.jfoundry.infrastructure.outbox.core.OutboxEntry;
-import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
+import org.jfoundry.application.messaging.PayloadSerializer;
+import org.jfoundry.application.messaging.externalization.AggregateRoutingMetadata;
+import org.jfoundry.application.messaging.externalization.AggregateRoutingResolver;
+import org.jfoundry.application.messaging.externalization.DomainEventSink;
+import org.jfoundry.application.messaging.externalization.ExternalizationRule;
+import org.jfoundry.application.messaging.externalization.ExternalizationRuleResolver;
+import org.jfoundry.application.outbox.OutboxEntry;
+import org.jfoundry.application.outbox.OutboxRepository;
 import org.jmolecules.event.types.DomainEvent;
 
 import java.time.Instant;

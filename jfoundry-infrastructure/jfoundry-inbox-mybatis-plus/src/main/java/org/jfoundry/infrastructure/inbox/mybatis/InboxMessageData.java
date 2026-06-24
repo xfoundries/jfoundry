@@ -1,8 +1,8 @@
 package org.jfoundry.infrastructure.inbox.mybatis;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import org.jfoundry.infrastructure.inbox.InboxMessage;
-import org.jfoundry.infrastructure.inbox.InboxMessageStatus;
+import org.jfoundry.application.inbox.InboxMessage;
+import org.jfoundry.application.inbox.InboxMessageStatus;
 
 import java.time.Instant;
 

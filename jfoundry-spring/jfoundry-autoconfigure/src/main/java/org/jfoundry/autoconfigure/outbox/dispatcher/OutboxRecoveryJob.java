@@ -1,6 +1,6 @@
 package org.jfoundry.autoconfigure.outbox.dispatcher;
 
-import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

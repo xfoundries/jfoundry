@@ -1,7 +1,7 @@
 package org.jfoundry.autoconfigure.messaging;
 
 import org.jfoundry.domain.event.DomainEventPublisher;
-import org.jfoundry.infrastructure.messaging.externalization.DomainEventSink;
+import org.jfoundry.application.messaging.externalization.DomainEventSink;
 import org.jfoundry.infrastructure.messaging.spring.publisher.SpringDomainEventPublisher;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;

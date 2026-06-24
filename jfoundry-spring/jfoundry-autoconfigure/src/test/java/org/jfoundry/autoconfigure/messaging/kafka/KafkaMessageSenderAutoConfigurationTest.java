@@ -1,8 +1,8 @@
 package org.jfoundry.autoconfigure.messaging.kafka;
 
 import org.jfoundry.autoconfigure.messaging.MessageSenderAutoConfiguration;
-import org.jfoundry.infrastructure.messaging.MessageSender;
-import org.jfoundry.infrastructure.messaging.SendResult;
+import org.jfoundry.application.messaging.MessageSender;
+import org.jfoundry.application.messaging.SendResult;
 import org.jfoundry.infrastructure.messaging.kafka.KafkaMessageSender;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;

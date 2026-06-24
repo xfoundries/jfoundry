@@ -1,8 +1,8 @@
 package org.jfoundry.infrastructure.inbox.mybatis;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import org.jfoundry.infrastructure.inbox.InboxMessageStatus;
-import org.jfoundry.infrastructure.inbox.InboxRepository;
+import org.jfoundry.application.inbox.InboxMessageStatus;
+import org.jfoundry.application.inbox.InboxRepository;
 import org.springframework.dao.DuplicateKeyException;
 
 public class MybatisPlusInboxRepository implements InboxRepository {

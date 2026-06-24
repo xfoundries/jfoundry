@@ -1,6 +1,6 @@
 package org.jfoundry.autoconfigure.messaging;
 
-import org.jfoundry.infrastructure.messaging.MessageSender;
+import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.infrastructure.messaging.spring.sender.LoggingMessageSender;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

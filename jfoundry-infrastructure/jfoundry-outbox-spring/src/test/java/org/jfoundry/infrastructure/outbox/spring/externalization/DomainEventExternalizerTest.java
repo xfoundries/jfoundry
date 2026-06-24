@@ -1,14 +1,14 @@
 package org.jfoundry.infrastructure.outbox.spring.externalization;
 
-import org.jfoundry.infrastructure.messaging.PayloadSerializer;
-import org.jfoundry.infrastructure.messaging.externalization.AggregateRouting;
-import org.jfoundry.infrastructure.messaging.externalization.AggregateRoutingResolver;
-import org.jfoundry.infrastructure.messaging.externalization.ExternalizationRuleResolver;
-import org.jfoundry.infrastructure.messaging.externalization.MessageRouting;
-import org.jfoundry.infrastructure.outbox.core.BackoffStrategy;
-import org.jfoundry.infrastructure.outbox.core.OutboxEntry;
-import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
-import org.jfoundry.infrastructure.outbox.core.OutboxStatus;
+import org.jfoundry.application.messaging.PayloadSerializer;
+import org.jfoundry.application.messaging.externalization.AggregateRouting;
+import org.jfoundry.application.messaging.externalization.AggregateRoutingResolver;
+import org.jfoundry.application.messaging.externalization.ExternalizationRuleResolver;
+import org.jfoundry.application.messaging.externalization.MessageRouting;
+import org.jfoundry.application.outbox.BackoffStrategy;
+import org.jfoundry.application.outbox.OutboxEntry;
+import org.jfoundry.application.outbox.OutboxRepository;
+import org.jfoundry.application.outbox.OutboxStatus;
 import org.jmolecules.event.annotation.Externalized;
 import org.jmolecules.event.types.DomainEvent;
 import org.junit.jupiter.api.Test;

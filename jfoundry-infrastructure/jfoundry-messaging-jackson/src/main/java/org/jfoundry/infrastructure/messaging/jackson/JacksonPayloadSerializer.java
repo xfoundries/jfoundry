@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.jfoundry.infrastructure.messaging.PayloadSerializer;
+import org.jfoundry.application.messaging.PayloadSerializer;
 
 /// Outbox payload 默认序列化器（Jackson + JSR-310）。
 /// <p>

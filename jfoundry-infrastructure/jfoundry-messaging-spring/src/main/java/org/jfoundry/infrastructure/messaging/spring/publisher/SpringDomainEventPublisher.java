@@ -1,7 +1,7 @@
 package org.jfoundry.infrastructure.messaging.spring.publisher;
 
 import org.jfoundry.domain.event.DomainEventPublisher;
-import org.jfoundry.infrastructure.messaging.externalization.DomainEventSink;
+import org.jfoundry.application.messaging.externalization.DomainEventSink;
 import org.jmolecules.event.types.DomainEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.support.TransactionSynchronization;

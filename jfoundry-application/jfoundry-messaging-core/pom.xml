@@ -21,6 +21,14 @@
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-domain</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-layered</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-hexagonal</artifactId>
+        </dependency>
 
         <!-- jMolecules standard @Externalized annotation -->
         <dependency>
