@@ -7,7 +7,6 @@ import org.jfoundry.infrastructure.outbox.core.OutboxDispatcher;
 import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
 import org.jfoundry.infrastructure.outbox.core.OutboxRuntimeIds;
 import org.jobrunr.jobs.annotations.Job;
-import org.jobrunr.spring.annotations.Recurring;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +41,6 @@ public class JobRunrOutboxDispatcher implements OutboxDispatcher {
     }
 
     @Job(name = "outbox-dispatch", retries = 3)
-    @Recurring(id = "jfoundry-outbox-dispatch", cron = "${jfoundry.outbox.dispatcher.cron:*/10 * * * * *}")
     public void recurringDispatch() {
         dispatch(batchSize);
     }

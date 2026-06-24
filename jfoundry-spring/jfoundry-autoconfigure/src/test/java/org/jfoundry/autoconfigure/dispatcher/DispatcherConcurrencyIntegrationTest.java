@@ -41,11 +41,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// 占有记录），两个 pod 会读到同一批 PENDING，send 会被调用 2N 次，本测试会失败。
 /// <p>
 /// 测试隔离：dedicated H2 db name {@code jfoundry-dispatcher-concurrency-test}，
-/// dispatcher 间隔 bump 到 10 分钟避免 @Scheduled 任务在测试窗口内触发（测试只调用
-/// dispatcher.dispatch(N) 而非依赖 @Scheduled）。
+/// 自动 dispatcher 模式设置为 none，避免 auto-config 注册的 @Scheduled dispatcher
+/// 与测试手工构造的 dispatcher 竞争记录。
 @SpringBootTest(classes = DispatcherConcurrencyIntegrationTest.TestApp.class)
 @TestPropertySource(properties = {
-        "jfoundry.outbox.dispatcher.interval-ms=600000",
+        "jfoundry.outbox.dispatcher.mode=none",
         "jfoundry.outbox.dispatcher.batch-size=100",
         "spring.datasource.url=jdbc:h2:mem:jfoundry-dispatcher-concurrency-test;DB_CLOSE_DELAY=-1",
         "spring.sql.init.schema-locations=classpath:outbox_event.sql"

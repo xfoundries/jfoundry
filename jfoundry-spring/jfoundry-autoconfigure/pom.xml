@@ -44,6 +44,17 @@
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-outbox-spring</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-outbox-jobrunr</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jobrunr</groupId>
+            <artifactId>jobrunr</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
 
         <!--
           Jackson：本模块 DomainEventExternalizerAutoConfiguration 注入 ObjectMapper 用以构造

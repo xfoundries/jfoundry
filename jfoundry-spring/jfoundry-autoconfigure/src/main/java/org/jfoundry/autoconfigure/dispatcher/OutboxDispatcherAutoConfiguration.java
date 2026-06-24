@@ -23,9 +23,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /// 根据 {@code jfoundry.outbox.dispatcher.mode} 选择 Dispatcher 实现：
 /// <ul>
 ///   <li>{@code scheduled}（默认）：注册 ScheduledOutboxDispatcher（本类已加 @EnableScheduling）。</li>
-///   <li>{@code jobrunr}：要求 classpath 有 jfoundry-outbox-jobrunr。该模块自带
-///       {@code JobRunrDispatcherAutoConfiguration}（通过
-///       {@code META-INF/spring/AutoConfiguration.imports} 自注册），与本类互斥：
+///   <li>{@code jobrunr}：要求 classpath 有 jfoundry-outbox-jobrunr。Spring Boot starter
+///       通过本 auto-configuration 模块注册 {@code JobRunrDispatcherAutoConfiguration}，
+///       与本类互斥：
 ///       两端都用 {@code @ConditionalOnMissingBean(OutboxDispatcher.class)} 守护，
 ///       且 mode 分别匹配 {@code scheduled} / {@code jobrunr}，不会同时命中。</li>
 /// </ul>

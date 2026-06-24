@@ -2,6 +2,10 @@
 
 > 基于 [jmolecules](https://jmolecules.org/) 的生产级 DDD 框架，集成 Outbox 模式、Spring Boot 自动装配、ArchUnit 架构规则。
 
+## 名称含义
+
+`jfoundry` 可以理解为 Java / jMolecules 生态中的 “foundry”。foundry 原意是铸造厂或工坊，本项目希望提供一组可组合、可验证、可落地的 DDD 基础构件：领域模型、架构规则、持久化适配器、消息外部化和 Spring Boot 集成。它不是业务框架模板，而是帮助团队把领域建模和工程约束稳定落地的基础设施。
+
 ## 特性
 
 - **DDD 分层语义**：基于 jmolecules 的 `@DomainLayer` / `@ApplicationLayer` / `@InfrastructureLayer` / `@InterfaceLayer` 注解，配套 ArchUnit 规则强制依赖方向
