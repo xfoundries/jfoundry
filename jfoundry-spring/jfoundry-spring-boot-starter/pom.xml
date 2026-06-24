@@ -41,6 +41,10 @@
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-persistence-mybatis-plus</artifactId>
         </dependency>
         <dependency>

@@ -2,9 +2,9 @@ package org.jfoundry.autoconfigure.messaging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.autoconfigure.persistence.OutboxMybatisPlusAutoConfiguration;
-import org.jfoundry.infrastructure.messaging.JacksonPayloadSerializer;
 import org.jfoundry.infrastructure.messaging.PayloadSerializer;
 import org.jfoundry.infrastructure.messaging.externalization.ExternalizationRuleResolver;
+import org.jfoundry.infrastructure.messaging.jackson.JacksonPayloadSerializer;
 import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
 import org.jfoundry.infrastructure.outbox.spring.externalization.DomainEventExternalizer;
 import org.springframework.boot.autoconfigure.AutoConfiguration;

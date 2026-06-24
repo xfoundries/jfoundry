@@ -2,9 +2,8 @@ package org.jfoundry.infrastructure.messaging;
 
 /// Outbox payload 序列化抽象。
 /// <p>
-/// 业务侧可以提供自己的实现替换默认 {@code JacksonPayloadSerializer}（例如改用 Gson / Protobuf）。
-/// 默认实现位于本模块，构造时接受 {@code com.fasterxml.jackson.databind.ObjectMapper}，
-/// 输出 ISO-8601 时间字符串并启用 default typing 便于反序列化时还原具体事件类型。
+/// 业务侧可以提供自己的实现（例如 Jackson / Gson / Protobuf）。框架提供的 Jackson
+/// 默认实现位于 {@code jfoundry-messaging-jackson}，core 模块只保留 SPI。
 public interface PayloadSerializer {
 
     /// @param event 已经发生的领域事件（通常带 {@code @Externalized} 标记）

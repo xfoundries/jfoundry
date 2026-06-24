@@ -61,7 +61,7 @@ class ExternalizationRuleResolverTest {
     }
 
     @Test
-    void messageRoutingKeySpelIsEvaluated() {
+    void messageRoutingKeyPropertyPathIsEvaluated() {
         Optional<ExternalizationRule> rule = resolver.resolve(new EnvAppUninstallEvent());
 
         assertThat(rule).isPresent();
@@ -87,7 +87,7 @@ class ExternalizationRuleResolverTest {
     }
 
     @Test
-    void invalidSpelKeyDegradesToNull() {
+    void invalidKeyPropertyPathDegradesToNull() {
         // Use a separate test fixture
         @Externalized("topic")
         @MessageRouting(topic = "topic", key = "#this.nonexistent")

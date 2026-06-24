@@ -1,4 +1,4 @@
-package org.jfoundry.infrastructure.messaging;
+package org.jfoundry.infrastructure.messaging.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.domain.event.AbstractDomainEvent;
@@ -19,7 +19,7 @@ class JacksonPayloadSerializerTest {
         String json = serializer.serialize(event);
 
         assertThat(json).contains("\"occurredAt\":\"2026-06-18T10:00:00Z\"");
-        assertThat(json).contains("\"@class\":\"org.jfoundry.infrastructure.messaging.JacksonPayloadSerializerTest$SerializerTestEvent\"");
+        assertThat(json).contains("\"@class\":\"org.jfoundry.infrastructure.messaging.jackson.JacksonPayloadSerializerTest$SerializerTestEvent\"");
     }
 
     static class SerializerTestEvent extends AbstractDomainEvent {

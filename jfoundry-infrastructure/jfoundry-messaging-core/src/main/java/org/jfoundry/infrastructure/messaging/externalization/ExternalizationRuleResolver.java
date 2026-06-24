@@ -4,12 +4,8 @@ import org.jmolecules.event.annotation.Externalized;
 import org.jmolecules.event.types.DomainEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.SimpleEvaluationContext;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ExternalizationRuleResolver {
 
     private static final Logger log = LoggerFactory.getLogger(ExternalizationRuleResolver.class);
-    private static final ExpressionParser PARSER = new SpelExpressionParser();
 
     private final Map<Class<?>, ResolvedMetadata> cache = new ConcurrentHashMap<>();
 
@@ -38,7 +33,7 @@ public class ExternalizationRuleResolver {
             }
             return Optional.empty();
         }
-        String payloadKey = evaluateKey(event, metadata.keyExpression());
+        String payloadKey = evaluateKey(event, metadata.keyPath());
         return Optional.of(new ExternalizationRule(metadata.topic(), payloadKey));
     }
 
@@ -65,31 +60,70 @@ public class ExternalizationRuleResolver {
             topic = externalizedValue;
         }
 
-        Expression keyExpression = null;
+        String keyPath = null;
         if (hasRouting && !routing.key().isEmpty()) {
-            keyExpression = PARSER.parseExpression(routing.key());
+            keyPath = normalizeKeyPath(routing.key());
         }
-        return new ResolvedMetadata(true, false, topic, keyExpression);
+        return new ResolvedMetadata(true, false, topic, keyPath);
     }
 
-    private String evaluateKey(DomainEvent event, Expression keyExpression) {
-        if (keyExpression == null) {
+    private String evaluateKey(DomainEvent event, String keyPath) {
+        if (keyPath == null) {
             return null;
         }
         try {
-            EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding()
-                    .withRootObject(event)
-                    .build();
-            Object value = keyExpression.getValue(context);
+            Object value = readPropertyPath(event, keyPath);
             return value == null ? null : value.toString();
         } catch (Exception e) {
-            log.warn("事件 {} 的 @MessageRouting.key SpEL 解析失败，降级 payloadKey=null。原因：{}",
+            log.warn("事件 {} 的 @MessageRouting.key 属性路径解析失败，降级 payloadKey=null。原因：{}",
                     event.getClass().getName(), e.getMessage());
             return null;
         }
     }
 
+    private String normalizeKeyPath(String key) {
+        if (key.startsWith("#this.")) {
+            return key.substring("#this.".length());
+        }
+        if (key.startsWith("this.")) {
+            return key.substring("this.".length());
+        }
+        return key;
+    }
+
+    private Object readPropertyPath(Object root, String path) throws ReflectiveOperationException {
+        Object current = root;
+        for (String segment : path.split("\\.")) {
+            if (segment.isBlank()) {
+                throw new NoSuchMethodException("empty property segment in path " + path);
+            }
+            if (current == null) {
+                return null;
+            }
+            current = readProperty(current, segment);
+        }
+        return current;
+    }
+
+    private Object readProperty(Object target, String property) throws ReflectiveOperationException {
+        Class<?> type = target.getClass();
+        String suffix = Character.toUpperCase(property.charAt(0)) + property.substring(1);
+        try {
+            return invoke(type.getMethod("get" + suffix), target);
+        } catch (NoSuchMethodException ignored) {
+            try {
+                return invoke(type.getMethod("is" + suffix), target);
+            } catch (NoSuchMethodException ignoredAgain) {
+                return invoke(type.getMethod(property), target);
+            }
+        }
+    }
+
+    private Object invoke(Method method, Object target) throws ReflectiveOperationException {
+        return method.invoke(target);
+    }
+
     private record ResolvedMetadata(boolean externalized, boolean routingOnly,
-                                     String topic, Expression keyExpression) {
+                                     String topic, String keyPath) {
     }
 }
