@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.jfoundry.application.messaging.PayloadSerializer;
+import org.jfoundry.architecture.hexagonal.SecondaryAdapter;
 
 /// Outbox payload 默认序列化器（Jackson + JSR-310）。
 /// <p>
@@ -15,6 +16,7 @@ import org.jfoundry.application.messaging.PayloadSerializer;
 /// 启用 default typing {@code @class} 字段，便于反序列化时还原具体事件类型。
 /// <p>
 /// 业务侧需要替换序列化实现时，注册自己的 {@link PayloadSerializer} Bean 覆盖默认即可。
+@SecondaryAdapter
 public class JacksonPayloadSerializer implements PayloadSerializer {
 
     private final ObjectMapper objectMapper;

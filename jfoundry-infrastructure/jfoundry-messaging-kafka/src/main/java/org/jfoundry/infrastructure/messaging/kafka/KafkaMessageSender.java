@@ -2,12 +2,14 @@ package org.jfoundry.infrastructure.messaging.kafka;
 
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
+import org.jfoundry.architecture.hexagonal.SecondaryAdapter;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /// Kafka-backed {@link MessageSender}.
+@SecondaryAdapter
 public class KafkaMessageSender implements MessageSender {
 
     private final KafkaTemplate<String, String> kafkaTemplate;

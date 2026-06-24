@@ -18,6 +18,10 @@
             <artifactId>jfoundry-inbox-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-hexagonal</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-core</artifactId>
         </dependency>

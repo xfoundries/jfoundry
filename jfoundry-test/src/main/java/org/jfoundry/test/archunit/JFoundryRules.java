@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 /// }
 /// </pre>
 /// <p>
-/// {@link #all()} 返回框架自有的默认规则（Persistence + ValueObject + Layered）；
+/// {@link #all()} 返回框架自有的默认规则（Persistence + ValueObject + Layered + FrameworkModuleRules）；
 /// {@link #jmoleculesNative()} 返回 jmolecules 官方提供的 DDD + 架构规则。
 public final class JFoundryRules {
 
@@ -43,12 +43,14 @@ public final class JFoundryRules {
     ///   <li>{@link PersistenceRules} — 持久化层零 @Transactional、autoconfig 零 @Component</li>
     ///   <li>{@link ValueObjectRules} — 值对象必须不可变、必须有 equals/hashCode</li>
     ///   <li>{@link LayeredRules} — 分层依赖方向约束</li>
+    ///   <li>{@link FrameworkModuleRules} — jfoundry framework module boundary rules</li>
     /// </ul>
     public static ArchRule[] all() {
         List<ArchRule> collected = new ArrayList<>();
         collected.addAll(publicStaticArchRules(PersistenceRules.class));
         collected.addAll(publicStaticArchRules(ValueObjectRules.class));
         collected.addAll(publicStaticArchRules(LayeredRules.class));
+        collected.addAll(publicStaticArchRules(FrameworkModuleRules.class));
         return collected.toArray(new ArchRule[0]);
     }
 
