@@ -72,14 +72,12 @@
             <optional>true</optional>
         </dependency>
         <!--
-          jmolecules-jackson：P3-3 JfoundryJacksonAutoConfiguration 通过 JMoleculesModule
-          自动注册到 ObjectMapper，让 ValueObject / Identifier 以单值形式序列化。
-          optional 避免强制传递给业务侧：业务若不使用 jmolecules 类型，不会触发 Module 注册。
+          jmolecules-jackson：复用上游 JMoleculesModule 自动配置，而不是在 jfoundry 中重复实现。
+          它让 ValueObject / Identifier 以单值形式序列化，是 Outbox payload 的默认基础能力。
         -->
         <dependency>
             <groupId>org.jmolecules.integrations</groupId>
             <artifactId>jmolecules-jackson</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <!-- Spring Boot autoconfigure (compile): @AutoConfiguration / @ConditionalOnX are first-class citizens here -->
@@ -131,15 +129,26 @@
             <scope>test</scope>
         </dependency>
         <!--
-          spring-web (test scope): required so Spring Boot's JacksonAutoConfiguration can
+          Web test scope: required so Spring Boot's JacksonAutoConfiguration can
           build the default ObjectMapper via Jackson2ObjectMapperBuilder, which applies all
-          registered Module beans (including JMoleculesModule). In a real Spring Boot app
-          spring-web is always present via spring-boot-starter-web/-webflux; here we pull it
-          in just for the JfoundryJacksonAutoConfiguration integration test.
+          registered Module beans (including JMoleculesModule), and so jmolecules-spring's
+          WebMvcConfigurer can register Identifier / Association converters on MVC's
+          ConversionService. In a real Spring Boot app, these classes are normally present
+          via spring-boot-starter-web/-webflux; here we pull them in only for integration tests.
         -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jmolecules.integrations</groupId>
+            <artifactId>jmolecules-spring</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
