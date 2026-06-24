@@ -12,8 +12,4 @@ import java.lang.annotation.Target;
 @Documented
 @org.jmolecules.architecture.hexagonal.SecondaryAdapter
 public @interface SecondaryAdapter {
-
-    String name() default "";
-
-    String description() default "";
 }

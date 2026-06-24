@@ -12,8 +12,4 @@ import java.lang.annotation.Target;
 @Documented
 @org.jmolecules.architecture.hexagonal.PrimaryAdapter
 public @interface PrimaryAdapter {
-
-    String name() default "";
-
-    String description() default "";
 }

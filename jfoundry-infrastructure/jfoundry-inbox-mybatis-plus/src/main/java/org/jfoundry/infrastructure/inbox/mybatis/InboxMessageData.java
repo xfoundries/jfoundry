@@ -1,5 +1,7 @@
 package org.jfoundry.infrastructure.inbox.mybatis;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import org.jfoundry.application.inbox.InboxMessage;
 import org.jfoundry.application.inbox.InboxMessageStatus;
@@ -9,6 +11,8 @@ import java.time.Instant;
 @TableName("jfoundry_inbox_message")
 public class InboxMessageData {
 
+    @TableId(type = IdType.ASSIGN_UUID)
+    private String id;
     private String messageId;
     private String consumerName;
     private String status;
@@ -17,6 +21,8 @@ public class InboxMessageData {
     private Instant updatedAt;
     private String errorMessage;
 
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     public String getMessageId() { return messageId; }
     public void setMessageId(String messageId) { this.messageId = messageId; }
     public String getConsumerName() { return consumerName; }

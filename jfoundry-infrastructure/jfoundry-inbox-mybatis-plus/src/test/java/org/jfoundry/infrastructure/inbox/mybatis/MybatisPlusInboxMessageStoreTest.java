@@ -1,5 +1,6 @@
 package org.jfoundry.infrastructure.inbox.mybatis;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,10 @@ class MybatisPlusInboxMessageStoreTest {
         store.markProcessed("evt-1", "projection");
 
         assertThat(mapper.selectCount(null)).isEqualTo(1);
+        InboxMessageData data = mapper.selectOne(Wrappers.lambdaQuery(InboxMessageData.class)
+                .eq(InboxMessageData::getMessageId, "evt-1")
+                .eq(InboxMessageData::getConsumerName, "projection"));
+        assertThat(data.getId()).isNotBlank();
     }
 
     @Test

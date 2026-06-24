@@ -12,8 +12,4 @@ import java.lang.annotation.Target;
 @Documented
 @org.jmolecules.architecture.hexagonal.Port
 public @interface Port {
-
-    String name() default "";
-
-    String description() default "";
 }

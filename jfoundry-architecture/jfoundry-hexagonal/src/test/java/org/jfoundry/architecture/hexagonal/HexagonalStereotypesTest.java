@@ -3,6 +3,7 @@ package org.jfoundry.architecture.hexagonal;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,6 +45,18 @@ class HexagonalStereotypesTest {
             assertThat(java.util.Arrays.asList(target.value()))
                     .as(stereotype.getSimpleName() + " must target PACKAGE and TYPE")
                     .contains(java.lang.annotation.ElementType.PACKAGE, java.lang.annotation.ElementType.TYPE);
+        }
+    }
+
+    @Test
+    void jfoundryStereotypesDoNotRedeclareJmoleculesAttributes() {
+        for (Class<? extends Annotation> stereotype : new Class[]{
+                Adapter.class, Port.class, PrimaryAdapter.class, PrimaryPort.class,
+                SecondaryAdapter.class, SecondaryPort.class
+        }) {
+            assertThat(Stream.of(stereotype.getDeclaredMethods()).map(java.lang.reflect.Method::getName))
+                    .as(stereotype.getSimpleName() + " must not redeclare jmolecules name/description attributes")
+                    .doesNotContain("name", "description");
         }
     }
 }

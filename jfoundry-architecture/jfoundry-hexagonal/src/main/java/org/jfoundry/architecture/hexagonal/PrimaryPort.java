@@ -12,8 +12,4 @@ import java.lang.annotation.Target;
 @Documented
 @org.jmolecules.architecture.hexagonal.PrimaryPort
 public @interface PrimaryPort {
-
-    String name() default "";
-
-    String description() default "";
 }
