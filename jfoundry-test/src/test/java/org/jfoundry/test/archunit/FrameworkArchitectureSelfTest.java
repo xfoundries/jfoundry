@@ -17,6 +17,18 @@ class FrameworkArchitectureSelfTest {
             FrameworkModuleRules.application_must_not_depend_on_outer_layers;
 
     @ArchTest
+    static final ArchRule domain_packages_should_be_domain_layer =
+            FrameworkModuleRules.domain_packages_should_be_domain_layer;
+
+    @ArchTest
+    static final ArchRule infrastructure_packages_should_be_infrastructure_layer =
+            FrameworkModuleRules.infrastructure_packages_should_be_infrastructure_layer;
+
+    @ArchTest
+    static final ArchRule autoconfigure_packages_should_be_bootstrap_layer =
+            FrameworkModuleRules.autoconfigure_packages_should_be_bootstrap_layer;
+
+    @ArchTest
     static final ArchRule infrastructure_must_not_depend_on_spring_autoconfigure =
             FrameworkModuleRules.infrastructure_must_not_depend_on_spring_autoconfigure;
 
@@ -35,6 +47,10 @@ class FrameworkArchitectureSelfTest {
     @ArchTest
     static final ArchRule infrastructure_mybatis_message_stores_should_be_secondary_adapters =
             FrameworkModuleRules.infrastructure_mybatis_message_stores_should_be_secondary_adapters;
+
+    @ArchTest
+    static final ArchRule infrastructure_adapter_packages_should_be_secondary_adapters =
+            FrameworkModuleRules.infrastructure_adapter_packages_should_be_secondary_adapters;
 
     @ArchTest
     static final ArchRule kafka_message_sender_should_be_secondary_adapter =

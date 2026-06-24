@@ -23,4 +23,11 @@
         <module>jfoundry-outbox-spring</module>
         <module>jfoundry-outbox-jobrunr</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-layered</artifactId>
+        </dependency>
+    </dependencies>
 </project>

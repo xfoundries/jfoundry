@@ -65,6 +65,10 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-layered</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jobrunr</groupId>
             <artifactId>jobrunr</artifactId>
             <scope>provided</scope>

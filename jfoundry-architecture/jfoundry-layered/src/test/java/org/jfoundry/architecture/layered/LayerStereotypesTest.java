@@ -6,8 +6,8 @@ import java.lang.annotation.Annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// P3-2: all 4 layer stereotypes must exist, be meta-annotated with their
-/// jmolecules counterpart, and target package + type.
+/// P3-2: all layered stereotypes must exist, be meta-annotated when a
+/// jmolecules counterpart exists, and target package + type.
 class LayerStereotypesTest {
 
     @Test
@@ -39,9 +39,15 @@ class LayerStereotypesTest {
     }
 
     @Test
+    void bootstrapLayerIsJfoundrySpecific() {
+        assertThat(BootstrapLayer.class.getName()).isEqualTo("org.jfoundry.architecture.layered.BootstrapLayer");
+    }
+
+    @Test
     void allStereotypesTargetPackageAndType() {
         for (Class<? extends Annotation> stereotype : new Class[]{
-                ApplicationLayer.class, DomainLayer.class, InterfaceLayer.class, InfrastructureLayer.class
+                ApplicationLayer.class, BootstrapLayer.class, DomainLayer.class,
+                InterfaceLayer.class, InfrastructureLayer.class
         }) {
             java.lang.annotation.Target target = stereotype.getAnnotation(java.lang.annotation.Target.class);
             assertThat(target).as(stereotype.getSimpleName() + " must have @Target").isNotNull();
