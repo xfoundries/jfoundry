@@ -3,13 +3,13 @@ package org.jfoundry.infrastructure.persistence.mybatis.support;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import org.jfoundry.infrastructure.persistence.BaseData;
+import org.jfoundry.infrastructure.persistence.AggregateData;
 
 import java.time.Instant;
 
 /// 测试用 Data 对象(MyBatis-Plus 表映射)。
 @TableName("test_order")
-public class TestOrderData extends BaseData<TestOrderId> {
+public class TestOrderData extends AggregateData<TestOrderId> {
 
     /// 强类型 ID(TestOrderId record)需要 TypeHandler 桥接到 VARCHAR,TypeHandler 通过
     /// PersistenceTestConfig 的 ConfigurationCustomizer 全局注册(因 @TableId 不支持 typeHandler 属性)。

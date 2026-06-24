@@ -5,13 +5,14 @@ import org.jmolecules.ddd.types.Identifier;
 import java.io.Serializable;
 import java.util.Objects;
 
-/// 持久化数据对象基类。
+/// 聚合根持久化数据对象基类。
 /// <p>
-/// 所有 MyBatis/JPA 等持久化数据类的基类，提供统一的标识符字段。具体的 ORM 主键策略由子类按需标注
-/// （例如 MyBatis-Plus 的 {@code @TableId}、JPA 的 {@code @Id}），基类不再代标注，避免 SPI 被特定 ORM 绑定。
+/// 该类型用于领域聚合仓储链路，保留 jMolecules Identifier 约束，确保领域聚合 ID
+/// 与持久化数据对象 ID 使用同一个强类型标识符。技术表、读模型或框架内部数据表应定义自己的
+/// 数据对象，不需要伪装成领域 Identifier。
 ///
-/// @param <ID> 标识符类型，必须是 jMolecules Identifier 且可序列化（满足 MyBatis-Plus/JPA 主键约束）
-public abstract class BaseData<ID extends Identifier & Serializable> {
+/// @param <ID> 聚合标识符类型，必须是 jMolecules Identifier 且可序列化
+public abstract class AggregateData<ID extends Identifier & Serializable> {
 
     private ID id;
 
@@ -41,7 +42,7 @@ public abstract class BaseData<ID extends Identifier & Serializable> {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        BaseData<?> that = (BaseData<?>) obj;
+        AggregateData<?> that = (AggregateData<?>) obj;
         if (id == null || that.id == null) {
             return false;
         }

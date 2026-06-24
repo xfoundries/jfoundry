@@ -12,15 +12,20 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/// 验证 {@link BaseData} 的 equals/hashCode 契约。
+/// 验证 {@link AggregateData} 的 equals/hashCode 契约。
 /// <p>
 /// 重点回归：未持久化对象（id == null）不应被 HashSet/HashMap 折叠为同一个元素。
-class BaseDataIdentityTest {
+class AggregateDataIdentityTest {
+
+    @Test
+    void aggregateDataShouldBeThePersistenceBaseType() {
+        assertEquals(Object.class, AggregateData.class.getSuperclass());
+    }
 
     @Test
     void newEntitiesWithNullIdShouldNotBeEqual() {
-        BaseData<TestId> a = new TestData();
-        BaseData<TestId> b = new TestData();
+        AggregateData<TestId> a = new TestData();
+        AggregateData<TestId> b = new TestData();
 
         assertNotEquals(a, b);
         assertFalse(a.equals(b));
@@ -28,10 +33,10 @@ class BaseDataIdentityTest {
 
     @Test
     void newEntitiesWithNullIdShouldNotCollapseInHashSet() {
-        BaseData<TestId> a = new TestData();
-        BaseData<TestId> b = new TestData();
+        AggregateData<TestId> a = new TestData();
+        AggregateData<TestId> b = new TestData();
 
-        Set<BaseData<TestId>> set = new HashSet<>();
+        Set<AggregateData<TestId>> set = new HashSet<>();
         set.add(a);
         set.add(b);
 
@@ -40,9 +45,9 @@ class BaseDataIdentityTest {
 
     @Test
     void entitiesWithSameIdShouldBeEqual() {
-        BaseData<TestId> a = new TestData();
+        AggregateData<TestId> a = new TestData();
         a.setId(new TestId("1"));
-        BaseData<TestId> b = new TestData();
+        AggregateData<TestId> b = new TestData();
         b.setId(new TestId("1"));
 
         assertEquals(a, b);
@@ -51,9 +56,9 @@ class BaseDataIdentityTest {
 
     @Test
     void entitiesWithDifferentIdShouldNotBeEqual() {
-        BaseData<TestId> a = new TestData();
+        AggregateData<TestId> a = new TestData();
         a.setId(new TestId("1"));
-        BaseData<TestId> b = new TestData();
+        AggregateData<TestId> b = new TestData();
         b.setId(new TestId("2"));
 
         assertNotEquals(a, b);
@@ -61,8 +66,8 @@ class BaseDataIdentityTest {
 
     @Test
     void nullIdEntityShouldNotEqualPersistedEntity() {
-        BaseData<TestId> a = new TestData();
-        BaseData<TestId> b = new TestData();
+        AggregateData<TestId> a = new TestData();
+        AggregateData<TestId> b = new TestData();
         b.setId(new TestId("1"));
 
         assertNotEquals(a, b);
@@ -71,23 +76,23 @@ class BaseDataIdentityTest {
 
     @Test
     void sameReferenceShouldBeEqual() {
-        BaseData<TestId> a = new TestData();
+        AggregateData<TestId> a = new TestData();
 
         assertTrue(a.equals(a));
     }
 
     @Test
     void shouldNotEqualNullOrDifferentType() {
-        BaseData<TestId> a = new TestData();
+        AggregateData<TestId> a = new TestData();
         a.setId(new TestId("1"));
 
         assertFalse(a.equals(null));
-        assertFalse(a.equals("not a BaseData"));
+        assertFalse(a.equals("not an AggregateData"));
     }
 
     record TestId(String value) implements Identifier, Serializable {
     }
 
-    private static final class TestData extends BaseData<TestId> {
+    private static final class TestData extends AggregateData<TestId> {
     }
 }

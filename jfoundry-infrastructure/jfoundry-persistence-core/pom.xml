@@ -11,9 +11,10 @@
     <artifactId>jfoundry-persistence-core</artifactId>
     <name>jfoundry-persistence-core</name>
     <description>
-        DDD persistence SPI: BaseData, DataConverter, AbstractPersistenceRepository
-        template. ORM-agnostic — concrete adapters (MyBatis-Plus / future JPA / Mongo)
-        extend this module without pulling in messaging concerns.
+        DDD persistence SPI: AggregateData, DataConverter,
+        AbstractPersistenceRepository template. ORM-agnostic - concrete adapters
+        (MyBatis-Plus / future JPA / Mongo) extend this module without pulling in
+        messaging concerns.
     </description>
 
     <dependencies>

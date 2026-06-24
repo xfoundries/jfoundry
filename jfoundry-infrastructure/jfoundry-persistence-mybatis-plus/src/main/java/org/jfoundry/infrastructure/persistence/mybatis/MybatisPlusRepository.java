@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.jfoundry.domain.event.DomainEventPublisher;
 import org.jfoundry.domain.event.EventRecordable;
 import org.jfoundry.infrastructure.persistence.AbstractPersistenceRepository;
-import org.jfoundry.infrastructure.persistence.BaseData;
+import org.jfoundry.infrastructure.persistence.AggregateData;
 import org.jfoundry.infrastructure.persistence.DataConverter;
 import org.jmolecules.ddd.types.AggregateRoot;
 import org.jmolecules.ddd.types.Identifier;
@@ -24,7 +24,7 @@ import java.io.Serializable;
 public abstract class MybatisPlusRepository<
         T extends AggregateRoot<T, ID> & EventRecordable,
         ID extends Identifier & Serializable,
-        D extends BaseData<ID>>
+        D extends AggregateData<ID>>
         extends AbstractPersistenceRepository<T, ID, D> {
 
     protected final BaseMapper<D> mapper;

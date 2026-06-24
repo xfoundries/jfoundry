@@ -249,7 +249,7 @@
               mybatis-plus-annotation：OutboxData / 业务 Data 类需 @TableName/@TableId 注解。
               jfoundry-persistence-mybatis-plus / jfoundry-outbox-mybatis-plus 模块编译时通过
               mybatis-plus-core 间接获得；业务侧运行时通过 mybatis-plus-spring-boot3-starter
-              提供。application message model（OutboxMessage）和 BaseData 刻意不带 ORM 注解，
+              提供。application message model（OutboxMessage）和 AggregateData 刻意不带 ORM 注解，
               避免被特定 ORM 绑定。
             -->
             <dependency>

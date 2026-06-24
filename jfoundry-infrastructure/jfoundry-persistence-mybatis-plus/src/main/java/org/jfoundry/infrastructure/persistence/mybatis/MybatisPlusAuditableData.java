@@ -3,19 +3,19 @@ package org.jfoundry.infrastructure.persistence.mybatis;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
-import org.jfoundry.infrastructure.persistence.BaseData;
+import org.jfoundry.infrastructure.persistence.AggregateData;
 import org.jmolecules.ddd.types.Identifier;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /// MyBatis Plus 可审计的数据类
-/// 继承自 BaseData，添加审计相关字段
+/// 继承自 AggregateData，添加审计相关字段
 /// <p>
-/// 这是 MyBatis-Plus 适配层提供的固定字段 convenience base class。非标准字段模型可以直接继承 BaseData，
+/// 这是 MyBatis-Plus 适配层提供的固定字段 convenience base class。非标准聚合字段模型可以直接继承 AggregateData，
 /// 并在领域对象上实现 Auditable/Deletable 能力接口。
 /// <p>
-/// 主键字段 {@code id} 由父类 BaseData 提供；MyBatis-Plus 默认按字段名 {@code id} 识别为主键，
+/// 主键字段 {@code id} 由父类 AggregateData 提供；MyBatis-Plus 默认按字段名 {@code id} 识别为主键，
 /// 因此无需在本类或父类上显式标注 {@code @TableId}。如需自定义主键策略（如 {@code IdType.AUTO}），
 /// 业务子类可重新声明字段并标注 {@code @TableId}。
 /// <p>
@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 /// 与审计字段无关，避免两个未持久化对象因审计字段不同被错误折叠。
 ///
 /// @param <ID> 标识符类型，必须是 jMolecules Identifier 且可序列化
-public abstract class MybatisPlusAuditableData<ID extends Identifier & Serializable> extends BaseData<ID> {
+public abstract class MybatisPlusAuditableData<ID extends Identifier & Serializable> extends AggregateData<ID> {
 
     /// 创建人ID
     @TableField(fill = FieldFill.INSERT)

@@ -62,7 +62,7 @@ starter 是业务项目优先依赖的聚合入口，例如 `jfoundry-spring-boo
 
 `jfoundry-inbox-core` 属于 `jfoundry-application`，提供消费端幂等的 `InboxMessageStore` message store port/契约与 `InboxTemplate`。
 
-Outbox/Inbox data objects do not extend `BaseData`; their MyBatis stores use `BaseMapper` directly instead of `MybatisPlusRepository`.
+Outbox/Inbox data objects do not extend `AggregateData`; their MyBatis stores use `BaseMapper` directly instead of `MybatisPlusRepository`.
 
 `jfoundry-messaging-spring` 只放 Spring-specific messaging adapter，例如 Spring 事件发布和事务感知事件 sink。
 

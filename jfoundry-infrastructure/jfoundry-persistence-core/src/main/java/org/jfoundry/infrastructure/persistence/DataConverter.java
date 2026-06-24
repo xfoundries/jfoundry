@@ -17,7 +17,7 @@ import java.util.List;
 public interface DataConverter<
         T extends AggregateRoot<T, ID>,
         ID extends Identifier & Serializable,
-        D extends BaseData<ID>> {
+        D extends AggregateData<ID>> {
 
     /// 将聚合根转换为数据对象。
     D toData(T entity);

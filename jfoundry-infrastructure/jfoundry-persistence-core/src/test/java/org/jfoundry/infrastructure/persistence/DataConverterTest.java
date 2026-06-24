@@ -65,7 +65,7 @@ class DataConverterTest {
     record TestId(String value) implements Identifier, Serializable {
     }
 
-    private static final class TestData extends BaseData<TestId> {
+    private static final class TestData extends AggregateData<TestId> {
         private String name;
     }
 

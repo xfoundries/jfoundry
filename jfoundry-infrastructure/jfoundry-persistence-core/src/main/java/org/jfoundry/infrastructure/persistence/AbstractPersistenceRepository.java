@@ -33,7 +33,7 @@ import java.util.List;
 public abstract class AbstractPersistenceRepository<
         T extends AggregateRoot<T, ID> & EventRecordable,
         ID extends Identifier & Serializable,
-        D extends BaseData<ID>>
+        D extends AggregateData<ID>>
         implements AggregateRepository<T, ID> {
 
     private final DomainEventPublisher eventPublisher;
