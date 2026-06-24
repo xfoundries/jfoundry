@@ -34,6 +34,11 @@
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-kafka</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-messaging-spring</artifactId>
         </dependency>
         <dependency>
@@ -78,6 +83,11 @@
         <dependency>
             <groupId>org.jmolecules.integrations</groupId>
             <artifactId>jmolecules-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <!-- Spring Boot autoconfigure (compile): @AutoConfiguration / @ConditionalOnX are first-class citizens here -->

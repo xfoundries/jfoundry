@@ -1,0 +1,49 @@
+package org.jfoundry.autoconfigure.messaging.kafka;
+
+import org.jfoundry.autoconfigure.messaging.MessageSenderAutoConfiguration;
+import org.jfoundry.infrastructure.messaging.MessageSender;
+import org.jfoundry.infrastructure.messaging.SendResult;
+import org.jfoundry.infrastructure.messaging.kafka.KafkaMessageSender;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.kafka.core.KafkaTemplate;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+class KafkaMessageSenderAutoConfigurationTest {
+
+    @SuppressWarnings("unchecked")
+    private final ApplicationContextRunner runner = new ApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(
+                    KafkaMessageSenderAutoConfiguration.class,
+                    MessageSenderAutoConfiguration.class))
+            .withBean(KafkaTemplate.class, () -> mock(KafkaTemplate.class));
+
+    @Test
+    void createsKafkaMessageSenderWhenKafkaTemplateExists() {
+        runner.run(context -> {
+            assertThat(context).hasSingleBean(MessageSender.class);
+            assertThat(context.getBean(MessageSender.class)).isInstanceOf(KafkaMessageSender.class);
+        });
+    }
+
+    @Test
+    void backsOffWhenUserProvidesMessageSender() {
+        runner.withBean(MessageSender.class, () -> (topic, key, payload) -> SendResult.ok())
+                .run(context -> {
+                    assertThat(context).hasSingleBean(MessageSender.class);
+                    assertThat(context).doesNotHaveBean(KafkaMessageSender.class);
+                });
+    }
+
+    @Test
+    void disabledWhenPropertyIsFalse() {
+        runner.withPropertyValues("jfoundry.messaging.kafka.enabled=false")
+                .run(context -> {
+                    assertThat(context).hasSingleBean(MessageSender.class);
+                    assertThat(context.getBean(MessageSender.class)).isNotInstanceOf(KafkaMessageSender.class);
+                });
+    }
+}
