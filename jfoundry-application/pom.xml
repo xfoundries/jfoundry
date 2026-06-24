@@ -9,7 +9,7 @@
 
     <artifactId>jfoundry-application</artifactId>
     <name>jfoundry-application</name>
-    <description>Application-layer reliability contracts and framework-neutral application services.</description>
+    <description>Application-layer reliability contracts and services.</description>
     <packaging>pom</packaging>
 
     <modules>

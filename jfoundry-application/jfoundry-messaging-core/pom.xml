@@ -10,11 +10,7 @@
 
     <artifactId>jfoundry-messaging-core</artifactId>
     <name>jfoundry-messaging-core</name>
-    <description>
-        DDD messaging SPI: MessageSender, DomainEventSink, ExternalizationRule resolver,
-        PayloadSerializer and routing metadata. Transactional Outbox abstractions live in
-        jfoundry-outbox-core. Framework and serializer adapters live in separate modules.
-    </description>
+    <description>Application messaging ports and domain-event externalization metadata.</description>
 
     <dependencies>
         <dependency>

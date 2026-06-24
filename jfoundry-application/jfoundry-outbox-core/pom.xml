@@ -10,7 +10,7 @@
 
     <artifactId>jfoundry-outbox-core</artifactId>
     <name>jfoundry-outbox-core</name>
-    <description>Transactional Outbox core SPI: OutboxMessage, OutboxMessageStore, OutboxDispatcher, OutboxMessageStatus and BackoffStrategy.</description>
+    <description>Application Outbox message model, store port, dispatcher service, status machine.</description>
 
     <dependencies>
         <dependency>

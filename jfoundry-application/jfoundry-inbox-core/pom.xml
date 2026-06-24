@@ -10,7 +10,7 @@
 
     <artifactId>jfoundry-inbox-core</artifactId>
     <name>jfoundry-inbox-core</name>
-    <description>Inbox idempotent consumer core for jfoundry messaging.</description>
+    <description>Application Inbox message model, store port, and idempotent execution template.</description>
 
     <dependencies>
         <dependency>

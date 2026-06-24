@@ -31,16 +31,18 @@ jfoundry-parent
 │   ├── jfoundry-layered                          Layered Architecture 分层注解
 │   ├── jfoundry-hexagonal                        Hexagonal Architecture 端口/适配器注解
 │   └── jfoundry-onion                            Onion Architecture 环形注解
+├── jfoundry-application                          应用层聚合
+│   ├── jfoundry-messaging-core                   消息发送 / 事件外部化 application ports
+│   ├── jfoundry-outbox-core                      Outbox message store port + 状态机 + dispatcher service
+│   └── jfoundry-inbox-core                       Inbox message store port + InboxTemplate
 ├── jfoundry-infrastructure                       基础设施层聚合
 │   ├── jfoundry-persistence-core                 持久化抽象（AbstractPersistenceRepository）
 │   ├── jfoundry-persistence-mybatis-plus         MyBatis-Plus 实现
-│   ├── jfoundry-messaging-core                   消息发送 / 事件外部化 SPI + PayloadSerializer
-│   ├── jfoundry-messaging-spring                 Spring 领域事件发布 + 默认 MessageSender
+│   ├── jfoundry-messaging-jackson                Jackson PayloadSerializer adapter
 │   ├── jfoundry-messaging-kafka                  Kafka MessageSender adapter（可选）
-│   ├── jfoundry-inbox-core                       消费端幂等 SPI + InboxTemplate
-│   ├── jfoundry-inbox-mybatis-plus               Inbox 的 MyBatis-Plus 存储适配器
-│   ├── jfoundry-outbox-core                      Transactional Outbox SPI + 状态机
-│   ├── jfoundry-outbox-mybatis-plus              Outbox 的 MyBatis-Plus 存储适配器
+│   ├── jfoundry-inbox-mybatis-plus               Inbox MyBatis-Plus store adapter
+│   ├── jfoundry-outbox-mybatis-plus              Outbox MyBatis-Plus store adapter
+│   ├── jfoundry-messaging-spring                 Spring 领域事件发布 + 默认 MessageSender
 │   ├── jfoundry-outbox-spring                    Outbox 的 Spring 外部化与 scheduled 派发器
 │   └── jfoundry-outbox-jobrunr                   Outbox 的 JobRunr 派发器（可选）
 ├── jfoundry-spring                               Spring 整合层聚合

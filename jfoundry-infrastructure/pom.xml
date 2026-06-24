@@ -9,7 +9,7 @@
 
     <artifactId>jfoundry-infrastructure</artifactId>
     <name>jfoundry-infrastructure</name>
-    <description>DDD infrastructure aggregator: SPI + persistence + messaging sub-modules.</description>
+    <description>Persistence core plus technical adapters for persistence, messaging, outbox, and inbox.</description>
     <packaging>pom</packaging>
 
     <modules>
