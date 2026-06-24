@@ -2,6 +2,8 @@ package org.jfoundry.infrastructure.outbox.spring.externalization;
 
 import org.jfoundry.domain.event.AbstractDomainEvent;
 import org.jfoundry.infrastructure.messaging.PayloadSerializer;
+import org.jfoundry.infrastructure.messaging.externalization.AggregateRoutingMetadata;
+import org.jfoundry.infrastructure.messaging.externalization.AggregateRoutingResolver;
 import org.jfoundry.infrastructure.messaging.externalization.DomainEventSink;
 import org.jfoundry.infrastructure.messaging.externalization.ExternalizationRule;
 import org.jfoundry.infrastructure.messaging.externalization.ExternalizationRuleResolver;
@@ -20,13 +22,22 @@ public class DomainEventExternalizer implements DomainEventSink {
     private final OutboxRepository outboxRepository;
     private final PayloadSerializer payloadSerializer;
     private final ExternalizationRuleResolver ruleResolver;
+    private final AggregateRoutingResolver aggregateRoutingResolver;
 
     public DomainEventExternalizer(OutboxRepository outboxRepository,
                                     PayloadSerializer payloadSerializer,
                                     ExternalizationRuleResolver ruleResolver) {
+        this(outboxRepository, payloadSerializer, ruleResolver, new AggregateRoutingResolver());
+    }
+
+    public DomainEventExternalizer(OutboxRepository outboxRepository,
+                                    PayloadSerializer payloadSerializer,
+                                    ExternalizationRuleResolver ruleResolver,
+                                    AggregateRoutingResolver aggregateRoutingResolver) {
         this.outboxRepository = outboxRepository;
         this.payloadSerializer = payloadSerializer;
         this.ruleResolver = ruleResolver;
+        this.aggregateRoutingResolver = aggregateRoutingResolver;
     }
 
     @Override
@@ -39,8 +50,21 @@ public class DomainEventExternalizer implements DomainEventSink {
         String payloadType = event.getClass().getName();
         String payloadJson = payloadSerializer.serialize(event);
         Instant occurredAt = resolveOccurredAt(event);
-        OutboxEntry entry = OutboxEntry.newPending(eventId, rule.topic(), rule.payloadKey(),
-                payloadType, payloadJson, occurredAt);
+        AggregateRoutingMetadata aggregate = aggregateRoutingResolver.resolve(event).orElse(null);
+        String payloadKey = rule.payloadKey();
+        if (payloadKey == null && aggregate != null) {
+            payloadKey = aggregate.aggregateId();
+        }
+        OutboxEntry entry = OutboxEntry.newPending(
+                eventId,
+                rule.topic(),
+                payloadKey,
+                payloadType,
+                payloadJson,
+                occurredAt,
+                aggregate != null ? aggregate.aggregateType() : null,
+                aggregate != null ? aggregate.aggregateId() : null,
+                aggregate != null ? aggregate.aggregateVersion() : null);
         outboxRepository.append(entry);
     }
 

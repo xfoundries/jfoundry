@@ -3,6 +3,7 @@ package org.jfoundry.autoconfigure.messaging;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration;
 import org.jfoundry.infrastructure.messaging.PayloadSerializer;
+import org.jfoundry.infrastructure.messaging.externalization.AggregateRoutingResolver;
 import org.jfoundry.infrastructure.messaging.externalization.ExternalizationRuleResolver;
 import org.jfoundry.infrastructure.messaging.jackson.JacksonPayloadSerializer;
 import org.jfoundry.infrastructure.outbox.core.OutboxRepository;
@@ -52,13 +53,20 @@ public class DomainEventExternalizerAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(AggregateRoutingResolver.class)
+    public AggregateRoutingResolver aggregateRoutingResolver() {
+        return new AggregateRoutingResolver();
+    }
+
+    @Bean
     @ConditionalOnBean({OutboxRepository.class, PayloadSerializer.class})
     @ConditionalOnMissingBean(DomainEventExternalizer.class)
     @Order(Ordered.LOWEST_PRECEDENCE)
     public DomainEventExternalizer domainEventExternalizer(
             OutboxRepository outboxRepository,
             ExternalizationRuleResolver ruleResolver,
+            AggregateRoutingResolver aggregateRoutingResolver,
             PayloadSerializer serializer) {
-        return new DomainEventExternalizer(outboxRepository, serializer, ruleResolver);
+        return new DomainEventExternalizer(outboxRepository, serializer, ruleResolver, aggregateRoutingResolver);
     }
 }

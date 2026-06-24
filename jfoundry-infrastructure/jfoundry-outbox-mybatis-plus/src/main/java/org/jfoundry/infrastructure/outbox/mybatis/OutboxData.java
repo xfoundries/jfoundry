@@ -23,6 +23,9 @@ public class OutboxData {
     private String payloadKey;
     private String payloadType;
     private String payloadJson;
+    private String aggregateType;
+    private String aggregateId;
+    private Long aggregateVersion;
     private String status;
     private int retryCount;
     private String errorMessage;
@@ -48,6 +51,12 @@ public class OutboxData {
     public void setPayloadType(String payloadType) { this.payloadType = payloadType; }
     public String getPayloadJson() { return payloadJson; }
     public void setPayloadJson(String payloadJson) { this.payloadJson = payloadJson; }
+    public String getAggregateType() { return aggregateType; }
+    public void setAggregateType(String aggregateType) { this.aggregateType = aggregateType; }
+    public String getAggregateId() { return aggregateId; }
+    public void setAggregateId(String aggregateId) { this.aggregateId = aggregateId; }
+    public Long getAggregateVersion() { return aggregateVersion; }
+    public void setAggregateVersion(Long aggregateVersion) { this.aggregateVersion = aggregateVersion; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public int getRetryCount() { return retryCount; }
@@ -81,6 +90,9 @@ public class OutboxData {
         data.payloadKey = entry.getPayloadKey();
         data.payloadType = entry.getPayloadType();
         data.payloadJson = entry.getPayloadJson();
+        data.aggregateType = entry.getAggregateType();
+        data.aggregateId = entry.getAggregateId();
+        data.aggregateVersion = entry.getAggregateVersion();
         OutboxStatus status = entry.getStatus();
         data.status = status != null ? status.name() : null;
         data.retryCount = entry.getRetryCount();
@@ -104,6 +116,9 @@ public class OutboxData {
         entry.setPayloadKey(data.payloadKey);
         entry.setPayloadType(data.payloadType);
         entry.setPayloadJson(data.payloadJson);
+        entry.setAggregateType(data.aggregateType);
+        entry.setAggregateId(data.aggregateId);
+        entry.setAggregateVersion(data.aggregateVersion);
         if (data.status != null) {
             entry.setStatus(OutboxStatus.valueOf(data.status));
         }

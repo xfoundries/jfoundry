@@ -5,7 +5,6 @@ import org.jmolecules.event.types.DomainEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,7 +61,7 @@ public class ExternalizationRuleResolver {
 
         String keyPath = null;
         if (hasRouting && !routing.key().isEmpty()) {
-            keyPath = normalizeKeyPath(routing.key());
+            keyPath = PropertyPathReader.normalize(routing.key());
         }
         return new ResolvedMetadata(true, false, topic, keyPath);
     }
@@ -72,55 +71,13 @@ public class ExternalizationRuleResolver {
             return null;
         }
         try {
-            Object value = readPropertyPath(event, keyPath);
+            Object value = PropertyPathReader.read(event, keyPath);
             return value == null ? null : value.toString();
         } catch (Exception e) {
             log.warn("事件 {} 的 @MessageRouting.key 属性路径解析失败，降级 payloadKey=null。原因：{}",
                     event.getClass().getName(), e.getMessage());
             return null;
         }
-    }
-
-    private String normalizeKeyPath(String key) {
-        if (key.startsWith("#this.")) {
-            return key.substring("#this.".length());
-        }
-        if (key.startsWith("this.")) {
-            return key.substring("this.".length());
-        }
-        return key;
-    }
-
-    private Object readPropertyPath(Object root, String path) throws ReflectiveOperationException {
-        Object current = root;
-        for (String segment : path.split("\\.")) {
-            if (segment.isBlank()) {
-                throw new NoSuchMethodException("empty property segment in path " + path);
-            }
-            if (current == null) {
-                return null;
-            }
-            current = readProperty(current, segment);
-        }
-        return current;
-    }
-
-    private Object readProperty(Object target, String property) throws ReflectiveOperationException {
-        Class<?> type = target.getClass();
-        String suffix = Character.toUpperCase(property.charAt(0)) + property.substring(1);
-        try {
-            return invoke(type.getMethod("get" + suffix), target);
-        } catch (NoSuchMethodException ignored) {
-            try {
-                return invoke(type.getMethod("is" + suffix), target);
-            } catch (NoSuchMethodException ignoredAgain) {
-                return invoke(type.getMethod(property), target);
-            }
-        }
-    }
-
-    private Object invoke(Method method, Object target) throws ReflectiveOperationException {
-        return method.invoke(target);
     }
 
     private record ResolvedMetadata(boolean externalized, boolean routingOnly,

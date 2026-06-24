@@ -18,6 +18,9 @@ public class OutboxEntry {
     private String payloadKey;
     private String payloadType;
     private String payloadJson;
+    private String aggregateType;
+    private String aggregateId;
+    private Long aggregateVersion;
     private String status;
     private int retryCount;
     private String errorMessage;
@@ -55,6 +58,16 @@ public class OutboxEntry {
         entry.nextRetryAt = null;
         entry.createdAt = now;
         entry.updatedAt = now;
+        return entry;
+    }
+
+    public static OutboxEntry newPending(String eventId, String topic, String payloadKey,
+                                          String payloadType, String payloadJson, Instant occurredAt,
+                                          String aggregateType, String aggregateId, Long aggregateVersion) {
+        OutboxEntry entry = newPending(eventId, topic, payloadKey, payloadType, payloadJson, occurredAt);
+        entry.aggregateType = aggregateType;
+        entry.aggregateId = aggregateId;
+        entry.aggregateVersion = aggregateVersion;
         return entry;
     }
 
@@ -118,6 +131,12 @@ public class OutboxEntry {
     public void setPayloadType(String payloadType) { this.payloadType = payloadType; }
     public String getPayloadJson() { return payloadJson; }
     public void setPayloadJson(String payloadJson) { this.payloadJson = payloadJson; }
+    public String getAggregateType() { return aggregateType; }
+    public void setAggregateType(String aggregateType) { this.aggregateType = aggregateType; }
+    public String getAggregateId() { return aggregateId; }
+    public void setAggregateId(String aggregateId) { this.aggregateId = aggregateId; }
+    public Long getAggregateVersion() { return aggregateVersion; }
+    public void setAggregateVersion(Long aggregateVersion) { this.aggregateVersion = aggregateVersion; }
     public OutboxStatus getStatus() { return OutboxStatus.valueOf(status); }
     public void setStatus(OutboxStatus status) { this.status = status.name(); }
     public int getRetryCount() { return retryCount; }

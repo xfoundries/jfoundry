@@ -38,6 +38,17 @@ class OutboxEntryTest {
     }
 
     @Test
+    void newPendingRetainsAggregateRoutingMetadata() {
+        OutboxEntry entry = OutboxEntry.newPending(
+                "evt-1", "topic-1", null, "com.example.FooEvent", "{}",
+                Instant.parse("2026-06-18T10:00:00Z"), "Order", "order-1", 7L);
+
+        assertThat(entry.getAggregateType()).isEqualTo("Order");
+        assertThat(entry.getAggregateId()).isEqualTo("order-1");
+        assertThat(entry.getAggregateVersion()).isEqualTo(7L);
+    }
+
+    @Test
     void markFailedUnderMaxRetriesTransitionsToFailedAndSetsNextRetryAt() {
         OutboxEntry entry = newPending();
         int maxRetries = 5;

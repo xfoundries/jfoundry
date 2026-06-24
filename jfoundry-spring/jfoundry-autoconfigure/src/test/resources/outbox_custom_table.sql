@@ -7,6 +7,9 @@ CREATE TABLE IF NOT EXISTS custom_outbox (
     payload_key     VARCHAR(255),
     payload_type    VARCHAR(500)  NOT NULL,
     payload_json    TEXT          NOT NULL,
+    aggregate_type   VARCHAR(255),
+    aggregate_id     VARCHAR(255),
+    aggregate_version BIGINT,
     status          VARCHAR(32)   NOT NULL,
     retry_count     INT           NOT NULL DEFAULT 0,
     error_message   VARCHAR(2000),
@@ -24,3 +27,4 @@ CREATE TABLE IF NOT EXISTS custom_outbox (
 CREATE INDEX IF NOT EXISTS idx_custom_outbox_status_retry ON custom_outbox (status, next_retry_at);
 CREATE INDEX IF NOT EXISTS idx_custom_outbox_claim ON custom_outbox (status, claimed_at);
 CREATE INDEX IF NOT EXISTS idx_custom_outbox_claim_token ON custom_outbox (claim_token);
+CREATE INDEX IF NOT EXISTS idx_custom_outbox_aggregate ON custom_outbox (aggregate_type, aggregate_id, aggregate_version);

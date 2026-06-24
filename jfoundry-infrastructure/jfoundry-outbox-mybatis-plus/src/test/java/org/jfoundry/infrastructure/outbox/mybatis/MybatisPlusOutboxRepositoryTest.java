@@ -40,6 +40,20 @@ class MybatisPlusOutboxRepositoryTest {
     }
 
     @Test
+    void appendPersistsAggregateRoutingMetadata() {
+        OutboxEntry entry = OutboxEntry.newPending(
+                "evt-aggregate", "topic", null, "com.example.Foo", "{}", Instant.now(),
+                "Order", "order-1", 7L);
+
+        repository.append(entry);
+
+        OutboxEntry loaded = repository.findDispatchable(100, Instant.now()).get(0);
+        assertThat(loaded.getAggregateType()).isEqualTo("Order");
+        assertThat(loaded.getAggregateId()).isEqualTo("order-1");
+        assertThat(loaded.getAggregateVersion()).isEqualTo(7L);
+    }
+
+    @Test
     void findDispatchableReturnsOnlyPendingOrFailedReady() {
         repository.append(pendingEntry("evt-ready"));
         OutboxEntry failedNotReady = pendingEntry("evt-failed-not-ready");

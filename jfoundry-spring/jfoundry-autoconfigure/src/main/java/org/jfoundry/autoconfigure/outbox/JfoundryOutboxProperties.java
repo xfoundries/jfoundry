@@ -1,5 +1,6 @@
 package org.jfoundry.autoconfigure.outbox;
 
+import org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /// Outbox 配置。

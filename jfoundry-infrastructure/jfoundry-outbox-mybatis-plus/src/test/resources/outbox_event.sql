@@ -5,6 +5,9 @@ CREATE TABLE jfoundry_outbox_event (
     payload_key     VARCHAR(255),
     payload_type    VARCHAR(500)  NOT NULL,
     payload_json    MEDIUMTEXT    NOT NULL,  -- 16MB; P2-4: supports 1MB+ payloads
+    aggregate_type   VARCHAR(255),
+    aggregate_id     VARCHAR(255),
+    aggregate_version BIGINT,
     -- PENDING / DISPATCHING / PUBLISHED / FAILED / DEAD_LETTERED
     status          VARCHAR(32)   NOT NULL,
     retry_count     INT           NOT NULL DEFAULT 0,
@@ -26,3 +29,4 @@ CREATE INDEX idx_outbox_status_retry ON jfoundry_outbox_event (status, next_retr
 CREATE INDEX idx_outbox_claim ON jfoundry_outbox_event (status, claimed_at);
 -- P3-2: lookup by claim_token
 CREATE INDEX idx_outbox_claim_token ON jfoundry_outbox_event (claim_token);
+CREATE INDEX idx_outbox_aggregate ON jfoundry_outbox_event (aggregate_type, aggregate_id, aggregate_version);
