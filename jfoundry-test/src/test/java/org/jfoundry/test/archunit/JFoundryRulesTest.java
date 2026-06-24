@@ -22,6 +22,15 @@ class JFoundryRulesTest {
     }
 
     @Test
+    void exposesArchitectureStyleRulesExplicitly() {
+        assertThat(JFoundryRules.layered()).hasSizeGreaterThanOrEqualTo(2);
+        assertThat(JFoundryRules.hexagonal()).hasSizeGreaterThanOrEqualTo(2);
+        assertThat(JFoundryRules.onionSimple()).hasSizeGreaterThanOrEqualTo(2);
+        assertThat(JFoundryRules.onionClassical()).hasSizeGreaterThanOrEqualTo(2);
+        assertThat(JFoundryRules.noMixedHexagonalAndOnion()).isNotNull();
+    }
+
+    @Test
     void allRulesAreNonNull() {
         for (ArchRule rule : JFoundryRules.all()) {
             assertThat(rule).as("rule in JFoundryRules.all() must not be null").isNotNull();

@@ -1,0 +1,49 @@
+package org.jfoundry.architecture.hexagonal;
+
+import org.junit.jupiter.api.Test;
+
+import java.lang.annotation.Annotation;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class HexagonalStereotypesTest {
+
+    @Test
+    void allStereotypesAreMetaAnnotated() {
+        assertThat(Application.class.getAnnotation(org.jmolecules.architecture.hexagonal.Application.class))
+                .as("@Application must be meta-annotated with jmolecules @Application")
+                .isNotNull();
+        assertThat(Adapter.class.getAnnotation(org.jmolecules.architecture.hexagonal.Adapter.class))
+                .as("@Adapter must be meta-annotated with jmolecules @Adapter")
+                .isNotNull();
+        assertThat(Port.class.getAnnotation(org.jmolecules.architecture.hexagonal.Port.class))
+                .as("@Port must be meta-annotated with jmolecules @Port")
+                .isNotNull();
+        assertThat(PrimaryAdapter.class.getAnnotation(org.jmolecules.architecture.hexagonal.PrimaryAdapter.class))
+                .as("@PrimaryAdapter must be meta-annotated with jmolecules @PrimaryAdapter")
+                .isNotNull();
+        assertThat(PrimaryPort.class.getAnnotation(org.jmolecules.architecture.hexagonal.PrimaryPort.class))
+                .as("@PrimaryPort must be meta-annotated with jmolecules @PrimaryPort")
+                .isNotNull();
+        assertThat(SecondaryAdapter.class.getAnnotation(org.jmolecules.architecture.hexagonal.SecondaryAdapter.class))
+                .as("@SecondaryAdapter must be meta-annotated with jmolecules @SecondaryAdapter")
+                .isNotNull();
+        assertThat(SecondaryPort.class.getAnnotation(org.jmolecules.architecture.hexagonal.SecondaryPort.class))
+                .as("@SecondaryPort must be meta-annotated with jmolecules @SecondaryPort")
+                .isNotNull();
+    }
+
+    @Test
+    void allStereotypesTargetPackageAndType() {
+        for (Class<? extends Annotation> stereotype : new Class[]{
+                Application.class, Adapter.class, Port.class, PrimaryAdapter.class, PrimaryPort.class,
+                SecondaryAdapter.class, SecondaryPort.class
+        }) {
+            java.lang.annotation.Target target = stereotype.getAnnotation(java.lang.annotation.Target.class);
+            assertThat(target).as(stereotype.getSimpleName() + " must have @Target").isNotNull();
+            assertThat(java.util.Arrays.asList(target.value()))
+                    .as(stereotype.getSimpleName() + " must target PACKAGE and TYPE")
+                    .contains(java.lang.annotation.ElementType.PACKAGE, java.lang.annotation.ElementType.TYPE);
+        }
+    }
+}

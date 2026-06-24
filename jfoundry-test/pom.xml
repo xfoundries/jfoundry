@@ -18,7 +18,17 @@
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-architecture-layered</artifactId>
+            <artifactId>jfoundry-layered</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-hexagonal</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-onion</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>

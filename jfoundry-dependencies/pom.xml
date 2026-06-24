@@ -52,7 +52,23 @@
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-architecture-layered</artifactId>
+                <artifactId>jfoundry-architecture</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-layered</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-hexagonal</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-onion</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <!--新增子模块声明（破坏式重构）-->
@@ -178,7 +194,8 @@
               0.34.0 在 Maven Central 不存在（版本号 0.33.0 后直接跳到 1.6.0）。
               - jmolecules-archunit：JMoleculesDddRules.aggregateReferencesShouldBeViaIdOrAssociation()
                 / valueObjectsMustNotReferToIdentifiables()、JMoleculesArchitectureRules.ensureLayering()
-                等原生规则，供 JFoundryRules.jmoleculesNative() 聚合
+                / ensureHexagonal() / ensureOnionSimple() / ensureOnionClassical()
+                等原生规则，供 JFoundryRules.jmoleculesNative() 和显式架构风格入口聚合
               - jmolecules-jackson：聚合根/值对象的 Jackson 序列化支持（Task 3.6 使用）
               - jmolecules-spring：Identifier / Association 的 Spring Converter 与 Web/Jackson 集成
             -->

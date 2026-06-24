@@ -26,7 +26,7 @@ public final class LayeredRules {
 
     /// 应用层只能依赖应用层和领域层——不能直接依赖接口层或基础设施层。
     /// <p>
-    /// 这是六边形架构的核心约束：业务内核（应用+领域）必须与适配器层解耦。
+    /// 这是分层架构的核心约束：应用层不直接依赖接口层或基础设施层。
     /// <p>
     /// 规则基于包上的 {@link ApplicationLayer} / {@link DomainLayer} / {@link InterfaceLayer} /
     /// {@link InfrastructureLayer} 标注识别（通过 package-info.java）。
