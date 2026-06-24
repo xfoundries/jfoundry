@@ -103,7 +103,7 @@ class DomainEventExternalizerConditionTest {
         }
 
         @Override
-        public int deleteByStatusAndCreatedAtBefore(
+        public int deleteByStatusAndOccurredAtBefore(
                 org.jfoundry.infrastructure.outbox.core.OutboxStatus status,
                 java.time.Instant cutoff, int batchSize) {
             return 0;

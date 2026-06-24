@@ -53,9 +53,9 @@ public class OutboxCleanupJob {
         Instant publishedCutoff = now.minus(Duration.ofDays(properties.getPublishedRetentionDays()));
         Instant deadCutoff = now.minus(Duration.ofDays(properties.getDeadLetteredRetentionDays()));
 
-        int publishedDeleted = outboxRepository.deleteByStatusAndCreatedAtBefore(
+        int publishedDeleted = outboxRepository.deleteByStatusAndOccurredAtBefore(
                 OutboxStatus.PUBLISHED, publishedCutoff, properties.getBatchSize());
-        int deadDeleted = outboxRepository.deleteByStatusAndCreatedAtBefore(
+        int deadDeleted = outboxRepository.deleteByStatusAndOccurredAtBefore(
                 OutboxStatus.DEAD_LETTERED, deadCutoff, properties.getBatchSize());
 
         int total = publishedDeleted + deadDeleted;

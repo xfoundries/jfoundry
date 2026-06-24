@@ -55,7 +55,7 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
             throw new IllegalStateException(
                     "MybatisPlusInterceptor 中未包含 PaginationInnerInterceptor，"
                             + "OutboxRepository 多处依赖 selectPage 生成方言 SQL（findDispatchable / "
-                            + "claimDispatchable / deleteByStatusAndCreatedAtBefore），"
+                            + "claimDispatchable / deleteByStatusAndOccurredAtBefore），"
                             + "未注册时 selectPage 会 silently 返回全表。"
                             + "请将 PaginationInnerInterceptor 加入 MybatisPlusInterceptor。");
         }
@@ -213,7 +213,7 @@ public class MybatisPlusOutboxRepository implements OutboxRepository {
     /// 循环而非单条 SQL 原因：单批 DELETE 拿锁较多且长事务影响 claim/dispatch；分批每批只锁 batchSize 行，
     /// 批次间释放锁，其它事务能穿插。{@code deleted < batchSize} 表示候选集已耗尽。
     @Override
-    public int deleteByStatusAndCreatedAtBefore(OutboxStatus status, Instant cutoff, int batchSize) {
+    public int deleteByStatusAndOccurredAtBefore(OutboxStatus status, Instant cutoff, int batchSize) {
         if (status == null) {
             throw new IllegalArgumentException("status must not be null");
         }

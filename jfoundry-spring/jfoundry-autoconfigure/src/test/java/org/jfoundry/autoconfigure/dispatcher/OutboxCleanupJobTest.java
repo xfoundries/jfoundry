@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(classes = OutboxCleanupJobTest.TestApp.class)
 @TestPropertySource(properties = {
         "jfoundry.outbox.dispatcher.interval-ms=600000",
+        "jfoundry.outbox.cleanup.enabled=false",
         "jfoundry.outbox.cleanup.published-retention-days=7",
         "jfoundry.outbox.cleanup.dead-lettered-retention-days=30",
         "jfoundry.outbox.cleanup.batch-size=100",
@@ -73,9 +74,6 @@ class OutboxCleanupJobTest {
     @Autowired
     private OutboxMapper mapper;
 
-    @Autowired
-    private OutboxCleanupJob job;
-
     @BeforeEach
     void cleanDb() {
         mapper.delete(null);
@@ -88,7 +86,7 @@ class OutboxCleanupJobTest {
         seed("evt-old", OutboxStatus.PUBLISHED, Instant.now().minusSeconds(8 * 86400L));
         seed("evt-recent", OutboxStatus.PUBLISHED, Instant.now().minusSeconds(86400L));
 
-        int deleted = job.runOnce();
+        int deleted = cleanupJob().runOnce();
 
         assertThat(deleted).isEqualTo(1);
         assertThat(mapper.selectById("evt-old")).isNull();
@@ -103,7 +101,7 @@ class OutboxCleanupJobTest {
         seed("evt-dead-old", OutboxStatus.DEAD_LETTERED, Instant.now().minusSeconds(40L * 86400L));
         seed("evt-dead-recent", OutboxStatus.DEAD_LETTERED, Instant.now().minusSeconds(10L * 86400L));
 
-        int deleted = job.runOnce();
+        int deleted = cleanupJob().runOnce();
 
         assertThat(deleted).isEqualTo(1);
         assertThat(mapper.selectById("evt-dead-old")).isNull();
@@ -117,7 +115,7 @@ class OutboxCleanupJobTest {
         seed("evt-pending", OutboxStatus.PENDING, Instant.now().minusSeconds(365L * 86400L));
         seed("evt-failed", OutboxStatus.FAILED, Instant.now().minusSeconds(365L * 86400L));
 
-        int deleted = job.runOnce();
+        int deleted = cleanupJob().runOnce();
 
         assertThat(deleted).isZero();
         assertThat(mapper.selectById("evt-pending")).isNotNull();
@@ -150,7 +148,7 @@ class OutboxCleanupJobTest {
             seed("evt-batch-" + i, OutboxStatus.PUBLISHED, yearAgo);
         }
 
-        int deleted = job.runOnce();
+        int deleted = cleanupJob().runOnce();
 
         assertThat(deleted).isEqualTo(250);
         // Spot-check: first and last should be gone.
@@ -174,5 +172,14 @@ class OutboxCleanupJobTest {
         OutboxData seeded = mapper.selectById(id);
         assertThat(seeded).as("seeded entry must exist with status=%s", status).isNotNull();
         assertThat(seeded.getStatus()).isEqualTo(status.name());
+    }
+
+    private OutboxCleanupJob cleanupJob() {
+        OutboxCleanupProperties properties = new OutboxCleanupProperties();
+        properties.setEnabled(true);
+        properties.setPublishedRetentionDays(7);
+        properties.setDeadLetteredRetentionDays(30);
+        properties.setBatchSize(100);
+        return new OutboxCleanupJob(repository, properties);
     }
 }

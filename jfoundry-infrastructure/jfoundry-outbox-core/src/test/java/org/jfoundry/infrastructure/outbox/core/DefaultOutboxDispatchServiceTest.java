@@ -106,7 +106,7 @@ class DefaultOutboxDispatchServiceTest {
         }
 
         @Override
-        public int deleteByStatusAndCreatedAtBefore(OutboxStatus status, Instant cutoff, int batchSize) {
+        public int deleteByStatusAndOccurredAtBefore(OutboxStatus status, Instant cutoff, int batchSize) {
             return 0;
         }
     }

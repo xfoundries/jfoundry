@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// fixture) must stay empty — proving the rewrite happened, not that we widened the write.
 /// <p>
 /// P3-3: 之前只覆盖 append；现在补 claimDispatchable / recoverStuckDispatching /
-/// deleteByStatusAndCreatedAtBefore 三个运营路径，确保 {@code TableNameHandler} 改写
+/// deleteByStatusAndOccurredAtBefore 三个运营路径，确保 {@code TableNameHandler} 改写
 /// 对自定义 SQL（mapper 上的 {@code @Update}/{@code @Select}/{@code @Delete}）也生效，
 /// 不只是 BaseMapper 的标准 CRUD。
 /// <p>
@@ -157,11 +157,11 @@ class OutboxTableNameOverrideTest {
         assertThat(anyInDefault).isEqualTo(0);
     }
 
-    /// P3-3 regression: deleteByStatusAndCreatedAtBefore 的子查询 + LIMIT 形态 DELETE
+    /// P3-3 regression: deleteByStatusAndOccurredAtBefore 的子查询 + LIMIT 形态 DELETE
     /// 必须改写到 custom_outbox，否则 cleanup job 静默失效（默认表本来就空，DELETE 返回 0
     /// 但不报错，最隐蔽）。
     @Test
-    void deleteByStatusAndCreatedAtBeforeOperatesOnCustomTable() {
+    void deleteByStatusAndOccurredAtBeforeOperatesOnCustomTable() {
         // 构造一条"已 PUBLISHED 且 occurred_at 早于 cutoff"的记录，命中清理条件。
         appendPending("evt-published-old", "custom_outbox");
         // 直接 SQL 改 status（绕过 markPublished 的状态机；本测试只关心 DELETE 改写）。
@@ -176,7 +176,7 @@ class OutboxTableNameOverrideTest {
                 "UPDATE custom_outbox SET status = ? WHERE event_id = ?",
                 OutboxStatus.PUBLISHED.name(), "evt-published-fresh");
 
-        int deleted = repository.deleteByStatusAndCreatedAtBefore(
+        int deleted = repository.deleteByStatusAndOccurredAtBefore(
                 OutboxStatus.PUBLISHED, Instant.now().minus(Duration.ofDays(1)), 10);
 
         assertThat(deleted).isEqualTo(1);

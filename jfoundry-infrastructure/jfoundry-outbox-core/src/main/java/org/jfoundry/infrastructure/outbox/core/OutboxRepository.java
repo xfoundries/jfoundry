@@ -120,5 +120,5 @@ public interface OutboxRepository {
     /// @param cutoff    截止时刻，occurredAt 严格早于该时刻的记录被删除
     /// @param batchSize 单批最多删除的记录数（实现侧循环到删干净）
     /// @return 累计删除的记录总数（0 表示没有匹配的记录）
-    int deleteByStatusAndCreatedAtBefore(OutboxStatus status, Instant cutoff, int batchSize);
+    int deleteByStatusAndOccurredAtBefore(OutboxStatus status, Instant cutoff, int batchSize);
 }
