@@ -3,31 +3,20 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.jfoundry</groupId>
-        <artifactId>jfoundry-infrastructure</artifactId>
+        <artifactId>jfoundry-application</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-messaging-core</artifactId>
-    <name>jfoundry-messaging-core</name>
-    <description>
-        DDD messaging SPI: MessageSender, DomainEventSink, ExternalizationRule resolver,
-        PayloadSerializer and routing metadata. Transactional Outbox abstractions live in
-        jfoundry-outbox-core. Framework and serializer adapters live in separate modules.
-    </description>
+    <artifactId>jfoundry-outbox-core</artifactId>
+    <name>jfoundry-outbox-core</name>
+    <description>Transactional Outbox core SPI: OutboxEntry, OutboxRepository, OutboxDispatcher, OutboxStatus and BackoffStrategy.</description>
 
     <dependencies>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-domain</artifactId>
+            <artifactId>jfoundry-messaging-core</artifactId>
         </dependency>
-
-        <!-- jMolecules standard @Externalized annotation -->
-        <dependency>
-            <groupId>org.jmolecules</groupId>
-            <artifactId>jmolecules-events</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>

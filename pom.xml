@@ -27,6 +27,7 @@
         <module>jfoundry-dependencies</module>
         <module>jfoundry-domain</module>
         <module>jfoundry-architecture</module>
+        <module>jfoundry-application</module>
         <module>jfoundry-infrastructure</module>
         <module>jfoundry-spring</module>
         <module>jfoundry-test</module>
