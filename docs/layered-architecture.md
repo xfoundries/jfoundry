@@ -39,7 +39,7 @@ import org.jfoundry.architecture.layered.ApplicationLayer;
 InterfaceLayer → ApplicationLayer → DomainLayer ← InfrastructureLayer
 ```
 
-关键约束（由 `LayeredRules` 或 `JFoundryRules.layered()` 强制）：
+关键约束（由 `LayeredRules` 强制）：
 
 - **应用层不能依赖接口层或基础设施层** —— 业务内核必须与适配器解耦
 - **Repository 实现只能在基础设施层** —— 防止业务层直接操作持久化
@@ -50,18 +50,18 @@ InterfaceLayer → ApplicationLayer → DomainLayer ← InfrastructureLayer
 @AnalyzeClasses(packages = "com.mysoft.ci")
 class CiArchitectureTest {
     @ArchTest
-    ArchRule[] rules = JFoundryRules.all();
+    ArchRule[] rules = JFoundryRules.layeredHexagonal();
 }
 ```
+
+若项目只想检查 Layered 本身，可直接用 `LayeredRules`；若项目选择 Hexagonal 或 Onion，
+则建议使用 `JFoundryRules.layeredHexagonal()`、`JFoundryRules.layeredOnionSimple()` 或
+`JFoundryRules.layeredOnionClassical()`，这些入口同时包含基础守护规则。
 
 包含分层规则：
 
 - `dependencies_must_follow_layer_hierarchy`
 - `only_application_may_use_repository_directly`
-
-`JFoundryRules.all()` 默认包含 Layered 规则。若业务项目选择 Hexagonal 或 Onion 作为主架构风格，
-可额外启用 `JFoundryRules.hexagonal()`、`JFoundryRules.onionSimple()` 或
-`JFoundryRules.onionClassical()`。
 
 ## 为什么不混入 Spring 的 @Service / @Component
 

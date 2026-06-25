@@ -14,13 +14,19 @@ JFoundry 通过 jMolecules 表达三类架构风格：Layered、Hexagonal 和 On
 
 ## 组合原则
 
-Layered 表达职责分层，可以与 Hexagonal 或 Onion 组合使用。Hexagonal 和 Onion 都定义“应用核心如何与外部世界隔离”的主架构风格，正常项目应选择其中一种，不要在同一个 ArchUnit 分析范围内混用。
+Layered 只表达职责分层，本身不作为最终对外的完整架构风格。业务项目通常应选择：
+
+- Layered + Hexagonal
+- Layered + Onion Simple
+- Layered + Onion Classical
+
+Hexagonal 和 Onion 都定义“应用核心如何与外部世界隔离”的主架构风格，正常项目应选择其中一种，不要在同一个 ArchUnit 分析范围内混用。
 
 推荐组合：
 
-- 简单分层项目：`jfoundry-layered`
 - 端口/适配器项目：`jfoundry-layered` + `jfoundry-hexagonal`
-- Onion 项目：`jfoundry-layered` + `jfoundry-onion`
+- Onion Simple 项目：`jfoundry-layered` + `jfoundry-onion`
+- Onion Classical 项目：`jfoundry-layered` + `jfoundry-onion`
 
 ## 启用规则
 
@@ -29,10 +35,7 @@ Layered 表达职责分层，可以与 Hexagonal 或 Onion 组合使用。Hexago
 class ArchitectureTest {
 
     @ArchTest
-    ArchRule[] defaultRules = JFoundryRules.all();
-
-    @ArchTest
-    ArchRule[] styleRules = JFoundryRules.hexagonal();
+    ArchRule[] defaultRules = JFoundryRules.layeredHexagonal();
 }
 ```
 
@@ -40,10 +43,10 @@ class ArchitectureTest {
 
 ```java
 @ArchTest
-ArchRule[] styleRules = JFoundryRules.onionSimple();
+ArchRule[] rules = JFoundryRules.layeredOnionSimple();
 ```
 
-`JFoundryRules.hexagonal()`、`JFoundryRules.onionSimple()` 和 `JFoundryRules.onionClassical()` 都会附带 Hexagonal/Onion 互斥规则，避免一个项目同时标注两种主风格。
+`JFoundryRules.layeredHexagonal()`、`JFoundryRules.layeredOnionSimple()` 和 `JFoundryRules.layeredOnionClassical()` 分别给出基础守护规则 + Layered + 主风格的组合入口，并附带 Hexagonal/Onion 互斥规则，避免一个项目同时标注两种主风格。
 
 ## 权威参考
 

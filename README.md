@@ -10,7 +10,7 @@ jfoundry 基于 jMolecules 的领域建模语义，并复用 jMolecules integrat
 
 ## 特性
 
-- **架构风格语义**：基于 jmolecules 的 Layered、Hexagonal、Onion 注解，配套 ArchUnit 规则强制依赖方向与风格选择
+- **架构风格语义**：基于 jmolecules 的 Layered、Hexagonal、Onion 注解，配套 ArchUnit 规则强制依赖方向与风格选择；Layered 作为组合底座使用，业务侧通常选择 Layered + Hexagonal 或 Layered + Onion
 - **聚合根 / 值对象**：提供 `ValueObject` 标记接口，强制不可变 + `equals/hashCode` 契约
 - **事务性发件箱 (Outbox)**：5 状态机（`PENDING` → `DISPATCHING` → `PUBLISHED` / `FAILED` / `DEAD_LETTERED`），原子化 `claimDispatchable` 避免多实例重复派发
 - **消费端幂等 (Inbox)**：提供 `InboxTemplate` 与 MyBatis-Plus 存储适配器，帮助消费者按 message/consumer 去重
@@ -115,10 +115,10 @@ import org.jfoundry.test.archunit.JFoundryRules;
 @AnalyzeClasses(packages = "com.mycompany.myapp")
 class MyAppArchitectureTest {
     @ArchTest
-    ArchRule[] jfoundryRules = JFoundryRules.all();
+    ArchRule[] jfoundryRules = JFoundryRules.layeredHexagonal();
 
     @ArchTest
-    ArchRule[] jmoleculesNativeRules = JFoundryRules.jmoleculesNative();
+    ArchRule[] jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
 }
 ```
 

@@ -12,15 +12,15 @@ import org.jfoundry.test.archunit.JFoundryRules;
 class CiArchitectureTest {
 
     @ArchTest
-    ArchRule[] jfoundryRules = JFoundryRules.all();
+    ArchRule[] jfoundryRules = JFoundryRules.layeredHexagonal();
 
     @ArchTest
-    ArchRule[] jmoleculesNativeRules = JFoundryRules.jmoleculesNative();
+    ArchRule[] jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
 }
 ```
 
-`JFoundryRules.all()` 引入 jfoundry 默认规则（Persistence + ValueObject + Layered）。
-`JFoundryRules.jmoleculesNative()` 引入 jmolecules 官方 DDD 与架构规则。
+`JFoundryRules.layeredHexagonal()` 显式组合 JFoundry 基础守护规则 + Layered + Hexagonal。
+`JFoundryRules.jmoleculesDdd()` 引入 jmolecules 官方 DDD 规则。
 
 ## jfoundry 自有规则
 
@@ -54,35 +54,36 @@ class CiArchitectureTest {
 
 ## 架构风格入口
 
-如果业务项目选择明确的架构风格，可使用显式入口：
+如果业务项目选择明确的架构风格，可使用显式组合入口：
 
 ```java
 @ArchTest
-ArchRule[] layeredRules = JFoundryRules.layered();
+ArchRule[] layeredHexagonalRules = JFoundryRules.layeredHexagonal();
 
 @ArchTest
-ArchRule[] hexagonalRules = JFoundryRules.hexagonal();
+ArchRule[] layeredOnionRules = JFoundryRules.layeredOnionSimple();
 
 @ArchTest
-ArchRule[] onionRules = JFoundryRules.onionSimple();
+ArchRule[] layeredOnionClassicalRules = JFoundryRules.layeredOnionClassical();
 ```
 
-- `JFoundryRules.layered()`：JFoundry 自有 Layered 规则。
-- `JFoundryRules.hexagonal()`：jmolecules Hexagonal 原生规则 + Hexagonal/Onion 互斥规则。
-- `JFoundryRules.onionSimple()`：jmolecules 简化 Onion 原生规则 + Hexagonal/Onion 互斥规则。
-- `JFoundryRules.onionClassical()`：jmolecules 经典 Onion 原生规则 + Hexagonal/Onion 互斥规则。
+- `JFoundryRules.layeredHexagonal()`：基础守护规则 + Layered + Hexagonal 组合入口。
+- `JFoundryRules.layeredOnionSimple()`：基础守护规则 + Layered + Onion Simple 组合入口。
+- `JFoundryRules.layeredOnionClassical()`：基础守护规则 + Layered + Onion Classical 组合入口。
 - `JFoundryRules.noMixedHexagonalAndOnion()`：单独启用 Hexagonal/Onion 互斥规则。
 
-## jmolecules 官方规则
+若只想启用某一类底层规则，请直接使用 `LayeredRules`、`PersistenceRules`、`ValueObjectRules` 或
+`ArchitectureStyleRules` 等具体规则类；`JFoundryRules` 只提供最终架构组合入口。
 
-`JFoundryRules.jmoleculesNative()` 返回 jmolecules-archunit `0.33.0` 提供的原生规则：
+## jmolecules 官方 DDD 规则
+
+`JFoundryRules.jmoleculesDdd()` 返回 jmolecules-archunit `0.33.0` 提供的 DDD 原生规则：
 
 - `JMoleculesDddRules.aggregateReferencesShouldBeViaIdOrAssociation()` —— 聚合之间只能通过 Id 或 Association 引用，避免直接对象引用导致的边界穿透
 - `JMoleculesDddRules.valueObjectsMustNotReferToIdentifiables()` —— 值对象不得引用具备身份的实体或聚合
-- `JMoleculesArchitectureRules.ensureLayering()` —— 基于 jmolecules 分层注解的 LayeredArchitecture 约束
-- `JMoleculesArchitectureRules.ensureHexagonal()` —— 基于 jmolecules Hexagonal 注解的 Ports and Adapters 约束
-- `JMoleculesArchitectureRules.ensureOnionSimple()` —— 基于 jmolecules 简化 Onion 注解的环形依赖约束
-- `JMoleculesArchitectureRules.ensureOnionClassical()` —— 基于 jmolecules 经典 Onion 注解的环形依赖约束
+
+jMolecules 原生架构规则不再通过一个混合入口暴露，而是随 `JFoundryRules.layeredHexagonal()`、
+`JFoundryRules.layeredOnionSimple()` 或 `JFoundryRules.layeredOnionClassical()` 进入对应组合。
 
 > 说明：jmolecules-integrations 的版本由 `jmolecules-bom` `2025.0.2` 统一锁定为 `0.33.0`（`0.34.0` 并不存在于 Maven Central，jmolecules-integrations 的版本号从 `0.33.0` 直接跳到 `1.6.0`）。业务侧无需在 pom 中单独声明此版本。
 

@@ -18,7 +18,9 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 /// 强制执行 spec Section 8.2 的依赖方向：应用层只能依赖应用层和领域层；
 /// 基础设施层不允许被接口层或应用层直接依赖。
 /// <p>
-/// 业务侧用法：在业务模块的 ArchUnit 测试里通过 {@code JFoundryRules.all()} 一键启用。
+/// 业务侧用法：在业务模块的 ArchUnit 测试里通过 {@code JFoundryRules.layeredHexagonal()}、
+/// {@code JFoundryRules.layeredOnionSimple()} 或 {@code JFoundryRules.layeredOnionClassical()}
+/// 作为组合入口启用。
 public final class LayeredRules {
 
     private LayeredRules() {
