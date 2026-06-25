@@ -14,8 +14,8 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 /// 架构风格选择规则。
 /// <p>
-/// Hexagonal 与 Onion 都定义应用核心和外部技术的主依赖模型。业务代码应选择其中一种作为主风格；
-/// Layered 只表达责任分层，可以和任一主风格组合使用。
+/// Layered、Hexagonal 与 Onion 都是表达依赖方向和边界的架构风格。业务代码应选择一种主风格，
+/// 避免在同一分析范围内用多套重叠词汇描述同一组角色。
 public final class ArchitectureStyleRules {
 
     private ArchitectureStyleRules() {
@@ -27,7 +27,7 @@ public final class ArchitectureStyleRules {
                     .should(new HexagonalAndOnionMustNotBeMixedCondition())
                     .allowEmptyShould(true)
                     .because("Hexagonal and Onion are alternative primary architecture styles; "
-                            + "Layered may be combined with either one");
+                            + "choose one architecture vocabulary per analyzed scope");
 
     private static final class HexagonalAndOnionMustNotBeMixedCondition extends ArchCondition<JavaClass> {
 

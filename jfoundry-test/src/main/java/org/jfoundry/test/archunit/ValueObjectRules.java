@@ -20,7 +20,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 /// &#64;AnalyzeClasses(packages = "com.mysoft.ci")
 /// class CiArchitectureTest {
 ///     &#64;ArchTest
-///     ArchRule[] valueObjectRules = JFoundryRules.layeredHexagonal();
+///     ArchRule[] valueObjectRules = JFoundryRules.hexagonal();
 /// }
 /// </pre>
 public final class ValueObjectRules {

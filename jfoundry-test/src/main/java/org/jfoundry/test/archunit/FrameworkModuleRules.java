@@ -6,6 +6,8 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import org.jfoundry.architecture.hexagonal.Adapter;
+import org.jfoundry.architecture.hexagonal.Application;
 import org.jfoundry.architecture.hexagonal.SecondaryAdapter;
 import org.jfoundry.architecture.hexagonal.SecondaryPort;
 
@@ -37,19 +39,24 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("application code must not depend on infrastructure adapters or autoconfiguration");
 
-    public static final ArchRule domain_packages_should_be_domain_layer =
+    public static final ArchRule application_packages_should_be_hexagonal_application =
             classes()
-                    .that().resideInAPackage("org.jfoundry.domain..")
-                    .should(resideInPackageAnnotatedWith(org.jfoundry.architecture.layered.DomainLayer.class))
+                    .that().resideInAPackage("org.jfoundry.application..")
+                    .should(resideInPackageAnnotatedWith(Application.class))
                     .allowEmptyShould(true)
-                    .because("domain packages must declare the domain layer");
+                    .because("application packages must declare the hexagonal application role");
 
-    public static final ArchRule infrastructure_packages_should_be_infrastructure_layer =
+    public static final ArchRule infrastructure_adapter_packages_should_be_hexagonal_adapters =
             classes()
-                    .that().resideInAPackage("org.jfoundry.infrastructure..")
-                    .should(resideInPackageAnnotatedWith(org.jfoundry.architecture.layered.InfrastructureLayer.class))
+                    .that().resideInAnyPackage(
+                            "org.jfoundry.infrastructure..mybatis..",
+                            "org.jfoundry.infrastructure..jackson..",
+                            "org.jfoundry.infrastructure..kafka..",
+                            "org.jfoundry.infrastructure..jobrunr..",
+                            "org.jfoundry.infrastructure..spring..")
+                    .should(resideInPackageAnnotatedWithAny(Adapter.class, SecondaryAdapter.class))
                     .allowEmptyShould(true)
-                    .because("infrastructure packages must declare the infrastructure layer");
+                    .because("infrastructure adapter packages must declare a hexagonal adapter role");
 
     public static final ArchRule infrastructure_must_not_depend_on_spring_autoconfigure =
             noClasses()
@@ -120,6 +127,24 @@ public final class FrameworkModuleRules {
                             item.getName() + " resides in package " + item.getPackageName()
                                     + " without @" + annotationType.getSimpleName()));
                 }
+            }
+        };
+    }
+
+    @SafeVarargs
+    private static ArchCondition<JavaClass> resideInPackageAnnotatedWithAny(
+            Class<? extends java.lang.annotation.Annotation>... annotationTypes) {
+        return new ArchCondition<JavaClass>("reside in package annotated with one of the hexagonal adapter roles") {
+            @Override
+            public void check(JavaClass item, ConditionEvents events) {
+                for (Class<? extends java.lang.annotation.Annotation> annotationType : annotationTypes) {
+                    if (isPackageAnnotatedWith(item, annotationType)) {
+                        return;
+                    }
+                }
+                events.add(SimpleConditionEvent.violated(item,
+                        item.getName() + " resides in package " + item.getPackageName()
+                                + " without a hexagonal adapter role"));
             }
         };
     }

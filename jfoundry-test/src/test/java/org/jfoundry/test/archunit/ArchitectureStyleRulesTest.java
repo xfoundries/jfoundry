@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/// 架构风格规则：Hexagonal 与 Onion 是互斥的主架构风格，Layered 可与任一主风格组合。
+/// 架构风格规则：同一分析范围应选择一种主架构风格，Hexagonal 与 Onion 互斥。
 class ArchitectureStyleRulesTest {
 
     private final ClassFileImporter importer = new ClassFileImporter()
@@ -35,8 +35,8 @@ class ArchitectureStyleRulesTest {
     }
 
     @Test
-    void allowsLayeredCombinedWithHexagonal() {
-        JavaClasses classes = importer.importPackages("org.jfoundry.test.archunit.fixture.layeredhexagonal");
+    void allowsPackageLevelHexagonalWithoutOnion() {
+        JavaClasses classes = importer.importPackages("org.jfoundry.test.archunit.fixture.hexagonalpackage");
 
         ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed.check(classes);
     }

@@ -17,12 +17,12 @@ class FrameworkArchitectureSelfTest {
             FrameworkModuleRules.application_must_not_depend_on_outer_layers;
 
     @ArchTest
-    static final ArchRule domain_packages_should_be_domain_layer =
-            FrameworkModuleRules.domain_packages_should_be_domain_layer;
+    static final ArchRule application_packages_should_be_hexagonal_application =
+            FrameworkModuleRules.application_packages_should_be_hexagonal_application;
 
     @ArchTest
-    static final ArchRule infrastructure_packages_should_be_infrastructure_layer =
-            FrameworkModuleRules.infrastructure_packages_should_be_infrastructure_layer;
+    static final ArchRule infrastructure_adapter_packages_should_be_hexagonal_adapters =
+            FrameworkModuleRules.infrastructure_adapter_packages_should_be_hexagonal_adapters;
 
     @ArchTest
     static final ArchRule infrastructure_must_not_depend_on_spring_autoconfigure =

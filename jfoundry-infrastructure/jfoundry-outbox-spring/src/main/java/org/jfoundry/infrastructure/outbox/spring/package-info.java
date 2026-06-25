@@ -1,2 +1,2 @@
-@org.jfoundry.architecture.layered.InfrastructureLayer
+@org.jfoundry.architecture.hexagonal.Adapter
 package org.jfoundry.infrastructure.outbox.spring;

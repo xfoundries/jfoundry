@@ -4,7 +4,6 @@ import org.jfoundry.domain.repository.AggregateRepository;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
-import org.jmolecules.archunit.JMoleculesArchitectureRules;
 import org.jmolecules.archunit.JMoleculesRules;
 import org.junit.jupiter.api.Test;
 
@@ -47,15 +46,6 @@ class DomainArchitectureTest {
         assertRepositoryMethods(AggregateRepository.class, violations);
 
         assertTrue(violations.isEmpty(), "Repository API violations:\n" + String.join("\n", violations));
-    }
-
-    @Test
-    void layeredArchitectureShouldBeEnforced() {
-        var classes = new ClassFileImporter()
-                .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
-                .importPackages("org.jfoundry");
-
-        JMoleculesArchitectureRules.ensureLayering().check(classes);
     }
 
     @Test

@@ -59,7 +59,7 @@ public final class Money implements ValueObject {
 @AnalyzeClasses(packages = "com.mysoft.ci")
 class CiArchitectureTest {
     @ArchTest
-    ArchRule[] rules = JFoundryRules.layeredHexagonal();
+    ArchRule[] rules = JFoundryRules.hexagonal();
 }
 ```
 

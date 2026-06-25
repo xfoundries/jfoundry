@@ -21,40 +21,49 @@ import java.util.stream.Stream;
 /// &#64;AnalyzeClasses(packages = "com.mysoft.ci")
 /// class CiArchitectureTest {
 ///     &#64;ArchTest
-///     ArchRule[] layeredHexagonalRules = JFoundryRules.layeredHexagonal();
+///     ArchRule[] hexagonalRules = JFoundryRules.hexagonal();
 ///
 ///     &#64;ArchTest
 ///     ArchRule[] jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
 /// }
 /// </pre>
 /// <p>
-/// {@link #layeredHexagonal()}、{@link #layeredOnionSimple()} 和 {@link #layeredOnionClassical()}
-/// 返回 JFoundry 基础守护规则 + 职责分层 + 主架构风格的显式组合；
+/// {@link #hexagonal()}、{@link #onionSimple()} 和 {@link #onionClassical()}
+/// 返回 JFoundry 基础守护规则 + 单一主架构风格规则；
 /// {@link #jmoleculesDdd()} 返回 jmolecules 官方提供的 DDD 规则。
 public final class JFoundryRules {
 
     private JFoundryRules() {
     }
 
-    /// Layered + Hexagonal 组合规则。
+    /// Hexagonal Architecture / Ports and Adapters 规则。
     /// <p>
-    /// 包含 JFoundry 基础守护规则、Layered 规则和 Hexagonal 主风格规则。
-    public static ArchRule[] layeredHexagonal() {
-        return concat(base(), layered(), hexagonal());
+    /// 包含 JFoundry 基础守护规则、jMolecules Hexagonal 原生规则，以及 Hexagonal/Onion 互斥规则。
+    public static ArchRule[] hexagonal() {
+        return concat(base(), new ArchRule[]{
+                JMoleculesArchitectureRules.ensureHexagonal(),
+                ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed
+        });
     }
 
-    /// Layered + Onion Simple 组合规则。
+    /// Onion Architecture simplified 规则。
     /// <p>
-    /// 包含 JFoundry 基础守护规则、Layered 规则和 Onion Simple 主风格规则。
-    public static ArchRule[] layeredOnionSimple() {
-        return concat(base(), layered(), onionSimple());
+    /// 包含 JFoundry 基础守护规则、jMolecules Onion Simple 原生规则，以及 Hexagonal/Onion 互斥规则。
+    public static ArchRule[] onionSimple() {
+        return concat(base(), new ArchRule[]{
+                JMoleculesArchitectureRules.ensureOnionSimple(),
+                ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed
+        });
     }
 
-    /// Layered + Onion Classical 组合规则。
+    /// Onion Architecture classical 规则。
     /// <p>
-    /// 包含 JFoundry 基础守护规则、Layered 规则和 Onion Classical 主风格规则。
-    public static ArchRule[] layeredOnionClassical() {
-        return concat(base(), layered(), onionClassical());
+    /// 包含 JFoundry 基础守护规则、jMolecules Onion Classical 原生规则，以及 Hexagonal/Onion 互斥规则。
+    public static ArchRule[] onionClassical() {
+        return concat(base(), new ArchRule[]{
+                JMoleculesArchitectureRules.ensureOnionClassical(),
+                ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed
+        });
     }
 
     /// Hexagonal 与 Onion 主架构风格互斥规则。
@@ -86,33 +95,6 @@ public final class JFoundryRules {
         collected.addAll(publicStaticArchRules(ValueObjectRules.class));
         collected.addAll(publicStaticArchRules(FrameworkModuleRules.class));
         return collected.toArray(new ArchRule[0]);
-    }
-
-    private static ArchRule[] layered() {
-        return concat(
-                publicStaticArchRules(LayeredRules.class).toArray(new ArchRule[0]),
-                new ArchRule[]{JMoleculesArchitectureRules.ensureLayering()});
-    }
-
-    private static ArchRule[] hexagonal() {
-        return new ArchRule[]{
-                JMoleculesArchitectureRules.ensureHexagonal(),
-                ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed
-        };
-    }
-
-    private static ArchRule[] onionSimple() {
-        return new ArchRule[]{
-                JMoleculesArchitectureRules.ensureOnionSimple(),
-                ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed
-        };
-    }
-
-    private static ArchRule[] onionClassical() {
-        return new ArchRule[]{
-                JMoleculesArchitectureRules.ensureOnionClassical(),
-                ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed
-        };
     }
 
     private static ArchRule[] concat(ArchRule[]... groups) {

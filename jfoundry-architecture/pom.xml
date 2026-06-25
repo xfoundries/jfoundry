@@ -17,7 +17,6 @@
     <description>Aggregate module for JFoundry architecture style stereotypes</description>
 
     <modules>
-        <module>jfoundry-layered</module>
         <module>jfoundry-hexagonal</module>
         <module>jfoundry-onion</module>
     </modules>

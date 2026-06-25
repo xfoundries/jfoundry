@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/// P3-3: JFoundryRules must expose explicit composition entrypoints, not a catch-all all().
+/// P3-3: JFoundryRules must expose explicit primary-style entrypoints, not a catch-all all().
 class JFoundryRulesTest {
 
     @Test
@@ -16,14 +16,14 @@ class JFoundryRulesTest {
     }
 
     @Test
-    void doesNotExposeStandaloneArchitectureStyleAggregators() {
+    void doesNotExposeArchitectureStyleCombinations() {
         assertThatThrownBy(() -> JFoundryRules.class.getMethod("layered"))
                 .isInstanceOf(NoSuchMethodException.class);
-        assertThatThrownBy(() -> JFoundryRules.class.getMethod("hexagonal"))
+        assertThatThrownBy(() -> JFoundryRules.class.getMethod("layeredHexagonal"))
                 .isInstanceOf(NoSuchMethodException.class);
-        assertThatThrownBy(() -> JFoundryRules.class.getMethod("onionSimple"))
+        assertThatThrownBy(() -> JFoundryRules.class.getMethod("layeredOnionSimple"))
                 .isInstanceOf(NoSuchMethodException.class);
-        assertThatThrownBy(() -> JFoundryRules.class.getMethod("onionClassical"))
+        assertThatThrownBy(() -> JFoundryRules.class.getMethod("layeredOnionClassical"))
                 .isInstanceOf(NoSuchMethodException.class);
     }
 
@@ -40,23 +40,23 @@ class JFoundryRulesTest {
     }
 
     @Test
-    void exposesArchitectureStyleCombinationsExplicitly() {
-        assertThat(JFoundryRules.layeredHexagonal()).hasSizeGreaterThanOrEqualTo(20);
-        assertThat(JFoundryRules.layeredOnionSimple()).hasSizeGreaterThanOrEqualTo(20);
-        assertThat(JFoundryRules.layeredOnionClassical()).hasSizeGreaterThanOrEqualTo(20);
+    void exposesArchitectureStylesExplicitly() {
+        assertThat(JFoundryRules.hexagonal()).hasSizeGreaterThanOrEqualTo(5);
+        assertThat(JFoundryRules.onionSimple()).hasSizeGreaterThanOrEqualTo(5);
+        assertThat(JFoundryRules.onionClassical()).hasSizeGreaterThanOrEqualTo(5);
         assertThat(JFoundryRules.noMixedHexagonalAndOnion()).isNotNull();
     }
 
     @Test
-    void explicitArchitectureCombinationsAreNonNull() {
-        for (ArchRule rule : JFoundryRules.layeredHexagonal()) {
-            assertThat(rule).as("rule in JFoundryRules.layeredHexagonal() must not be null").isNotNull();
+    void explicitArchitectureStylesAreNonNull() {
+        for (ArchRule rule : JFoundryRules.hexagonal()) {
+            assertThat(rule).as("rule in JFoundryRules.hexagonal() must not be null").isNotNull();
         }
-        for (ArchRule rule : JFoundryRules.layeredOnionSimple()) {
-            assertThat(rule).as("rule in JFoundryRules.layeredOnionSimple() must not be null").isNotNull();
+        for (ArchRule rule : JFoundryRules.onionSimple()) {
+            assertThat(rule).as("rule in JFoundryRules.onionSimple() must not be null").isNotNull();
         }
-        for (ArchRule rule : JFoundryRules.layeredOnionClassical()) {
-            assertThat(rule).as("rule in JFoundryRules.layeredOnionClassical() must not be null").isNotNull();
+        for (ArchRule rule : JFoundryRules.onionClassical()) {
+            assertThat(rule).as("rule in JFoundryRules.onionClassical() must not be null").isNotNull();
         }
         for (ArchRule rule : JFoundryRules.jmoleculesDdd()) {
             assertThat(rule).as("rule in JFoundryRules.jmoleculesDdd() must not be null").isNotNull();

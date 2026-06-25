@@ -21,15 +21,6 @@
             <artifactId>jmolecules-events</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-layered</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jmolecules</groupId>
-            <artifactId>jmolecules-layered-architecture</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.jmolecules.integrations</groupId>
             <artifactId>jmolecules-archunit</artifactId>
             <scope>test</scope>

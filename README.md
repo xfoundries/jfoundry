@@ -10,7 +10,7 @@ jfoundry 基于 jMolecules 的领域建模语义，并复用 jMolecules integrat
 
 ## 特性
 
-- **架构风格语义**：基于 jmolecules 的 Layered、Hexagonal、Onion 注解，配套 ArchUnit 规则强制依赖方向与风格选择；Layered 作为组合底座使用，业务侧通常选择 Layered + Hexagonal 或 Layered + Onion
+- **架构风格语义**：基于 jmolecules 的 Hexagonal、Onion 注解，配套 ArchUnit 规则强制依赖方向与风格选择；Layered 不再由 JFoundry 包装，确需使用时直接引入 jMolecules 原生模块
 - **聚合根 / 值对象**：提供 `ValueObject` 标记接口，强制不可变 + `equals/hashCode` 契约
 - **事务性发件箱 (Outbox)**：5 状态机（`PENDING` → `DISPATCHING` → `PUBLISHED` / `FAILED` / `DEAD_LETTERED`），原子化 `claimDispatchable` 避免多实例重复派发
 - **消费端幂等 (Inbox)**：提供 `InboxTemplate` 与 MyBatis-Plus 存储适配器，帮助消费者按 message/consumer 去重
@@ -28,7 +28,6 @@ jfoundry-parent
 ├── jfoundry-dependencies                         BOM（依赖版本集中管理）
 ├── jfoundry-domain                               领域层（实体 / 值对象 / 事件 / 仓储接口，零 Spring 依赖）
 ├── jfoundry-architecture                         架构风格聚合 POM（零 Spring 依赖，基于 jmolecules）
-│   ├── jfoundry-layered                          Layered Architecture 分层注解
 │   ├── jfoundry-hexagonal                        Hexagonal Architecture 端口/适配器注解
 │   └── jfoundry-onion                            Onion Architecture 环形注解
 ├── jfoundry-application                          应用层聚合
@@ -166,7 +165,7 @@ import org.jfoundry.test.archunit.JFoundryRules;
 @AnalyzeClasses(packages = "com.mycompany.myapp")
 class MyAppArchitectureTest {
     @ArchTest
-    ArchRule[] jfoundryRules = JFoundryRules.layeredHexagonal();
+    ArchRule[] jfoundryRules = JFoundryRules.hexagonal();
 
     @ArchTest
     ArchRule[] jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
@@ -195,7 +194,6 @@ jfoundry:
 
 - [值对象（Value Object）规范](docs/value-object.md)
 - [架构风格指南](docs/architecture-styles.md)
-- [分层架构注解](docs/layered-architecture.md)
 - [ArchUnit 架构规则](docs/archunit-rules.md)
 - [Transactional Outbox 事务性发件箱](docs/transactional-outbox.md)
 
