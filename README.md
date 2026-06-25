@@ -63,7 +63,7 @@ inboxTemplate.executeOnce(eventId, "order-projection", () -> {
 
 ### 1. 引入依赖
 
-业务侧只需要引入 `jfoundry-spring-boot-starter`，它会聚合所需的默认运行时模块。MyBatis-Plus、Outbox 存储等实现细节由 starter 内部选择：
+业务侧只需要引入 `jfoundry-spring-boot-starter`，它会聚合所需的默认运行时模块。当前默认 starter 选择 MyBatis-Plus 作为持久化适配器，并传递引入 `mybatis-plus-spring-boot3-starter`；Outbox / Inbox 存储等实现细节由 starter 内部选择：
 
 ```xml
 <dependencyManagement>

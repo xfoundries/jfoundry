@@ -109,7 +109,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
-        <!-- mybatis-spring: @MapperScan annotation source; business side provides runtime via mybatis-plus-spring-boot3-starter -->
+        <!-- mybatis-spring: @MapperScan annotation source; default starter provides runtime via mybatis-plus-spring-boot3-starter -->
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis-spring</artifactId>

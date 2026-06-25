@@ -52,6 +52,11 @@
             <groupId>org.jmolecules.integrations</groupId>
             <artifactId>jmolecules-jackson</artifactId>
         </dependency>
+        <!-- Runtime MyBatis-Plus Spring Boot integration for the default MyBatis-Plus adapters. -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-persistence-mybatis-plus</artifactId>
