@@ -14,10 +14,10 @@ jfoundry 基于 jMolecules 的领域建模语义，并复用 jMolecules integrat
 - **聚合根 / 值对象**：提供 `ValueObject` 标记接口，强制不可变 + `equals/hashCode` 契约
 - **事务性发件箱 (Outbox)**：5 状态机（`PENDING` → `DISPATCHING` → `PUBLISHED` / `FAILED` / `DEAD_LETTERED`），原子化 `claimDispatchable` 避免多实例重复派发
 - **消费端幂等 (Inbox)**：提供 `InboxTemplate` 与 MyBatis-Plus 存储适配器，帮助消费者按 message/consumer 去重
-- **真实 broker adapter**：提供 Kafka `MessageSender` adapter；不进入 MyBatis-Plus starter，需要业务侧显式引入
+- **真实 broker adapter**：提供 Kafka `MessageSender` adapter；通过 messaging-kafka starter 显式引入
 - **多 ORM 抽象**：核心 SPI 与具体实现解耦，当前提供 MyBatis-Plus 实现，未来可扩展 JPA / Mongo
 - **多数据库支持**：MySQL（`MEDIUMTEXT`）、达梦 DM（`CLOB`），通过 Flyway 自动迁移
-- **Spring Boot 自动装配**：业务侧引入 starter 即可获得完整链路，零样板代码
+- **Spring Boot 自动装配**：按能力提供 starter，业务侧只引入需要的 messaging / outbox / inbox / adapter 组合
 - **JobRunr 集成**（可选）：基于 JobRunr 的分布式 Outbox 派发
 - **ArchUnit 规则库**：开箱即用的架构守护，覆盖持久化层无 `@Transactional`、自动配置零 `@Component`、值对象不可变等约束
 
@@ -47,13 +47,16 @@ jfoundry-parent
 │   └── jfoundry-outbox-jobrunr                   Outbox 的 JobRunr 派发器（可选）
 ├── jfoundry-spring                               Spring 整合层聚合
 │   ├── jfoundry-spring-boot-autoconfigure        Spring Boot AutoConfiguration
-│   ├── jfoundry-spring-boot-starter              ORM-neutral Spring Boot starter
-│   ├── jfoundry-spring-boot-starter-mybatis-plus MyBatis-Plus Spring Boot starter
+│   ├── jfoundry-spring-boot-starter              DDD + Spring Boot 基础 starter
+│   ├── jfoundry-spring-boot-starter-messaging    Messaging 能力 starter
+│   ├── jfoundry-spring-boot-starter-outbox       Outbox 能力 starter
+│   ├── jfoundry-spring-boot-starter-inbox        Inbox 能力 starter
+│   ├── jfoundry-spring-boot-starter-mybatis-plus MyBatis-Plus persistence starter
 │   └── ...
 └── jfoundry-test                                 ArchUnit 规则库（业务侧测试直接引用）
 ```
 
-默认 Outbox 表名是 `jfoundry_outbox_event`，可通过 `jfoundry.outbox.table-name` 覆盖物理表名；自定义表需要与默认 DDL 保持同构。Kafka 是当前第一个真实 broker adapter，业务侧如需使用需额外引入 `jfoundry-messaging-kafka` 并提供 `KafkaTemplate<String, String>`。消费者侧可注入 `InboxTemplate` 做幂等处理：
+默认 Outbox 表名是 `jfoundry_outbox_event`，可通过 `jfoundry.outbox.table-name` 覆盖物理表名；自定义表需要与默认 DDL 保持同构。Kafka 是当前第一个真实 broker adapter，业务侧如需使用需额外引入 `jfoundry-spring-boot-starter-messaging-kafka` 并提供 `KafkaTemplate<String, String>`。消费者侧可注入 `InboxTemplate` 做幂等处理：
 
 ```java
 inboxTemplate.executeOnce(eventId, "order-projection", () -> {
@@ -65,10 +68,17 @@ inboxTemplate.executeOnce(eventId, "order-projection", () -> {
 
 ### 1. 引入依赖
 
-业务侧应显式选择 starter：
+业务侧应按能力显式选择 starter：
 
-- 使用默认 starter：引入 `jfoundry-spring-boot-starter`，它提供领域契约、application ports、Jackson payload、Spring messaging、Outbox Spring runtime 和 auto-configuration，不绑定具体 ORM。业务侧可以接 Spring Data、JPA 或自定义 persistence 实现。
-- 使用 MyBatis-Plus：在默认 starter 之外引入 `jfoundry-spring-boot-starter-mybatis-plus`，它会传递引入 `mybatis-plus-spring-boot3-starter`，并自动装配 Persistence / Outbox / Inbox 的 MyBatis-Plus adapter。
+- 基础 DDD + Spring Boot：`jfoundry-spring-boot-starter`
+- Messaging：`jfoundry-spring-boot-starter-messaging`
+- Kafka adapter：`jfoundry-spring-boot-starter-messaging-kafka`
+- Outbox：`jfoundry-spring-boot-starter-outbox`
+- Outbox MyBatis-Plus store：`jfoundry-spring-boot-starter-outbox-mybatis-plus`
+- Outbox JobRunr dispatcher：`jfoundry-spring-boot-starter-outbox-jobrunr`
+- Inbox：`jfoundry-spring-boot-starter-inbox`
+- Inbox MyBatis-Plus store：`jfoundry-spring-boot-starter-inbox-mybatis-plus`
+- MyBatis-Plus business persistence：`jfoundry-spring-boot-starter-mybatis-plus`
 
 MyBatis-Plus 项目示例：
 
@@ -93,6 +103,25 @@ MyBatis-Plus 项目示例：
     <dependency>
         <groupId>org.jfoundry</groupId>
         <artifactId>jfoundry-spring-boot-starter-mybatis-plus</artifactId>
+    </dependency>
+</dependencies>
+```
+
+MyBatis-Plus + Outbox + Inbox 项目示例：
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-spring-boot-starter-mybatis-plus</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-spring-boot-starter-outbox-mybatis-plus</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-spring-boot-starter-inbox-mybatis-plus</artifactId>
     </dependency>
 </dependencies>
 ```
@@ -148,7 +177,7 @@ class MyAppArchitectureTest {
 
 领域事件不强制使用 Outbox。默认 `DomainEventPublisher` 会在事务提交后通过 Spring `ApplicationEventPublisher` 发布本地事件；如果业务只需要进程内监听器，可不配置 Outbox。
 
-当事件需要可靠外部化、跨进程投递或失败重试时，再为事件标记 `@Externalized` / `@MessageRouting`，并启用 Outbox 存储与派发。业务侧只要提供 `OutboxMessageStore` Bean（或在默认 starter 之外引入 MyBatis-Plus starter），匹配外部化规则的领域事件就会写入 Outbox 表：
+当事件需要可靠外部化、跨进程投递或失败重试时，再为事件标记 `@Externalized` / `@MessageRouting`，并启用 Outbox 存储与派发。业务侧只要提供 `OutboxMessageStore` Bean（或引入 `jfoundry-spring-boot-starter-outbox-mybatis-plus`），匹配外部化规则的领域事件就会写入 Outbox 表：
 
 ```yaml
 jfoundry:
@@ -156,7 +185,7 @@ jfoundry:
     table-name: jfoundry_outbox_event       # 与 Flyway 迁移脚本一致
     dispatcher:
       enabled: true
-      mode: scheduled                  # 或 jobrunr（需额外引入 jfoundry-outbox-jobrunr）
+      mode: scheduled                  # 或 jobrunr（需额外引入 jfoundry-spring-boot-starter-outbox-jobrunr）
     cleanup:
       published-retention-days: 7      # PUBLISHED 状态保留 7 天后清理
       dead-lettered-retention-days: 30 # DEAD_LETTERED 保留 30 天

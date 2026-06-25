@@ -8,11 +8,11 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-spring-boot-starter-mybatis-plus</artifactId>
-    <name>jfoundry-spring-boot-starter-mybatis-plus</name>
+    <artifactId>jfoundry-spring-boot-starter-messaging</artifactId>
+    <name>jfoundry-spring-boot-starter-messaging</name>
     <description>
-        Spring Boot starter for jfoundry business persistence with MyBatis-Plus.
-        Outbox and Inbox MyBatis-Plus stores are provided by their own feature starters.
+        Spring Boot starter for jfoundry messaging ports, Spring domain-event publishing,
+        Jackson payload serialization, and the default logging MessageSender.
     </description>
 
     <dependencies>
@@ -21,12 +21,20 @@
             <artifactId>jfoundry-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-persistence-mybatis-plus</artifactId>
+            <artifactId>jfoundry-messaging-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jmolecules.integrations</groupId>
+            <artifactId>jmolecules-jackson</artifactId>
         </dependency>
     </dependencies>
 </project>

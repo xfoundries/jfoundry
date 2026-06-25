@@ -20,6 +20,13 @@
     <modules>
         <module>jfoundry-spring-boot-autoconfigure</module>
         <module>jfoundry-spring-boot-starter</module>
+        <module>jfoundry-spring-boot-starter-messaging</module>
+        <module>jfoundry-spring-boot-starter-messaging-kafka</module>
+        <module>jfoundry-spring-boot-starter-outbox</module>
+        <module>jfoundry-spring-boot-starter-outbox-mybatis-plus</module>
+        <module>jfoundry-spring-boot-starter-outbox-jobrunr</module>
+        <module>jfoundry-spring-boot-starter-inbox</module>
+        <module>jfoundry-spring-boot-starter-inbox-mybatis-plus</module>
         <module>jfoundry-spring-boot-starter-mybatis-plus</module>
     </modules>
 </project>

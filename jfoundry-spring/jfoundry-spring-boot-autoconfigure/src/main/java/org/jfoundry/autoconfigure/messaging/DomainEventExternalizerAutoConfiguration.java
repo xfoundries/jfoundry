@@ -10,6 +10,7 @@ import org.jfoundry.infrastructure.outbox.spring.externalization.DomainEventExte
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
@@ -33,6 +34,7 @@ import org.springframework.core.annotation.Order;
 /// （日志、metrics 等）可以与之共存。
 @AutoConfiguration
 @AutoConfigureAfter(name = "org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration")
+@ConditionalOnClass({PayloadSerializer.class, JacksonPayloadSerializer.class, OutboxMessageStore.class, DomainEventExternalizer.class})
 public class DomainEventExternalizerAutoConfiguration {
 
     /// 必须在 {@link #domainEventExternalizer} 之前声明：{@code @ConditionalOnBean} 在

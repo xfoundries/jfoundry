@@ -11,9 +11,9 @@
     <artifactId>jfoundry-spring-boot-starter</artifactId>
     <name>jfoundry-spring-boot-starter</name>
     <description>
-        ORM-neutral Spring Boot starter for jfoundry. It provides DDD contracts,
-        application reliability ports, Jackson payload serialization, Spring messaging,
-        Outbox Spring runtime, and auto-configuration without selecting a persistence adapter.
+        Minimal Spring Boot starter for jfoundry DDD contracts and auto-configuration.
+        Feature capabilities such as messaging, outbox, inbox, Kafka, JobRunr, and
+        MyBatis-Plus adapters are provided by dedicated starter modules.
     </description>
 
     <dependencies>
@@ -26,36 +26,14 @@
             <artifactId>jfoundry-domain</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-persistence-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-messaging-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-messaging-jackson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-messaging-spring</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-outbox-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-outbox-spring</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-inbox-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jmolecules.integrations</groupId>
-            <artifactId>jmolecules-jackson</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

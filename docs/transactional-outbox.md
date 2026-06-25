@@ -60,7 +60,7 @@ public final class OrderCreatedEvent extends AbstractDomainEvent {
 
 ## 配置
 
-`jfoundry-spring-boot-starter` 不绑定具体 ORM。业务侧如果需要 MyBatis-Plus 的 Outbox 存储，再额外引入 `jfoundry-spring-boot-starter-mybatis-plus`；后者会通过 MyBatis-Plus 适配器提供 `OutboxMessageStore`，表名默认为 `jfoundry_outbox_event`。如需自定义表名，设置 `jfoundry.outbox.table-name`，并由业务侧创建同结构表。
+Outbox 是可选能力。业务侧需要可靠外部化时引入 `jfoundry-spring-boot-starter-outbox`；如果需要 MyBatis-Plus 的 Outbox 存储，再引入 `jfoundry-spring-boot-starter-outbox-mybatis-plus`。后者会通过 MyBatis-Plus 适配器提供 `OutboxMessageStore`，表名默认为 `jfoundry_outbox_event`。如需自定义表名，设置 `jfoundry.outbox.table-name`，并由业务侧创建同结构表。
 
 ```yaml
 jfoundry:
@@ -85,15 +85,15 @@ jfoundry:
       batch-size: 1000
 ```
 
-`mode: jobrunr` 可切换到 JobRunr 派发器，需要额外引入 `jfoundry-outbox-jobrunr`。
+`mode: jobrunr` 可切换到 JobRunr 派发器，需要额外引入 `jfoundry-spring-boot-starter-outbox-jobrunr`。
 
 ## Broker adapter
 
-jfoundry starter 不携带具体 broker 客户端。未提供 `MessageSender` 时，jfoundry 使用 logging sender
+Outbox starter 不携带具体 broker 客户端。未提供 `MessageSender` 时，jfoundry 使用 logging sender
 记录消息内容，但它会返回失败结果，不会让 dispatcher 把消息标记为 `PUBLISHED`。生产环境如启用
 Outbox 外部化，必须提供真实 `MessageSender`；没有外部投递需求时，应关闭 dispatcher 或不要标记事件为外部化。
 
-Kafka 是当前内置的第一个真实 broker adapter。业务侧显式引入 `jfoundry-messaging-kafka` 并提供 `KafkaTemplate<String, String>` 后，`KafkaMessageSender` 会把 `MessageSender` 的 `topic`、`key`、`payload` 分别映射为 Kafka 的 topic、key、value。未来增加 RabbitMQ、RocketMQ 等 adapter 时，只需实现同一个 `MessageSender` SPI，不需要改 Outbox 本体。
+Kafka 是当前内置的第一个真实 broker adapter。业务侧显式引入 `jfoundry-spring-boot-starter-messaging-kafka` 并提供 `KafkaTemplate<String, String>` 后，`KafkaMessageSender` 会把 `MessageSender` 的 `topic`、`key`、`payload` 分别映射为 Kafka 的 topic、key、value。未来增加 RabbitMQ、RocketMQ 等 adapter 时，只需实现同一个 `MessageSender` SPI，不需要改 Outbox 本体。
 
 ## 表结构与迁移
 
@@ -125,7 +125,7 @@ jfoundry-infrastructure/jfoundry-outbox-mybatis-plus/src/main/resources/db/migra
 
 消费者应按 `event_id` 或业务消息 id 做幂等处理。Outbox 能保证业务数据和待投递消息在同一数据库事务内落库，但消息系统仍可能出现重复投递、消费端重试或下游局部失败。业务侧的 `MessageSender` 实现应只负责向具体 MQ 发送消息，并把失败结果返回给 dispatcher。
 
-MyBatis-Plus starter 会提供 `InboxTemplate` 和 MyBatis-Plus `InboxMessageStore`。默认 starter 只在业务侧存在 `InboxMessageStore` Bean 时装配 `InboxTemplate`。消费者可以用 `executeOnce(...)` 包住处理逻辑，同一个 `messageId + consumerName` 只会处理一次：
+`jfoundry-spring-boot-starter-inbox` 会在业务侧存在 `InboxMessageStore` Bean 时装配 `InboxTemplate`。MyBatis-Plus 项目可引入 `jfoundry-spring-boot-starter-inbox-mybatis-plus` 提供 MyBatis-Plus `InboxMessageStore`。消费者可以用 `executeOnce(...)` 包住处理逻辑，同一个 `messageId + consumerName` 只会处理一次：
 
 ```java
 inboxTemplate.executeOnce(eventId, "order-projection", () -> {

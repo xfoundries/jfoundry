@@ -31,7 +31,11 @@ import org.springframework.context.annotation.Bean;
 /// batchSize / maxRetries / cron 全部从 {@link OutboxDispatcherProperties} 读取，与 scheduled
 /// 模式行为一致（同一套 {@code jfoundry.outbox.dispatcher.*} 配置）。
 @AutoConfiguration
-@ConditionalOnClass(name = "org.jobrunr.jobs.annotations.Job")
+@ConditionalOnClass(name = {
+        "org.jobrunr.jobs.annotations.Job",
+        "org.jobrunr.scheduling.JobScheduler",
+        "org.jfoundry.infrastructure.outbox.jobrunr.dispatcher.JobRunrOutboxDispatcher"
+})
 @ConditionalOnProperty(prefix = "jfoundry.outbox.dispatcher", name = "mode", havingValue = "jobrunr")
 @EnableConfigurationProperties(OutboxDispatcherProperties.class)
 public class JobRunrDispatcherAutoConfiguration {

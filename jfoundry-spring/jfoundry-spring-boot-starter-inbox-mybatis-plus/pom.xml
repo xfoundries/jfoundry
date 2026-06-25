@@ -8,17 +8,14 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-spring-boot-starter-mybatis-plus</artifactId>
-    <name>jfoundry-spring-boot-starter-mybatis-plus</name>
-    <description>
-        Spring Boot starter for jfoundry business persistence with MyBatis-Plus.
-        Outbox and Inbox MyBatis-Plus stores are provided by their own feature starters.
-    </description>
+    <artifactId>jfoundry-spring-boot-starter-inbox-mybatis-plus</artifactId>
+    <name>jfoundry-spring-boot-starter-inbox-mybatis-plus</name>
+    <description>Spring Boot starter for the MyBatis-Plus InboxMessageStore adapter.</description>
 
     <dependencies>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-spring-boot-starter</artifactId>
+            <artifactId>jfoundry-spring-boot-starter-inbox</artifactId>
         </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -26,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-persistence-mybatis-plus</artifactId>
+            <artifactId>jfoundry-inbox-mybatis-plus</artifactId>
         </dependency>
     </dependencies>
 </project>

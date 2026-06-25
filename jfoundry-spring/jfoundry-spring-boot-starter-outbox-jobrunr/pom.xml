@@ -8,25 +8,22 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-spring-boot-starter-mybatis-plus</artifactId>
-    <name>jfoundry-spring-boot-starter-mybatis-plus</name>
-    <description>
-        Spring Boot starter for jfoundry business persistence with MyBatis-Plus.
-        Outbox and Inbox MyBatis-Plus stores are provided by their own feature starters.
-    </description>
+    <artifactId>jfoundry-spring-boot-starter-outbox-jobrunr</artifactId>
+    <name>jfoundry-spring-boot-starter-outbox-jobrunr</name>
+    <description>Spring Boot starter for the JobRunr Outbox dispatcher adapter.</description>
 
     <dependencies>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <artifactId>jfoundry-spring-boot-starter-outbox</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-persistence-mybatis-plus</artifactId>
+            <artifactId>jfoundry-outbox-jobrunr</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jobrunr</groupId>
+            <artifactId>jobrunr-spring-boot-3-starter</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -14,25 +14,20 @@
     <artifactId>jfoundry-spring-boot-autoconfigure</artifactId>
     <name>jfoundry-spring-boot-autoconfigure</name>
     <description>
-        Spring Boot AutoConfiguration for jfoundry: MessageSender, DomainEventExternalizer,
-        OutboxMybatisPlus, OutboxDispatcher, InboxTemplate, and InboxMybatisPlus.
-        ORM-agnostic layout — future JPA/Mongo adapters register their own AutoConfiguration
-        here without forcing a rename of any "mybatis-plus" starter.
+        Spring Boot AutoConfiguration for jfoundry. Feature modules are optional here;
+        dedicated starters decide which capabilities enter an application's classpath.
     </description>
 
     <dependencies>
-        <!-- Aggregate application reliability ports and infrastructure adapters so
-             AutoConfigurations can reference their contracts and concrete beans
-             (DomainEventExternalizer, ScheduledOutboxDispatcher,
-             MybatisPlusOutboxMessageStore, InboxTemplate, MybatisPlusInboxMessageStore,
-             LoggingMessageSender, JacksonPayloadSerializer). -->
         <dependency>
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-messaging-core</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-messaging-jackson</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
@@ -42,10 +37,12 @@
         <dependency>
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-messaging-spring</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-inbox-core</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
@@ -60,6 +57,7 @@
         <dependency>
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-outbox-spring</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
@@ -69,6 +67,7 @@
         <dependency>
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-layered</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jobrunr</groupId>
@@ -99,6 +98,7 @@
         <dependency>
             <groupId>org.jmolecules.integrations</groupId>
             <artifactId>jmolecules-jackson</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.kafka</groupId>

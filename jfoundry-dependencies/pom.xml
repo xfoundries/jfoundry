@@ -150,6 +150,41 @@
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-spring-boot-starter-messaging</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-spring-boot-starter-messaging-kafka</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-spring-boot-starter-outbox</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-spring-boot-starter-outbox-mybatis-plus</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-spring-boot-starter-outbox-jobrunr</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-spring-boot-starter-inbox</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-spring-boot-starter-inbox-mybatis-plus</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
                 <artifactId>jfoundry-spring-boot-starter-mybatis-plus</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
@@ -178,6 +213,11 @@
             </dependency>
 
             <!-- Spring Boot Autoconfigure for @ConditionalOnMissingBean (LoggingMessageSender default-impl retraction) -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-autoconfigure</artifactId>
