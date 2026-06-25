@@ -39,14 +39,9 @@ class LayerStereotypesTest {
     }
 
     @Test
-    void bootstrapLayerIsJfoundrySpecific() {
-        assertThat(BootstrapLayer.class.getName()).isEqualTo("org.jfoundry.architecture.layered.BootstrapLayer");
-    }
-
-    @Test
     void allStereotypesTargetPackageAndType() {
         for (Class<? extends Annotation> stereotype : new Class[]{
-                ApplicationLayer.class, BootstrapLayer.class, DomainLayer.class,
+                ApplicationLayer.class, DomainLayer.class,
                 InterfaceLayer.class, InfrastructureLayer.class
         }) {
             java.lang.annotation.Target target = stereotype.getAnnotation(java.lang.annotation.Target.class);

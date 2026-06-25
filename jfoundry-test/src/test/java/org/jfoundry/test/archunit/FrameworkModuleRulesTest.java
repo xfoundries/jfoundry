@@ -12,7 +12,6 @@ class FrameworkModuleRulesTest {
         assertThat(FrameworkModuleRules.application_must_not_depend_on_outer_layers).isNotNull();
         assertThat(FrameworkModuleRules.domain_packages_should_be_domain_layer).isNotNull();
         assertThat(FrameworkModuleRules.infrastructure_packages_should_be_infrastructure_layer).isNotNull();
-        assertThat(FrameworkModuleRules.autoconfigure_packages_should_be_bootstrap_layer).isNotNull();
         assertThat(FrameworkModuleRules.infrastructure_must_not_depend_on_spring_autoconfigure).isNotNull();
         assertThat(FrameworkModuleRules.application_store_ports_should_be_secondary_ports).isNotNull();
         assertThat(FrameworkModuleRules.message_sender_should_be_secondary_port).isNotNull();

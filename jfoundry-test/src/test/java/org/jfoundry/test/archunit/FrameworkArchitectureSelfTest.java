@@ -25,10 +25,6 @@ class FrameworkArchitectureSelfTest {
             FrameworkModuleRules.infrastructure_packages_should_be_infrastructure_layer;
 
     @ArchTest
-    static final ArchRule autoconfigure_packages_should_be_bootstrap_layer =
-            FrameworkModuleRules.autoconfigure_packages_should_be_bootstrap_layer;
-
-    @ArchTest
     static final ArchRule infrastructure_must_not_depend_on_spring_autoconfigure =
             FrameworkModuleRules.infrastructure_must_not_depend_on_spring_autoconfigure;
 

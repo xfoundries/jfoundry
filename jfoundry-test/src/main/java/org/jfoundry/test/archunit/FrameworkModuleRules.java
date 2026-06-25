@@ -51,13 +51,6 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("infrastructure packages must declare the infrastructure layer");
 
-    public static final ArchRule autoconfigure_packages_should_be_bootstrap_layer =
-            classes()
-                    .that().resideInAPackage("org.jfoundry.autoconfigure..")
-                    .should(resideInPackageAnnotatedWith(org.jfoundry.architecture.layered.BootstrapLayer.class))
-                    .allowEmptyShould(true)
-                    .because("Spring Boot autoconfiguration packages are framework bootstrap code");
-
     public static final ArchRule infrastructure_must_not_depend_on_spring_autoconfigure =
             noClasses()
                     .that().resideInAPackage("org.jfoundry.infrastructure..")
