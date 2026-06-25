@@ -89,7 +89,9 @@ jfoundry:
 
 ## Broker adapter
 
-默认 starter 不携带具体 broker 客户端。未提供 `MessageSender` 时，jfoundry 使用 logging sender，适合本地开发和没有外部投递需求的场景。
+默认 starter 不携带具体 broker 客户端。未提供 `MessageSender` 时，jfoundry 使用 logging sender
+记录消息内容，但它会返回失败结果，不会让 dispatcher 把消息标记为 `PUBLISHED`。生产环境如启用
+Outbox 外部化，必须提供真实 `MessageSender`；没有外部投递需求时，应关闭 dispatcher 或不要标记事件为外部化。
 
 Kafka 是当前内置的第一个真实 broker adapter。业务侧显式引入 `jfoundry-messaging-kafka` 并提供 `KafkaTemplate<String, String>` 后，`KafkaMessageSender` 会把 `MessageSender` 的 `topic`、`key`、`payload` 分别映射为 Kafka 的 topic、key、value。未来增加 RabbitMQ、RocketMQ 等 adapter 时，只需实现同一个 `MessageSender` SPI，不需要改 Outbox 本体。
 
