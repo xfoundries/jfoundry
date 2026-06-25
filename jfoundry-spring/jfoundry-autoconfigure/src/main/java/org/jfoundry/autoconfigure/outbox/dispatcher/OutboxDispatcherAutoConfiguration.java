@@ -1,7 +1,6 @@
 package org.jfoundry.autoconfigure.outbox.dispatcher;
 
 import org.jfoundry.autoconfigure.messaging.MessageSenderAutoConfiguration;
-import org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration;
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.outbox.BackoffStrategy;
 import org.jfoundry.application.outbox.OutboxDispatcher;
@@ -34,10 +33,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /// 所有 Dispatcher / BackoffStrategy bean 都不会注册，{@code @EnableScheduling} 也不会生效。
 /// 默认 {@code matchIfMissing=true} 保持向后兼容。
 @AutoConfiguration
-@AutoConfigureAfter({
-        MessageSenderAutoConfiguration.class,
-        OutboxMybatisPlusAutoConfiguration.class
-})
+@AutoConfigureAfter(
+        value = MessageSenderAutoConfiguration.class,
+        name = "org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration"
+)
 @EnableConfigurationProperties({OutboxDispatcherProperties.class, OutboxRecoveryProperties.class, OutboxCleanupProperties.class})
 @ConditionalOnProperty(prefix = "jfoundry.outbox.dispatcher", name = "enabled",
                        havingValue = "true", matchIfMissing = true)

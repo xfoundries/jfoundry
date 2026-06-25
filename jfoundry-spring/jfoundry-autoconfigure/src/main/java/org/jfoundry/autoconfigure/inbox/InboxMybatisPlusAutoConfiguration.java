@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Bean;
 @AutoConfigureAfter(name = "com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration")
 @MapperScan(basePackages = "org.jfoundry.infrastructure.inbox.mybatis")
 @ConditionalOnBean(SqlSessionFactory.class)
-@ConditionalOnClass(MybatisPlusInboxMessageStore.class)
+@ConditionalOnClass({SqlSessionFactory.class, MapperScan.class, MybatisPlusInboxMessageStore.class})
 public class InboxMybatisPlusAutoConfiguration {
 
     @Bean

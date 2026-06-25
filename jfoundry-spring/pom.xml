@@ -19,6 +19,8 @@
 
     <modules>
         <module>jfoundry-autoconfigure</module>
+        <module>jfoundry-spring-boot-starter-core</module>
+        <module>jfoundry-spring-boot-starter-mybatis-plus</module>
         <module>jfoundry-spring-boot-starter</module>
     </modules>
 </project>

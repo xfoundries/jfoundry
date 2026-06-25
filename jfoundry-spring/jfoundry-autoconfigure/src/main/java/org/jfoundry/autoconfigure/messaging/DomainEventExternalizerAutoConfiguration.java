@@ -1,7 +1,6 @@
 package org.jfoundry.autoconfigure.messaging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration;
 import org.jfoundry.application.messaging.PayloadSerializer;
 import org.jfoundry.application.messaging.externalization.AggregateRoutingResolver;
 import org.jfoundry.application.messaging.externalization.ExternalizationRuleResolver;
@@ -33,7 +32,7 @@ import org.springframework.core.annotation.Order;
 /// 它是 Sink 链的末端（{@link Ordered#LOWEST_PRECEDENCE}），业务侧自定义的 {@code DomainEventSink}
 /// （日志、metrics 等）可以与之共存。
 @AutoConfiguration
-@AutoConfigureAfter(OutboxMybatisPlusAutoConfiguration.class)
+@AutoConfigureAfter(name = "org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration")
 public class DomainEventExternalizerAutoConfiguration {
 
     /// 必须在 {@link #domainEventExternalizer} 之前声明：{@code @ConditionalOnBean} 在

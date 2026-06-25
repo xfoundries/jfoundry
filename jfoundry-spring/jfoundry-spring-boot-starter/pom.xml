@@ -11,67 +11,16 @@
     <artifactId>jfoundry-spring-boot-starter</artifactId>
     <name>jfoundry-spring-boot-starter</name>
     <description>
-        Aggregate Spring Boot starter for jfoundry. It exposes a stable user-facing entry point
-        while aggregating the current default runtime adapters: MyBatis-Plus persistence,
-        Transactional Outbox MyBatis-Plus storage, Inbox idempotency storage, Spring messaging,
-        and Spring Outbox runtime.
-        This pom contains no code — business side just imports this artifact.
+        Compatibility Spring Boot starter for jfoundry. It keeps the original artifactId as
+        a stable user-facing entry point and delegates to the current MyBatis-Plus starter.
+        New projects should prefer jfoundry-spring-boot-starter-core or
+        jfoundry-spring-boot-starter-mybatis-plus explicitly.
     </description>
 
     <dependencies>
-        <!-- All AutoConfigurations live here; business side gets Spring Boot auto-wiring by
-             depending on this starter transitively. -->
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-autoconfigure</artifactId>
-        </dependency>
-
-        <!-- Aggregate current default runtime implementations. Adapter-specific artifactIds stay
-             below this starter so user projects do not depend on implementation modules directly. -->
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-domain</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-persistence-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-messaging-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-messaging-jackson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-inbox-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jmolecules.integrations</groupId>
-            <artifactId>jmolecules-jackson</artifactId>
-        </dependency>
-        <!-- Runtime MyBatis-Plus Spring Boot integration for the default MyBatis-Plus adapters. -->
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-persistence-mybatis-plus</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-outbox-mybatis-plus</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-inbox-mybatis-plus</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-outbox-spring</artifactId>
+            <artifactId>jfoundry-spring-boot-starter-mybatis-plus</artifactId>
         </dependency>
     </dependencies>
 </project>
