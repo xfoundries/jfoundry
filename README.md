@@ -46,10 +46,10 @@ jfoundry-parent
 │   ├── jfoundry-outbox-spring                    Outbox 的 Spring 外部化与 scheduled 派发器
 │   └── jfoundry-outbox-jobrunr                   Outbox 的 JobRunr 派发器（可选）
 ├── jfoundry-spring                               Spring 整合层聚合
-│   ├── jfoundry-autoconfigure                    Spring Boot AutoConfiguration
-│   ├── jfoundry-spring-boot-starter-core         ORM-neutral Spring Boot starter
+│   ├── jfoundry-spring-boot-autoconfigure        Spring Boot AutoConfiguration
+│   ├── jfoundry-spring-boot-starter              ORM-neutral Spring Boot starter
 │   ├── jfoundry-spring-boot-starter-mybatis-plus MyBatis-Plus Spring Boot starter
-│   └── jfoundry-spring-boot-starter              兼容旧 artifactId，委托到 MyBatis-Plus starter
+│   └── ...
 └── jfoundry-test                                 ArchUnit 规则库（业务侧测试直接引用）
 ```
 
@@ -67,9 +67,8 @@ inboxTemplate.executeOnce(eventId, "order-projection", () -> {
 
 业务侧应显式选择 starter：
 
-- 使用 MyBatis-Plus：引入 `jfoundry-spring-boot-starter-mybatis-plus`，它会传递引入 `mybatis-plus-spring-boot3-starter`，并自动装配 Persistence / Outbox / Inbox 的 MyBatis-Plus adapter。
-- 使用 Spring Data、JPA 或其它持久化方案：引入 `jfoundry-spring-boot-starter-core`，它只提供领域契约、application ports、Jackson payload、Spring messaging、Outbox Spring runtime 和 auto-configuration，不绑定具体 ORM。业务侧需要自行提供 repository 实现，以及需要 Outbox / Inbox 时提供 `OutboxMessageStore` / `InboxMessageStore` Bean。
-- `jfoundry-spring-boot-starter` 保留为兼容旧 artifactId 的入口，当前等价于 MyBatis-Plus starter；新项目建议使用上面两个显式 starter。
+- 使用默认 starter：引入 `jfoundry-spring-boot-starter`，它提供领域契约、application ports、Jackson payload、Spring messaging、Outbox Spring runtime 和 auto-configuration，不绑定具体 ORM。业务侧可以接 Spring Data、JPA 或自定义 persistence 实现。
+- 使用 MyBatis-Plus：在默认 starter 之外引入 `jfoundry-spring-boot-starter-mybatis-plus`，它会传递引入 `mybatis-plus-spring-boot3-starter`，并自动装配 Persistence / Outbox / Inbox 的 MyBatis-Plus adapter。
 
 MyBatis-Plus 项目示例：
 
@@ -89,6 +88,10 @@ MyBatis-Plus 项目示例：
 <dependencies>
     <dependency>
         <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.jfoundry</groupId>
         <artifactId>jfoundry-spring-boot-starter-mybatis-plus</artifactId>
     </dependency>
 </dependencies>
@@ -100,7 +103,7 @@ Spring Data / JPA 项目示例：
 <dependencies>
     <dependency>
         <groupId>org.jfoundry</groupId>
-        <artifactId>jfoundry-spring-boot-starter-core</artifactId>
+        <artifactId>jfoundry-spring-boot-starter</artifactId>
     </dependency>
 </dependencies>
 ```
@@ -145,7 +148,7 @@ class MyAppArchitectureTest {
 
 领域事件不强制使用 Outbox。默认 `DomainEventPublisher` 会在事务提交后通过 Spring `ApplicationEventPublisher` 发布本地事件；如果业务只需要进程内监听器，可不配置 Outbox。
 
-当事件需要可靠外部化、跨进程投递或失败重试时，再为事件标记 `@Externalized` / `@MessageRouting`，并启用 Outbox 存储与派发。业务侧只要提供 `OutboxMessageStore` Bean（或让 MyBatis-Plus starter 自动装配实现），匹配外部化规则的领域事件就会写入 Outbox 表：
+当事件需要可靠外部化、跨进程投递或失败重试时，再为事件标记 `@Externalized` / `@MessageRouting`，并启用 Outbox 存储与派发。业务侧只要提供 `OutboxMessageStore` Bean（或在默认 starter 之外引入 MyBatis-Plus starter），匹配外部化规则的领域事件就会写入 Outbox 表：
 
 ```yaml
 jfoundry:
@@ -194,7 +197,7 @@ mvn clean install -DskipTests
 mvn validate
 ```
 
-> **JVM 参数提示**：Specification 规约模式需要通过反射从方法引用中提取字段名，构建时需要 `--add-opens=java.base/java.lang.invoke=ALL-UNNAMED`。`jfoundry-autoconfigure` 等模块的 surefire 插件已配置；业务侧如需可参考 `.mvn/jvm.config`。
+> **JVM 参数提示**：Specification 规约模式需要通过反射从方法引用中提取字段名，构建时需要 `--add-opens=java.base/java.lang.invoke=ALL-UNNAMED`。`jfoundry-spring-boot-autoconfigure` 等模块的 surefire 插件已配置；业务侧如需可参考 `.mvn/jvm.config`。
 
 ## License
 

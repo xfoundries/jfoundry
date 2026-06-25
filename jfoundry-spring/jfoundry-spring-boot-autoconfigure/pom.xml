@@ -11,8 +11,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-autoconfigure</artifactId>
-    <name>jfoundry-autoconfigure</name>
+    <artifactId>jfoundry-spring-boot-autoconfigure</artifactId>
+    <name>jfoundry-spring-boot-autoconfigure</name>
     <description>
         Spring Boot AutoConfiguration for jfoundry: MessageSender, DomainEventExternalizer,
         OutboxMybatisPlus, OutboxDispatcher, InboxTemplate, and InboxMybatisPlus.

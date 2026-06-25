@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /// P2-1 regression: {@link JobRunrDispatcherAutoConfiguration} 必须由
-/// jfoundry-autoconfigure 的 {@code META-INF/spring/...AutoConfiguration.imports} 注册，并在
+/// jfoundry-spring-boot-autoconfigure 的 {@code META-INF/spring/...AutoConfiguration.imports} 注册，并在
 /// {@code mode=jobrunr} 时把 {@link JobRunrOutboxDispatcher} 注册为
 /// {@link OutboxDispatcher} bean。
 /// <p>

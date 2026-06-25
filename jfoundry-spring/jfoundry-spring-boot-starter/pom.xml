@@ -11,16 +11,51 @@
     <artifactId>jfoundry-spring-boot-starter</artifactId>
     <name>jfoundry-spring-boot-starter</name>
     <description>
-        Compatibility Spring Boot starter for jfoundry. It keeps the original artifactId as
-        a stable user-facing entry point and delegates to the current MyBatis-Plus starter.
-        New projects should prefer jfoundry-spring-boot-starter-core or
-        jfoundry-spring-boot-starter-mybatis-plus explicitly.
+        ORM-neutral Spring Boot starter for jfoundry. It provides DDD contracts,
+        application reliability ports, Jackson payload serialization, Spring messaging,
+        Outbox Spring runtime, and auto-configuration without selecting a persistence adapter.
     </description>
 
     <dependencies>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-spring-boot-starter-mybatis-plus</artifactId>
+            <artifactId>jfoundry-spring-boot-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-domain</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-persistence-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-outbox-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-outbox-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-inbox-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jmolecules.integrations</groupId>
+            <artifactId>jmolecules-jackson</artifactId>
         </dependency>
     </dependencies>
 </project>

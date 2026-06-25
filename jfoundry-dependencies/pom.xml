@@ -135,7 +135,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-autoconfigure</artifactId>
+                <artifactId>jfoundry-spring-boot-autoconfigure</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -145,17 +145,12 @@
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-spring-boot-starter-core</artifactId>
+                <artifactId>jfoundry-spring-boot-starter</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
                 <artifactId>jfoundry-spring-boot-starter-mybatis-plus</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-spring-boot-starter</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <!--新增子模块声明-->
@@ -258,7 +253,7 @@
             <!--
               mybatis-plus-annotation：OutboxData / 业务 Data 类需 @TableName/@TableId 注解。
               jfoundry-persistence-mybatis-plus / jfoundry-outbox-mybatis-plus 模块编译时通过
-              mybatis-plus-core 间接获得；MyBatis-Plus Spring Boot starter 通过
+              mybatis-plus-core 间接获得；MyBatis-Plus starter 通过
               mybatis-plus-spring-boot3-starter 提供业务侧运行时。application message model（OutboxMessage）和 AggregateData 刻意不带 ORM 注解，
               避免被特定 ORM 绑定。
             -->

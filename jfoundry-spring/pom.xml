@@ -18,9 +18,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>jfoundry-autoconfigure</module>
-        <module>jfoundry-spring-boot-starter-core</module>
-        <module>jfoundry-spring-boot-starter-mybatis-plus</module>
+        <module>jfoundry-spring-boot-autoconfigure</module>
         <module>jfoundry-spring-boot-starter</module>
+        <module>jfoundry-spring-boot-starter-mybatis-plus</module>
     </modules>
 </project>

@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Bean;
 /// 在 mode=scheduled 或 matchIfMissing 时注册，互斥键是 bean name）。
 /// <p>
 /// 业务侧无需自己 {@code @ComponentScan} 扫到 {@code org.jfoundry.infrastructure.outbox.jobrunr}
-/// —— Spring Boot starter 通过 jfoundry-autoconfigure 的
+/// —— Spring Boot starter 通过 jfoundry-spring-boot-autoconfigure 的
 /// {@code META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports} 注册本配置。
 /// <p>
 /// batchSize / maxRetries / cron 全部从 {@link OutboxDispatcherProperties} 读取，与 scheduled

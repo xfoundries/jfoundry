@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// Outbox 表 → ScheduledOutboxDispatcher → CollectingMessageSender。
 /// <p>
 /// 通过 @EnableAutoConfiguration 让 Spring Boot 按 @AutoConfigureAfter 排序加载所有
-/// jfoundry-autoconfigure 内部的 AutoConfiguration 链路；测试启动类自身负责
+/// jfoundry-spring-boot-autoconfigure 内部的 AutoConfiguration 链路；测试启动类自身负责
 /// @MapperScan 以便 mapper bean 在 ConfigurationClassParser 阶段注册。
 @SpringBootTest(classes = {
         DomainEventExternalizationIntegrationTest.TestApp.class,
