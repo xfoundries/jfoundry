@@ -1,7 +1,9 @@
 package org.jfoundry.integration.kafka;
 
 import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -33,6 +35,7 @@ import org.testcontainers.utility.DockerImageName;
 import javax.sql.DataSource;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -94,9 +97,7 @@ class KafkaOutboxDispatchIT {
 
         try (Consumer<String, String> consumer = consumer("dispatch-success")) {
             consumer.subscribe(java.util.List.of(TOPIC));
-            ConsumerRecord<String, String> record =
-                    org.springframework.kafka.test.utils.KafkaTestUtils.getSingleRecord(
-                            consumer, TOPIC, Duration.ofSeconds(10));
+            ConsumerRecord<String, String> record = singleRecord(consumer);
 
             assertThat(record.key()).isEqualTo("order-1");
             assertThat(record.value()).isEqualTo("{\"event\":\"created\"}");
@@ -143,13 +144,25 @@ class KafkaOutboxDispatchIT {
     }
 
     private Consumer<String, String> consumer(String groupId) {
-        Map<String, Object> props = org.springframework.kafka.test.utils.KafkaTestUtils.consumerProps(
-                kafka.getBootstrapServers(), groupId, "true");
-        props.put(org.apache.kafka.clients.consumer.ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class);
-        props.put(org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class);
-        props.put(org.apache.kafka.clients.consumer.ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        return new DefaultKafkaConsumerFactory<String, String>(props).createConsumer();
+        Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+        return new KafkaConsumer<>(props);
+    }
+
+    private ConsumerRecord<String, String> singleRecord(Consumer<String, String> consumer) {
+        long deadline = System.nanoTime() + Duration.ofSeconds(10).toNanos();
+        while (System.nanoTime() < deadline) {
+            var records = consumer.poll(Duration.ofMillis(250));
+            if (!records.isEmpty()) {
+                assertThat(records.count()).isEqualTo(1);
+                return records.iterator().next();
+            }
+        }
+        throw new AssertionError("No Kafka record received from topic " + TOPIC);
     }
 }
