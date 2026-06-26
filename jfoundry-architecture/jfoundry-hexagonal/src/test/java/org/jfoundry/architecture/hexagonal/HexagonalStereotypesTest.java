@@ -14,12 +14,6 @@ class HexagonalStereotypesTest {
         assertThat(Application.class.getAnnotation(org.jmolecules.architecture.hexagonal.Application.class))
                 .as("@Application must be meta-annotated with jmolecules @Application")
                 .isNotNull();
-        assertThat(Adapter.class.getAnnotation(org.jmolecules.architecture.hexagonal.Adapter.class))
-                .as("@Adapter must be meta-annotated with jmolecules @Adapter")
-                .isNotNull();
-        assertThat(Port.class.getAnnotation(org.jmolecules.architecture.hexagonal.Port.class))
-                .as("@Port must be meta-annotated with jmolecules @Port")
-                .isNotNull();
         assertThat(PrimaryAdapter.class.getAnnotation(org.jmolecules.architecture.hexagonal.PrimaryAdapter.class))
                 .as("@PrimaryAdapter must be meta-annotated with jmolecules @PrimaryAdapter")
                 .isNotNull();
@@ -37,8 +31,7 @@ class HexagonalStereotypesTest {
     @Test
     void allStereotypesTargetPackageAndType() {
         for (Class<? extends Annotation> stereotype : new Class[]{
-                Application.class, Adapter.class, Port.class, PrimaryAdapter.class, PrimaryPort.class,
-                SecondaryAdapter.class, SecondaryPort.class
+                Application.class, PrimaryAdapter.class, PrimaryPort.class, SecondaryAdapter.class, SecondaryPort.class
         }) {
             java.lang.annotation.Target target = stereotype.getAnnotation(java.lang.annotation.Target.class);
             assertThat(target).as(stereotype.getSimpleName() + " must have @Target").isNotNull();
@@ -51,12 +44,25 @@ class HexagonalStereotypesTest {
     @Test
     void jfoundryStereotypesDoNotRedeclareJmoleculesAttributes() {
         for (Class<? extends Annotation> stereotype : new Class[]{
-                Adapter.class, Port.class, PrimaryAdapter.class, PrimaryPort.class,
-                SecondaryAdapter.class, SecondaryPort.class
+                PrimaryAdapter.class, PrimaryPort.class, SecondaryAdapter.class, SecondaryPort.class
         }) {
             assertThat(Stream.of(stereotype.getDeclaredMethods()).map(java.lang.reflect.Method::getName))
                     .as(stereotype.getSimpleName() + " must not redeclare jmolecules name/description attributes")
                     .doesNotContain("name", "description");
+        }
+    }
+
+    @Test
+    void genericPortAndAdapterWrappersAreNotPartOfJfoundryApi() {
+        assertThat(load("org.jfoundry.architecture.hexagonal.Port")).isNull();
+        assertThat(load("org.jfoundry.architecture.hexagonal.Adapter")).isNull();
+    }
+
+    private Class<?> load(String name) {
+        try {
+            return Class.forName(name);
+        } catch (ClassNotFoundException ignored) {
+            return null;
         }
     }
 }

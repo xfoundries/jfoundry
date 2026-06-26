@@ -11,7 +11,7 @@
     <artifactId>jfoundry-spring-boot-starter-messaging</artifactId>
     <name>jfoundry-spring-boot-starter-messaging</name>
     <description>
-        Spring Boot starter for jfoundry messaging ports, Spring domain-event publishing,
+        Spring Boot starter for jfoundry messaging application contracts, Spring domain-event publishing,
         Jackson payload serialization, and the default logging MessageSender.
     </description>
 

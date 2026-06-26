@@ -21,6 +21,10 @@
             <artifactId>jmolecules-events</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jmolecules</groupId>
+            <artifactId>jmolecules-onion-architecture</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jmolecules.integrations</groupId>
             <artifactId>jmolecules-archunit</artifactId>
             <scope>test</scope>

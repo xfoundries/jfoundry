@@ -10,7 +10,7 @@
 
     <artifactId>jfoundry-outbox-spring</artifactId>
     <name>jfoundry-outbox-spring</name>
-    <description>Spring runtime for Transactional Outbox: DomainEventExternalizer, ScheduledOutboxDispatcher and ExponentialBackoffStrategy.</description>
+    <description>Spring adapters for Transactional Outbox: domain-event externalization, scheduled dispatching, and retry backoff.</description>
 
     <dependencies>
         <dependency>
@@ -20,6 +20,10 @@
         <dependency>
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-outbox-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jmolecules</groupId>
+            <artifactId>jmolecules-onion-architecture</artifactId>
         </dependency>
 
         <dependency>

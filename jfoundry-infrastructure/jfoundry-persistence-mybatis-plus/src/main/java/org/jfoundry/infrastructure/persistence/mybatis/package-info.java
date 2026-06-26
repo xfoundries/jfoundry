@@ -1,2 +1,2 @@
-@org.jfoundry.architecture.hexagonal.Adapter
+@org.jmolecules.architecture.onion.simplified.InfrastructureRing
 package org.jfoundry.infrastructure.persistence.mybatis;

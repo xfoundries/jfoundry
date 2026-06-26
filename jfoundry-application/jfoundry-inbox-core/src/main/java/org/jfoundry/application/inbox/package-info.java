@@ -1,2 +1,2 @@
-@org.jfoundry.architecture.hexagonal.Application
+@org.jmolecules.architecture.onion.simplified.ApplicationRing
 package org.jfoundry.application.inbox;

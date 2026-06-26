@@ -29,6 +29,10 @@
             <artifactId>jfoundry-outbox-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jmolecules</groupId>
+            <artifactId>jmolecules-onion-architecture</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jobrunr</groupId>
             <artifactId>jobrunr</artifactId>
             <scope>provided</scope>

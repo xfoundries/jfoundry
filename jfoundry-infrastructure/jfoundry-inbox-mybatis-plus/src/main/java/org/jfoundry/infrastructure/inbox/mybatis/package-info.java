@@ -1,2 +1,2 @@
-@org.jfoundry.architecture.hexagonal.SecondaryAdapter
+@org.jmolecules.architecture.onion.simplified.InfrastructureRing
 package org.jfoundry.infrastructure.inbox.mybatis;

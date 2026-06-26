@@ -12,14 +12,14 @@ import org.jfoundry.test.archunit.JFoundryRules;
 class CiArchitectureTest {
 
     @ArchTest
-    ArchRule[] jfoundryRules = JFoundryRules.hexagonal();
+    ArchRule[] jfoundryRules = JFoundryRules.onionSimple();
 
     @ArchTest
     ArchRule[] jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
 }
 ```
 
-`JFoundryRules.hexagonal()` 启用 JFoundry 基础守护规则 + Hexagonal 主架构风格规则。
+`JFoundryRules.onionSimple()` 启用 JFoundry 基础守护规则 + Onion simplified 主架构风格规则。
 `JFoundryRules.jmoleculesDdd()` 引入 jmolecules 官方 DDD 规则。
 
 ## jfoundry 自有规则
@@ -45,14 +45,21 @@ class CiArchitectureTest {
 |------|------|
 | `hexagonal_and_onion_must_not_be_mixed` | 同一个 ArchUnit 分析范围内禁止同时使用 Hexagonal 与 Onion 主架构风格 |
 
+### FrameworkModuleRules
+
+| 规则 | 作用 |
+|------|------|
+| `framework_should_use_jmolecules_architecture_annotations_internally` | JFoundry 框架内部直接使用 jMolecules 架构注解，不依赖 JFoundry 包装注解；包装注解作为业务项目门面保留 |
+| `domain_packages_should_be_onion_domain_ring` | `org.jfoundry.domain..` 必须标注 Onion simplified `DomainRing` |
+| `application_packages_should_be_onion_application_ring` | `org.jfoundry.application..` 必须标注 Onion simplified `ApplicationRing` |
+| `infrastructure_packages_should_be_onion_infrastructure_ring` | `org.jfoundry.infrastructure..` 必须标注 Onion simplified `InfrastructureRing` |
+
 ## 架构风格入口
 
 如果业务项目选择明确的架构风格，可使用显式主风格入口：
 
 ```java
 @ArchTest
-ArchRule[] hexagonalRules = JFoundryRules.hexagonal();
-
 @ArchTest
 ArchRule[] onionRules = JFoundryRules.onionSimple();
 
@@ -60,9 +67,9 @@ ArchRule[] onionRules = JFoundryRules.onionSimple();
 ArchRule[] onionClassicalRules = JFoundryRules.onionClassical();
 ```
 
-- `JFoundryRules.hexagonal()`：基础守护规则 + Hexagonal 主风格入口。
 - `JFoundryRules.onionSimple()`：基础守护规则 + Onion Simple 主风格入口。
 - `JFoundryRules.onionClassical()`：基础守护规则 + Onion Classical 主风格入口。
+- `JFoundryRules.hexagonal()`：基础守护规则 + Hexagonal 主风格入口；适用于业务项目，JFoundry 框架内部默认不再使用它作为实现基线。
 - `JFoundryRules.noMixedHexagonalAndOnion()`：单独启用 Hexagonal/Onion 互斥规则。
 
 若只想启用某一类底层规则，请直接使用 `PersistenceRules`、`ValueObjectRules` 或

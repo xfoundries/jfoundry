@@ -1,7 +1,5 @@
 package org.jfoundry.application.outbox;
 
-import org.jfoundry.architecture.hexagonal.SecondaryPort;
-
 import java.time.Instant;
 import java.util.List;
 
@@ -15,7 +13,6 @@ import java.util.List;
 ///       抛 {@link IllegalStateException}（fail-fast）。</li>
 /// </ul>
 /// 多实例安全性：v1 不实现分布式锁，依赖消费端幂等（详见 spec §5.8）。
-@SecondaryPort
 public interface OutboxMessageStore {
 
     void append(OutboxMessage entry);

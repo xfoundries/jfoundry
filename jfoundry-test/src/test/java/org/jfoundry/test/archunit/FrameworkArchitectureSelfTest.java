@@ -17,42 +17,82 @@ class FrameworkArchitectureSelfTest {
             FrameworkModuleRules.application_must_not_depend_on_outer_layers;
 
     @ArchTest
-    static final ArchRule application_packages_should_be_hexagonal_application =
-            FrameworkModuleRules.application_packages_should_be_hexagonal_application;
+    static final ArchRule framework_should_use_jmolecules_architecture_annotations_internally =
+            FrameworkModuleRules.framework_should_use_jmolecules_architecture_annotations_internally;
 
     @ArchTest
-    static final ArchRule infrastructure_adapter_packages_should_be_hexagonal_adapters =
-            FrameworkModuleRules.infrastructure_adapter_packages_should_be_hexagonal_adapters;
+    static final ArchRule domain_packages_should_be_onion_domain_ring =
+            FrameworkModuleRules.domain_packages_should_be_onion_domain_ring;
+
+    @ArchTest
+    static final ArchRule application_packages_should_be_onion_application_ring =
+            FrameworkModuleRules.application_packages_should_be_onion_application_ring;
+
+    @ArchTest
+    static final ArchRule infrastructure_packages_should_be_onion_infrastructure_ring =
+            FrameworkModuleRules.infrastructure_packages_should_be_onion_infrastructure_ring;
+
+    @ArchTest
+    static final ArchRule spring_autoconfigure_packages_should_not_be_onion_rings =
+            FrameworkModuleRules.spring_autoconfigure_packages_should_not_be_onion_rings;
 
     @ArchTest
     static final ArchRule infrastructure_must_not_depend_on_spring_autoconfigure =
             FrameworkModuleRules.infrastructure_must_not_depend_on_spring_autoconfigure;
 
     @ArchTest
-    static final ArchRule application_store_ports_should_be_secondary_ports =
-            FrameworkModuleRules.application_store_ports_should_be_secondary_ports;
+    static final ArchRule application_store_ports_should_be_in_application_ring =
+            FrameworkModuleRules.application_store_ports_should_be_in_application_ring;
 
     @ArchTest
-    static final ArchRule message_sender_should_be_secondary_port =
-            FrameworkModuleRules.message_sender_should_be_secondary_port;
+    static final ArchRule domain_event_publisher_should_be_in_domain_ring =
+            FrameworkModuleRules.domain_event_publisher_should_be_in_domain_ring;
 
     @ArchTest
-    static final ArchRule payload_serializer_should_be_secondary_port =
-            FrameworkModuleRules.payload_serializer_should_be_secondary_port;
+    static final ArchRule domain_event_sink_should_be_in_application_ring =
+            FrameworkModuleRules.domain_event_sink_should_be_in_application_ring;
 
     @ArchTest
-    static final ArchRule infrastructure_mybatis_message_stores_should_be_secondary_adapters =
-            FrameworkModuleRules.infrastructure_mybatis_message_stores_should_be_secondary_adapters;
+    static final ArchRule message_sender_should_be_in_application_ring =
+            FrameworkModuleRules.message_sender_should_be_in_application_ring;
 
     @ArchTest
-    static final ArchRule infrastructure_adapter_packages_should_be_secondary_adapters =
-            FrameworkModuleRules.infrastructure_adapter_packages_should_be_secondary_adapters;
+    static final ArchRule payload_serializer_should_be_in_application_ring =
+            FrameworkModuleRules.payload_serializer_should_be_in_application_ring;
 
     @ArchTest
-    static final ArchRule kafka_message_sender_should_be_secondary_adapter =
-            FrameworkModuleRules.kafka_message_sender_should_be_secondary_adapter;
+    static final ArchRule outbox_dispatcher_should_be_in_application_ring =
+            FrameworkModuleRules.outbox_dispatcher_should_be_in_application_ring;
 
     @ArchTest
-    static final ArchRule jackson_payload_serializer_should_be_secondary_adapter =
-            FrameworkModuleRules.jackson_payload_serializer_should_be_secondary_adapter;
+    static final ArchRule infrastructure_message_stores_should_be_in_infrastructure_ring =
+            FrameworkModuleRules.infrastructure_message_stores_should_be_in_infrastructure_ring;
+
+    @ArchTest
+    static final ArchRule spring_domain_event_publisher_should_be_in_infrastructure_ring =
+            FrameworkModuleRules.spring_domain_event_publisher_should_be_in_infrastructure_ring;
+
+    @ArchTest
+    static final ArchRule logging_message_sender_should_be_in_infrastructure_ring =
+            FrameworkModuleRules.logging_message_sender_should_be_in_infrastructure_ring;
+
+    @ArchTest
+    static final ArchRule domain_event_externalizer_should_be_in_infrastructure_ring =
+            FrameworkModuleRules.domain_event_externalizer_should_be_in_infrastructure_ring;
+
+    @ArchTest
+    static final ArchRule kafka_message_sender_should_be_in_infrastructure_ring =
+            FrameworkModuleRules.kafka_message_sender_should_be_in_infrastructure_ring;
+
+    @ArchTest
+    static final ArchRule jackson_payload_serializer_should_be_in_infrastructure_ring =
+            FrameworkModuleRules.jackson_payload_serializer_should_be_in_infrastructure_ring;
+
+    @ArchTest
+    static final ArchRule scheduled_outbox_dispatcher_should_be_in_infrastructure_ring =
+            FrameworkModuleRules.scheduled_outbox_dispatcher_should_be_in_infrastructure_ring;
+
+    @ArchTest
+    static final ArchRule jobrunr_outbox_dispatcher_should_be_in_infrastructure_ring =
+            FrameworkModuleRules.jobrunr_outbox_dispatcher_should_be_in_infrastructure_ring;
 }

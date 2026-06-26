@@ -1,9 +1,6 @@
 package org.jfoundry.application.messaging;
 
-import org.jfoundry.architecture.hexagonal.SecondaryPort;
-
 /// MQ 发送抽象。业务侧提供具体实现（Kafka/RabbitMQ 等）。
-@SecondaryPort
 public interface MessageSender {
 
     /// @param topic      目标 topic（来自 @MessageRouting 或 @Externalized.value）

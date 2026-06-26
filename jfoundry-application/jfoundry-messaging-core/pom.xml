@@ -10,7 +10,7 @@
 
     <artifactId>jfoundry-messaging-core</artifactId>
     <name>jfoundry-messaging-core</name>
-    <description>Application messaging ports and domain-event externalization metadata.</description>
+    <description>Application-layer messaging SPI and domain-event externalization contracts, metadata, and routing rules.</description>
 
     <dependencies>
         <dependency>
@@ -18,8 +18,8 @@
             <artifactId>jfoundry-domain</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-hexagonal</artifactId>
+            <groupId>org.jmolecules</groupId>
+            <artifactId>jmolecules-onion-architecture</artifactId>
         </dependency>
 
         <!-- jMolecules standard @Externalized annotation -->

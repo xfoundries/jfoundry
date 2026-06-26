@@ -10,7 +10,6 @@ import org.jfoundry.application.outbox.BackoffStrategy;
 import org.jfoundry.application.outbox.OutboxMessage;
 import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.application.outbox.OutboxMessageStatus;
-import org.jfoundry.architecture.hexagonal.SecondaryAdapter;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -39,7 +38,6 @@ import java.util.UUID;
 /// 用于运维观测与 P3-2 语义对齐，但 CAS 模式下不再依赖 token 做回读去重。
 /// <p>
 /// 构造时 fail-fast：检测传入的 MybatisPlusInterceptor 是否含 PaginationInnerInterceptor。
-@SecondaryAdapter
 public class MybatisPlusOutboxMessageStore implements OutboxMessageStore {
 
     private final OutboxMapper mapper;

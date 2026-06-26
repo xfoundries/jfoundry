@@ -10,12 +10,12 @@
 
     <artifactId>jfoundry-inbox-core</artifactId>
     <name>jfoundry-inbox-core</name>
-    <description>Application Inbox message model, store port, and idempotent execution template.</description>
+    <description>Application Inbox message model, store contract, and idempotent execution template.</description>
 
     <dependencies>
         <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-hexagonal</artifactId>
+            <groupId>org.jmolecules</groupId>
+            <artifactId>jmolecules-onion-architecture</artifactId>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

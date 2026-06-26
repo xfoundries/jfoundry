@@ -3,10 +3,8 @@ package org.jfoundry.infrastructure.inbox.mybatis;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.jfoundry.application.inbox.InboxMessageStatus;
 import org.jfoundry.application.inbox.InboxMessageStore;
-import org.jfoundry.architecture.hexagonal.SecondaryAdapter;
 import org.springframework.dao.DuplicateKeyException;
 
-@SecondaryAdapter
 public class MybatisPlusInboxMessageStore implements InboxMessageStore {
 
     private final InboxMessageMapper mapper;

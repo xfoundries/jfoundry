@@ -114,8 +114,6 @@ public final class ArchitectureStyleRules {
     @SuppressWarnings("unchecked")
     private static final Class<? extends Annotation>[] HEXAGONAL_ANNOTATIONS = new Class[]{
             org.jfoundry.architecture.hexagonal.Application.class,
-            org.jfoundry.architecture.hexagonal.Adapter.class,
-            org.jfoundry.architecture.hexagonal.Port.class,
             org.jfoundry.architecture.hexagonal.PrimaryAdapter.class,
             org.jfoundry.architecture.hexagonal.PrimaryPort.class,
             org.jfoundry.architecture.hexagonal.SecondaryAdapter.class,

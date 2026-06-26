@@ -6,10 +6,9 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
-import org.jfoundry.architecture.hexagonal.Adapter;
-import org.jfoundry.architecture.hexagonal.Application;
-import org.jfoundry.architecture.hexagonal.SecondaryAdapter;
-import org.jfoundry.architecture.hexagonal.SecondaryPort;
+import org.jmolecules.architecture.onion.simplified.ApplicationRing;
+import org.jmolecules.architecture.onion.simplified.DomainRing;
+import org.jmolecules.architecture.onion.simplified.InfrastructureRing;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
@@ -39,24 +38,45 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("application code must not depend on infrastructure adapters or autoconfiguration");
 
-    public static final ArchRule application_packages_should_be_hexagonal_application =
+    public static final ArchRule framework_should_use_jmolecules_architecture_annotations_internally =
+            noClasses()
+                    .that().resideInAPackage("org.jfoundry..")
+                    .and().resideOutsideOfPackage("org.jfoundry.architecture..")
+                    .and().doNotHaveFullyQualifiedName("org.jfoundry.test.archunit.ArchitectureStyleRules")
+                    .should().dependOnClassesThat().resideInAnyPackage("org.jfoundry.architecture..")
+                    .allowEmptyShould(true)
+                    .because("JFoundry architecture annotations are public API wrappers; framework internals use jmolecules directly");
+
+    public static final ArchRule domain_packages_should_be_onion_domain_ring =
+            classes()
+                    .that().resideInAPackage("org.jfoundry.domain..")
+                    .should(resideInPackageAnnotatedWith(DomainRing.class))
+                    .allowEmptyShould(true)
+                    .because("domain packages are part of the Onion domain ring");
+
+    public static final ArchRule application_packages_should_be_onion_application_ring =
             classes()
                     .that().resideInAPackage("org.jfoundry.application..")
-                    .should(resideInPackageAnnotatedWith(Application.class))
+                    .should(resideInPackageAnnotatedWith(ApplicationRing.class))
                     .allowEmptyShould(true)
-                    .because("application packages must declare the hexagonal application role");
+                    .because("application packages are part of the Onion application ring");
 
-    public static final ArchRule infrastructure_adapter_packages_should_be_hexagonal_adapters =
+    public static final ArchRule infrastructure_packages_should_be_onion_infrastructure_ring =
             classes()
-                    .that().resideInAnyPackage(
-                            "org.jfoundry.infrastructure..mybatis..",
-                            "org.jfoundry.infrastructure..jackson..",
-                            "org.jfoundry.infrastructure..kafka..",
-                            "org.jfoundry.infrastructure..jobrunr..",
-                            "org.jfoundry.infrastructure..spring..")
-                    .should(resideInPackageAnnotatedWithAny(Adapter.class, SecondaryAdapter.class))
+                    .that().resideInAPackage("org.jfoundry.infrastructure..")
+                    .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
                     .allowEmptyShould(true)
-                    .because("infrastructure adapter packages must declare a hexagonal adapter role");
+                    .because("infrastructure packages are part of the Onion infrastructure ring");
+
+    public static final ArchRule spring_autoconfigure_packages_should_not_be_onion_rings =
+            classes()
+                    .that().resideInAPackage("org.jfoundry.autoconfigure..")
+                    .should(notResideInPackageAnnotatedWithAny(
+                            DomainRing.class,
+                            ApplicationRing.class,
+                            InfrastructureRing.class))
+                    .allowEmptyShould(true)
+                    .because("Spring Boot autoconfiguration assembles framework modules but is not itself an Onion ring");
 
     public static final ArchRule infrastructure_must_not_depend_on_spring_autoconfigure =
             noClasses()
@@ -65,56 +85,110 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("infrastructure adapters must stay independent from Spring Boot autoconfiguration");
 
-    public static final ArchRule application_store_ports_should_be_secondary_ports =
+    public static final ArchRule domain_event_publisher_should_be_in_domain_ring =
+            classes()
+                    .that().haveFullyQualifiedName("org.jfoundry.domain.event.DomainEventPublisher")
+                    .should(resideInPackageAnnotatedWith(DomainRing.class))
+                    .allowEmptyShould(true)
+                    .because("DomainEventPublisher is part of the domain-facing event contract");
+
+    public static final ArchRule application_store_ports_should_be_in_application_ring =
             classes()
                     .that().resideInAPackage("org.jfoundry.application..")
                     .and().haveSimpleNameEndingWith("Store")
-                    .should().beAnnotatedWith(SecondaryPort.class)
+                    .should(resideInPackageAnnotatedWith(ApplicationRing.class))
                     .allowEmptyShould(true)
-                    .because("application Store abstractions are driven by infrastructure and must be secondary ports");
+                    .because("application store abstractions belong to the Onion application ring");
 
-    public static final ArchRule message_sender_should_be_secondary_port =
+    public static final ArchRule domain_event_sink_should_be_in_application_ring =
+            classes()
+                    .that().haveFullyQualifiedName("org.jfoundry.application.messaging.externalization.DomainEventSink")
+                    .should(resideInPackageAnnotatedWith(ApplicationRing.class))
+                    .allowEmptyShould(true)
+                    .because("DomainEventSink belongs to the Onion application ring");
+
+    public static final ArchRule message_sender_should_be_in_application_ring =
             classes()
                     .that().haveFullyQualifiedName("org.jfoundry.application.messaging.MessageSender")
-                    .should().beAnnotatedWith(SecondaryPort.class)
+                    .should(resideInPackageAnnotatedWith(ApplicationRing.class))
                     .allowEmptyShould(true)
-                    .because("MessageSender is an outbound messaging port");
+                    .because("MessageSender belongs to the Onion application ring");
 
-    public static final ArchRule payload_serializer_should_be_secondary_port =
+    public static final ArchRule payload_serializer_should_be_in_application_ring =
             classes()
                     .that().haveFullyQualifiedName("org.jfoundry.application.messaging.PayloadSerializer")
-                    .should().beAnnotatedWith(SecondaryPort.class)
+                    .should(resideInPackageAnnotatedWith(ApplicationRing.class))
                     .allowEmptyShould(true)
-                    .because("PayloadSerializer is an outbound serialization port");
+                    .because("PayloadSerializer belongs to the Onion application ring");
 
-    public static final ArchRule infrastructure_mybatis_message_stores_should_be_secondary_adapters =
+    public static final ArchRule outbox_dispatcher_should_be_in_application_ring =
+            classes()
+                    .that().haveFullyQualifiedName("org.jfoundry.application.outbox.OutboxDispatcher")
+                    .should(resideInPackageAnnotatedWith(ApplicationRing.class))
+                    .allowEmptyShould(true)
+                    .because("OutboxDispatcher belongs to the Onion application ring");
+
+    public static final ArchRule infrastructure_message_stores_should_be_in_infrastructure_ring =
             classes()
                     .that().resideInAPackage("org.jfoundry.infrastructure..mybatis..")
                     .and().haveSimpleNameEndingWith("MessageStore")
-                    .should().beAnnotatedWith(SecondaryAdapter.class)
+                    .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
                     .allowEmptyShould(true)
-                    .because("MyBatis message stores implement secondary application ports");
+                    .because("MyBatis message stores belong to the Onion infrastructure ring");
 
-    public static final ArchRule infrastructure_adapter_packages_should_be_secondary_adapters =
+    public static final ArchRule spring_domain_event_publisher_should_be_in_infrastructure_ring =
             classes()
-                    .that().areAnnotatedWith(SecondaryAdapter.class)
-                    .should(resideInPackageAnnotatedWith(SecondaryAdapter.class))
+                    .that().haveFullyQualifiedName(
+                            "org.jfoundry.infrastructure.messaging.spring.publisher.SpringDomainEventPublisher")
+                    .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
                     .allowEmptyShould(true)
-                    .because("packages containing secondary adapters should declare the adapter role");
+                    .because("SpringDomainEventPublisher belongs to the Onion infrastructure ring");
 
-    public static final ArchRule kafka_message_sender_should_be_secondary_adapter =
+    public static final ArchRule logging_message_sender_should_be_in_infrastructure_ring =
+            classes()
+                    .that().haveFullyQualifiedName(
+                            "org.jfoundry.infrastructure.messaging.spring.sender.LoggingMessageSender")
+                    .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
+                    .allowEmptyShould(true)
+                    .because("LoggingMessageSender belongs to the Onion infrastructure ring");
+
+    public static final ArchRule domain_event_externalizer_should_be_in_infrastructure_ring =
+            classes()
+                    .that().haveFullyQualifiedName(
+                            "org.jfoundry.infrastructure.outbox.spring.externalization.DomainEventExternalizer")
+                    .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
+                    .allowEmptyShould(true)
+                    .because("DomainEventExternalizer belongs to the Onion infrastructure ring");
+
+    public static final ArchRule kafka_message_sender_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName("org.jfoundry.infrastructure.messaging.kafka.KafkaMessageSender")
-                    .should().beAnnotatedWith(SecondaryAdapter.class)
+                    .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
                     .allowEmptyShould(true)
-                    .because("KafkaMessageSender adapts the MessageSender secondary port");
+                    .because("KafkaMessageSender belongs to the Onion infrastructure ring");
 
-    public static final ArchRule jackson_payload_serializer_should_be_secondary_adapter =
+    public static final ArchRule jackson_payload_serializer_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName("org.jfoundry.infrastructure.messaging.jackson.JacksonPayloadSerializer")
-                    .should().beAnnotatedWith(SecondaryAdapter.class)
+                    .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
                     .allowEmptyShould(true)
-                    .because("JacksonPayloadSerializer adapts the PayloadSerializer secondary port");
+                    .because("JacksonPayloadSerializer belongs to the Onion infrastructure ring");
+
+    public static final ArchRule scheduled_outbox_dispatcher_should_be_in_infrastructure_ring =
+            classes()
+                    .that().haveFullyQualifiedName(
+                            "org.jfoundry.infrastructure.outbox.spring.dispatcher.ScheduledOutboxDispatcher")
+                    .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
+                    .allowEmptyShould(true)
+                    .because("ScheduledOutboxDispatcher belongs to the Onion infrastructure ring");
+
+    public static final ArchRule jobrunr_outbox_dispatcher_should_be_in_infrastructure_ring =
+            classes()
+                    .that().haveFullyQualifiedName(
+                            "org.jfoundry.infrastructure.outbox.jobrunr.dispatcher.JobRunrOutboxDispatcher")
+                    .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
+                    .allowEmptyShould(true)
+                    .because("JobRunrOutboxDispatcher belongs to the Onion infrastructure ring");
 
     private static ArchCondition<JavaClass> resideInPackageAnnotatedWith(
             Class<? extends java.lang.annotation.Annotation> annotationType) {
@@ -132,31 +206,32 @@ public final class FrameworkModuleRules {
     }
 
     @SafeVarargs
-    private static ArchCondition<JavaClass> resideInPackageAnnotatedWithAny(
+    private static ArchCondition<JavaClass> notResideInPackageAnnotatedWithAny(
             Class<? extends java.lang.annotation.Annotation>... annotationTypes) {
-        return new ArchCondition<JavaClass>("reside in package annotated with one of the hexagonal adapter roles") {
+        return new ArchCondition<JavaClass>("not reside in package annotated with one of the given roles") {
             @Override
             public void check(JavaClass item, ConditionEvents events) {
                 for (Class<? extends java.lang.annotation.Annotation> annotationType : annotationTypes) {
                     if (isPackageAnnotatedWith(item, annotationType)) {
+                        events.add(SimpleConditionEvent.violated(item,
+                                item.getName() + " resides in package " + item.getPackageName()
+                                        + " with forbidden @" + annotationType.getSimpleName()));
                         return;
                     }
                 }
-                events.add(SimpleConditionEvent.violated(item,
-                        item.getName() + " resides in package " + item.getPackageName()
-                                + " without a hexagonal adapter role"));
             }
         };
     }
 
     private static boolean isPackageAnnotatedWith(
-            JavaClass javaClass, Class<? extends java.lang.annotation.Annotation> annotationType) {
-        JavaPackage pkg = javaClass.getPackage();
-        while (pkg != null) {
-            if (pkg.isAnnotatedWith(annotationType)) {
+            JavaClass javaClass,
+            Class<? extends java.lang.annotation.Annotation> annotationType) {
+        JavaPackage current = javaClass.getPackage();
+        while (current != null) {
+            if (current.isAnnotatedWith(annotationType.getName())) {
                 return true;
             }
-            pkg = pkg.getParent().orElse(null);
+            current = current.getParent().orElse(null);
         }
         return false;
     }

@@ -10,7 +10,7 @@ jfoundry 基于 jMolecules 的领域建模语义，并复用 jMolecules integrat
 
 ## 特性
 
-- **架构风格语义**：基于 jmolecules 的 Hexagonal、Onion 注解，配套 ArchUnit 规则强制依赖方向与风格选择；Layered 不再由 JFoundry 包装，确需使用时直接引入 jMolecules 原生模块
+- **架构风格语义**：基于 jmolecules 的 Hexagonal、Onion 注解，配套 ArchUnit 规则强制依赖方向与风格选择；JFoundry 框架内部默认采用 Onion simplified，对外仍同时支持 Hexagonal 与 Onion；Layered 不再由 JFoundry 包装，确需使用时直接引入 jMolecules 原生模块
 - **聚合根 / 值对象**：提供 `ValueObject` 标记接口，强制不可变 + `equals/hashCode` 契约
 - **事务性发件箱 (Outbox)**：5 状态机（`PENDING` → `DISPATCHING` → `PUBLISHED` / `FAILED` / `DEAD_LETTERED`），原子化 `claimDispatchable` 避免多实例重复派发
 - **消费端幂等 (Inbox)**：提供 `InboxTemplate` 与 MyBatis-Plus 存储适配器，帮助消费者按 message/consumer 去重
@@ -31,9 +31,9 @@ jfoundry-parent
 │   ├── jfoundry-hexagonal                        Hexagonal Architecture 端口/适配器注解
 │   └── jfoundry-onion                            Onion Architecture 环形注解
 ├── jfoundry-application                          应用层聚合
-│   ├── jfoundry-messaging-core                   消息发送 / 事件外部化 application ports
-│   ├── jfoundry-outbox-core                      Outbox message store port + 状态机 + dispatcher service
-│   └── jfoundry-inbox-core                       Inbox message store port + InboxTemplate
+│   ├── jfoundry-messaging-core                   消息发送 SPI + 领域事件外部化应用契约 / rules
+│   ├── jfoundry-outbox-core                      Outbox message store 契约 + 状态机 + dispatcher service
+│   └── jfoundry-inbox-core                       Inbox message store 契约 + InboxTemplate
 ├── jfoundry-infrastructure                       基础设施层聚合
 │   ├── jfoundry-persistence-core                 持久化抽象（AbstractPersistenceRepository）
 │   ├── jfoundry-persistence-mybatis-plus         MyBatis-Plus 实现
@@ -41,8 +41,8 @@ jfoundry-parent
 │   ├── jfoundry-messaging-kafka                  Kafka MessageSender adapter（可选）
 │   ├── jfoundry-inbox-mybatis-plus               Inbox MyBatis-Plus store adapter
 │   ├── jfoundry-outbox-mybatis-plus              Outbox MyBatis-Plus store adapter
-│   ├── jfoundry-messaging-spring                 Spring 领域事件发布 + 默认 MessageSender
-│   ├── jfoundry-outbox-spring                    Outbox 的 Spring 外部化与 scheduled 派发器
+│   ├── jfoundry-messaging-spring                 Spring 领域事件发布适配器 + 默认 MessageSender
+│   ├── jfoundry-outbox-spring                    领域事件写入 Outbox 的 Spring 适配器 + scheduled 派发器
 │   └── jfoundry-outbox-jobrunr                   Outbox 的 JobRunr 派发器（可选）
 ├── jfoundry-spring                               Spring 整合层聚合
 │   ├── jfoundry-spring-boot-autoconfigure        Spring Boot AutoConfiguration
@@ -165,7 +165,7 @@ import org.jfoundry.test.archunit.JFoundryRules;
 @AnalyzeClasses(packages = "com.mycompany.myapp")
 class MyAppArchitectureTest {
     @ArchTest
-    ArchRule[] jfoundryRules = JFoundryRules.hexagonal();
+    ArchRule[] jfoundryRules = JFoundryRules.onionSimple();
 
     @ArchTest
     ArchRule[] jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
