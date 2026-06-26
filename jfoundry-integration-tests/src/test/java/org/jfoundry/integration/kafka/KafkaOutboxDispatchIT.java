@@ -1,0 +1,155 @@
+package org.jfoundry.integration.kafka;
+
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.jfoundry.application.messaging.SendResult;
+import org.jfoundry.application.outbox.DefaultOutboxDispatchService;
+import org.jfoundry.infrastructure.messaging.kafka.KafkaMessageSender;
+import org.jfoundry.infrastructure.outbox.mybatis.MybatisPlusOutboxMessageStore;
+import org.jfoundry.infrastructure.outbox.mybatis.OutboxData;
+import org.jfoundry.infrastructure.outbox.mybatis.OutboxMapper;
+import org.jfoundry.integration.support.OutboxInboxDatabaseConfig;
+import org.jfoundry.integration.support.OutboxMessages;
+import org.jfoundry.integration.support.SqlScripts;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.kafka.KafkaContainer;
+import org.testcontainers.utility.DockerImageName;
+
+import javax.sql.DataSource;
+import java.time.Duration;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@Testcontainers
+@SpringBootTest(classes = OutboxInboxDatabaseConfig.class)
+class KafkaOutboxDispatchIT {
+
+    private static final String TOPIC = "jfoundry.integration.outbox";
+
+    @Container
+    static final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0")
+            .withDatabaseName("jfoundry")
+            .withUsername("jfoundry")
+            .withPassword("jfoundry");
+
+    @Container
+    static final KafkaContainer kafka = new KafkaContainer(
+            DockerImageName.parse("apache/kafka:3.8.0"));
+
+    @Autowired
+    private MybatisPlusOutboxMessageStore store;
+
+    @Autowired
+    private OutboxMapper mapper;
+
+    @DynamicPropertySource
+    static void registerProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", mysql::getJdbcUrl);
+        registry.add("spring.datasource.username", mysql::getUsername);
+        registry.add("spring.datasource.password", mysql::getPassword);
+        registry.add("spring.datasource.driver-class-name", mysql::getDriverClassName);
+    }
+
+    @BeforeAll
+    static void createSchema(@Autowired DataSource dataSource) {
+        SqlScripts.run(dataSource, "db/migration/V20260617__create_outbox_event.sql");
+    }
+
+    @BeforeEach
+    void cleanDb() {
+        mapper.delete(null);
+    }
+
+    @Test
+    void dispatchPublishesKafkaRecordAndMarksOutboxPublished() {
+        store.append(OutboxMessages.pending(
+                "evt-kafka-1",
+                TOPIC,
+                "order-1",
+                "{\"event\":\"created\"}"));
+        KafkaTemplate<String, String> kafkaTemplate = kafkaTemplate();
+
+        new DefaultOutboxDispatchService(
+                store,
+                new KafkaMessageSender(kafkaTemplate, Duration.ofSeconds(10)),
+                3,
+                retry -> Duration.ofMillis(10),
+                "it-pod").dispatch(10);
+
+        try (Consumer<String, String> consumer = consumer("dispatch-success")) {
+            consumer.subscribe(java.util.List.of(TOPIC));
+            ConsumerRecord<String, String> record =
+                    org.springframework.kafka.test.utils.KafkaTestUtils.getSingleRecord(
+                            consumer, TOPIC, Duration.ofSeconds(10));
+
+            assertThat(record.key()).isEqualTo("order-1");
+            assertThat(record.value()).isEqualTo("{\"event\":\"created\"}");
+        }
+
+        OutboxData data = mapper.selectById("evt-kafka-1");
+        assertThat(data.getStatus()).isEqualTo("PUBLISHED");
+        assertThat(data.getClaimToken()).isNull();
+        assertThat(data.getClaimedAt()).isNull();
+        assertThat(data.getClaimedBy()).isNull();
+    }
+
+    @Test
+    void dispatchFailureMarksOutboxFailedAndKeepsRetryMetadata() {
+        store.append(OutboxMessages.pending(
+                "evt-kafka-fail",
+                TOPIC,
+                "order-1",
+                "{\"event\":\"created\"}"));
+
+        new DefaultOutboxDispatchService(
+                store,
+                (topic, key, payload) -> SendResult.fail("broker down"),
+                3,
+                retry -> Duration.ofMillis(10),
+                "it-pod").dispatch(10);
+
+        OutboxData data = mapper.selectById("evt-kafka-fail");
+        assertThat(data.getStatus()).isEqualTo("FAILED");
+        assertThat(data.getRetryCount()).isEqualTo(1);
+        assertThat(data.getErrorMessage()).contains("broker down");
+        assertThat(data.getNextRetryAt()).isNotNull();
+        assertThat(data.getClaimToken()).isNull();
+        assertThat(data.getClaimedAt()).isNull();
+        assertThat(data.getClaimedBy()).isNull();
+    }
+
+    private KafkaTemplate<String, String> kafkaTemplate() {
+        Map<String, Object> props = new java.util.HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(props));
+    }
+
+    private Consumer<String, String> consumer(String groupId) {
+        Map<String, Object> props = org.springframework.kafka.test.utils.KafkaTestUtils.consumerProps(
+                kafka.getBootstrapServers(), groupId, "true");
+        props.put(org.apache.kafka.clients.consumer.ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class);
+        props.put(org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class);
+        props.put(org.apache.kafka.clients.consumer.ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        return new DefaultKafkaConsumerFactory<String, String>(props).createConsumer();
+    }
+}
