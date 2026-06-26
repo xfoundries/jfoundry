@@ -15,12 +15,17 @@ public class InboxTemplate {
         requireText(consumerName, "consumerName");
         Objects.requireNonNull(handler, "handler must not be null");
 
-        if (store.isProcessed(messageId, consumerName)) {
+        if (!store.tryStartProcessing(messageId, consumerName)) {
             return false;
         }
-        handler.handle();
-        store.markProcessed(messageId, consumerName);
-        return true;
+        try {
+            handler.handle();
+            store.markProcessed(messageId, consumerName);
+            return true;
+        } catch (RuntimeException e) {
+            store.markFailed(messageId, consumerName, e.getMessage());
+            throw e;
+        }
     }
 
     private static void requireText(String value, String name) {

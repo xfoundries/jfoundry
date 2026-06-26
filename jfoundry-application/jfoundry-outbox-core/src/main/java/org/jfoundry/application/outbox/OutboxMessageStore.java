@@ -27,7 +27,16 @@ public interface OutboxMessageStore {
 
     void markAsPublished(String eventId);
 
+    default void markAsPublished(String eventId, String claimToken) {
+        markAsPublished(eventId);
+    }
+
     void markAsFailed(String eventId, String errorMessage, int maxRetries, BackoffStrategy backoff);
+
+    default void markAsFailed(String eventId, String claimToken,
+                              String errorMessage, int maxRetries, BackoffStrategy backoff) {
+        markAsFailed(eventId, errorMessage, maxRetries, backoff);
+    }
 
     void reactivate(String eventId);
 

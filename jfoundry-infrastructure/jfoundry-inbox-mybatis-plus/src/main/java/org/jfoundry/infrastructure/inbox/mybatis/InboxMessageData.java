@@ -42,6 +42,10 @@ public class InboxMessageData {
         return fromMessage(InboxMessage.processed(messageId, consumerName));
     }
 
+    static InboxMessageData processing(String messageId, String consumerName) {
+        return fromMessage(InboxMessage.processing(messageId, consumerName));
+    }
+
     static InboxMessageData fromMessage(InboxMessage message) {
         InboxMessageData data = new InboxMessageData();
         data.messageId = message.getMessageId();

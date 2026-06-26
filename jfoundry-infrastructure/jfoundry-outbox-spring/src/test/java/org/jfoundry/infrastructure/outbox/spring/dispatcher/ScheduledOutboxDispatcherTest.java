@@ -38,8 +38,8 @@ class ScheduledOutboxDispatcherTest {
 
         dispatcher.dispatch(5);
 
-        verify(repository).markAsPublished("evt-1");
-        verify(repository, never()).markAsFailed(any(), any(), anyInt(), any());
+        verify(repository).markAsPublished("evt-1", "claim-evt-1");
+        verify(repository, never()).markAsFailed(any(), any(), any(), anyInt(), any());
     }
 
     @Test
@@ -50,8 +50,9 @@ class ScheduledOutboxDispatcherTest {
 
         dispatcher.dispatch(5);
 
-        verify(repository).markAsFailed(eq("evt-1"), eq("conn refused"), eq(5), same(backoff));
-        verify(repository, never()).markAsPublished(any());
+        verify(repository).markAsFailed(eq("evt-1"), eq("claim-evt-1"),
+                eq("conn refused"), eq(5), same(backoff));
+        verify(repository, never()).markAsPublished(any(), any());
     }
 
     @Test
@@ -62,7 +63,8 @@ class ScheduledOutboxDispatcherTest {
 
         dispatcher.dispatch(5);
 
-        verify(repository).markAsFailed(eq("evt-1"), contains("kafka down"), eq(5), same(backoff));
+        verify(repository).markAsFailed(eq("evt-1"), eq("claim-evt-1"),
+                contains("kafka down"), eq(5), same(backoff));
     }
 
     @Test
@@ -77,8 +79,8 @@ class ScheduledOutboxDispatcherTest {
 
         dispatcher.dispatch(5);
 
-        verify(repository).markAsFailed(eq("evt-1"), any(), eq(5), any());
-        verify(repository).markAsPublished("evt-2");
+        verify(repository).markAsFailed(eq("evt-1"), eq("claim-evt-1"), any(), eq(5), any());
+        verify(repository).markAsPublished("evt-2", "claim-evt-2");
     }
 
     @Test
@@ -94,7 +96,9 @@ class ScheduledOutboxDispatcherTest {
     }
 
     private OutboxMessage message(String eventId) {
-        return OutboxMessage.newPending(
+        OutboxMessage message = OutboxMessage.newPending(
                 eventId, "topic", null, "com.example.Foo", "payload-" + eventId, Instant.now());
+        message.setClaimToken("claim-" + eventId);
+        return message;
     }
 }

@@ -81,6 +81,7 @@ class MybatisPlusOutboxMessageStoreTest {
     @Test
     void markAsPublishedTransitionsToPublished() {
         repository.append(pendingMessage("evt-1"));
+        repository.claimDispatchable(1, "pod-a");
         repository.markAsPublished("evt-1");
 
         List<OutboxMessage> ready = repository.findDispatchable(100, Instant.now());
@@ -88,8 +89,33 @@ class MybatisPlusOutboxMessageStoreTest {
     }
 
     @Test
+    void markAsPublishedIgnoresUnclaimedMessage() {
+        repository.append(pendingMessage("evt-1"));
+
+        repository.markAsPublished("evt-1");
+
+        List<OutboxMessage> ready = repository.findDispatchable(100, Instant.now());
+        assertThat(ready).extracting(OutboxMessage::getEventId).containsExactly("evt-1");
+    }
+
+    @Test
+    void markAsPublishedRejectsStaleClaimToken() {
+        repository.append(pendingMessage("evt-1"));
+        OutboxMessage firstClaim = repository.claimDispatchable(1, "pod-a").get(0);
+        repository.recoverStuckDispatching(Instant.now().plusSeconds(1));
+        OutboxMessage secondClaim = repository.claimDispatchable(1, "pod-b").get(0);
+
+        repository.markAsPublished("evt-1", firstClaim.getClaimToken());
+
+        OutboxData data = mapper().selectById("evt-1");
+        assertThat(data.getStatus()).isEqualTo("DISPATCHING");
+        assertThat(data.getClaimToken()).isEqualTo(secondClaim.getClaimToken());
+    }
+
+    @Test
     void markAsFailedIncrementsRetryAndSetsNextRetryAt() {
         repository.append(pendingMessage("evt-1"));
+        repository.claimDispatchable(1, "pod-a");
 
         repository.markAsFailed("evt-1", "boom", 5, fixedBackoff);
 
@@ -99,8 +125,34 @@ class MybatisPlusOutboxMessageStoreTest {
     }
 
     @Test
+    void markAsFailedIgnoresUnclaimedMessage() {
+        repository.append(pendingMessage("evt-1"));
+
+        repository.markAsFailed("evt-1", "boom", 5, fixedBackoff);
+
+        List<OutboxMessage> ready = repository.findDispatchable(100, Instant.now());
+        assertThat(ready).extracting(OutboxMessage::getEventId).containsExactly("evt-1");
+    }
+
+    @Test
+    void markAsFailedRejectsStaleClaimToken() {
+        repository.append(pendingMessage("evt-1"));
+        OutboxMessage firstClaim = repository.claimDispatchable(1, "pod-a").get(0);
+        repository.recoverStuckDispatching(Instant.now().plusSeconds(1));
+        OutboxMessage secondClaim = repository.claimDispatchable(1, "pod-b").get(0);
+
+        repository.markAsFailed("evt-1", firstClaim.getClaimToken(), "boom", 5, fixedBackoff);
+
+        OutboxData data = mapper().selectById("evt-1");
+        assertThat(data.getStatus()).isEqualTo("DISPATCHING");
+        assertThat(data.getClaimToken()).isEqualTo(secondClaim.getClaimToken());
+        assertThat(data.getErrorMessage()).isNull();
+    }
+
+    @Test
     void markAsFailedTransitionsToDeadLetteredAtMaxRetries() {
         repository.append(pendingMessage("evt-1"));
+        repository.claimDispatchable(1, "pod-a");
 
         repository.markAsFailed("evt-1", "boom", 1, fixedBackoff);
 
@@ -111,6 +163,7 @@ class MybatisPlusOutboxMessageStoreTest {
     @Test
     void reactivateResetsDeadLetteredToPending() {
         repository.append(pendingMessage("evt-1"));
+        repository.claimDispatchable(1, "pod-a");
         repository.markAsFailed("evt-1", "boom", 1, fixedBackoff);
 
         repository.reactivate("evt-1");
@@ -137,5 +190,12 @@ class MybatisPlusOutboxMessageStoreTest {
     private OutboxMessage pendingMessage(String eventId) {
         return OutboxMessage.newPending(
                 eventId, "topic", null, "com.example.Foo", "{}", Instant.now());
+    }
+
+    @Autowired
+    private OutboxMapper mapper;
+
+    private OutboxMapper mapper() {
+        return mapper;
     }
 }

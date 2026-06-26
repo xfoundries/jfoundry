@@ -46,13 +46,15 @@ public class DefaultOutboxDispatchService implements OutboxDispatcher {
         try {
             SendResult result = messageSender.send(message.getTopic(), message.getPayloadKey(), message.getPayloadJson());
             if (result.success()) {
-                repository.markAsPublished(message.getEventId());
+                repository.markAsPublished(message.getEventId(), message.getClaimToken());
             } else {
-                repository.markAsFailed(message.getEventId(), result.errorMessage(), maxRetries, backoff);
+                repository.markAsFailed(message.getEventId(), message.getClaimToken(),
+                        result.errorMessage(), maxRetries, backoff);
             }
         } catch (RuntimeException e) {
             log.warn("dispatch message {} failed with exception: {}", message.getEventId(), e.getMessage());
-            repository.markAsFailed(message.getEventId(), e.getMessage(), maxRetries, backoff);
+            repository.markAsFailed(message.getEventId(), message.getClaimToken(),
+                    e.getMessage(), maxRetries, backoff);
         }
     }
 }

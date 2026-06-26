@@ -24,6 +24,17 @@ public class InboxMessage {
         return message;
     }
 
+    public static InboxMessage processing(String messageId, String consumerName) {
+        Instant now = Instant.now();
+        InboxMessage message = new InboxMessage();
+        message.messageId = messageId;
+        message.consumerName = consumerName;
+        message.status = InboxMessageStatus.PROCESSING;
+        message.createdAt = now;
+        message.updatedAt = now;
+        return message;
+    }
+
     public String getMessageId() { return messageId; }
     public void setMessageId(String messageId) { this.messageId = messageId; }
     public String getConsumerName() { return consumerName; }

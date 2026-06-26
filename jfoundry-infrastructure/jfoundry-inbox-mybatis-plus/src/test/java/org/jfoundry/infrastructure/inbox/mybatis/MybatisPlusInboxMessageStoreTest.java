@@ -6,6 +6,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(classes = InboxPersistenceTestConfig.class)
@@ -56,5 +62,47 @@ class MybatisPlusInboxMessageStoreTest {
         assertThat(store.isProcessed("evt-1", "projection-a")).isTrue();
         assertThat(store.isProcessed("evt-1", "projection-b")).isTrue();
         assertThat(mapper.selectCount(null)).isEqualTo(2);
+    }
+
+    @Test
+    void concurrentProcessingExecutesHandlerOnlyOnce() throws Exception {
+        org.jfoundry.application.inbox.InboxTemplate template =
+                new org.jfoundry.application.inbox.InboxTemplate(store);
+        AtomicInteger calls = new AtomicInteger();
+        CountDownLatch start = new CountDownLatch(1);
+        CountDownLatch entered = new CountDownLatch(1);
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+        try {
+            Runnable task = () -> {
+                try {
+                    start.await();
+                    template.executeOnce("evt-1", "projection", () -> {
+                        calls.incrementAndGet();
+                        entered.countDown();
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                    });
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            };
+            pool.submit(task);
+            pool.submit(task);
+
+            start.countDown();
+
+            assertThat(entered.await(5, TimeUnit.SECONDS)).isTrue();
+            pool.shutdown();
+            assertThat(pool.awaitTermination(10, TimeUnit.SECONDS)).isTrue();
+        } finally {
+            pool.shutdownNow();
+        }
+
+        assertThat(calls.get()).isEqualTo(1);
+        assertThat(store.isProcessed("evt-1", "projection")).isTrue();
+        assertThat(mapper.selectCount(null)).isEqualTo(1);
     }
 }

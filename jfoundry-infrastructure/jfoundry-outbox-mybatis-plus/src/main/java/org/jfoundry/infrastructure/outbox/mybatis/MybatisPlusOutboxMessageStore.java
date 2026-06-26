@@ -91,24 +91,51 @@ public class MybatisPlusOutboxMessageStore implements OutboxMessageStore {
 
     @Override
     public void markAsPublished(String eventId) {
+        markAsPublished(eventId, null);
+    }
+
+    @Override
+    public void markAsPublished(String eventId, String claimToken) {
         OutboxData data = mapper.selectById(eventId);
-        if (data == null) {
+        if (data == null || !OutboxMessageStatus.DISPATCHING.name().equals(data.getStatus())) {
+            return;
+        }
+        if (claimToken != null && !claimToken.equals(data.getClaimToken())) {
             return;
         }
         OutboxMessage entry = OutboxData.toMessage(data);
         entry.markPublished();
-        mapper.updateById(OutboxData.fromMessage(entry));
+        updateClaimedEntry(eventId, claimToken, OutboxData.fromMessage(entry));
     }
 
     @Override
     public void markAsFailed(String eventId, String errorMessage, int maxRetries, BackoffStrategy backoff) {
+        markAsFailed(eventId, null, errorMessage, maxRetries, backoff);
+    }
+
+    @Override
+    public void markAsFailed(String eventId, String claimToken,
+                             String errorMessage, int maxRetries, BackoffStrategy backoff) {
         OutboxData data = mapper.selectById(eventId);
-        if (data == null) {
+        if (data == null || !OutboxMessageStatus.DISPATCHING.name().equals(data.getStatus())) {
+            return;
+        }
+        if (claimToken != null && !claimToken.equals(data.getClaimToken())) {
             return;
         }
         OutboxMessage entry = OutboxData.toMessage(data);
         entry.markFailed(errorMessage, maxRetries, backoff);
-        mapper.updateById(OutboxData.fromMessage(entry));
+        updateClaimedEntry(eventId, claimToken, OutboxData.fromMessage(entry));
+    }
+
+    private void updateClaimedEntry(String eventId, String claimToken, OutboxData data) {
+        var update = Wrappers.lambdaUpdate(OutboxData.class)
+                .eq(OutboxData::getEventId, eventId)
+                .eq(OutboxData::getStatus, OutboxMessageStatus.DISPATCHING.name());
+        if (claimToken != null) {
+            update.eq(OutboxData::getClaimToken, claimToken);
+        }
+        mapper.update(data, update);
     }
 
     @Override

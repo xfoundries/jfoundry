@@ -50,8 +50,8 @@ class JobRunrOutboxDispatcherTest {
 
         dispatcher.dispatch(BATCH_SIZE);
 
-        verify(outboxRepository).markAsPublished("evt-1");
-        verify(outboxRepository, never()).markAsFailed(any(), any(), anyInt(), any());
+        verify(outboxRepository).markAsPublished("evt-1", "claim-evt-1");
+        verify(outboxRepository, never()).markAsFailed(any(), any(), any(), anyInt(), any());
     }
 
     @Test
@@ -62,7 +62,8 @@ class JobRunrOutboxDispatcherTest {
 
         dispatcher.dispatch(BATCH_SIZE);
 
-        verify(outboxRepository).markAsFailed(eq("evt-1"), contains("kafka unavailable"), eq(MAX_RETRIES), same(backoff));
+        verify(outboxRepository).markAsFailed(eq("evt-1"), eq("claim-evt-1"),
+                contains("kafka unavailable"), eq(MAX_RETRIES), same(backoff));
     }
 
     @Test
@@ -73,7 +74,8 @@ class JobRunrOutboxDispatcherTest {
 
         dispatcher.dispatch(BATCH_SIZE);
 
-        verify(outboxRepository).markAsFailed(eq("evt-1"), eq("conn refused"), eq(MAX_RETRIES), same(backoff));
+        verify(outboxRepository).markAsFailed(eq("evt-1"), eq("claim-evt-1"),
+                eq("conn refused"), eq(MAX_RETRIES), same(backoff));
     }
 
     @Test
@@ -99,7 +101,9 @@ class JobRunrOutboxDispatcherTest {
     }
 
     private OutboxMessage message(String eventId) {
-        return OutboxMessage.newPending(
+        OutboxMessage message = OutboxMessage.newPending(
                 eventId, "env.created", "key-A", "com.example.Foo", "payload-" + eventId, Instant.now());
+        message.setClaimToken("claim-" + eventId);
+        return message;
     }
 }
