@@ -29,6 +29,8 @@
         <awaitility.version>4.2.1</awaitility.version>
         <jobrunr.version>6.3.5</jobrunr.version>
         <spring-kafka.version>3.1.6</spring-kafka.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
+        <mysql-connector-j.version>9.7.0</mysql-connector-j.version>
         <!--
           snakeyaml: Spring Boot 3.2.7 brings 2.2 (has TagInspector);
           JobRunr 6.3.5 declares 1.33 (lacks TagInspector, breaks Boot YAML parsing).
@@ -387,6 +389,30 @@
                 <version>${awaitility.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mysql</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>kafka</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>${mysql-connector-j.version}</version>
+                <scope>test</scope>
+            </dependency>
 
             <!--JobRunr（可选模块 jfoundry-outbox-jobrunr 的 Outbox Dispatcher）-->
             <dependency>
@@ -406,6 +432,12 @@
                 <groupId>org.springframework.kafka</groupId>
                 <artifactId>spring-kafka</artifactId>
                 <version>${spring-kafka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka-test</artifactId>
+                <version>${spring-kafka.version}</version>
+                <scope>test</scope>
             </dependency>
             <!--Kafka-->
 
