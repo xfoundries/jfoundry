@@ -1,21 +1,23 @@
 package org.jfoundry.test;
 
-import org.jfoundry.domain.event.DomainEventPublisher;
+import org.jfoundry.application.event.DomainEventDispatcher;
 import org.jmolecules.event.types.DomainEvent;
 
-/// Spring 发布器的测试替身。
+import java.util.List;
+
+/// DomainEventDispatcher 的测试替身。
 /// <p>
 /// 不依赖 Spring 容器和事务同步，立即接收并转发给 DomainEventCapture。
-public class DomainEventPublisherStub implements DomainEventPublisher {
+public class DomainEventDispatcherStub implements DomainEventDispatcher {
 
     private final DomainEventCapture capture;
 
-    public DomainEventPublisherStub(DomainEventCapture capture) {
+    public DomainEventDispatcherStub(DomainEventCapture capture) {
         this.capture = capture;
     }
 
     @Override
-    public void publish(DomainEvent... events) {
+    public void dispatch(List<? extends DomainEvent> events) {
         if (events == null) {
             throw new IllegalArgumentException("Domain events must not be null.");
         }

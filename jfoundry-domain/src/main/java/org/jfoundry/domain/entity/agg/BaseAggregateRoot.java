@@ -6,15 +6,18 @@ import org.jmolecules.ddd.types.Identifier;
 import org.jmolecules.event.types.DomainEvent;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /// 聚合根基类。
 ///
 /// 提供聚合根的通用实现：
 /// - 标识符管理。
-/// - 领域事件记录和清理。
+/// - 领域事件记录和提取。
 /// - jMolecules AggregateRoot 标记 + EventRecordable 能力。
+/// <p>
+/// 聚合根只负责在自身边界内记录已发生的领域事件；应用层应在用例边界调用
+/// {@link #drainEvents()} 以单步 handoff 语义提取事件，并完成后续分发。
+/// 这里的“原子性”仅描述聚合根单线程使用模型下的读取并清空语义，不提供并发安全承诺。
 ///
 /// @param <T>  聚合根本类型（self type，编译期锁定聚合根身份）
 /// @param <ID> 标识符类型
@@ -54,7 +57,7 @@ public abstract class BaseAggregateRoot<T extends AggregateRoot<T, ID>, ID exten
 
     /// 记录领域事件。
     ///
-    /// 聚合根负责记录自身边界内已经发生的领域事件，由 Repository 在持久化后移交发布器。
+    /// 聚合根负责记录自身边界内已经发生的领域事件，供应用层在用例边界统一提取和分发。
     ///
     /// @param event 领域事件
     protected void recordEvent(DomainEvent event) {
@@ -68,14 +71,12 @@ public abstract class BaseAggregateRoot<T extends AggregateRoot<T, ID>, ID exten
     }
 
     @Override
-    public List<DomainEvent> getEvents() {
-        return events == null ? List.of() : Collections.unmodifiableList(events);
-    }
-
-    @Override
-    public void clearEvents() {
-        if (events != null) {
-            events.clear();
+    public List<DomainEvent> drainEvents() {
+        if (events == null || events.isEmpty()) {
+            return List.of();
         }
+        List<DomainEvent> drainedEvents = List.copyOf(events);
+        events.clear();
+        return drainedEvents;
     }
 }

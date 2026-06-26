@@ -74,7 +74,7 @@ class PaginationInterceptorDbTypeWiringTest {
     @EnableAutoConfiguration
     @MapperScan(basePackages = "org.jfoundry.infrastructure.outbox.mybatis")
     static class ExplicitDbTypeTestApp {
-        /// DomainEventExternalizerAutoConfiguration's unconditional payloadSerializer bean
+        /// DomainEventOutboxRecorderAutoConfiguration's payloadSerializer bean
         /// pulls in Jackson. Same pattern as OutboxTableNameOverrideTest.
         @Bean
         ObjectMapper objectMapper() {

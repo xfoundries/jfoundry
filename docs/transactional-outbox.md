@@ -17,22 +17,24 @@ Transactional Outbox（事务性发件箱）是一种可靠发布消息的通用
 
 ## jfoundry 事件链路
 
-`DomainEventPublisher` 默认由 Spring 实现：事务提交后通过 `ApplicationEventPublisher` 发布本地事件。同时，它会在事务内同步调用 `DomainEventSink`。这里有一个边界要点：
+业务侧在应用服务上标注 `@ApplicationService` 后，框架会在成功返回的应用服务边界自动 drain 聚合记录的领域事件，并通过 `DomainEventDispatcher` 分发。默认 Spring dispatcher 会先调用 `DomainEventOutboxRecorder` 在事务内写 Outbox，再通过 `ApplicationEventPublisher` 安排 Spring 进程内事件发布。这里有一个边界要点：
 
-- `jfoundry-domain` 定义领域事件抽象与发布端口
-- `jfoundry-messaging-core` 定义领域事件外部化规则、路由元数据和消息发送 SPI
-- `jfoundry-outbox-spring` 提供 `DomainEventExternalizer`，把匹配规则的领域事件写入 Outbox
+- `jfoundry-domain` 定义领域事件抽象与聚合事件记录能力
+- `jfoundry-messaging-core` 定义应用层事件分发契约、领域事件外部化规则、路由元数据和消息发送 SPI
+- `jfoundry-messaging-spring` 提供 Spring `DomainEventDispatcher` 实现
+- `jfoundry-outbox-spring` 提供默认 `DomainEventOutboxRecorder` 实现，把匹配规则的领域事件写入 Outbox
 
-jfoundry 内置的 `DomainEventExternalizer` 是一个 Sink，它只处理标记了 `@Externalized` 的事件，并把匹配的事件序列化写入 Outbox 表。
+jfoundry 内置的 `DefaultDomainEventOutboxRecorder` 只处理标记了 `@Externalized` 的事件，并把匹配的事件序列化写入 Outbox 表。
 
 jfoundry 当前实现的是 Transactional Outbox 的 polling publisher 变体：业务事务写入 `jfoundry_outbox_event`，后台 dispatcher 轮询并投递。transaction-log tailing / Debezium 不属于默认运行时；如果业务需要基于数据库日志的发布链路，应在应用外部组合 Debezium Outbox Event Router。
 
 典型链路：
 
 ```text
-Aggregate/Application Service
-  -> DomainEventPublisher
-  -> DomainEventExternalizer
+@ApplicationService
+  -> DomainEventContext
+  -> DomainEventDispatcher
+  -> DomainEventOutboxRecorder
   -> OutboxMessageStore
   -> jfoundry_outbox_event
   -> OutboxDispatcher

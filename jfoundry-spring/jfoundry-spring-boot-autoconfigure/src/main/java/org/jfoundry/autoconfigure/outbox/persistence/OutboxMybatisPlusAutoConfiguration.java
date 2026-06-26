@@ -10,15 +10,14 @@ import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.mybatis.MybatisPlusOutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxMapper;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.env.Environment;
 
 /// MybatisPlus 默认 Bean 自动配置：
 /// <ul>
@@ -65,22 +64,11 @@ public class OutboxMybatisPlusAutoConfiguration {
     }
 
     @Bean
-    public static BeanPostProcessor outboxTableNameInterceptorPostProcessor(
-            Environment environment) {
-        JfoundryOutboxProperties properties = new JfoundryOutboxProperties();
-        properties.setTableName(environment.getProperty(
-                "jfoundry.outbox.table-name",
-                OutboxTableNameCustomizer.OUTBOX_LOGICAL_TABLE));
-        OutboxTableNameCustomizer outboxTableNameCustomizer = new OutboxTableNameCustomizer(properties);
-        return new BeanPostProcessor() {
-            @Override
-            public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-                if (bean instanceof MybatisPlusInterceptor interceptor) {
-                    outboxTableNameCustomizer.customize(interceptor);
-                }
-                return bean;
-            }
-        };
+    public SmartInitializingSingleton outboxTableNameInterceptorInitializer(
+            ObjectProvider<MybatisPlusInterceptor> interceptors,
+            OutboxTableNameCustomizer outboxTableNameCustomizer) {
+        return () -> interceptors.orderedStream()
+                .forEach(outboxTableNameCustomizer::customize);
     }
 
     /// P2-3: 当业务通过 {@code jfoundry.persistence.db-type} 显式配置方言时，用该值构造

@@ -85,13 +85,6 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("infrastructure adapters must stay independent from Spring Boot autoconfiguration");
 
-    public static final ArchRule domain_event_publisher_should_be_in_domain_ring =
-            classes()
-                    .that().haveFullyQualifiedName("org.jfoundry.domain.event.DomainEventPublisher")
-                    .should(resideInPackageAnnotatedWith(DomainRing.class))
-                    .allowEmptyShould(true)
-                    .because("DomainEventPublisher is part of the domain-facing event contract");
-
     public static final ArchRule application_store_ports_should_be_in_application_ring =
             classes()
                     .that().resideInAPackage("org.jfoundry.application..")
@@ -100,12 +93,26 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("application store abstractions belong to the Onion application ring");
 
-    public static final ArchRule domain_event_sink_should_be_in_application_ring =
+    public static final ArchRule domain_event_dispatcher_should_be_in_application_ring =
             classes()
-                    .that().haveFullyQualifiedName("org.jfoundry.application.messaging.externalization.DomainEventSink")
+                    .that().haveFullyQualifiedName("org.jfoundry.application.event.DomainEventDispatcher")
                     .should(resideInPackageAnnotatedWith(ApplicationRing.class))
                     .allowEmptyShould(true)
-                    .because("DomainEventSink belongs to the Onion application ring");
+                    .because("DomainEventDispatcher belongs to the Onion application ring");
+
+    public static final ArchRule domain_event_context_should_be_in_application_ring =
+            classes()
+                    .that().haveFullyQualifiedName("org.jfoundry.application.event.DomainEventContext")
+                    .should(resideInPackageAnnotatedWith(ApplicationRing.class))
+                    .allowEmptyShould(true)
+                    .because("DomainEventContext belongs to the Onion application ring");
+
+    public static final ArchRule domain_event_outbox_recorder_should_be_in_application_ring =
+            classes()
+                    .that().haveFullyQualifiedName("org.jfoundry.application.outbox.DomainEventOutboxRecorder")
+                    .should(resideInPackageAnnotatedWith(ApplicationRing.class))
+                    .allowEmptyShould(true)
+                    .because("DomainEventOutboxRecorder belongs to the Onion application ring");
 
     public static final ArchRule message_sender_should_be_in_application_ring =
             classes()
@@ -136,13 +143,13 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("MyBatis message stores belong to the Onion infrastructure ring");
 
-    public static final ArchRule spring_domain_event_publisher_should_be_in_infrastructure_ring =
+    public static final ArchRule spring_domain_event_dispatcher_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName(
-                            "org.jfoundry.infrastructure.messaging.spring.publisher.SpringDomainEventPublisher")
+                            "org.jfoundry.infrastructure.messaging.spring.dispatcher.SpringDomainEventDispatcher")
                     .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
                     .allowEmptyShould(true)
-                    .because("SpringDomainEventPublisher belongs to the Onion infrastructure ring");
+                    .because("SpringDomainEventDispatcher belongs to the Onion infrastructure ring");
 
     public static final ArchRule logging_message_sender_should_be_in_infrastructure_ring =
             classes()
@@ -152,13 +159,13 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("LoggingMessageSender belongs to the Onion infrastructure ring");
 
-    public static final ArchRule domain_event_externalizer_should_be_in_infrastructure_ring =
+    public static final ArchRule default_domain_event_outbox_recorder_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName(
-                            "org.jfoundry.infrastructure.outbox.spring.externalization.DomainEventExternalizer")
+                            "org.jfoundry.infrastructure.outbox.spring.externalization.DefaultDomainEventOutboxRecorder")
                     .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
                     .allowEmptyShould(true)
-                    .because("DomainEventExternalizer belongs to the Onion infrastructure ring");
+                    .because("DefaultDomainEventOutboxRecorder belongs to the Onion infrastructure ring");
 
     public static final ArchRule kafka_message_sender_should_be_in_infrastructure_ring =
             classes()

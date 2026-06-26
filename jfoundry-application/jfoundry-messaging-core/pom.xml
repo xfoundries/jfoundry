@@ -10,7 +10,7 @@
 
     <artifactId>jfoundry-messaging-core</artifactId>
     <name>jfoundry-messaging-core</name>
-    <description>Application-layer messaging SPI and domain-event externalization contracts, metadata, and routing rules.</description>
+    <description>Application-layer messaging SPI plus domain-event dispatch and externalization contracts, metadata, and routing rules.</description>
 
     <dependencies>
         <dependency>

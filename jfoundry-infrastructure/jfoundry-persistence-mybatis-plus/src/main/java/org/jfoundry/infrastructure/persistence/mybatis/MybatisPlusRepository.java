@@ -1,7 +1,7 @@
 package org.jfoundry.infrastructure.persistence.mybatis;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.jfoundry.domain.event.DomainEventPublisher;
+import org.jfoundry.application.event.DomainEventContext;
 import org.jfoundry.domain.event.EventRecordable;
 import org.jfoundry.infrastructure.persistence.AbstractPersistenceRepository;
 import org.jfoundry.infrastructure.persistence.AggregateData;
@@ -30,9 +30,9 @@ public abstract class MybatisPlusRepository<
     protected final BaseMapper<D> mapper;
 
     protected MybatisPlusRepository(BaseMapper<D> mapper,
-                                     DomainEventPublisher eventPublisher,
+                                     DomainEventContext domainEventContext,
                                      DataConverter<T, ID, D> converter) {
-        super(eventPublisher, converter);
+        super(domainEventContext, converter);
         this.mapper = mapper;
     }
 

@@ -45,12 +45,16 @@ class FrameworkArchitectureSelfTest {
             FrameworkModuleRules.application_store_ports_should_be_in_application_ring;
 
     @ArchTest
-    static final ArchRule domain_event_publisher_should_be_in_domain_ring =
-            FrameworkModuleRules.domain_event_publisher_should_be_in_domain_ring;
+    static final ArchRule domain_event_dispatcher_should_be_in_application_ring =
+            FrameworkModuleRules.domain_event_dispatcher_should_be_in_application_ring;
 
     @ArchTest
-    static final ArchRule domain_event_sink_should_be_in_application_ring =
-            FrameworkModuleRules.domain_event_sink_should_be_in_application_ring;
+    static final ArchRule domain_event_context_should_be_in_application_ring =
+            FrameworkModuleRules.domain_event_context_should_be_in_application_ring;
+
+    @ArchTest
+    static final ArchRule domain_event_outbox_recorder_should_be_in_application_ring =
+            FrameworkModuleRules.domain_event_outbox_recorder_should_be_in_application_ring;
 
     @ArchTest
     static final ArchRule message_sender_should_be_in_application_ring =
@@ -69,16 +73,16 @@ class FrameworkArchitectureSelfTest {
             FrameworkModuleRules.infrastructure_message_stores_should_be_in_infrastructure_ring;
 
     @ArchTest
-    static final ArchRule spring_domain_event_publisher_should_be_in_infrastructure_ring =
-            FrameworkModuleRules.spring_domain_event_publisher_should_be_in_infrastructure_ring;
+    static final ArchRule spring_domain_event_dispatcher_should_be_in_infrastructure_ring =
+            FrameworkModuleRules.spring_domain_event_dispatcher_should_be_in_infrastructure_ring;
 
     @ArchTest
     static final ArchRule logging_message_sender_should_be_in_infrastructure_ring =
             FrameworkModuleRules.logging_message_sender_should_be_in_infrastructure_ring;
 
     @ArchTest
-    static final ArchRule domain_event_externalizer_should_be_in_infrastructure_ring =
-            FrameworkModuleRules.domain_event_externalizer_should_be_in_infrastructure_ring;
+    static final ArchRule default_domain_event_outbox_recorder_should_be_in_infrastructure_ring =
+            FrameworkModuleRules.default_domain_event_outbox_recorder_should_be_in_infrastructure_ring;
 
     @ArchTest
     static final ArchRule kafka_message_sender_should_be_in_infrastructure_ring =

@@ -174,7 +174,7 @@ class MyAppArchitectureTest {
 
 ### 4. 可选：配置领域事件外部化（Outbox）
 
-领域事件不强制使用 Outbox。默认 `DomainEventPublisher` 会在事务提交后通过 Spring `ApplicationEventPublisher` 发布本地事件；如果业务只需要进程内监听器，可不配置 Outbox。
+领域事件不强制使用 Outbox。业务侧在应用服务上标注 `@ApplicationService` 后，框架会在成功返回的应用服务边界自动 drain 聚合记录的领域事件，并通过 `DomainEventDispatcher` 分发；默认 Spring 实现会在事务提交后通过 `ApplicationEventPublisher` 发布本地事件。如果业务只需要进程内监听器，可不配置 Outbox。
 
 当事件需要可靠外部化、跨进程投递或失败重试时，再为事件标记 `@Externalized` / `@MessageRouting`，并启用 Outbox 存储与派发。业务侧只要提供 `OutboxMessageStore` Bean（或引入 `jfoundry-spring-boot-starter-outbox-mybatis-plus`），匹配外部化规则的领域事件就会写入 Outbox 表：
 

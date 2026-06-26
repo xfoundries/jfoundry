@@ -7,7 +7,7 @@ import java.util.List;
 
 /// 捕获聚合事件的测试工具。
 /// <p>
-/// 与 DomainEventPublisherStub 配合使用，断言事件是否被移交和发布。
+/// 与 DomainEventDispatcherStub 配合使用，断言事件是否被移交和分发。
 public class DomainEventCapture {
 
     private final List<DomainEvent> captured = new ArrayList<>();
@@ -20,6 +20,10 @@ public class DomainEventCapture {
         for (DomainEvent event : events) {
             captured.add(event);
         }
+    }
+
+    public void captureAll(List<? extends DomainEvent> events) {
+        captured.addAll(events);
     }
 
     public List<DomainEvent> drained() {

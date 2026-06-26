@@ -58,7 +58,7 @@ JFoundry 框架内部默认采用 Onion simplified：`jfoundry-domain` 标注 `D
 starter 是业务项目优先依赖的聚合入口。新项目应按能力显式选择：
 
 - `jfoundry-spring-boot-starter`：最小默认入口，只聚合 Spring Boot 自动装配和 DDD domain 基础能力。
-- `jfoundry-spring-boot-starter-messaging`：聚合 messaging application contracts、Jackson payload serializer、Spring domain-event publisher 和默认 logging `MessageSender`。
+- `jfoundry-spring-boot-starter-messaging`：聚合 messaging application contracts、Jackson payload serializer、Spring domain-event dispatcher 和默认 logging `MessageSender`。
 - `jfoundry-spring-boot-starter-messaging-kafka`：在 messaging starter 之上选择 Kafka `MessageSender` adapter。
 - `jfoundry-spring-boot-starter-outbox`：聚合 Outbox core、Spring transaction synchronization、scheduled dispatcher、recovery 和 cleanup。
 - `jfoundry-spring-boot-starter-outbox-mybatis-plus`：在 Outbox starter 之上选择 MyBatis-Plus `OutboxMessageStore` adapter。
@@ -80,7 +80,7 @@ starter 是业务项目优先依赖的聚合入口。新项目应按能力显式
 `jfoundry-messaging-core` 属于 `jfoundry-application`。它不是“与领域无关的通用 MQ core”，而是两部分 application-layer 能力的组合：
 
 - 消息发送与 payload 序列化 SPI，例如 `MessageSender`、`PayloadSerializer`
-- 领域事件外部化规则与 sink 契约，例如 `DomainEventSink`、`ExternalizationRuleResolver`、`AggregateRoutingResolver`
+- 领域事件外部化规则与 Outbox 写入契约，例如 `DomainEventOutboxRecorder`、`ExternalizationRuleResolver`、`AggregateRoutingResolver`
 
 因此它依赖 `jfoundry-domain` 中的 `DomainEvent` 相关抽象是设计内的依赖方向：application 层围绕领域事件定义外部化编排规则，infrastructure 层再实现具体 broker / Spring / Outbox 适配器。Jackson 序列化实现属于 `jfoundry-messaging-jackson`。
 
@@ -90,9 +90,9 @@ starter 是业务项目优先依赖的聚合入口。新项目应按能力显式
 
 Outbox/Inbox data objects do not extend `AggregateData`; their MyBatis stores use `BaseMapper` directly instead of `MybatisPlusRepository`.
 
-`jfoundry-messaging-spring` 只放 Spring-specific messaging adapter，例如 `DomainEventPublisher` 的 Spring 实现、本地 `ApplicationEventPublisher` 集成，以及默认 logging `MessageSender`。它负责“如何在 Spring 运行时发布领域事件”，不负责事件外部化规则本身。
+`jfoundry-messaging-spring` 只放 Spring-specific messaging adapter，例如 `DomainEventDispatcher` 的 Spring 实现、本地 `ApplicationEventPublisher` 集成，以及默认 logging `MessageSender`。它负责“如何在 Spring 运行时分发领域事件”，不负责事件外部化规则本身。
 
-`jfoundry-outbox-spring` 只放 Spring-specific outbox adapter，例如 `DomainEventExternalizer`、scheduling、transaction synchronization、properties binding 和 Spring-specific outbox wiring。它负责“如何把符合规则的领域事件写入 Outbox 并调度派发”，不定义领域事件本身，也不定义 broker 抽象。
+`jfoundry-outbox-spring` 只放 Spring-specific outbox adapter，例如 `DefaultDomainEventOutboxRecorder`、scheduling、transaction synchronization、properties binding 和 Spring-specific outbox wiring。它负责“如何把符合规则的领域事件写入 Outbox 并调度派发”，不定义领域事件本身，也不定义 broker 抽象。
 
 `jfoundry-outbox-jobrunr` 只放纯 JobRunr adapter。JobRunr 的 Spring Boot auto-configuration 属于 `jfoundry-spring/jfoundry-spring-boot-autoconfigure`。
 

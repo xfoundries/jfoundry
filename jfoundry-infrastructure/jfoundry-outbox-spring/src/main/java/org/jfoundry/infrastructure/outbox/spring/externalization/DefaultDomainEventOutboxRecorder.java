@@ -1,39 +1,43 @@
 package org.jfoundry.infrastructure.outbox.spring.externalization;
 
-import org.jfoundry.domain.event.AbstractDomainEvent;
 import org.jfoundry.application.messaging.PayloadSerializer;
 import org.jfoundry.application.messaging.externalization.AggregateRoutingMetadata;
 import org.jfoundry.application.messaging.externalization.AggregateRoutingResolver;
-import org.jfoundry.application.messaging.externalization.DomainEventSink;
 import org.jfoundry.application.messaging.externalization.ExternalizationRule;
 import org.jfoundry.application.messaging.externalization.ExternalizationRuleResolver;
+import org.jfoundry.application.outbox.DomainEventOutboxRecorder;
 import org.jfoundry.application.outbox.OutboxMessage;
 import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.domain.event.AbstractDomainEvent;
 import org.jmolecules.event.types.DomainEvent;
 
 import java.time.Instant;
+import java.util.List;
 
-/// DomainEventSink 默认实现：把 {@code @Externalized} 标记的事件序列化并写入 Outbox 表（同事务）。
-/// <p>
-/// 本类只作为 Sink 被同步调用（由 SpringDomainEventPublisher.publish 转 dispatch 到 sink.handle），
-/// 不再额外监听 ApplicationEvent —— 否则同一事件会被同步调用与监听器调用各处理一次，导致重复写 Outbox。
-public class DomainEventExternalizer implements DomainEventSink {
+/**
+ * Default transactional outbox recorder for externalized domain events.
+ *
+ * <p>This component persists events matching the externalization rules as broker-neutral
+ * {@link OutboxMessage} records in the current transaction. It does not publish Spring
+ * application events or dispatch messages to brokers.
+ */
+public class DefaultDomainEventOutboxRecorder implements DomainEventOutboxRecorder {
 
     private final OutboxMessageStore outboxRepository;
     private final PayloadSerializer payloadSerializer;
     private final ExternalizationRuleResolver ruleResolver;
     private final AggregateRoutingResolver aggregateRoutingResolver;
 
-    public DomainEventExternalizer(OutboxMessageStore outboxRepository,
-                                    PayloadSerializer payloadSerializer,
-                                    ExternalizationRuleResolver ruleResolver) {
+    public DefaultDomainEventOutboxRecorder(OutboxMessageStore outboxRepository,
+                                          PayloadSerializer payloadSerializer,
+                                          ExternalizationRuleResolver ruleResolver) {
         this(outboxRepository, payloadSerializer, ruleResolver, new AggregateRoutingResolver());
     }
 
-    public DomainEventExternalizer(OutboxMessageStore outboxRepository,
-                                    PayloadSerializer payloadSerializer,
-                                    ExternalizationRuleResolver ruleResolver,
-                                    AggregateRoutingResolver aggregateRoutingResolver) {
+    public DefaultDomainEventOutboxRecorder(OutboxMessageStore outboxRepository,
+                                          PayloadSerializer payloadSerializer,
+                                          ExternalizationRuleResolver ruleResolver,
+                                          AggregateRoutingResolver aggregateRoutingResolver) {
         this.outboxRepository = outboxRepository;
         this.payloadSerializer = payloadSerializer;
         this.ruleResolver = ruleResolver;
@@ -41,7 +45,19 @@ public class DomainEventExternalizer implements DomainEventSink {
     }
 
     @Override
-    public void handle(DomainEvent event) {
+    public void record(List<? extends DomainEvent> events) {
+        if (events == null) {
+            throw new IllegalArgumentException("Domain events must not be null.");
+        }
+        for (DomainEvent event : events) {
+            record(event);
+        }
+    }
+
+    private void record(DomainEvent event) {
+        if (event == null) {
+            throw new IllegalArgumentException("Domain event must not be null.");
+        }
         ExternalizationRule rule = ruleResolver.resolve(event).orElse(null);
         if (rule == null) {
             return;

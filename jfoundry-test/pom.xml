@@ -18,6 +18,11 @@
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-core</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-hexagonal</artifactId>
             <scope>compile</scope>
         </dependency>

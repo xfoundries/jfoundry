@@ -18,18 +18,32 @@ class BaseAggregateRootTest {
 
         aggregateRoot.raise(event);
 
-        assertEquals(1, aggregateRoot.getEvents().size());
-        assertEquals(event, aggregateRoot.getEvents().getFirst());
+        var drainedEvents = aggregateRoot.drainEvents();
+
+        assertEquals(1, drainedEvents.size());
+        assertEquals(event, drainedEvents.getFirst());
+        assertTrue(aggregateRoot.drainEvents().isEmpty());
     }
 
     @Test
-    void clearEventsRemovesPendingDomainEvents() {
+    void drainEventsReturnsSnapshotThatIsUnaffectedByLaterEvents() {
         TestAggregateRoot aggregateRoot = new TestAggregateRoot(new TestAggregateId("root-1"));
-        aggregateRoot.raise(new TestDomainEvent(new TestAggregateId("root-1")));
+        TestDomainEvent firstEvent = new TestDomainEvent(new TestAggregateId("root-1"));
+        TestDomainEvent secondEvent = new TestDomainEvent(new TestAggregateId("root-1"));
+        TestDomainEvent laterEvent = new TestDomainEvent(new TestAggregateId("root-1"));
+        aggregateRoot.raise(firstEvent);
+        aggregateRoot.raise(secondEvent);
 
-        aggregateRoot.clearEvents();
+        var drainedEvents = aggregateRoot.drainEvents();
+        aggregateRoot.raise(laterEvent);
+        var laterDrainedEvents = aggregateRoot.drainEvents();
 
-        assertTrue(aggregateRoot.getEvents().isEmpty());
+        assertEquals(2, drainedEvents.size());
+        assertEquals(firstEvent, drainedEvents.get(0));
+        assertEquals(secondEvent, drainedEvents.get(1));
+        assertEquals(1, laterDrainedEvents.size());
+        assertEquals(laterEvent, laterDrainedEvents.getFirst());
+        assertTrue(aggregateRoot.drainEvents().isEmpty());
     }
 
     @Test
@@ -37,7 +51,7 @@ class BaseAggregateRootTest {
         TestAggregateRoot aggregateRoot = new TestAggregateRoot(new TestAggregateId("root-1"));
 
         assertThrows(IllegalArgumentException.class, () -> aggregateRoot.raise(null));
-        assertTrue(aggregateRoot.getEvents().isEmpty());
+        assertTrue(aggregateRoot.drainEvents().isEmpty());
     }
 
     record TestAggregateId(String value) implements Identifier {

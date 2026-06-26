@@ -10,12 +10,16 @@
 
     <artifactId>jfoundry-messaging-spring</artifactId>
     <name>jfoundry-messaging-spring</name>
-    <description>Spring messaging adapters: SpringDomainEventPublisher for domain events and the default LoggingMessageSender.</description>
+    <description>Spring messaging adapters: SpringDomainEventDispatcher for domain events and the default LoggingMessageSender.</description>
 
     <dependencies>
         <dependency>
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-messaging-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-outbox-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jmolecules</groupId>

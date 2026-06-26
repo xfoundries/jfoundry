@@ -1,12 +1,11 @@
 package org.jfoundry.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jfoundry.application.messaging.externalization.DomainEventSink;
+import org.jfoundry.application.outbox.DomainEventOutboxRecorder;
 import org.jfoundry.application.outbox.BackoffStrategy;
 import org.jfoundry.application.outbox.OutboxMessage;
 import org.jfoundry.application.outbox.OutboxMessageStore;
-import org.jfoundry.infrastructure.outbox.spring.externalization.DomainEventExternalizer;
-import org.jmolecules.event.types.DomainEvent;
+import org.jfoundry.infrastructure.outbox.spring.externalization.DefaultDomainEventOutboxRecorder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
@@ -20,19 +19,17 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// P1-2 regression: business-side custom DomainEventSink must NOT cause
-/// framework's DomainEventExternalizer to retract. Externalizer is the tail
-/// of the sink chain; it should only retract when business provides its own
-/// DomainEventExternalizer.
+/// P1-2 regression: business-side custom DomainEventOutboxRecorder replaces
+/// the framework default outbox recorder explicitly.
 /// <p>
-/// TestApp provides an ObjectMapper bean so DomainEventExternalizerAutoConfiguration's
+/// TestApp provides an ObjectMapper bean so DomainEventOutboxRecorderAutoConfiguration's
 /// payloadSerializer（@ConditionalOnBean(ObjectMapper.class)）能正常注册，
-/// 让 DomainEventExternalizer 的依赖链完整。
+/// 让 DomainEventOutboxRecorder 的依赖链完整。
 @SpringBootTest(classes = {
-        DomainEventExternalizerConditionTest.TestApp.class,
-        DomainEventExternalizerConditionTest.WithCustomSink.class
+        DomainEventOutboxRecorderConditionTest.TestApp.class,
+        DomainEventOutboxRecorderConditionTest.WithCustomOutboxRecorder.class
 })
-class DomainEventExternalizerConditionTest {
+class DomainEventOutboxRecorderConditionTest {
 
     @SpringBootConfiguration
     @EnableAutoConfiguration
@@ -44,10 +41,11 @@ class DomainEventExternalizerConditionTest {
     }
 
     @TestConfiguration
-    static class WithCustomSink {
+    static class WithCustomOutboxRecorder {
         @Bean
-        DomainEventSink loggingSink() {
-            return new LoggingSink();
+        DomainEventOutboxRecorder customOutboxRecorder() {
+            return events -> {
+            };
         }
 
         @Bean
@@ -56,16 +54,7 @@ class DomainEventExternalizerConditionTest {
         }
     }
 
-    static class LoggingSink implements DomainEventSink {
-        @Override
-        public void handle(DomainEvent event) {
-            // no-op
-        }
-    }
-
-    /// OutboxMessageStore stub. DomainEventExternalizer only invokes
-    /// {@link OutboxMessageStore#append(OutboxMessage)}; the rest satisfy the
-    /// interface contract so the test compiles.
+    /// OutboxMessageStore stub kept to make the default recorder's infrastructure condition true.
     static class StubOutboxMessageStore implements OutboxMessageStore {
         @Override
         public void append(OutboxMessage entry) {
@@ -110,11 +99,14 @@ class DomainEventExternalizerConditionTest {
         }
     }
 
+    private DefaultDomainEventOutboxRecorder defaultOutboxRecorder;
+
     @Autowired
-    private DomainEventExternalizer externalizer;
+    private DomainEventOutboxRecorder outboxRecorder;
 
     @Test
-    void externalizerStillRegisteredWhenCustomSinkExists() {
-        assertThat(externalizer).isNotNull();
+    void customOutboxRecorderReplacesDefaultOutboxRecorder() {
+        assertThat(outboxRecorder).isNotNull();
+        assertThat(defaultOutboxRecorder).isNull();
     }
 }

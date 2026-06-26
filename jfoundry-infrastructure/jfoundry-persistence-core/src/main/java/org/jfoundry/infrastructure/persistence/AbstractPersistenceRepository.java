@@ -1,11 +1,10 @@
 package org.jfoundry.infrastructure.persistence;
 
-import org.jfoundry.domain.event.DomainEventPublisher;
+import org.jfoundry.application.event.DomainEventContext;
 import org.jfoundry.domain.event.EventRecordable;
 import org.jfoundry.domain.repository.AggregateRepository;
 import org.jmolecules.ddd.types.AggregateRoot;
 import org.jmolecules.ddd.types.Identifier;
-import org.jmolecules.event.types.DomainEvent;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -14,9 +13,9 @@ import java.util.List;
 /// 持久化仓储抽象基类(模板方法模式)。
 /// <p>
 /// 骨架逻辑:
-/// - 事件移交:add/modify/addAll/modifyAll/remove 成功后读取聚合事件,调用 DomainEventPublisher 发布,并立即清空聚合事件
+/// - 上下文登记:add/modify/addAll/modifyAll/remove 成功后向 DomainEventContext 注册聚合
 /// - 防御契约:modify/remove 受影响行数为 0 时抛 IllegalStateException,避免沉默失败
-/// - addAll/modifyAll 批量处理:逐个聚合移交事件
+/// - addAll/modifyAll 批量处理:逐个聚合登记上下文
 /// <p>
 /// 子类需要实现的模板方法:
 /// - {@link #insertData}:单条新增
@@ -36,12 +35,12 @@ public abstract class AbstractPersistenceRepository<
         D extends AggregateData<ID>>
         implements AggregateRepository<T, ID> {
 
-    private final DomainEventPublisher eventPublisher;
+    private final DomainEventContext domainEventContext;
     private final DataConverter<T, ID, D> converter;
 
-    protected AbstractPersistenceRepository(DomainEventPublisher eventPublisher,
+    protected AbstractPersistenceRepository(DomainEventContext domainEventContext,
                                              DataConverter<T, ID, D> converter) {
-        this.eventPublisher = eventPublisher;
+        this.domainEventContext = domainEventContext;
         this.converter = converter;
     }
 
@@ -73,102 +72,95 @@ public abstract class AbstractPersistenceRepository<
 
     @Override
     public void add(T entity) {
-        if (entity == null) {
-            throw new IllegalArgumentException("Entity must not be null.");
-        }
-        D data = converter.toData(entity);
-        insertData(data);
-        handoverEvents(entity);
+        T validatedEntity = requireEntity(entity);
+        insertData(converter.toData(validatedEntity));
+        registerAggregate(validatedEntity);
     }
 
     @Override
     public void modify(T entity) {
-        if (entity == null) {
-            throw new IllegalArgumentException("Entity must not be null.");
-        }
-        D data = converter.toData(entity);
-        long count = updateData(data);
-        if (count == 0) {
-            throw new IllegalStateException(
-                    "modify affected 0 rows — entity not found or optimistic lock conflict: " + entity.getId());
-        }
-        handoverEvents(entity);
+        T validatedEntity = requireEntity(entity);
+        long count = updateData(converter.toData(validatedEntity));
+        assertAffectedRows(count,
+                "modify affected 0 rows — entity not found or optimistic lock conflict: " + validatedEntity.getId());
+        registerAggregate(validatedEntity);
     }
 
     @Override
     public void addAll(Collection<T> entities) {
-        if (entities == null) {
-            throw new IllegalArgumentException("Entities must not be null.");
-        }
-        if (entities.isEmpty()) {
+        List<T> entityList = requireEntities(entities);
+        if (entityList.isEmpty()) {
             return;
         }
-        for (T entity : entities) {
-            if (entity == null) {
-                throw new IllegalArgumentException("Entities must not contain null.");
-            }
-        }
-        List<T> entityList = List.copyOf(entities);
         for (T entity : entityList) {
             insertData(converter.toData(entity));
         }
-        entityList.forEach(this::handoverEvents);
+        entityList.forEach(this::registerAggregate);
     }
 
     @Override
     public void modifyAll(Collection<T> entities) {
+        List<T> entityList = requireEntities(entities);
+        if (entityList.isEmpty()) {
+            return;
+        }
+        for (T entity : entityList) {
+            long count = updateData(converter.toData(entity));
+            assertAffectedRows(count,
+                    "modifyAll affected 0 rows — entity not found or optimistic lock conflict: " + entity.getId());
+        }
+        entityList.forEach(this::registerAggregate);
+    }
+
+    @Override
+    public void remove(T entity) {
+        T validatedEntity = requireEntity(entity);
+        ID entityId = requireEntityId(validatedEntity);
+        long count = deleteDataById(entityId);
+        assertAffectedRows(count, "remove affected 0 rows — entity not found: " + entityId);
+        registerAggregate(validatedEntity);
+    }
+
+    private T requireEntity(T entity) {
+        if (entity == null) {
+            throw new IllegalArgumentException("Entity must not be null.");
+        }
+        return entity;
+    }
+
+    private ID requireEntityId(T entity) {
+        if (entity.getId() == null) {
+            throw new IllegalArgumentException("Entity id must not be null.");
+        }
+        return entity.getId();
+    }
+
+    private List<T> requireEntities(Collection<T> entities) {
         if (entities == null) {
             throw new IllegalArgumentException("Entities must not be null.");
         }
         if (entities.isEmpty()) {
-            return;
+            return List.of();
         }
         for (T entity : entities) {
             if (entity == null) {
                 throw new IllegalArgumentException("Entities must not contain null.");
             }
         }
-        List<T> entityList = List.copyOf(entities);
-        for (T entity : entityList) {
-            D data = converter.toData(entity);
-            long count = updateData(data);
-            if (count == 0) {
-                throw new IllegalStateException(
-                        "modifyAll affected 0 rows — entity not found or optimistic lock conflict: " + entity.getId());
-            }
-        }
-        entityList.forEach(this::handoverEvents);
+        return List.copyOf(entities);
     }
 
-    @Override
-    public void remove(T entity) {
-        if (entity == null) {
-            throw new IllegalArgumentException("Entity must not be null.");
-        }
-        if (entity.getId() == null) {
-            throw new IllegalArgumentException("Entity id must not be null.");
-        }
-        long count = deleteDataById(entity.getId());
+    private void assertAffectedRows(long count, String message) {
         if (count == 0) {
-            throw new IllegalStateException(
-                    "remove affected 0 rows — entity not found: " + entity.getId());
+            throw new IllegalStateException(message);
         }
-        handoverEvents(entity);
     }
 
-    /// 事件移交语义:
-    /// - 无 publisher 时不清空聚合事件
-    /// - 无事件时不调用 publisher
-    /// - 移交后立即 clearEvents()
-    private void handoverEvents(T entity) {
-        if (eventPublisher == null) {
+    /// 持久化层只登记成功持久化的聚合，由应用层在用例边界统一提取并分发事件。
+    private void registerAggregate(T entity) {
+        if (domainEventContext == null) {
             return;
         }
-        List<DomainEvent> events = entity.getEvents();
-        if (events.isEmpty()) {
-            return;
-        }
-        eventPublisher.publish(events.toArray(DomainEvent[]::new));
-        entity.clearEvents();
+        domainEventContext.register(entity);
     }
 }

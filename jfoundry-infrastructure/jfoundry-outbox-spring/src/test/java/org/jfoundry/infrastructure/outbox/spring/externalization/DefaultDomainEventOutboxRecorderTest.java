@@ -18,10 +18,10 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DomainEventExternalizerTest {
+class DefaultDomainEventOutboxRecorderTest {
 
     private final CapturingOutboxMessageStore repository = new CapturingOutboxMessageStore();
-    private final DomainEventExternalizer externalizer = new DomainEventExternalizer(
+    private final DefaultDomainEventOutboxRecorder outboxRecorder = new DefaultDomainEventOutboxRecorder(
             repository,
             event -> "{}",
             new ExternalizationRuleResolver(),
@@ -54,7 +54,7 @@ class DomainEventExternalizerTest {
 
     @Test
     void storesAggregateMetadataAndUsesAggregateIdAsFallbackPayloadKey() {
-        externalizer.handle(new OrderCreatedEvent());
+        outboxRecorder.record(List.of(new OrderCreatedEvent()));
 
         OutboxMessage entry = repository.lastAppended;
         assertThat(entry.getTopic()).isEqualTo("order.created");
@@ -66,7 +66,7 @@ class DomainEventExternalizerTest {
 
     @Test
     void explicitPayloadKeyWinsOverAggregateId() {
-        externalizer.handle(new ExplicitKeyEvent());
+        outboxRecorder.record(List.of(new ExplicitKeyEvent()));
 
         OutboxMessage entry = repository.lastAppended;
         assertThat(entry.getPayloadKey()).isEqualTo("tenant-1");

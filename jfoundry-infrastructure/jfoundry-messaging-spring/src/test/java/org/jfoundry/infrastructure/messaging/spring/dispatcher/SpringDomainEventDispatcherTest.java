@@ -1,4 +1,4 @@
-package org.jfoundry.infrastructure.messaging.spring.publisher;
+package org.jfoundry.infrastructure.messaging.spring.dispatcher;
 
 import org.jmolecules.event.types.DomainEvent;
 import org.junit.jupiter.api.AfterEach;
@@ -8,13 +8,14 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class SpringDomainEventPublisherTest {
+class SpringDomainEventDispatcherTest {
 
     @AfterEach
     void tearDown() {
@@ -26,10 +27,10 @@ class SpringDomainEventPublisherTest {
     @Test
     void publishImmediatelyWhenNoTransactionSynchronizationActive() {
         RecordingApplicationEventPublisher applicationEventPublisher = new RecordingApplicationEventPublisher();
-        SpringDomainEventPublisher publisher = new SpringDomainEventPublisher(applicationEventPublisher);
+        SpringDomainEventDispatcher dispatcher = new SpringDomainEventDispatcher(null, applicationEventPublisher);
         TestDomainEvent event = new TestDomainEvent("order-1");
 
-        publisher.publish(event);
+        dispatcher.dispatch(List.of(event));
 
         assertEquals(List.of(event), applicationEventPublisher.publishedEvents());
     }
@@ -37,11 +38,11 @@ class SpringDomainEventPublisherTest {
     @Test
     void deferPublishUntilTransactionCommitWhenSynchronizationActive() {
         RecordingApplicationEventPublisher applicationEventPublisher = new RecordingApplicationEventPublisher();
-        SpringDomainEventPublisher publisher = new SpringDomainEventPublisher(applicationEventPublisher);
+        SpringDomainEventDispatcher dispatcher = new SpringDomainEventDispatcher(null, applicationEventPublisher);
         TestDomainEvent event = new TestDomainEvent("order-1");
 
         TransactionSynchronizationManager.initSynchronization();
-        publisher.publish(event);
+        dispatcher.dispatch(List.of(event));
 
         assertTrue(applicationEventPublisher.publishedEvents().isEmpty());
         TransactionSynchronizationManager.getSynchronizations()
@@ -53,11 +54,11 @@ class SpringDomainEventPublisherTest {
     @Test
     void doNotPublishWhenTransactionRollsBack() {
         RecordingApplicationEventPublisher applicationEventPublisher = new RecordingApplicationEventPublisher();
-        SpringDomainEventPublisher publisher = new SpringDomainEventPublisher(applicationEventPublisher);
+        SpringDomainEventDispatcher dispatcher = new SpringDomainEventDispatcher(null, applicationEventPublisher);
         TestDomainEvent event = new TestDomainEvent("order-1");
 
         TransactionSynchronizationManager.initSynchronization();
-        publisher.publish(event);
+        dispatcher.dispatch(List.of(event));
         TransactionSynchronizationManager.getSynchronizations()
                 .forEach(synchronization -> synchronization.afterCompletion(TransactionSynchronization.STATUS_ROLLED_BACK));
 
@@ -67,11 +68,11 @@ class SpringDomainEventPublisherTest {
     @Test
     void publishBatchImmediatelyWhenNoTransactionSynchronizationActive() {
         RecordingApplicationEventPublisher applicationEventPublisher = new RecordingApplicationEventPublisher();
-        SpringDomainEventPublisher publisher = new SpringDomainEventPublisher(applicationEventPublisher);
+        SpringDomainEventDispatcher dispatcher = new SpringDomainEventDispatcher(null, applicationEventPublisher);
         TestDomainEvent first = new TestDomainEvent("order-1");
         TestDomainEvent second = new TestDomainEvent("order-2");
 
-        publisher.publish(first, second);
+        dispatcher.dispatch(List.of(first, second));
 
         assertEquals(List.of(first, second), applicationEventPublisher.publishedEvents());
     }
@@ -79,12 +80,12 @@ class SpringDomainEventPublisherTest {
     @Test
     void publishRegistersSingleTransactionSynchronizationForBatch() {
         RecordingApplicationEventPublisher applicationEventPublisher = new RecordingApplicationEventPublisher();
-        SpringDomainEventPublisher publisher = new SpringDomainEventPublisher(applicationEventPublisher);
+        SpringDomainEventDispatcher dispatcher = new SpringDomainEventDispatcher(null, applicationEventPublisher);
         TestDomainEvent first = new TestDomainEvent("order-1");
         TestDomainEvent second = new TestDomainEvent("order-2");
 
         TransactionSynchronizationManager.initSynchronization();
-        publisher.publish(first, second);
+        dispatcher.dispatch(List.of(first, second));
 
         assertEquals(1, TransactionSynchronizationManager.getSynchronizations().size());
         assertTrue(applicationEventPublisher.publishedEvents().isEmpty());
@@ -97,22 +98,22 @@ class SpringDomainEventPublisherTest {
     @Test
     void publishDoesNothingForEmptyArguments() {
         RecordingApplicationEventPublisher applicationEventPublisher = new RecordingApplicationEventPublisher();
-        SpringDomainEventPublisher publisher = new SpringDomainEventPublisher(applicationEventPublisher);
+        SpringDomainEventDispatcher dispatcher = new SpringDomainEventDispatcher(null, applicationEventPublisher);
 
         TransactionSynchronizationManager.initSynchronization();
-        publisher.publish();
+        dispatcher.dispatch(List.of());
 
         assertTrue(TransactionSynchronizationManager.getSynchronizations().isEmpty());
         assertTrue(applicationEventPublisher.publishedEvents().isEmpty());
     }
 
     @Test
-    void rejectNullEventArray() {
+    void rejectNullEventList() {
         RecordingApplicationEventPublisher applicationEventPublisher = new RecordingApplicationEventPublisher();
-        SpringDomainEventPublisher publisher = new SpringDomainEventPublisher(applicationEventPublisher);
+        SpringDomainEventDispatcher dispatcher = new SpringDomainEventDispatcher(null, applicationEventPublisher);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> publisher.publish((DomainEvent[]) null));
+                () -> dispatcher.dispatch(null));
 
         assertEquals("Domain events must not be null.", exception.getMessage());
     }
@@ -120,11 +121,11 @@ class SpringDomainEventPublisherTest {
     @Test
     void rejectNullEventElement() {
         RecordingApplicationEventPublisher applicationEventPublisher = new RecordingApplicationEventPublisher();
-        SpringDomainEventPublisher publisher = new SpringDomainEventPublisher(applicationEventPublisher);
+        SpringDomainEventDispatcher dispatcher = new SpringDomainEventDispatcher(null, applicationEventPublisher);
         TestDomainEvent event = new TestDomainEvent("order-1");
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> publisher.publish(event, null));
+                () -> dispatcher.dispatch(Arrays.asList(event, null)));
 
         assertEquals("Domain event must not be null.", exception.getMessage());
         assertTrue(applicationEventPublisher.publishedEvents().isEmpty());

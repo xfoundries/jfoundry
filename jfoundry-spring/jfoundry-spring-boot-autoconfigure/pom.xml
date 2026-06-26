@@ -72,7 +72,7 @@
         </dependency>
 
         <!--
-          Jackson：本模块 DomainEventExternalizerAutoConfiguration 注入 ObjectMapper 用以构造
+          Jackson：本模块 DomainEventOutboxRecorderAutoConfiguration 注入 ObjectMapper 用以构造
           默认 JacksonPayloadSerializer。Spring Boot 应用通常自带 ObjectMapper + jsr310；
           optional 避免强制传递给业务侧，业务侧若不使用外部化链路也不需要 Jackson。
         -->
@@ -105,6 +105,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <optional>true</optional>
         </dependency>
         <!-- mybatis-spring: @MapperScan annotation source; the MyBatis-Plus starter provides runtime via mybatis-plus-spring-boot3-starter -->
         <dependency>
@@ -194,9 +199,18 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgs>
+                        <arg>--enable-preview</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED</argLine>
+                    <argLine>--enable-preview --add-opens=java.base/java.lang.invoke=ALL-UNNAMED</argLine>
                 </configuration>
             </plugin>
         </plugins>

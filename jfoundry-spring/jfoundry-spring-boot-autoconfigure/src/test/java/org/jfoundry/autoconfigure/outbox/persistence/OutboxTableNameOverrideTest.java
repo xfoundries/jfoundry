@@ -61,7 +61,7 @@ class OutboxTableNameOverrideTest {
     @EnableAutoConfiguration
     @MapperScan(basePackages = "org.jfoundry.infrastructure.outbox.mybatis")
     static class TestApp {
-        /// DomainEventExternalizerAutoConfiguration's unconditional payloadSerializer bean
+        /// DomainEventOutboxRecorderAutoConfiguration's payloadSerializer bean
         /// pulls in Jackson. Same pattern as OutboxDispatcherEnabledTest / DomainEventExternalizationIntegrationTest.
         @Bean
         ObjectMapper objectMapper() {
