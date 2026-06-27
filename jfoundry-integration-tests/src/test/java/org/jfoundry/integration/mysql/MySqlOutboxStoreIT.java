@@ -40,7 +40,8 @@ class MySqlOutboxStoreIT {
     static final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0")
             .withDatabaseName("jfoundry")
             .withUsername("jfoundry")
-            .withPassword("jfoundry");
+            .withPassword("jfoundry")
+            .withCommand("--max_allowed_packet=16M");
 
     @Autowired
     private MybatisPlusOutboxMessageStore store;
@@ -155,9 +156,12 @@ class MySqlOutboxStoreIT {
     @Test
     void recoverStuckDispatchingReleasesExpiredClaims() {
         store.append(OutboxMessages.pending("evt-1"));
-        OutboxMessage claim = store.claimDispatchable(1, "pod-a").get(0);
+        store.claimDispatchable(1, "pod-a");
+        OutboxData claimed = mapper.selectById("evt-1");
+        claimed.setClaimedAt(Instant.now().minus(Duration.ofMinutes(10)));
+        mapper.updateById(claimed);
 
-        int recovered = store.recoverStuckDispatching(claim.getClaimedAt().plusMillis(1));
+        int recovered = store.recoverStuckDispatching(Instant.now().minus(Duration.ofMinutes(5)));
 
         assertThat(recovered).isEqualTo(1);
         OutboxData data = mapper.selectById("evt-1");

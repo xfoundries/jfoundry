@@ -130,12 +130,21 @@ public class MybatisPlusOutboxMessageStore implements OutboxMessageStore {
 
     private void updateClaimedEntry(String eventId, String claimToken, OutboxData data) {
         var update = Wrappers.lambdaUpdate(OutboxData.class)
+                .set(OutboxData::getStatus, data.getStatus())
+                .set(OutboxData::getRetryCount, data.getRetryCount())
+                .set(OutboxData::getErrorMessage, data.getErrorMessage())
+                .set(OutboxData::getLastAttemptAt, data.getLastAttemptAt())
+                .set(OutboxData::getNextRetryAt, data.getNextRetryAt())
+                .set(OutboxData::getUpdatedAt, data.getUpdatedAt())
+                .set(OutboxData::getClaimedAt, null)
+                .set(OutboxData::getClaimedBy, null)
+                .set(OutboxData::getClaimToken, null)
                 .eq(OutboxData::getEventId, eventId)
                 .eq(OutboxData::getStatus, OutboxMessageStatus.DISPATCHING.name());
         if (claimToken != null) {
             update.eq(OutboxData::getClaimToken, claimToken);
         }
-        mapper.update(data, update);
+        mapper.update(null, update);
     }
 
     @Override
