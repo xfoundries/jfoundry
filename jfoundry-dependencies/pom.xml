@@ -9,9 +9,9 @@
     <name>jfoundry-dependencies</name>
 
     <properties>
-        <spring.version>6.1.10</spring.version>
-        <spring-boot.version>3.2.7</spring-boot.version>
-        <mybatis-plus.version>3.5.12</mybatis-plus.version>
+        <spring.version>6.2.19</spring.version>
+        <spring-boot.version>3.5.16</spring-boot.version>
+        <mybatis-plus.version>3.5.16</mybatis-plus.version>
         <jmolecules.version>2025.0.2</jmolecules.version>
         <!--
           jmolecules-integrations：与 jmolecules 2025.0.2 配套的官方适配器版本。
@@ -21,26 +21,20 @@
         -->
         <jmolecules-integrations.version>0.33.0</jmolecules-integrations.version>
         <archunit.version>1.4.2</archunit.version>
-        <jackson.version>2.17.1</jackson.version>
+        <jackson.version>2.19.4</jackson.version>
         <assertj.version>3.26.0</assertj.version>
         <slf4j.version>2.0.13</slf4j.version>
         <mockito.version>5.12.0</mockito.version>
         <junit-platform.version>1.13.3</junit-platform.version>
-        <mybatis-plus-spring-boot3.version>3.5.12</mybatis-plus-spring-boot3.version>
+        <mybatis-plus-spring-boot3.version>3.5.16</mybatis-plus-spring-boot3.version>
         <awaitility.version>4.2.1</awaitility.version>
-        <jobrunr.version>6.3.5</jobrunr.version>
-        <spring-kafka.version>3.1.6</spring-kafka.version>
-        <spring-amqp.version>3.1.6</spring-amqp.version>
+        <jobrunr.version>8.7.1</jobrunr.version>
+        <spring-kafka.version>3.3.16</spring-kafka.version>
+        <spring-amqp.version>3.2.12</spring-amqp.version>
         <testcontainers.version>1.21.4</testcontainers.version>
         <mysql-connector-j.version>9.7.0</mysql-connector-j.version>
         <postgresql.version>42.6.2</postgresql.version>
         <rocketmq-client.version>5.5.0</rocketmq-client.version>
-        <!--
-          snakeyaml: Spring Boot 3.2.7 brings 2.2 (has TagInspector);
-          JobRunr 6.3.5 declares 1.33 (lacks TagInspector, breaks Boot YAML parsing).
-          Pin 2.2 explicitly so jfoundry-outbox-jobrunr tests get the working version
-          after excluding JobRunr's 1.33.
-        -->
         <snakeyaml.version>2.2</snakeyaml.version>
     </properties>
 

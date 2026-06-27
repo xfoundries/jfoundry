@@ -1,6 +1,6 @@
 # jfoundry
 
-> 基于 [jmolecules](https://jmolecules.org/) 的生产级 DDD 框架，集成 Outbox 模式、Spring Boot 自动装配、ArchUnit 架构规则。
+> jfoundry is a jmolecules-based DDD framework moving toward a production-grade 1.x release. See `docs/release/compatibility.md` for the current support matrix and release gates.
 
 ## 名称含义
 
@@ -202,14 +202,14 @@ jfoundry:
 | 关注点 | 选型 |
 |--------|------|
 | JDK | 21 |
-| Spring Boot | 3.2.7 |
-| Spring | 6.1.10 |
-| MyBatis-Plus | 3.5.12 |
+| Spring Boot | 3.5.16 |
+| Spring | 6.2.19 |
+| MyBatis-Plus | 3.5.16 |
 | jmolecules | 2025.0.2（integrations 0.33.0） |
 | ArchUnit | 1.4.2 |
-| Jackson | 2.17.1 |
+| Jackson | 2.19.4 |
 | Flyway | （业务侧提供，本仓库仅提供迁移脚本） |
-| JobRunr | 6.3.5（可选） |
+| JobRunr | 8.7.1（可选） |
 
 ## 构建
 
