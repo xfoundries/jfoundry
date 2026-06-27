@@ -1,12 +1,10 @@
 # Maven Central Release
 
-This project has Maven Central publishing infrastructure, but public release is blocked until the project namespace and repository metadata are real.
+This project has Maven Central publishing infrastructure for the public `youngledo/jfoundry` repository.
 
-## Metadata Blocker
+## Metadata
 
-This worktree did not have an `origin` remote configured when the release metadata was added. The root POM and standalone `jfoundry-dependencies` BOM therefore use the conservative placeholder URL `https://github.com/REPLACE_WITH_OWNER/jfoundry` for `<url>` and `<scm>`.
-
-Before any public Maven Central release, replace all placeholder URL and SCM values with the real repository URL and verify that the published groupId is authorized for that namespace.
+The root POM publishes URL and SCM metadata for `https://github.com/youngledo/jfoundry`. Verify that the published groupId is authorized in Sonatype Central Portal before the first release.
 
 ## Prerequisites
 
