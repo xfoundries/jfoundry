@@ -4,28 +4,22 @@ import org.jfoundry.application.event.DefaultDomainEventContext;
 import org.jfoundry.domain.event.EventRecordable;
 import org.jmolecules.event.types.DomainEvent;
 
-import java.lang.ScopedValue;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DomainEventScope {
 
-    private static final ScopedValue<State> CURRENT = ScopedValue.newInstance();
+    private static final ThreadLocal<State> CURRENT = new ThreadLocal<>();
 
     <T> T invoke(ScopedOperation<T> operation) throws Throwable {
-        if (CURRENT.isBound()) {
+        if (CURRENT.get() != null) {
             return operation.get(false);
         }
+        CURRENT.set(new State());
         try {
-            return ScopedValue.callWhere(CURRENT, new State(), () -> {
-                try {
-                    return operation.get(true);
-                } catch (Throwable ex) {
-                    throw new ScopedOperationException(ex);
-                }
-            });
-        } catch (ScopedOperationException ex) {
-            throw ex.getCause();
+            return operation.get(true);
+        } finally {
+            CURRENT.remove();
         }
     }
 
@@ -61,7 +55,7 @@ public class DomainEventScope {
     }
 
     private State current() {
-        return CURRENT.isBound() ? CURRENT.get() : null;
+        return CURRENT.get();
     }
 
     private static final class State {
@@ -74,10 +68,4 @@ public class DomainEventScope {
         T get(boolean outermost) throws Throwable;
     }
 
-    private static final class ScopedOperationException extends RuntimeException {
-
-        private ScopedOperationException(Throwable cause) {
-            super(cause);
-        }
-    }
 }
