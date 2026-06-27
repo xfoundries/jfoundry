@@ -37,12 +37,4 @@ class RabbitMqMessageSenderAutoConfigurationTest {
                 });
     }
 
-    @Test
-    void disabledWhenPropertyIsFalse() {
-        runner.withPropertyValues("jfoundry.messaging.rabbitmq.enabled=false")
-                .run(context -> {
-                    assertThat(context).hasSingleBean(MessageSender.class);
-                    assertThat(context.getBean(MessageSender.class)).isNotInstanceOf(RabbitMqMessageSender.class);
-                });
-    }
 }

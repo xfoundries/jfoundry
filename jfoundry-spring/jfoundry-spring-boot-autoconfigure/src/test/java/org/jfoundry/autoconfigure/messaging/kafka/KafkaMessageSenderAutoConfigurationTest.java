@@ -38,12 +38,4 @@ class KafkaMessageSenderAutoConfigurationTest {
                 });
     }
 
-    @Test
-    void disabledWhenPropertyIsFalse() {
-        runner.withPropertyValues("jfoundry.messaging.kafka.enabled=false")
-                .run(context -> {
-                    assertThat(context).hasSingleBean(MessageSender.class);
-                    assertThat(context.getBean(MessageSender.class)).isNotInstanceOf(KafkaMessageSender.class);
-                });
-    }
 }

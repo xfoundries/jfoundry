@@ -1,7 +1,7 @@
 package org.jfoundry.autoconfigure.persistence;
 
-import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -13,12 +13,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.TestPropertySource;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// P2-3 regression test: when {@code jfoundry.persistence.db-type} is NOT set,
-/// {@link OutboxMybatisPlusAutoConfiguration} must fall back to MP's default no-arg
-/// {@link PaginationInnerInterceptor} whose {@code dbType} is {@code null}, so MP
-/// auto-detects lazily on the first paging query (preserving backwards compatibility).
+/// JFoundry does not expose its own database dialect setting. The default
+/// {@link PaginationInnerInterceptor} keeps {@code dbType} as {@code null}, so
+/// MyBatis-Plus auto-detects the dialect lazily on the first paging query.
 @SpringBootTest(classes = PaginationInterceptorDbTypeDefaultTest.NoDbTypeTestApp.class)
 @TestPropertySource(properties = {
         "jfoundry.outbox.dispatcher.enabled=false",
@@ -31,13 +32,22 @@ class PaginationInterceptorDbTypeDefaultTest {
     private MybatisPlusInterceptor mybatisPlusInterceptor;
 
     @Test
-    void paginationInnerInterceptorFallsBackToMpDefault() {
-        PaginationInnerInterceptor pagination =
-                PaginationInterceptorDbTypeWiringTest.findPaginationInnerInterceptor(mybatisPlusInterceptor);
+    void paginationInnerInterceptorUsesMpDefaultAutoDetection() {
+        PaginationInnerInterceptor pagination = findPaginationInnerInterceptor(mybatisPlusInterceptor);
 
         assertThat(pagination.getDbType())
-                .as("without jfoundry.persistence.db-type, PaginationInnerInterceptor.dbType must stay null so MP auto-detects")
+                .as("JFoundry must not set PaginationInnerInterceptor.dbType; MyBatis-Plus auto-detects it")
                 .isNull();
+    }
+
+    private static PaginationInnerInterceptor findPaginationInnerInterceptor(MybatisPlusInterceptor interceptor) {
+        List<InnerInterceptor> inners = interceptor.getInterceptors();
+        return inners.stream()
+                .filter(PaginationInnerInterceptor.class::isInstance)
+                .map(PaginationInnerInterceptor.class::cast)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError(
+                        "PaginationInnerInterceptor not registered in MybatisPlusInterceptor; got: " + inners));
     }
 
     @SpringBootConfiguration

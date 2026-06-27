@@ -103,9 +103,9 @@ The unit job is the fast compatibility gate. The middleware jobs are the product
 
 JFoundry should not duplicate infrastructure connection configuration that Spring Boot already owns. The current Outbox integration follows these boundaries:
 
-- Database connection settings use Spring Boot's `spring.datasource.*`. `jfoundry.persistence.db-type` is not a replacement for `DataSourceProperties`; it is only an optional MyBatis-Plus `DbType` override for pagination dialect selection when automatic detection is not suitable.
-- Kafka broker/client settings use Spring Boot Kafka auto-configuration. JFoundry's Kafka sender auto-configuration requires an existing `KafkaTemplate` bean and only adds JFoundry behavior such as enablement and send timeout.
-- RabbitMQ broker/client settings use Spring Boot AMQP auto-configuration. JFoundry's RabbitMQ sender auto-configuration requires an existing `RabbitTemplate` bean and only bridges it to the framework `MessageSender`.
-- RocketMQ does not have equivalent first-party Spring Boot infrastructure auto-configuration in this project, so the JFoundry RocketMQ starter expects an application-provided `DefaultMQProducer` and keeps only sender-level behavior such as enablement and send timeout.
+- Database connection settings use Spring Boot's `spring.datasource.*`. Pagination dialect selection is left to MyBatis-Plus automatic detection.
+- Kafka broker/client settings use Spring Boot Kafka auto-configuration. JFoundry's Kafka sender auto-configuration requires an existing `KafkaTemplate` bean and bridges it to the framework `MessageSender`.
+- RabbitMQ broker/client settings use Spring Boot AMQP auto-configuration. JFoundry's RabbitMQ sender auto-configuration requires an existing `RabbitTemplate` bean and bridges it to the framework `MessageSender`.
+- RocketMQ does not have equivalent first-party Spring Boot infrastructure auto-configuration in this project, so the JFoundry RocketMQ starter expects an application-provided `DefaultMQProducer`.
 
-When adding new starters, prefer this rule: reuse Spring Boot's existing infrastructure beans and properties first, and introduce `jfoundry.*` properties only for JFoundry-specific behavior or compatibility overrides.
+When adding new starters, prefer this rule: reuse Spring Boot's existing infrastructure beans and properties first, and introduce `jfoundry.*` properties only for JFoundry-specific behavior that cannot be represented by classpath, existing beans, or user-provided bean overrides.

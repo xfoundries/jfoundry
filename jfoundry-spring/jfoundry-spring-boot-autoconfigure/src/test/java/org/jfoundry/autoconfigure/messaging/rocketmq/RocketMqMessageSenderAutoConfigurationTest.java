@@ -37,12 +37,4 @@ class RocketMqMessageSenderAutoConfigurationTest {
                 });
     }
 
-    @Test
-    void disabledWhenPropertyIsFalse() {
-        runner.withPropertyValues("jfoundry.messaging.rocketmq.enabled=false")
-                .run(context -> {
-                    assertThat(context).hasSingleBean(MessageSender.class);
-                    assertThat(context.getBean(MessageSender.class)).isNotInstanceOf(RocketMqMessageSender.class);
-                });
-    }
 }

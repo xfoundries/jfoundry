@@ -61,7 +61,7 @@ class OutboxCleanupJobTest {
     static class TestApp {
         /// DomainEventOutboxRecorderAutoConfiguration's payloadSerializer bean
         /// pulls in Jackson. Same pattern as OutboxTableNameOverrideTest /
-        /// PaginationInterceptorDbTypeWiringTest.
+        /// PaginationInterceptorDbTypeDefaultTest.
         @Bean
         ObjectMapper objectMapper() {
             return new ObjectMapper();
