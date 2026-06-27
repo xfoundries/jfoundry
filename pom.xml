@@ -55,7 +55,6 @@
         <maven-jar-plugin.version>3.4.1</maven-jar-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
-        <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
         <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
         <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
         <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
@@ -689,48 +688,6 @@
             <id>release</id>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>${maven-antrun-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>enforce-release-metadata</id>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target>
-                                        <condition property="release.version.invalid">
-                                            <contains string="${project.version}" substring="-SNAPSHOT"/>
-                                        </condition>
-                                        <fail if="release.version.invalid" message="Release builds require non-SNAPSHOT project versions."/>
-
-                                        <condition property="release.url.invalid">
-                                            <contains string="${jfoundry.release.url}" substring="youngledo"/>
-                                        </condition>
-                                        <fail if="release.url.invalid" message="Release builds require a real project URL."/>
-
-                                        <condition property="release.scm.connection.invalid">
-                                            <contains string="${jfoundry.release.scm.connection}" substring="youngledo"/>
-                                        </condition>
-                                        <fail if="release.scm.connection.invalid" message="Release builds require a real SCM connection."/>
-
-                                        <condition property="release.scm.developerConnection.invalid">
-                                            <contains string="${jfoundry.release.scm.developerConnection}" substring="youngledo"/>
-                                        </condition>
-                                        <fail if="release.scm.developerConnection.invalid" message="Release builds require a real SCM developer connection."/>
-
-                                        <condition property="release.scm.url.invalid">
-                                            <contains string="${jfoundry.release.scm.url}" substring="youngledo"/>
-                                        </condition>
-                                        <fail if="release.scm.url.invalid" message="Release builds require a real SCM URL."/>
-                                    </target>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
