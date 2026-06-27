@@ -30,8 +30,11 @@
         <awaitility.version>4.2.1</awaitility.version>
         <jobrunr.version>6.3.5</jobrunr.version>
         <spring-kafka.version>3.1.6</spring-kafka.version>
+        <spring-amqp.version>3.1.6</spring-amqp.version>
         <testcontainers.version>1.21.4</testcontainers.version>
         <mysql-connector-j.version>9.7.0</mysql-connector-j.version>
+        <postgresql.version>42.6.2</postgresql.version>
+        <rocketmq-client.version>5.5.0</rocketmq-client.version>
         <!--
           snakeyaml: Spring Boot 3.2.7 brings 2.2 (has TagInspector);
           JobRunr 6.3.5 declares 1.33 (lacks TagInspector, breaks Boot YAML parsing).
@@ -89,6 +92,16 @@
             <dependency>
                 <groupId>org.jfoundry</groupId>
                 <artifactId>jfoundry-messaging-kafka</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-messaging-rocketmq</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-messaging-rabbitmq</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -154,6 +167,16 @@
             <dependency>
                 <groupId>org.jfoundry</groupId>
                 <artifactId>jfoundry-spring-boot-starter-messaging-kafka</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-spring-boot-starter-messaging-rocketmq</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-spring-boot-starter-messaging-rabbitmq</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -410,7 +433,19 @@
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
                 <artifactId>kafka</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>rabbitmq</artifactId>
                 <version>${testcontainers.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -418,6 +453,12 @@
                 <groupId>com.mysql</groupId>
                 <artifactId>mysql-connector-j</artifactId>
                 <version>${mysql-connector-j.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
                 <scope>test</scope>
             </dependency>
 
@@ -441,6 +482,22 @@
                 <version>${spring-kafka.version}</version>
             </dependency>
             <!--Kafka-->
+
+            <!--RabbitMQ（可选模块 jfoundry-messaging-rabbitmq 的 MessageSender adapter）-->
+            <dependency>
+                <groupId>org.springframework.amqp</groupId>
+                <artifactId>spring-rabbit</artifactId>
+                <version>${spring-amqp.version}</version>
+            </dependency>
+            <!--RabbitMQ-->
+
+            <!--RocketMQ（可选模块 jfoundry-messaging-rocketmq 的 MessageSender adapter）-->
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-client</artifactId>
+                <version>${rocketmq-client.version}</version>
+            </dependency>
+            <!--RocketMQ-->
 
             <!-- snakeyaml: pinned 2.2 to override JobRunr's 1.33 (Spring Boot YAML parser requires TagInspector) -->
             <dependency>

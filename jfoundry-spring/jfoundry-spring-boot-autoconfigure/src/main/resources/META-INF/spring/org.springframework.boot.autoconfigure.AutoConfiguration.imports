@@ -1,5 +1,7 @@
 org.jfoundry.autoconfigure.messaging.DomainEventDispatchAutoConfiguration
 org.jfoundry.autoconfigure.messaging.kafka.KafkaMessageSenderAutoConfiguration
+org.jfoundry.autoconfigure.messaging.rocketmq.RocketMqMessageSenderAutoConfiguration
+org.jfoundry.autoconfigure.messaging.rabbitmq.RabbitMqMessageSenderAutoConfiguration
 org.jfoundry.autoconfigure.messaging.MessageSenderAutoConfiguration
 org.jfoundry.autoconfigure.messaging.DomainEventOutboxRecorderAutoConfiguration
 org.jfoundry.autoconfigure.inbox.InboxMybatisPlusAutoConfiguration

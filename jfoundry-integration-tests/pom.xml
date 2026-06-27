@@ -36,6 +36,14 @@
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-messaging-kafka</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-rocketmq</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-rabbitmq</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -89,7 +97,17 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
             <artifactId>kafka</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>rabbitmq</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -98,8 +116,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.amqp</groupId>
+            <artifactId>spring-rabbit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

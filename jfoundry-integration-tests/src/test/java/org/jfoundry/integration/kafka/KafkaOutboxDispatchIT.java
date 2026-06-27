@@ -85,21 +85,24 @@ class KafkaOutboxDispatchIT {
                 TOPIC,
                 "order-1",
                 "{\"event\":\"created\"}"));
-        KafkaTemplate<String, String> kafkaTemplate = kafkaTemplate();
+        KafkaTemplateFixture kafka = kafkaTemplate();
+        try {
+            new DefaultOutboxDispatchService(
+                    store,
+                    new KafkaMessageSender(kafka.template(), Duration.ofSeconds(10)),
+                    3,
+                    retry -> Duration.ofMillis(10),
+                    "it-pod").dispatch(10);
 
-        new DefaultOutboxDispatchService(
-                store,
-                new KafkaMessageSender(kafkaTemplate, Duration.ofSeconds(10)),
-                3,
-                retry -> Duration.ofMillis(10),
-                "it-pod").dispatch(10);
+            try (Consumer<String, String> consumer = consumer("dispatch-success")) {
+                consumer.subscribe(java.util.List.of(TOPIC));
+                ConsumerRecord<String, String> record = singleRecord(consumer);
 
-        try (Consumer<String, String> consumer = consumer("dispatch-success")) {
-            consumer.subscribe(java.util.List.of(TOPIC));
-            ConsumerRecord<String, String> record = singleRecord(consumer);
-
-            assertThat(record.key()).isEqualTo("order-1");
-            assertThat(record.value()).isEqualTo("{\"event\":\"created\"}");
+                assertThat(record.key()).isEqualTo("order-1");
+                assertThat(record.value()).isEqualTo("{\"event\":\"created\"}");
+            }
+        } finally {
+            kafka.destroy();
         }
 
         OutboxData data = mapper.selectById("evt-kafka-1");
@@ -134,12 +137,13 @@ class KafkaOutboxDispatchIT {
         assertThat(data.getClaimedBy()).isNull();
     }
 
-    private KafkaTemplate<String, String> kafkaTemplate() {
+    private KafkaTemplateFixture kafkaTemplate() {
         Map<String, Object> props = new java.util.HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(props));
+        DefaultKafkaProducerFactory<String, String> factory = new DefaultKafkaProducerFactory<>(props);
+        return new KafkaTemplateFixture(new KafkaTemplate<>(factory), factory);
     }
 
     private Consumer<String, String> consumer(String groupId) {
@@ -163,5 +167,15 @@ class KafkaOutboxDispatchIT {
             }
         }
         throw new AssertionError("No Kafka record received from topic " + TOPIC);
+    }
+
+    private record KafkaTemplateFixture(
+            KafkaTemplate<String, String> template,
+            DefaultKafkaProducerFactory<String, String> factory) {
+
+        void destroy() {
+            template.destroy();
+            factory.destroy();
+        }
     }
 }

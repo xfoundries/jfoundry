@@ -36,6 +36,16 @@
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-rocketmq</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-messaging-rabbitmq</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-messaging-spring</artifactId>
             <optional>true</optional>
         </dependency>
@@ -98,6 +108,16 @@
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.amqp</groupId>
+            <artifactId>spring-rabbit</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-client</artifactId>
             <optional>true</optional>
         </dependency>
 

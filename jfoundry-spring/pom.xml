@@ -22,6 +22,8 @@
         <module>jfoundry-spring-boot-starter</module>
         <module>jfoundry-spring-boot-starter-messaging</module>
         <module>jfoundry-spring-boot-starter-messaging-kafka</module>
+        <module>jfoundry-spring-boot-starter-messaging-rocketmq</module>
+        <module>jfoundry-spring-boot-starter-messaging-rabbitmq</module>
         <module>jfoundry-spring-boot-starter-outbox</module>
         <module>jfoundry-spring-boot-starter-outbox-mybatis-plus</module>
         <module>jfoundry-spring-boot-starter-outbox-jobrunr</module>
