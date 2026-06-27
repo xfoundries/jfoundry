@@ -1,6 +1,6 @@
 package org.jfoundry.autoconfigure.messaging.rocketmq;
 
-import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.client.producer.MQProducer;
 import org.jfoundry.autoconfigure.messaging.MessageSenderAutoConfiguration;
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
@@ -18,7 +18,7 @@ class RocketMqMessageSenderAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(
                     RocketMqMessageSenderAutoConfiguration.class,
                     MessageSenderAutoConfiguration.class))
-            .withBean(DefaultMQProducer.class, () -> mock(DefaultMQProducer.class));
+            .withBean(MQProducer.class, () -> mock(MQProducer.class));
 
     @Test
     void createsRocketMqMessageSenderWhenProducerExists() {

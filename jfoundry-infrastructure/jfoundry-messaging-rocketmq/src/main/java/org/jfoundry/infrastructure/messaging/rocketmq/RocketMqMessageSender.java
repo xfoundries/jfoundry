@@ -1,6 +1,6 @@
 package org.jfoundry.infrastructure.messaging.rocketmq;
 
-import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.client.producer.MQProducer;
 import org.apache.rocketmq.common.message.Message;
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
@@ -11,10 +11,10 @@ import java.time.Duration;
 /// RocketMQ-backed {@link MessageSender}.
 public class RocketMqMessageSender implements MessageSender {
 
-    private final DefaultMQProducer producer;
+    private final MQProducer producer;
     private final Duration sendTimeout;
 
-    public RocketMqMessageSender(DefaultMQProducer producer, Duration sendTimeout) {
+    public RocketMqMessageSender(MQProducer producer, Duration sendTimeout) {
         this.producer = producer;
         this.sendTimeout = sendTimeout;
     }

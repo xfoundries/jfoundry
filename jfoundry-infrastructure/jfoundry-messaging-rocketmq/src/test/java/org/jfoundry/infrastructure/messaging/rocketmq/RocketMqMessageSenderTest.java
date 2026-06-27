@@ -1,6 +1,6 @@
 package org.jfoundry.infrastructure.messaging.rocketmq;
 
-import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.client.producer.MQProducer;
 import org.apache.rocketmq.common.message.Message;
 import org.jfoundry.application.messaging.SendResult;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 
 class RocketMqMessageSenderTest {
 
-    private final DefaultMQProducer producer = mock(DefaultMQProducer.class);
+    private final MQProducer producer = mock(MQProducer.class);
     private final RocketMqMessageSender sender = new RocketMqMessageSender(producer, Duration.ofSeconds(1));
 
     @Test

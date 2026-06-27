@@ -9,19 +9,19 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.KafkaOperations;
 
 import java.time.Duration;
 
 @AutoConfiguration
 @AutoConfigureBefore(MessageSenderAutoConfiguration.class)
-@ConditionalOnClass(KafkaTemplate.class)
+@ConditionalOnClass(KafkaOperations.class)
 public class KafkaMessageSenderAutoConfiguration {
 
     @Bean
-    @ConditionalOnBean(KafkaTemplate.class)
+    @ConditionalOnBean(KafkaOperations.class)
     @ConditionalOnMissingBean(MessageSender.class)
-    public KafkaMessageSender kafkaMessageSender(KafkaTemplate<String, String> kafkaTemplate) {
-        return new KafkaMessageSender(kafkaTemplate, Duration.ofSeconds(10));
+    public KafkaMessageSender kafkaMessageSender(KafkaOperations<String, String> kafkaOperations) {
+        return new KafkaMessageSender(kafkaOperations, Duration.ofSeconds(10));
     }
 }

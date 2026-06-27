@@ -2,7 +2,7 @@ package org.jfoundry.infrastructure.messaging.kafka;
 
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.KafkaOperations;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
@@ -10,18 +10,18 @@ import java.util.concurrent.TimeUnit;
 /// Kafka-backed {@link MessageSender}.
 public class KafkaMessageSender implements MessageSender {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaOperations<String, String> kafkaOperations;
     private final Duration sendTimeout;
 
-    public KafkaMessageSender(KafkaTemplate<String, String> kafkaTemplate, Duration sendTimeout) {
-        this.kafkaTemplate = kafkaTemplate;
+    public KafkaMessageSender(KafkaOperations<String, String> kafkaOperations, Duration sendTimeout) {
+        this.kafkaOperations = kafkaOperations;
         this.sendTimeout = sendTimeout;
     }
 
     @Override
     public SendResult send(String topic, String payloadKey, String payload) {
         try {
-            kafkaTemplate.send(topic, payloadKey, payload)
+            kafkaOperations.send(topic, payloadKey, payload)
                     .get(sendTimeout.toMillis(), TimeUnit.MILLISECONDS);
             return SendResult.ok();
         } catch (Exception e) {

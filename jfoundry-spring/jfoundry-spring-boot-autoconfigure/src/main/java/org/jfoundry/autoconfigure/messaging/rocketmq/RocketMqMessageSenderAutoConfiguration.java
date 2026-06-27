@@ -1,6 +1,7 @@
 package org.jfoundry.autoconfigure.messaging.rocketmq;
 
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.client.producer.MQProducer;
 import org.jfoundry.autoconfigure.messaging.MessageSenderAutoConfiguration;
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.infrastructure.messaging.rocketmq.RocketMqMessageSender;
@@ -19,9 +20,9 @@ import java.time.Duration;
 public class RocketMqMessageSenderAutoConfiguration {
 
     @Bean
-    @ConditionalOnBean(DefaultMQProducer.class)
+    @ConditionalOnBean(MQProducer.class)
     @ConditionalOnMissingBean(MessageSender.class)
-    public RocketMqMessageSender rocketMqMessageSender(DefaultMQProducer producer) {
+    public RocketMqMessageSender rocketMqMessageSender(MQProducer producer) {
         return new RocketMqMessageSender(producer, Duration.ofSeconds(10));
     }
 }

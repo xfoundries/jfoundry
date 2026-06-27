@@ -7,7 +7,7 @@ import org.jfoundry.infrastructure.messaging.kafka.KafkaMessageSender;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.KafkaOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -19,10 +19,10 @@ class KafkaMessageSenderAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(
                     KafkaMessageSenderAutoConfiguration.class,
                     MessageSenderAutoConfiguration.class))
-            .withBean(KafkaTemplate.class, () -> mock(KafkaTemplate.class));
+            .withBean(KafkaOperations.class, () -> mock(KafkaOperations.class));
 
     @Test
-    void createsKafkaMessageSenderWhenKafkaTemplateExists() {
+    void createsKafkaMessageSenderWhenKafkaOperationsExists() {
         runner.run(context -> {
             assertThat(context).hasSingleBean(MessageSender.class);
             assertThat(context.getBean(MessageSender.class)).isInstanceOf(KafkaMessageSender.class);

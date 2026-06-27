@@ -2,7 +2,7 @@ package org.jfoundry.infrastructure.messaging.kafka;
 
 import org.jfoundry.application.messaging.SendResult;
 import org.junit.jupiter.api.Test;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.KafkaOperations;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -14,12 +14,12 @@ import static org.mockito.Mockito.when;
 class KafkaMessageSenderTest {
 
     @SuppressWarnings("unchecked")
-    private final KafkaTemplate<String, String> kafkaTemplate = mock(KafkaTemplate.class);
-    private final KafkaMessageSender sender = new KafkaMessageSender(kafkaTemplate, Duration.ofSeconds(1));
+    private final KafkaOperations<String, String> kafkaOperations = mock(KafkaOperations.class);
+    private final KafkaMessageSender sender = new KafkaMessageSender(kafkaOperations, Duration.ofSeconds(1));
 
     @Test
     void returnsOkWhenKafkaSendCompletes() {
-        when(kafkaTemplate.send("order.created", "order-1", "{}"))
+        when(kafkaOperations.send("order.created", "order-1", "{}"))
                 .thenReturn(CompletableFuture.completedFuture(null));
 
         SendResult result = sender.send("order.created", "order-1", "{}");
@@ -33,7 +33,7 @@ class KafkaMessageSenderTest {
         CompletableFuture<org.springframework.kafka.support.SendResult<String, String>> failed =
                 new CompletableFuture<>();
         failed.completeExceptionally(new IllegalStateException("broker down"));
-        when(kafkaTemplate.send("order.created", "order-1", "{}")).thenReturn(failed);
+        when(kafkaOperations.send("order.created", "order-1", "{}")).thenReturn(failed);
 
         SendResult result = sender.send("order.created", "order-1", "{}");
 
