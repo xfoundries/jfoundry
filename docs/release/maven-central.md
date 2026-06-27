@@ -13,8 +13,13 @@ Before any public Maven Central release, replace all placeholder URL and SCM val
 - Java 21 or newer.
 - Maven 3.9.0 or newer.
 - A Sonatype Central Portal account with publishing rights for `org.jfoundry`.
-- A Maven server entry named `central` in `~/.m2/settings.xml`.
-- A GPG key available to Maven for artifact signing.
+- For local release dry-runs, a Maven server entry named `central` in `~/.m2/settings.xml`.
+- For GitHub Actions release publishing, repository environment `maven-central` with these secrets:
+  - `CENTRAL_USERNAME`: Sonatype Central Portal username or publishing token username.
+  - `CENTRAL_PASSWORD`: Sonatype Central Portal password or publishing token password.
+  - `GPG_PRIVATE_KEY`: ASCII-armored private key used to sign artifacts.
+  - `GPG_PASSPHRASE`: passphrase for the private key.
+- A GPG key available to Maven for local artifact signing.
 - Release versions in all reactor POMs. Central releases must not publish `*-SNAPSHOT` versions.
 - Real project URL and SCM metadata in `pom.xml`.
 
@@ -50,10 +55,24 @@ If GPG is not configured locally, the release-profile verification may fail at t
 
 ## Publish
 
-After replacing placeholder metadata, setting release versions, and configuring Central credentials and GPG, deploy with the release profile:
+After replacing placeholder metadata, setting release versions, and configuring Central credentials and GPG, deploy locally with the release profile:
 
 ```bash
 mvn -Prelease -DskipTests deploy
 ```
 
 The Central publishing plugin is configured with `autoPublish=false`, so the deployment uploads a staged deployment to Central Portal for manual review and publishing.
+
+## GitHub Release Publishing
+
+The `Release` workflow publishes automatically when a GitHub Release is published.
+
+Use a tag such as `v1.0.0`. The workflow strips the leading `v`, sets all reactor POM versions to `1.0.0`, runs `./mvnw -B -Prelease -DskipTests deploy`, then updates the default branch to the next development version.
+
+By default, the next development version is inferred as the next patch version, for example `1.0.0` becomes `1.0.1-SNAPSHOT`. To override it, add a line to the GitHub Release notes:
+
+```text
+Next-Snapshot: 1.1.0-SNAPSHOT
+```
+
+Manual workflow runs require `release_version` and can optionally set `next_snapshot_version`.
