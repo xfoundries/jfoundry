@@ -1,6 +1,6 @@
 # jfoundry
 
-> jfoundry is a jmolecules-based DDD framework moving toward a production-grade 1.x release. See `docs/release/compatibility.md` for the current support matrix and release gates.
+> jfoundry 是基于 jMolecules 的 DDD 开发框架，当前 main 分支面向生产级 1.x 版本线。当前支持矩阵和发布门禁见 `docs/release/compatibility.md`。
 
 ## 名称含义
 
