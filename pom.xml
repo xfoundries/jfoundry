@@ -41,10 +41,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.outputTimestamp>2026-06-27T00:00:00Z</project.build.outputTimestamp>
-        <jfoundry.release.url>https://github.com/REPLACE_WITH_OWNER/jfoundry</jfoundry.release.url>
-        <jfoundry.release.scm.connection>scm:git:https://github.com/REPLACE_WITH_OWNER/jfoundry.git</jfoundry.release.scm.connection>
-        <jfoundry.release.scm.developerConnection>scm:git:https://github.com/REPLACE_WITH_OWNER/jfoundry.git</jfoundry.release.scm.developerConnection>
-        <jfoundry.release.scm.url>https://github.com/REPLACE_WITH_OWNER/jfoundry</jfoundry.release.scm.url>
+        <jfoundry.release.url>https://github.com/youngledo/jfoundry</jfoundry.release.url>
+        <jfoundry.release.scm.connection>scm:git:https://github.com/youngledo/jfoundry.git</jfoundry.release.scm.connection>
+        <jfoundry.release.scm.developerConnection>scm:git:https://github.com/youngledo/jfoundry.git</jfoundry.release.scm.developerConnection>
+        <jfoundry.release.scm.url>https://github.com/youngledo/jfoundry</jfoundry.release.scm.url>
         <maven.compiler.release>21</maven.compiler.release>
 
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
@@ -708,22 +708,22 @@
                                         <fail if="release.version.invalid" message="Release builds require non-SNAPSHOT project versions."/>
 
                                         <condition property="release.url.invalid">
-                                            <contains string="${jfoundry.release.url}" substring="REPLACE_WITH_OWNER"/>
+                                            <contains string="${jfoundry.release.url}" substring="youngledo"/>
                                         </condition>
                                         <fail if="release.url.invalid" message="Release builds require a real project URL."/>
 
                                         <condition property="release.scm.connection.invalid">
-                                            <contains string="${jfoundry.release.scm.connection}" substring="REPLACE_WITH_OWNER"/>
+                                            <contains string="${jfoundry.release.scm.connection}" substring="youngledo"/>
                                         </condition>
                                         <fail if="release.scm.connection.invalid" message="Release builds require a real SCM connection."/>
 
                                         <condition property="release.scm.developerConnection.invalid">
-                                            <contains string="${jfoundry.release.scm.developerConnection}" substring="REPLACE_WITH_OWNER"/>
+                                            <contains string="${jfoundry.release.scm.developerConnection}" substring="youngledo"/>
                                         </condition>
                                         <fail if="release.scm.developerConnection.invalid" message="Release builds require a real SCM developer connection."/>
 
                                         <condition property="release.scm.url.invalid">
-                                            <contains string="${jfoundry.release.scm.url}" substring="REPLACE_WITH_OWNER"/>
+                                            <contains string="${jfoundry.release.scm.url}" substring="youngledo"/>
                                         </condition>
                                         <fail if="release.scm.url.invalid" message="Release builds require a real SCM URL."/>
                                     </target>
