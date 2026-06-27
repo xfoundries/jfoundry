@@ -21,30 +21,13 @@ permissions:
   contents: read
 
 jobs:
-  publish:
-    name: Publish to Maven Central
+  resolve-release:
+    name: Resolve release versions
     runs-on: ubuntu-latest
-    environment: maven-central
-    permissions:
-      contents: write
+    outputs:
+      release_version: ${{ steps.versions.outputs.release_version }}
+      next_snapshot: ${{ steps.versions.outputs.next_snapshot }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Java and Maven Central credentials
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-          cache: maven
-          server-id: central
-          server-username: CENTRAL_USERNAME
-          server-password: CENTRAL_PASSWORD
-          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: GPG_PASSPHRASE
-
       - name: Resolve release versions
         id: versions
         env:
@@ -89,10 +72,33 @@ jobs:
             echo "next_snapshot=${next_snapshot}"
           } >> "$GITHUB_OUTPUT"
 
+  publish:
+    name: Publish to Maven Central
+    runs-on: ubuntu-latest
+    needs: resolve-release
+    environment: maven-central
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java and Maven Central credentials
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+
       - name: Set release version
         run: |
           ./mvnw -B org.codehaus.mojo:versions-maven-plugin:2.21.0:set \
-            -DnewVersion="${{ steps.versions.outputs.release_version }}" \
+            -DnewVersion="${{ needs.resolve-release.outputs.release_version }}" \
             -DprocessAllModules=true \
             -DgenerateBackupPoms=false
 
@@ -102,6 +108,27 @@ jobs:
           CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: ./mvnw -B -Prelease -DskipTests deploy -Dgpg.passphrase="${GPG_PASSPHRASE}"
+
+  bump-default-branch:
+    name: Bump default branch to next SNAPSHOT
+    runs-on: ubuntu-latest
+    needs:
+      - resolve-release
+      - publish
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
 
       - name: Bump default branch to next SNAPSHOT
         env:
@@ -113,19 +140,19 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git fetch origin "${DEFAULT_BRANCH}"
-          git checkout "${DEFAULT_BRANCH}"
-          git pull --ff-only origin "${DEFAULT_BRANCH}"
+          git worktree add -B "release-bump/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" /tmp/jfoundry-default-branch "origin/${DEFAULT_BRANCH}"
+          cd /tmp/jfoundry-default-branch
 
           ./mvnw -B org.codehaus.mojo:versions-maven-plugin:2.21.0:set \
-            -DnewVersion="${{ steps.versions.outputs.next_snapshot }}" \
+            -DnewVersion="${{ needs.resolve-release.outputs.next_snapshot }}" \
             -DprocessAllModules=true \
             -DgenerateBackupPoms=false
 
           if git diff --quiet; then
-            echo "Default branch is already at ${{ steps.versions.outputs.next_snapshot }}."
+            echo "Default branch is already at ${{ needs.resolve-release.outputs.next_snapshot }}."
             exit 0
           fi
 
           git add pom.xml '**/pom.xml'
-          git commit -m "chore(release): start ${{ steps.versions.outputs.next_snapshot }}"
+          git commit -m "chore(release): start ${{ needs.resolve-release.outputs.next_snapshot }}"
           git push origin "HEAD:${DEFAULT_BRANCH}"
