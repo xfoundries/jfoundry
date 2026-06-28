@@ -1,18 +1,16 @@
 package org.jfoundry.infrastructure.persistence;
 
-import org.jmolecules.ddd.types.Identifier;
-
 import java.io.Serializable;
 import java.util.Objects;
 
 /// 聚合根持久化数据对象基类。
 /// <p>
-/// 该类型用于领域聚合仓储链路，保留 jMolecules Identifier 约束，确保领域聚合 ID
-/// 与持久化数据对象 ID 使用同一个强类型标识符。技术表、读模型或框架内部数据表应定义自己的
-/// 数据对象，不需要伪装成领域 Identifier。
+/// 该类型用于领域聚合仓储链路中的持久化映射对象。ID 泛型代表持久化层主键类型，
+/// 通常是数据库和持久化框架天然支持的 {@link String}、{@link Long}、{@link java.util.UUID} 等类型。
+/// 领域聚合根可以继续使用 jMolecules Identifier 强类型 ID，由 DataConverter 在仓储边界完成转换。
 ///
-/// @param <ID> 聚合标识符类型，必须是 jMolecules Identifier 且可序列化
-public abstract class AggregateData<ID extends Identifier & Serializable> {
+/// @param <ID> 持久化标识符类型，必须可序列化
+public abstract class AggregateData<ID extends Serializable> {
 
     private ID id;
 

@@ -1,10 +1,8 @@
 package org.jfoundry.infrastructure.persistence.mybatis;
 
-import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer;
 import org.jfoundry.application.event.DomainEventContext;
 import org.jfoundry.domain.event.EventRecordable;
 import org.jfoundry.infrastructure.persistence.mybatis.support.TestOrderDataConverter;
-import org.jfoundry.infrastructure.persistence.mybatis.support.TestOrderIdTypeHandler;
 import org.jfoundry.infrastructure.persistence.mybatis.support.TestOrderMapper;
 import org.jfoundry.infrastructure.persistence.mybatis.support.TestOrderRepository;
 import org.mybatis.spring.annotation.MapperScan;
@@ -46,15 +44,6 @@ class PersistenceTestConfig {
                 .setName("jfoundry-persistence-test")
                 .addScript("classpath:test_order.sql")
                 .build();
-    }
-
-    /// 注册 TestOrderId TypeHandler。
-    /// MyBatis-Plus 的 @TableId 注解不支持 typeHandler 属性,只能通过全局 TypeHandlerRegistry 注册。
-    @Bean
-    ConfigurationCustomizer mybatisConfigurationCustomizer() {
-        return configuration -> configuration
-                .getTypeHandlerRegistry()
-                .register(new TestOrderIdTypeHandler());
     }
 
     @Bean

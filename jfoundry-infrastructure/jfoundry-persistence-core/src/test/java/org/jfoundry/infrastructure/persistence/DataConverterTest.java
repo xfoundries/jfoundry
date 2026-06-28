@@ -13,18 +13,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DataConverterTest {
 
-    private final DataConverter<TestEntity, TestId, TestData> converter = new DataConverter<>() {
+    private final DataConverter<TestEntity, TestId, TestData, String> converter = new DataConverter<>() {
         @Override
         public TestData toData(TestEntity entity) {
             TestData data = new TestData();
-            data.setId(entity.getId());
+            data.setId(toDataId(entity.getId()));
             data.name = entity.name;
             return data;
         }
 
         @Override
         public TestEntity toEntity(TestData data) {
-            return new TestEntity(data.getId(), data.name);
+            return new TestEntity(new TestId(data.getId()), data.name);
+        }
+
+        @Override
+        public String toDataId(TestId id) {
+            return id == null ? null : id.value();
         }
     };
 
@@ -35,17 +40,17 @@ class DataConverterTest {
                 new TestEntity(new TestId("2"), "updated")
         ));
 
-        assertEquals(List.of("1", "2"), dataList.stream().map(d -> d.getId().value()).toList());
+        assertEquals(List.of("1", "2"), dataList.stream().map(TestData::getId).toList());
         assertEquals(List.of("created", "updated"), dataList.stream().map(data -> data.name).toList());
     }
 
     @Test
     void shouldConvertDataCollectionToEntityListByDefault() {
         TestData first = new TestData();
-        first.setId(new TestId("1"));
+        first.setId("1");
         first.name = "created";
         TestData second = new TestData();
-        second.setId(new TestId("2"));
+        second.setId("2");
         second.name = "updated";
 
         List<TestEntity> entities = converter.toEntityList(List.of(first, second));
@@ -65,7 +70,7 @@ class DataConverterTest {
     record TestId(String value) implements Identifier, Serializable {
     }
 
-    private static final class TestData extends AggregateData<TestId> {
+    private static final class TestData extends AggregateData<String> {
         private String name;
     }
 

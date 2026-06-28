@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import org.jfoundry.infrastructure.persistence.AggregateData;
-import org.jmolecules.ddd.types.Identifier;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -22,8 +21,8 @@ import java.time.LocalDateTime;
 /// hashCode / equals / toString 直接继承父类实现（基于 ID 判断），
 /// 与审计字段无关，避免两个未持久化对象因审计字段不同被错误折叠。
 ///
-/// @param <ID> 标识符类型，必须是 jMolecules Identifier 且可序列化
-public abstract class MybatisPlusAuditableData<ID extends Identifier & Serializable> extends AggregateData<ID> {
+/// @param <ID> 持久化标识符类型，必须可序列化
+public abstract class MybatisPlusAuditableData<ID extends Serializable> extends AggregateData<ID> {
 
     /// 创建人ID
     @TableField(fill = FieldFill.INSERT)

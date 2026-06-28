@@ -9,12 +9,10 @@ import java.time.Instant;
 
 /// 测试用 Data 对象(MyBatis-Plus 表映射)。
 @TableName("test_order")
-public class TestOrderData extends AggregateData<TestOrderId> {
+public class TestOrderData extends AggregateData<String> {
 
-    /// 强类型 ID(TestOrderId record)需要 TypeHandler 桥接到 VARCHAR,TypeHandler 通过
-    /// PersistenceTestConfig 的 ConfigurationCustomizer 全局注册(因 @TableId 不支持 typeHandler 属性)。
     @TableId(type = IdType.INPUT)
-    private TestOrderId id;
+    private String id;
 
     private String status;
 
@@ -25,12 +23,12 @@ public class TestOrderData extends AggregateData<TestOrderId> {
     private Instant updatedAt;
 
     @Override
-    public TestOrderId getId() {
+    public String getId() {
         return id;
     }
 
     @Override
-    public void setId(TestOrderId id) {
+    public void setId(String id) {
         this.id = id;
     }
 

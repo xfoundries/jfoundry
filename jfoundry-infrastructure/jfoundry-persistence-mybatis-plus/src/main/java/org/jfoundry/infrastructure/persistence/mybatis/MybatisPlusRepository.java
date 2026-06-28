@@ -18,20 +18,22 @@ import java.io.Serializable;
 /// <p>
 /// 条件查询、统计、分页和维护删除应由具体业务边界表达,在子类中使用 MyBatis 原生能力实现。
 ///
-/// @param <T>  聚合根类型，必须同时是 jMolecules AggregateRoot 和 framework EventRecordable
-/// @param <ID> 标识符类型
-/// @param <D>  数据库实体类型
+/// @param <T>         聚合根类型，必须同时是 jMolecules AggregateRoot 和 framework EventRecordable
+/// @param <DOMAIN_ID> 领域标识符类型
+/// @param <D>         数据库实体类型
+/// @param <DATA_ID>   持久化标识符类型
 public abstract class MybatisPlusRepository<
-        T extends AggregateRoot<T, ID> & EventRecordable,
-        ID extends Identifier & Serializable,
-        D extends AggregateData<ID>>
-        extends AbstractPersistenceRepository<T, ID, D> {
+        T extends AggregateRoot<T, DOMAIN_ID> & EventRecordable,
+        DOMAIN_ID extends Identifier & Serializable,
+        D extends AggregateData<DATA_ID>,
+        DATA_ID extends Serializable>
+        extends AbstractPersistenceRepository<T, DOMAIN_ID, D, DATA_ID> {
 
     protected final BaseMapper<D> mapper;
 
     protected MybatisPlusRepository(BaseMapper<D> mapper,
                                      DomainEventContext domainEventContext,
-                                     DataConverter<T, ID, D> converter) {
+                                     DataConverter<T, DOMAIN_ID, D, DATA_ID> converter) {
         super(domainEventContext, converter);
         this.mapper = mapper;
     }
@@ -47,12 +49,12 @@ public abstract class MybatisPlusRepository<
     }
 
     @Override
-    protected long deleteDataById(ID id) {
+    protected long deleteDataById(DATA_ID id) {
         return mapper.deleteById(id);
     }
 
     @Override
-    protected D selectDataById(ID id) {
+    protected D selectDataById(DATA_ID id) {
         return mapper.selectById(id);
     }
 }

@@ -73,8 +73,8 @@ class FrameworkArchitectureSelfTest {
             FrameworkModuleRules.infrastructure_message_stores_should_be_in_infrastructure_ring;
 
     @ArchTest
-    static final ArchRule spring_domain_event_dispatcher_should_be_in_infrastructure_ring =
-            FrameworkModuleRules.spring_domain_event_dispatcher_should_be_in_infrastructure_ring;
+    static final ArchRule spring_application_event_dispatcher_should_be_in_infrastructure_ring =
+            FrameworkModuleRules.spring_application_event_dispatcher_should_be_in_infrastructure_ring;
 
     @ArchTest
     static final ArchRule logging_message_sender_should_be_in_infrastructure_ring =

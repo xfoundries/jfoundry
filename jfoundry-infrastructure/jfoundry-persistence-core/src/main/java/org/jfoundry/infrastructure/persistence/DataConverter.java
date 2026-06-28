@@ -11,19 +11,24 @@ import java.util.List;
 /// 在领域聚合根 (T) 与持久化数据对象 (D) 之间转换。
 /// 实现类只需提供单对象转换；批量转换基于单对象转换默认实现。
 ///
-/// @param <T>  聚合根类型
-/// @param <ID> 标识符类型
-/// @param <D>  数据对象类型
+/// @param <T>         聚合根类型
+/// @param <DOMAIN_ID> 领域标识符类型
+/// @param <D>         数据对象类型
+/// @param <DATA_ID>   持久化标识符类型
 public interface DataConverter<
-        T extends AggregateRoot<T, ID>,
-        ID extends Identifier & Serializable,
-        D extends AggregateData<ID>> {
+        T extends AggregateRoot<T, DOMAIN_ID>,
+        DOMAIN_ID extends Identifier & Serializable,
+        D extends AggregateData<DATA_ID>,
+        DATA_ID extends Serializable> {
 
     /// 将聚合根转换为数据对象。
     D toData(T entity);
 
     /// 将数据对象转换为聚合根。
     T toEntity(D data);
+
+    /// 将领域标识符转换为持久化标识符。
+    DATA_ID toDataId(DOMAIN_ID id);
 
     /// 将聚合根列表转换为数据对象列表。
     default List<D> toDataList(List<T> entities) {

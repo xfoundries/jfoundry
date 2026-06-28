@@ -3,12 +3,12 @@ package org.jfoundry.infrastructure.persistence.mybatis.support;
 import org.jfoundry.infrastructure.persistence.DataConverter;
 
 /// 测试用聚合根 ↔ Data 转换器。
-public class TestOrderDataConverter implements DataConverter<TestOrder, TestOrderId, TestOrderData> {
+public class TestOrderDataConverter implements DataConverter<TestOrder, TestOrderId, TestOrderData, String> {
 
     @Override
     public TestOrderData toData(TestOrder entity) {
         TestOrderData data = new TestOrderData();
-        data.setId(entity.getId());
+        data.setId(toDataId(entity.getId()));
         data.setStatus(entity.getStatus().name());
         data.setAmount(entity.getAmount());
         data.setCreatedAt(entity.getCreatedAt());
@@ -19,11 +19,16 @@ public class TestOrderDataConverter implements DataConverter<TestOrder, TestOrde
     @Override
     public TestOrder toEntity(TestOrderData data) {
         return TestOrder.restore(
-                data.getId(),
+                new TestOrderId(data.getId()),
                 TestOrderStatus.valueOf(data.getStatus()),
                 data.getAmount(),
                 data.getCreatedAt(),
                 data.getUpdatedAt()
         );
+    }
+
+    @Override
+    public String toDataId(TestOrderId id) {
+        return id == null ? null : id.value();
     }
 }

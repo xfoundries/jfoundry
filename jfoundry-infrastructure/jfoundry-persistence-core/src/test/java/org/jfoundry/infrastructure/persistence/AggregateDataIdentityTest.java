@@ -1,9 +1,7 @@
 package org.jfoundry.infrastructure.persistence;
 
-import org.jmolecules.ddd.types.Identifier;
 import org.junit.jupiter.api.Test;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,8 +22,8 @@ class AggregateDataIdentityTest {
 
     @Test
     void newEntitiesWithNullIdShouldNotBeEqual() {
-        AggregateData<TestId> a = new TestData();
-        AggregateData<TestId> b = new TestData();
+        AggregateData<String> a = new TestData();
+        AggregateData<String> b = new TestData();
 
         assertNotEquals(a, b);
         assertFalse(a.equals(b));
@@ -33,10 +31,10 @@ class AggregateDataIdentityTest {
 
     @Test
     void newEntitiesWithNullIdShouldNotCollapseInHashSet() {
-        AggregateData<TestId> a = new TestData();
-        AggregateData<TestId> b = new TestData();
+        AggregateData<String> a = new TestData();
+        AggregateData<String> b = new TestData();
 
-        Set<AggregateData<TestId>> set = new HashSet<>();
+        Set<AggregateData<String>> set = new HashSet<>();
         set.add(a);
         set.add(b);
 
@@ -45,10 +43,10 @@ class AggregateDataIdentityTest {
 
     @Test
     void entitiesWithSameIdShouldBeEqual() {
-        AggregateData<TestId> a = new TestData();
-        a.setId(new TestId("1"));
-        AggregateData<TestId> b = new TestData();
-        b.setId(new TestId("1"));
+        AggregateData<String> a = new TestData();
+        a.setId("1");
+        AggregateData<String> b = new TestData();
+        b.setId("1");
 
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
@@ -56,19 +54,19 @@ class AggregateDataIdentityTest {
 
     @Test
     void entitiesWithDifferentIdShouldNotBeEqual() {
-        AggregateData<TestId> a = new TestData();
-        a.setId(new TestId("1"));
-        AggregateData<TestId> b = new TestData();
-        b.setId(new TestId("2"));
+        AggregateData<String> a = new TestData();
+        a.setId("1");
+        AggregateData<String> b = new TestData();
+        b.setId("2");
 
         assertNotEquals(a, b);
     }
 
     @Test
     void nullIdEntityShouldNotEqualPersistedEntity() {
-        AggregateData<TestId> a = new TestData();
-        AggregateData<TestId> b = new TestData();
-        b.setId(new TestId("1"));
+        AggregateData<String> a = new TestData();
+        AggregateData<String> b = new TestData();
+        b.setId("1");
 
         assertNotEquals(a, b);
         assertNotEquals(b, a);
@@ -76,23 +74,20 @@ class AggregateDataIdentityTest {
 
     @Test
     void sameReferenceShouldBeEqual() {
-        AggregateData<TestId> a = new TestData();
+        AggregateData<String> a = new TestData();
 
         assertTrue(a.equals(a));
     }
 
     @Test
     void shouldNotEqualNullOrDifferentType() {
-        AggregateData<TestId> a = new TestData();
-        a.setId(new TestId("1"));
+        AggregateData<String> a = new TestData();
+        a.setId("1");
 
         assertFalse(a.equals(null));
         assertFalse(a.equals("not an AggregateData"));
     }
 
-    record TestId(String value) implements Identifier, Serializable {
-    }
-
-    private static final class TestData extends AggregateData<TestId> {
+    private static final class TestData extends AggregateData<String> {
     }
 }
