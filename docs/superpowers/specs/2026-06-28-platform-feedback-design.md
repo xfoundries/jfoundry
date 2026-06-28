@@ -200,3 +200,14 @@ jfoundry-spring/jfoundry-spring-boot-starter-mybatis-plus/pom.xml
 - 是否需要在 `jfoundry-test` 中增加面向业务项目的架构债务 baseline/report-only 能力。
 - 是否需要在 MyBatis-Plus starter 中显式加入 `mybatis-plus-jsqlparser`。
 - 是否需要为 Spring Cloud Alibaba / OpenFeign / JobRunr 写独立迁移页。
+
+## 第一轮执行结果
+
+第一轮只反哺文档：
+
+- 新增 `docs/platform-alignment.md`。
+- `README.md` 增加平台对齐指南入口。
+- `docs/release/compatibility.md` 增加平台对齐指南入口。
+- 暂不修改 `jfoundry-spring-boot-starter-mybatis-plus` 依赖。
+
+`mybatis-plus-jsqlparser` 是否进入 starter 保留为后续观察项。至少再从一个业务项目获得相同反馈后，再决定是加入现有 MyBatis-Plus starter，还是保持文档提示。
