@@ -143,13 +143,13 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("MyBatis message stores belong to the Onion infrastructure ring");
 
-    public static final ArchRule spring_domain_event_dispatcher_should_be_in_infrastructure_ring =
+    public static final ArchRule spring_application_event_dispatcher_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName(
-                            "org.jfoundry.infrastructure.messaging.spring.dispatcher.SpringDomainEventDispatcher")
+                            "org.jfoundry.infrastructure.messaging.spring.dispatcher.SpringApplicationEventDispatcher")
                     .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
                     .allowEmptyShould(true)
-                    .because("SpringDomainEventDispatcher belongs to the Onion infrastructure ring");
+                    .because("SpringApplicationEventDispatcher belongs to the Onion infrastructure ring");
 
     public static final ArchRule logging_message_sender_should_be_in_infrastructure_ring =
             classes()
@@ -166,6 +166,14 @@ public final class FrameworkModuleRules {
                     .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
                     .allowEmptyShould(true)
                     .because("DefaultDomainEventOutboxRecorder belongs to the Onion infrastructure ring");
+
+    public static final ArchRule outbox_domain_event_dispatcher_should_be_in_infrastructure_ring =
+            classes()
+                    .that().haveFullyQualifiedName(
+                            "org.jfoundry.infrastructure.outbox.spring.externalization.OutboxDomainEventDispatcher")
+                    .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
+                    .allowEmptyShould(true)
+                    .because("OutboxDomainEventDispatcher belongs to the Onion infrastructure ring");
 
     public static final ArchRule kafka_message_sender_should_be_in_infrastructure_ring =
             classes()

@@ -33,7 +33,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// @MapperScan 以便 mapper bean 在 ConfigurationClassParser 阶段注册。
 @SpringBootTest(
         classes = DomainEventExternalizationIntegrationTest.TestApp.class,
-        properties = "spring.datasource.url=jdbc:h2:mem:jfoundry-domain-event-externalization;DB_CLOSE_DELAY=-1"
+        properties = {
+                "spring.datasource.url=jdbc:h2:mem:jfoundry-domain-event-externalization;DB_CLOSE_DELAY=-1",
+                "jfoundry.domain.event.dispatch.outbox.enabled=true"
+        }
 )
 class DomainEventExternalizationIntegrationTest {
 

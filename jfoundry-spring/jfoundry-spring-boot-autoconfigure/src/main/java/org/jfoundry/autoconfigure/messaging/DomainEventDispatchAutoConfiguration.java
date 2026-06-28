@@ -1,36 +1,41 @@
 package org.jfoundry.autoconfigure.messaging;
 
 import org.jfoundry.application.ApplicationService;
+import org.jfoundry.application.event.CompositeDomainEventDispatcher;
 import org.jfoundry.application.event.DomainEventContext;
 import org.jfoundry.application.event.DomainEventDispatcher;
 import org.jfoundry.application.outbox.DomainEventOutboxRecorder;
-import org.jfoundry.infrastructure.messaging.spring.dispatcher.SpringDomainEventDispatcher;
+import org.jfoundry.infrastructure.messaging.spring.dispatcher.SpringApplicationEventDispatcher;
+import org.jfoundry.infrastructure.outbox.spring.externalization.OutboxDomainEventDispatcher;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
 import org.springframework.aop.framework.autoproxy.InfrastructureAdvisorAutoProxyCreator;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Role;
 
+import java.util.List;
+
 @AutoConfiguration
+@AutoConfigureAfter(DomainEventOutboxRecorderAutoConfiguration.class)
 @EnableConfigurationProperties(DomainEventDispatchProperties.class)
 @ConditionalOnClass({
         ApplicationService.class,
         DomainEventDispatcher.class,
-        SpringDomainEventDispatcher.class,
         Advisor.class
 })
-@ConditionalOnProperty(prefix = "jfoundry.domain.event", name = "enabled",
-                       havingValue = "true", matchIfMissing = true)
 public class DomainEventDispatchAutoConfiguration {
 
     @Bean
@@ -45,35 +50,78 @@ public class DomainEventDispatchAutoConfiguration {
         return new ScopedValueDomainEventContext(scope);
     }
 
-    @Bean
-    @ConditionalOnMissingBean(DomainEventDispatcher.class)
-    public SpringDomainEventDispatcher springDomainEventDispatcher(
-            ObjectProvider<DomainEventOutboxRecorder> outboxRecorderProvider,
-            ApplicationEventPublisher eventPublisher) {
-        return new SpringDomainEventDispatcher(outboxRecorderProvider.getIfAvailable(), eventPublisher);
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnProperty(prefix = "jfoundry.domain.event.dispatch", name = "enabled",
+                           havingValue = "true", matchIfMissing = true)
+    static class DispatchConfiguration {
+
+        @Bean
+        @Primary
+        @ConditionalOnBean(DomainEventDispatcher.class)
+        @ConditionalOnMissingBean(CompositeDomainEventDispatcher.class)
+        public CompositeDomainEventDispatcher compositeDomainEventDispatcher(
+                List<DomainEventDispatcher> dispatchers) {
+            return new CompositeDomainEventDispatcher(dispatchers);
+        }
+
+        @Bean
+        @ConditionalOnBean(CompositeDomainEventDispatcher.class)
+        @ConditionalOnMissingBean
+        public DomainEventDispatchInterceptor domainEventDispatchInterceptor(
+                DomainEventScope scope,
+                DomainEventDispatcher dispatcher) {
+            return new DomainEventDispatchInterceptor(scope, dispatcher);
+        }
+
+        @Bean
+        @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+        @ConditionalOnBean(DomainEventDispatchInterceptor.class)
+        @ConditionalOnMissingBean(name = "domainEventDispatchAdvisor")
+        public Advisor domainEventDispatchAdvisor(DomainEventDispatchInterceptor interceptor) {
+            return new DefaultPointcutAdvisor(new AnnotationMatchingPointcut(ApplicationService.class, true), interceptor);
+        }
+
+        @Bean
+        @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+        @ConditionalOnBean(name = "domainEventDispatchAdvisor")
+        @ConditionalOnMissingBean(AbstractAutoProxyCreator.class)
+        public static InfrastructureAdvisorAutoProxyCreator domainEventDispatchAutoProxyCreator() {
+            InfrastructureAdvisorAutoProxyCreator creator = new InfrastructureAdvisorAutoProxyCreator();
+            creator.setProxyTargetClass(true);
+            return creator;
+        }
     }
 
-    @Bean
-    @ConditionalOnMissingBean
-    public DomainEventDispatchInterceptor domainEventDispatchInterceptor(
-            DomainEventScope scope,
-            DomainEventDispatcher dispatcher) {
-        return new DomainEventDispatchInterceptor(scope, dispatcher);
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(name = "org.jfoundry.infrastructure.messaging.spring.dispatcher.SpringApplicationEventDispatcher")
+    @ConditionalOnProperty(prefix = "jfoundry.domain.event.dispatch", name = "enabled",
+                           havingValue = "true", matchIfMissing = true)
+    static class SpringDispatchConfiguration {
+
+        @Bean
+        @ConditionalOnMissingBean(SpringApplicationEventDispatcher.class)
+        @ConditionalOnProperty(prefix = "jfoundry.domain.event.dispatch.spring", name = "enabled",
+                               havingValue = "true", matchIfMissing = true)
+        public SpringApplicationEventDispatcher springApplicationEventDispatcher(
+                ApplicationEventPublisher eventPublisher) {
+            return new SpringApplicationEventDispatcher(eventPublisher);
+        }
     }
 
-    @Bean
-    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    @ConditionalOnMissingBean(name = "domainEventDispatchAdvisor")
-    public Advisor domainEventDispatchAdvisor(DomainEventDispatchInterceptor interceptor) {
-        return new DefaultPointcutAdvisor(new AnnotationMatchingPointcut(ApplicationService.class, true), interceptor);
-    }
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(name = "org.jfoundry.infrastructure.outbox.spring.externalization.OutboxDomainEventDispatcher")
+    @ConditionalOnProperty(prefix = "jfoundry.domain.event.dispatch", name = "enabled",
+                           havingValue = "true", matchIfMissing = true)
+    static class OutboxDispatchConfiguration {
 
-    @Bean
-    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    @ConditionalOnMissingBean(AbstractAutoProxyCreator.class)
-    public static InfrastructureAdvisorAutoProxyCreator domainEventDispatchAutoProxyCreator() {
-        InfrastructureAdvisorAutoProxyCreator creator = new InfrastructureAdvisorAutoProxyCreator();
-        creator.setProxyTargetClass(true);
-        return creator;
+        @Bean
+        @ConditionalOnBean(DomainEventOutboxRecorder.class)
+        @ConditionalOnMissingBean(OutboxDomainEventDispatcher.class)
+        @ConditionalOnProperty(prefix = "jfoundry.domain.event.dispatch.outbox", name = "enabled",
+                               havingValue = "true")
+        public OutboxDomainEventDispatcher outboxDomainEventDispatcher(
+                DomainEventOutboxRecorder outboxRecorder) {
+            return new OutboxDomainEventDispatcher(outboxRecorder);
+        }
     }
 }

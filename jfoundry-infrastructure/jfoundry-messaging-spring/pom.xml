@@ -10,7 +10,7 @@
 
     <artifactId>jfoundry-messaging-spring</artifactId>
     <name>jfoundry-messaging-spring</name>
-    <description>Spring messaging adapters: SpringDomainEventDispatcher for domain events and the default LoggingMessageSender.</description>
+    <description>Spring messaging adapters: application event publishing for domain events and the default LoggingMessageSender.</description>
 
     <dependencies>
         <dependency>
