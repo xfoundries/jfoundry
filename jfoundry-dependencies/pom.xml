@@ -55,6 +55,11 @@
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-cqrs</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
                 <artifactId>jfoundry-domain</artifactId>
                 <version>${project.version}</version>
             </dependency>

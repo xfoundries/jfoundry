@@ -25,12 +25,16 @@ import java.util.stream.Stream;
 ///
 ///     &#64;ArchTest
 ///     ArchRule[] jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
+///
+///     &#64;ArchTest
+///     ArchRule[] cqrsRules = JFoundryRules.cqrs();
 /// }
 /// </pre>
 /// <p>
 /// {@link #hexagonal()}、{@link #onionSimple()} 和 {@link #onionClassical()}
 /// 返回 JFoundry 基础守护规则 + 单一主架构风格规则；
-/// {@link #jmoleculesDdd()} 返回 jmolecules 官方提供的 DDD 规则。
+/// {@link #jmoleculesDdd()} 返回 jmolecules 官方提供的 DDD 规则；
+/// {@link #cqrs()} 返回 JFoundry 提供的可选 CQRS 规则。
 public final class JFoundryRules {
 
     private JFoundryRules() {
@@ -44,6 +48,20 @@ public final class JFoundryRules {
                 JMoleculesArchitectureRules.ensureHexagonal(),
                 ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed
         });
+    }
+
+    /// Hexagonal Architecture / Ports and Adapters 推荐落地约定。
+    /// <p>
+    /// 该入口补充 jMolecules 原生角色依赖规则没有覆盖的类型形态、包名和适配器隔离约定。
+    public static ArchRule[] hexagonalConventions() {
+        return publicStaticArchRules(HexagonalConventionRules.class).toArray(new ArchRule[0]);
+    }
+
+    /// Hexagonal Architecture 严格规则。
+    /// <p>
+    /// 包含 {@link #hexagonal()} 的通用依赖规则，以及 {@link #hexagonalConventions()} 的 JFoundry 推荐落地约定。
+    public static ArchRule[] hexagonalStrict() {
+        return concat(hexagonal(), hexagonalConventions());
     }
 
     /// Onion Architecture simplified 规则。
@@ -69,6 +87,14 @@ public final class JFoundryRules {
     /// Hexagonal 与 Onion 主架构风格互斥规则。
     public static ArchRule noMixedHexagonalAndOnion() {
         return ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed;
+    }
+
+    /// CQRS 规则。
+    /// <p>
+    /// jMolecules 当前没有提供独立 CQRS ArchUnit 规则集，因此这里提供 JFoundry 的轻量约束入口。
+    /// 该规则不会默认加入主架构风格规则，业务侧需要显式启用。
+    public static ArchRule[] cqrs() {
+        return publicStaticArchRules(CqrsRules.class).toArray(new ArchRule[0]);
     }
 
     /// jmolecules 官方提供的 DDD 规则（精选）。

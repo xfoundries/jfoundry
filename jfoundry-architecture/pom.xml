@@ -19,5 +19,6 @@
     <modules>
         <module>jfoundry-hexagonal</module>
         <module>jfoundry-onion</module>
+        <module>jfoundry-cqrs</module>
     </modules>
 </project>
