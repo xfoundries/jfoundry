@@ -192,6 +192,7 @@ jfoundry:
 
 ## 文档
 
+- [平台对齐指南](docs/platform-alignment.md)
 - [值对象（Value Object）规范](docs/value-object.md)
 - [架构风格指南](docs/architecture-styles.md)
 - [ArchUnit 架构规则](docs/archunit-rules.md)

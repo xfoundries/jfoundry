@@ -27,6 +27,9 @@
 | RocketMQ client | 5.5.0 |
 | Javassist override | 3.30.2-GA |
 
+Business applications aligning to this matrix should also read
+[Platform Alignment Guide](../platform-alignment.md) before adding runtime starters.
+
 `org.javassist:javassist` is managed explicitly because `rocketmq-client:5.5.0` brings
 `rocketmq-remoting -> reflections:0.9.11 -> javassist:3.21.0-GA`, whose POM emits a
 Maven 4 model warning. The managed version keeps the Maven 4 compatibility gate clean.
