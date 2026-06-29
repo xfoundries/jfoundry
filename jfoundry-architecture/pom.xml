@@ -20,5 +20,6 @@
         <module>jfoundry-hexagonal</module>
         <module>jfoundry-onion</module>
         <module>jfoundry-cqrs</module>
+        <module>jfoundry-architecture-starter</module>
     </modules>
 </project>

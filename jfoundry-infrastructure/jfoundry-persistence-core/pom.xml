@@ -24,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-messaging-core</artifactId>
+            <artifactId>jfoundry-event-core</artifactId>
         </dependency>
 
         <dependency>

@@ -8,26 +8,19 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-messaging-core</artifactId>
-    <name>jfoundry-messaging-core</name>
-    <description>Application-layer messaging SPI plus externalization contracts, metadata, and routing rules.</description>
+    <artifactId>jfoundry-event-core</artifactId>
+    <name>jfoundry-event-core</name>
+    <description>In-process domain event context, batching, and dispatch contracts.</description>
 
     <dependencies>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-event-core</artifactId>
+            <artifactId>jfoundry-domain</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jmolecules</groupId>
             <artifactId>jmolecules-onion-architecture</artifactId>
         </dependency>
-
-        <!-- jMolecules standard @Externalized annotation -->
-        <dependency>
-            <groupId>org.jmolecules</groupId>
-            <artifactId>jmolecules-events</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
