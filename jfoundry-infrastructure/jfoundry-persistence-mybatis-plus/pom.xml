@@ -21,10 +21,6 @@
             <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-persistence-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jmolecules</groupId>
-            <artifactId>jmolecules-onion-architecture</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>com.baomidou</groupId>

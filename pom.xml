@@ -94,6 +94,7 @@
         <module>jfoundry-domain</module>
         <module>jfoundry-application</module>
         <module>jfoundry-infrastructure</module>
+        <module>jfoundry-starters</module>
         <module>jfoundry-spring</module>
         <module>jfoundry-integration-tests</module>
         <module>jfoundry-test</module>
@@ -115,6 +116,21 @@
             <dependency>
                 <groupId>org.jfoundry</groupId>
                 <artifactId>jfoundry-architecture-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-domain-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-application-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-infrastructure-mybatis-plus-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

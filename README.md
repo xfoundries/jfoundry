@@ -44,6 +44,10 @@ jfoundry-parent
 │   ├── jfoundry-messaging-spring                 Spring 领域事件发布适配器 + 默认 MessageSender
 │   ├── jfoundry-outbox-spring                    领域事件写入 Outbox 的 Spring 适配器 + scheduled 派发器
 │   └── jfoundry-outbox-jobrunr                   Outbox 的 JobRunr 派发器（可选）
+├── jfoundry-starters                             非 Spring 能力聚合入口
+│   ├── jfoundry-domain-starter                   领域建模 + 架构边界语义
+│   ├── jfoundry-application-starter              应用层契约 + CQRS + 领域 starter
+│   └── jfoundry-infrastructure-mybatis-plus-starter MyBatis-Plus 持久化能力
 ├── jfoundry-spring                               Spring 整合层聚合
 │   ├── jfoundry-spring-boot-autoconfigure        Spring Boot AutoConfiguration
 │   ├── jfoundry-spring-boot-starter              DDD + Spring Boot 基础 starter
@@ -69,6 +73,9 @@ inboxTemplate.executeOnce(eventId, "order-projection", () -> {
 
 业务侧应按能力显式选择 starter：
 
+- 领域层：`jfoundry-domain-starter`
+- 应用层：`jfoundry-application-starter`
+- MyBatis-Plus 基础设施层：`jfoundry-infrastructure-mybatis-plus-starter`
 - 基础 DDD + Spring Boot：`jfoundry-spring-boot-starter`
 - Messaging：`jfoundry-messaging-spring-boot-starter`
 - Kafka adapter：`jfoundry-messaging-kafka-spring-boot-starter`
@@ -95,10 +102,25 @@ MyBatis-Plus 项目示例：
 </dependencyManagement>
 
 <dependencies>
+    <!-- domain module -->
     <dependency>
         <groupId>org.jfoundry</groupId>
-        <artifactId>jfoundry-spring-boot-starter</artifactId>
+        <artifactId>jfoundry-domain-starter</artifactId>
     </dependency>
+
+    <!-- application module -->
+    <dependency>
+        <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-application-starter</artifactId>
+    </dependency>
+
+    <!-- infrastructure module -->
+    <dependency>
+        <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-infrastructure-mybatis-plus-starter</artifactId>
+    </dependency>
+
+    <!-- Spring Boot assembly module -->
     <dependency>
         <groupId>org.jfoundry</groupId>
         <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>

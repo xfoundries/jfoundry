@@ -75,6 +75,21 @@
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-domain-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-application-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
+                <artifactId>jfoundry-infrastructure-mybatis-plus-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfoundry</groupId>
                 <artifactId>jfoundry-application</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
