@@ -22,7 +22,11 @@ Tests use JUnit Jupiter, Spring Boot test support where needed, and ArchUnit for
 
 ## Commit & Pull Request Guidelines
 
-Recent history follows Conventional Commits, for example `fix(outbox): ...`, `test(archunit): ...`, `refactor(ddd-framework): ...`, and `docs: ...`. Keep commits scoped and use the module or concern as the scope when helpful. Pull requests should describe the behavior change, list validation commands run, link related issues, and call out migration, configuration, or compatibility impact.
+Recent history follows Conventional Commits, for example `fix(outbox): ...`, `test(archunit): ...`, `refactor(ddd-framework): ...`, and `docs: ...`. Keep commits scoped and use the module or concern as the scope when helpful. As an open-source framework, commit messages must be written in English: keep the Conventional Commits type and optional scope, and write the subject and body in English, for example `refactor(application): split application core module` or `fix(outbox): update retry state consistently`. Pull requests should describe the behavior change, list validation commands run, link related issues, and call out migration, configuration, or compatibility impact.
+
+## Documentation Comments
+
+Public API Javadoc must be written in English so generated documentation, IDE hints, and Maven Central artifacts are friendly to the wider Java ecosystem. Keep comments concise and focused on API intent; avoid restating obvious implementation details.
 
 ## Agent-Specific Instructions
 
