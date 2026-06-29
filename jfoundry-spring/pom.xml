@@ -20,15 +20,15 @@
     <modules>
         <module>jfoundry-spring-boot-autoconfigure</module>
         <module>jfoundry-spring-boot-starter</module>
-        <module>jfoundry-spring-boot-starter-messaging</module>
-        <module>jfoundry-spring-boot-starter-messaging-kafka</module>
-        <module>jfoundry-spring-boot-starter-messaging-rocketmq</module>
-        <module>jfoundry-spring-boot-starter-messaging-rabbitmq</module>
-        <module>jfoundry-spring-boot-starter-outbox</module>
-        <module>jfoundry-spring-boot-starter-outbox-mybatis-plus</module>
-        <module>jfoundry-spring-boot-starter-outbox-jobrunr</module>
-        <module>jfoundry-spring-boot-starter-inbox</module>
-        <module>jfoundry-spring-boot-starter-inbox-mybatis-plus</module>
-        <module>jfoundry-spring-boot-starter-mybatis-plus</module>
+        <module>jfoundry-messaging-spring-boot-starter</module>
+        <module>jfoundry-messaging-kafka-spring-boot-starter</module>
+        <module>jfoundry-messaging-rocketmq-spring-boot-starter</module>
+        <module>jfoundry-messaging-rabbitmq-spring-boot-starter</module>
+        <module>jfoundry-outbox-spring-boot-starter</module>
+        <module>jfoundry-outbox-mybatis-plus-spring-boot-starter</module>
+        <module>jfoundry-outbox-jobrunr-spring-boot-starter</module>
+        <module>jfoundry-inbox-spring-boot-starter</module>
+        <module>jfoundry-inbox-mybatis-plus-spring-boot-starter</module>
+        <module>jfoundry-mybatis-plus-spring-boot-starter</module>
     </modules>
 </project>

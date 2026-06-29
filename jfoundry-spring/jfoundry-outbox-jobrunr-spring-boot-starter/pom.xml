@@ -8,18 +8,22 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-spring-boot-starter-messaging-kafka</artifactId>
-    <name>jfoundry-spring-boot-starter-messaging-kafka</name>
-    <description>Spring Boot starter for the Kafka MessageSender adapter.</description>
+    <artifactId>jfoundry-outbox-jobrunr-spring-boot-starter</artifactId>
+    <name>jfoundry-outbox-jobrunr-spring-boot-starter</name>
+    <description>Spring Boot starter for the JobRunr Outbox dispatcher adapter.</description>
 
     <dependencies>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-spring-boot-starter-messaging</artifactId>
+            <artifactId>jfoundry-outbox-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-messaging-kafka</artifactId>
+            <artifactId>jfoundry-outbox-jobrunr</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jobrunr</groupId>
+            <artifactId>jobrunr-spring-boot-3-starter</artifactId>
         </dependency>
     </dependencies>
 

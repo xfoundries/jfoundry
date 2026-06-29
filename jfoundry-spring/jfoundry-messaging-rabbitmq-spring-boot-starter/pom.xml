@@ -8,22 +8,18 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-spring-boot-starter-inbox-mybatis-plus</artifactId>
-    <name>jfoundry-spring-boot-starter-inbox-mybatis-plus</name>
-    <description>Spring Boot starter for the MyBatis-Plus InboxMessageStore adapter.</description>
+    <artifactId>jfoundry-messaging-rabbitmq-spring-boot-starter</artifactId>
+    <name>jfoundry-messaging-rabbitmq-spring-boot-starter</name>
+    <description>Spring Boot starter for the RabbitMQ MessageSender adapter.</description>
 
     <dependencies>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-spring-boot-starter-inbox</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <artifactId>jfoundry-messaging-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-inbox-mybatis-plus</artifactId>
+            <artifactId>jfoundry-messaging-rabbitmq</artifactId>
         </dependency>
     </dependencies>
 

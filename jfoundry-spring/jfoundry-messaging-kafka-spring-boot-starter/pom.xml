@@ -8,25 +8,18 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-spring-boot-starter-outbox</artifactId>
-    <name>jfoundry-spring-boot-starter-outbox</name>
-    <description>
-        Spring Boot starter for transactional outbox core, Spring transaction synchronization,
-        scheduled dispatching, recovery, and cleanup jobs.
-    </description>
+    <artifactId>jfoundry-messaging-kafka-spring-boot-starter</artifactId>
+    <name>jfoundry-messaging-kafka-spring-boot-starter</name>
+    <description>Spring Boot starter for the Kafka MessageSender adapter.</description>
 
     <dependencies>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-spring-boot-starter-messaging</artifactId>
+            <artifactId>jfoundry-messaging-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-outbox-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-outbox-spring</artifactId>
+            <artifactId>jfoundry-messaging-kafka</artifactId>
         </dependency>
     </dependencies>
 

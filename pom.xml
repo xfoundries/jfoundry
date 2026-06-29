@@ -236,52 +236,52 @@
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-spring-boot-starter-messaging</artifactId>
+                <artifactId>jfoundry-messaging-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-spring-boot-starter-messaging-kafka</artifactId>
+                <artifactId>jfoundry-messaging-kafka-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-spring-boot-starter-messaging-rocketmq</artifactId>
+                <artifactId>jfoundry-messaging-rocketmq-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-spring-boot-starter-messaging-rabbitmq</artifactId>
+                <artifactId>jfoundry-messaging-rabbitmq-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-spring-boot-starter-outbox</artifactId>
+                <artifactId>jfoundry-outbox-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-spring-boot-starter-outbox-mybatis-plus</artifactId>
+                <artifactId>jfoundry-outbox-mybatis-plus-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-spring-boot-starter-outbox-jobrunr</artifactId>
+                <artifactId>jfoundry-outbox-jobrunr-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-spring-boot-starter-inbox</artifactId>
+                <artifactId>jfoundry-inbox-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-spring-boot-starter-inbox-mybatis-plus</artifactId>
+                <artifactId>jfoundry-inbox-mybatis-plus-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-spring-boot-starter-mybatis-plus</artifactId>
+                <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!--新增子模块声明-->

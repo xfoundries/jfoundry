@@ -240,7 +240,7 @@ For MyBatis-Plus business persistence pilots, add:
 ```xml
 <dependency>
     <groupId>org.jfoundry</groupId>
-    <artifactId>jfoundry-spring-boot-starter-mybatis-plus</artifactId>
+    <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>
 </dependency>
 ```
 
