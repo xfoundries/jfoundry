@@ -27,7 +27,7 @@
 
 Run: `mvn -pl jfoundry-infrastructure/jfoundry-persistence-core,jfoundry-infrastructure/jfoundry-persistence-mybatis-plus -am test`
 
-Expected: compilation failure because framework generics still require `DATA_ID` to be the same `Identifier` type.
+Expected: compilation failure because framework generics still require the persistence key type to be the same `Identifier` type.
 
 ### Task 2: 拆分核心持久化泛型
 
@@ -38,11 +38,11 @@ Expected: compilation failure because framework generics still require `DATA_ID`
 
 - [ ] **Step 1: Implement minimal API change**
 
-`AggregateData<ID extends Serializable>`；`DataConverter<T, DOMAIN_ID, D, DATA_ID>`；`AbstractPersistenceRepository<T, DOMAIN_ID, D, DATA_ID>`。
+`AggregateData<ID extends Serializable>`；`DataConverter<T, ID, D, K>`；`AbstractPersistenceRepository<T, ID, D, K>`。
 
 - [ ] **Step 2: Route find/remove through converter**
 
-`findById(DOMAIN_ID id)` and `remove(T entity)` call `converter.toDataId(id)` before invoking persistence template methods.
+`findById(ID id)` and `remove(T entity)` call `converter.toDataId(id)` before invoking persistence template methods.
 
 - [ ] **Step 3: Run core tests**
 
@@ -58,7 +58,7 @@ Expected: PASS.
 
 - [ ] **Step 1: Update repository generics**
 
-`MybatisPlusRepository<T, DOMAIN_ID, D, DATA_ID>` extends the updated core repository and calls `mapper.deleteById(DATA_ID)` / `mapper.selectById(DATA_ID)`.
+`MybatisPlusRepository<T, ID, D, K>` extends the updated core repository and calls `mapper.deleteById(K)` / `mapper.selectById(K)`.
 
 - [ ] **Step 2: Update auditable data bound**
 
@@ -77,7 +77,7 @@ Expected: PASS without registering a custom ID TypeHandler.
 
 - [ ] **Step 1: Search for old signatures**
 
-Run: `rg "DataConverter<[^>]+,[^>]+,[^>]+>|AggregateData<.*Identifier|D extends AggregateData<DOMAIN_ID|D extends AggregateData<ID>"`.
+Run: `rg "DataConverter<[^>]+,[^>]+,[^>]+>|AggregateData<.*Identifier|D extends AggregateData<ID>"`.
 
 Expected: no stale production signatures.
 

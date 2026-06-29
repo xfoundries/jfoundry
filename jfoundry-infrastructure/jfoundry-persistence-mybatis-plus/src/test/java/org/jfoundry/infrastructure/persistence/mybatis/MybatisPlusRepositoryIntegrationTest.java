@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
 
+import java.lang.reflect.TypeVariable;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,10 +39,19 @@ class MybatisPlusRepositoryIntegrationTest {
     @Autowired
     private PersistenceTestConfig.TestDomainEventContext domainEventContext;
 
+    @Test
+    void mybatisPlusRepositoryShouldUseJavaStyleTypeParameterNames() {
+        assertThat(typeParameterNames(MybatisPlusRepository.class)).containsExactly("T", "ID", "D", "K");
+    }
+
     @BeforeEach
     void cleanDb() {
         mapper.delete(null);
         domainEventContext.drainRegistered();
+    }
+
+    private static List<String> typeParameterNames(Class<?> type) {
+        return List.of(type.getTypeParameters()).stream().map(TypeVariable::getName).toList();
     }
 
     // ---- add 链路 ----

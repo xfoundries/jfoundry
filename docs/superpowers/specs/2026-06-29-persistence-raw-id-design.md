@@ -18,11 +18,11 @@
 public abstract class AggregateData<ID extends Serializable>
 ```
 
-仓储和转换器拆分两个 ID 泛型：
+仓储和转换器拆分领域 ID 与持久化主键泛型：
 
 ```text
-DOMAIN_ID：领域 ID，继承 Identifier
-DATA_ID：持久化 ID，继承 Serializable
+ID：领域 ID，继承 Identifier
+K：持久化主键，继承 Serializable
 ```
 
 `DataConverter` 负责在聚合根和数据对象之间转换：
@@ -32,7 +32,7 @@ TestOrderId <-> String
 HelpDocumentId <-> String
 ```
 
-`AbstractPersistenceRepository` 对外仍实现 `AggregateRepository<T, DOMAIN_ID>`，但模板方法使用 `DATA_ID` 与持久化框架交互。删除和查询时通过新的 `toDataId(DOMAIN_ID id)` 方法把领域 ID 转换成持久化 ID。
+`AbstractPersistenceRepository` 对外仍实现 `AggregateRepository<T, ID>`，但模板方法使用 `K` 与持久化框架交互。删除和查询时通过新的 `toDataId(ID id)` 方法把领域 ID 转换成持久化主键。
 
 ## 非目标
 

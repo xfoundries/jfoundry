@@ -6,8 +6,10 @@ import org.jmolecules.ddd.types.Identifier;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
+import java.lang.reflect.TypeVariable;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -65,6 +67,16 @@ class DataConverterTest {
         assertTrue(converter.toDataList(List.of()).isEmpty());
         assertTrue(converter.toEntityList(null).isEmpty());
         assertTrue(converter.toEntityList(List.of()).isEmpty());
+    }
+
+    @Test
+    void publicPersistenceAbstractionsShouldUseJavaStyleTypeParameterNames() {
+        assertThat(typeParameterNames(DataConverter.class)).containsExactly("T", "ID", "D", "K");
+        assertThat(typeParameterNames(AbstractPersistenceRepository.class)).containsExactly("T", "ID", "D", "K");
+    }
+
+    private static List<String> typeParameterNames(Class<?> type) {
+        return List.of(type.getTypeParameters()).stream().map(TypeVariable::getName).toList();
     }
 
     record TestId(String value) implements Identifier, Serializable {

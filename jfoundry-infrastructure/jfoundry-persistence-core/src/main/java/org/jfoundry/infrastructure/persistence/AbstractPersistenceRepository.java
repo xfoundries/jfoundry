@@ -26,22 +26,22 @@ import java.util.List;
 /// 具体实现示例:{@code jfoundry-persistence-mybatis-plus} 模块的 {@code MybatisPlusRepository}(基于 MyBatis-Plus BaseMapper)。
 /// 未来可扩展 JPA / Mongo 等同位模块。
 ///
-/// @param <T>         聚合根类型,必须同时是 jMolecules AggregateRoot 和 framework EventRecordable
-/// @param <DOMAIN_ID> 领域标识符类型
-/// @param <D>         数据库实体类型
-/// @param <DATA_ID>   持久化标识符类型
+/// @param <T>  聚合根类型,必须同时是 jMolecules AggregateRoot 和 framework EventRecordable
+/// @param <ID> 领域标识符类型
+/// @param <D>  数据库实体类型
+/// @param <K>  持久化主键类型
 public abstract class AbstractPersistenceRepository<
-        T extends AggregateRoot<T, DOMAIN_ID> & EventRecordable,
-        DOMAIN_ID extends Identifier & Serializable,
-        D extends AggregateData<DATA_ID>,
-        DATA_ID extends Serializable>
-        implements AggregateRepository<T, DOMAIN_ID> {
+        T extends AggregateRoot<T, ID> & EventRecordable,
+        ID extends Identifier & Serializable,
+        D extends AggregateData<K>,
+        K extends Serializable>
+        implements AggregateRepository<T, ID> {
 
     private final DomainEventContext domainEventContext;
-    private final DataConverter<T, DOMAIN_ID, D, DATA_ID> converter;
+    private final DataConverter<T, ID, D, K> converter;
 
     protected AbstractPersistenceRepository(DomainEventContext domainEventContext,
-                                             DataConverter<T, DOMAIN_ID, D, DATA_ID> converter) {
+                                             DataConverter<T, ID, D, K> converter) {
         this.domainEventContext = domainEventContext;
         this.converter = converter;
     }
@@ -53,18 +53,18 @@ public abstract class AbstractPersistenceRepository<
     protected abstract long updateData(D data);
 
     /// 子类实现的模板方法:按 ID 删除,返回受影响行数(用于 remove 校验沉默失败)。
-    protected abstract long deleteDataById(DATA_ID id);
+    protected abstract long deleteDataById(K id);
 
     /// 子类实现的模板方法:按 ID 查询,返回 null 表示不存在。
-    protected abstract D selectDataById(DATA_ID id);
+    protected abstract D selectDataById(K id);
 
     /// 子类可访问的 converter(用于 findById 转换)。
-    protected DataConverter<T, DOMAIN_ID, D, DATA_ID> converter() {
+    protected DataConverter<T, ID, D, K> converter() {
         return converter;
     }
 
     @Override
-    public T findById(DOMAIN_ID id) {
+    public T findById(ID id) {
         if (id == null) {
             throw new IllegalArgumentException("Entity id must not be null.");
         }
@@ -117,7 +117,7 @@ public abstract class AbstractPersistenceRepository<
     @Override
     public void remove(T entity) {
         T validatedEntity = requireEntity(entity);
-        DOMAIN_ID entityId = requireEntityId(validatedEntity);
+        ID entityId = requireEntityId(validatedEntity);
         long count = deleteDataById(converter.toDataId(entityId));
         assertAffectedRows(count, "remove affected 0 rows — entity not found: " + entityId);
         registerAggregate(validatedEntity);
@@ -130,7 +130,7 @@ public abstract class AbstractPersistenceRepository<
         return entity;
     }
 
-    private DOMAIN_ID requireEntityId(T entity) {
+    private ID requireEntityId(T entity) {
         if (entity.getId() == null) {
             throw new IllegalArgumentException("Entity id must not be null.");
         }
