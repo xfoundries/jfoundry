@@ -31,7 +31,7 @@
   </properties>
   <modules>
     <module>jfoundry-modules-dependencies</module>
-    <module>jfoundry-third-party-dependencies</module>
+    <module>jfoundry-foundation-dependencies</module>
     <module>jfoundry-spring-official-dependencies</module>
     <module>jfoundry-spring-integration-dependencies</module>
     <module>jfoundry-spring-dependencies</module>
@@ -47,7 +47,7 @@
       </dependency>
       <dependency>
         <groupId>org.jfoundry</groupId>
-        <artifactId>jfoundry-third-party-dependencies</artifactId>
+        <artifactId>jfoundry-foundation-dependencies</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>

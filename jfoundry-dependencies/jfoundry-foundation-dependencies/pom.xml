@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" child.project.url.inherit.append.path="false" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jfoundry</groupId>
-  <artifactId>jfoundry-third-party-dependencies</artifactId>
+  <artifactId>jfoundry-foundation-dependencies</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>jfoundry-third-party-dependencies</name>
-  <description>Dependency management BOM for Spring-independent third-party libraries used by jfoundry.</description>
+  <name>jfoundry-foundation-dependencies</name>
+  <description>Dependency management BOM for framework-neutral foundation libraries used by jfoundry.</description>
   <url>${jfoundry.release.url}</url>
   <licenses>
     <license>
@@ -33,6 +33,10 @@
     <jmolecules-integrations.version>0.33.0</jmolecules-integrations.version>
     <jackson.version>2.19.4</jackson.version>
     <jobrunr.version>8.7.1</jobrunr.version>
+    <mapstruct.version>1.5.5.Final</mapstruct.version>
+    <commons-collections4.version>4.5.0</commons-collections4.version>
+    <caffeine.version>3.1.8</caffeine.version>
+    <mqttv3.version>1.2.5</mqttv3.version>
     <rocketmq-client.version>5.5.0</rocketmq-client.version>
     <javassist.version>3.30.2-GA</javassist.version>
     <snakeyaml.version>2.2</snakeyaml.version>
@@ -94,6 +98,31 @@
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jsr310</artifactId>
         <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mapstruct</groupId>
+        <artifactId>mapstruct</artifactId>
+        <version>${mapstruct.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mapstruct</groupId>
+        <artifactId>mapstruct-processor</artifactId>
+        <version>${mapstruct.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-collections4</artifactId>
+        <version>${commons-collections4.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>caffeine</artifactId>
+        <version>${caffeine.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.paho</groupId>
+        <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+        <version>${mqttv3.version}</version>
       </dependency>
       <dependency>
         <groupId>org.jobrunr</groupId>
