@@ -105,12 +105,12 @@ ArchRule[] valueObjectRules = {
 
 ## Maven 依赖
 
-业务模块只需依赖 `jfoundry-test`（测试期）：
+业务模块只需依赖 `jfoundry-architecture-test`（测试期）：
 
 ```xml
 <dependency>
     <groupId>org.jfoundry</groupId>
-    <artifactId>jfoundry-test</artifactId>
+    <artifactId>jfoundry-architecture-test</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <scope>test</scope>
 </dependency>

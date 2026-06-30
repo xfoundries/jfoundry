@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This is a Java 21 multi-module Maven project for a jmolecules-based DDD framework. Top-level modules are declared in `pom.xml`: `jfoundry-domain`, `jfoundry-architecture-layered`, `jfoundry-infrastructure`, `jfoundry-spring`, `jfoundry-test`, and `jfoundry-dependencies`. Production code uses standard Maven paths such as `src/main/java`; tests live under `src/test/java`; module resources and SQL migrations live under `src/main/resources` or `src/test/resources`. Documentation is in `docs/`, with the main overview in `README.md`.
+This is a Java 21 multi-module Maven project for a jmolecules-based DDD framework. Top-level modules are declared in `pom.xml`: `jfoundry-dependencies`, `jfoundry-architecture`, `jfoundry-domain`, `jfoundry-application`, `jfoundry-infrastructure`, `jfoundry-starters`, `jfoundry-spring`, and `jfoundry-verification`. Production code uses standard Maven paths such as `src/main/java`; tests live under `src/test/java`; module resources and SQL migrations live under `src/main/resources` or `src/test/resources`. Documentation is in `docs/`, with the main overview in `README.md`.
 
 ## Build, Test, and Development Commands
 
@@ -14,7 +14,7 @@ This is a Java 21 multi-module Maven project for a jmolecules-based DDD framewor
 
 ## Coding Style & Naming Conventions
 
-Use Java 21 features where they simplify the model, especially records for immutable value objects. Follow the existing package root `org.jfoundry.*` and standard Maven layout. Keep domain modules free of Spring and persistence dependencies; place Spring auto-configuration under `jfoundry-spring`, persistence implementations under `jfoundry-infrastructure`, and reusable test rules under `jfoundry-test`. Name tests with a `*Test` suffix. No formatter plugin is configured, so match the surrounding Java style: four-space indentation, clear method names, and concise Javadoc only where API intent is not obvious.
+Use Java 21 features where they simplify the model, especially records for immutable value objects. Follow the existing package root `org.jfoundry.*` and standard Maven layout. Keep domain modules free of Spring and persistence dependencies; place Spring auto-configuration under `jfoundry-spring`, persistence implementations under `jfoundry-infrastructure`, reusable architecture test rules under `jfoundry-architecture/jfoundry-architecture-test`, and internal middleware verification under `jfoundry-verification`. Name tests with a `*Test` suffix. No formatter plugin is configured, so match the surrounding Java style: four-space indentation, clear method names, and concise Javadoc only where API intent is not obvious.
 
 ## Testing Guidelines
 

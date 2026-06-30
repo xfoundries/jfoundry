@@ -6,14 +6,14 @@ This project keeps the default test loop free of real middleware:
 mvn test
 ```
 
-The middleware-backed matrix lives in `jfoundry-integration-tests` and runs through Maven Failsafe.
+The middleware-backed matrix lives in `jfoundry-verification/jfoundry-middleware-integration-tests` and runs through Maven Failsafe.
 
 ## Docker Matrix
 
 Run the Docker-backed matrix with Docker available:
 
 ```bash
-mvn -pl jfoundry-integration-tests -am -Pit verify
+mvn -pl jfoundry-verification/jfoundry-middleware-integration-tests -am -Pit verify
 ```
 
 The `it` profile runs:
@@ -55,7 +55,7 @@ DM_JDBC_URL='jdbc:dm://host:5236/SCHEMA' \
 DM_USERNAME='SYSDBA' \
 DM_PASSWORD='password' \
 DM_DRIVER_CLASS='dm.jdbc.driver.DmDriver' \
-mvn -pl jfoundry-integration-tests -am -Pit,dm-it \
+mvn -pl jfoundry-verification/jfoundry-middleware-integration-tests -am -Pit,dm-it \
   -DskipITs=false \
   -Dtest=none \
   -Dsurefire.failIfNoSpecifiedTests=false \
@@ -70,7 +70,7 @@ The DM JDBC driver must be available on the test runtime classpath. If the three
 Run one integration test class:
 
 ```bash
-mvn -pl jfoundry-integration-tests -am -Pit \
+mvn -pl jfoundry-verification/jfoundry-middleware-integration-tests -am -Pit \
   -DskipITs=false \
   -Dtest=none \
   -Dsurefire.failIfNoSpecifiedTests=false \
@@ -94,8 +94,8 @@ Useful test classes:
 Recommended CI split:
 
 - `unit`: `mvn test`
-- `integration-docker`: `mvn -pl jfoundry-integration-tests -am -Pit verify`
-- `integration-dm`: external DM8 plus `mvn -pl jfoundry-integration-tests -am -Pit,dm-it verify`
+- `integration-docker`: `mvn -pl jfoundry-verification/jfoundry-middleware-integration-tests -am -Pit verify`
+- `integration-dm`: external DM8 plus `mvn -pl jfoundry-verification/jfoundry-middleware-integration-tests -am -Pit,dm-it verify`
 
 The unit job is the fast compatibility gate. The middleware jobs are the production-readiness gate for Inbox idempotency, Outbox claim-token safety, SQL dialect behavior, and broker dispatch behavior.
 

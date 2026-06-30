@@ -56,7 +56,10 @@ jfoundry-parent
 │   ├── jfoundry-inbox-spring-boot-starter        Inbox 能力 starter
 │   ├── jfoundry-mybatis-plus-spring-boot-starter MyBatis-Plus persistence starter
 │   └── ...
-└── jfoundry-test                                 ArchUnit 规则库（业务侧测试直接引用）
+├── jfoundry-architecture
+│   └── jfoundry-architecture-test                架构测试规则库（业务侧测试直接引用）
+└── jfoundry-verification
+    └── jfoundry-middleware-integration-tests     中间件集成验证（框架内部）
 ```
 
 默认 Outbox 表名是 `jfoundry_outbox_event`，可通过 `jfoundry.outbox.table-name` 覆盖物理表名；自定义表需要与默认 DDL 保持同构。Kafka 是当前第一个真实 broker adapter，业务侧如需使用需额外引入 `jfoundry-messaging-kafka-spring-boot-starter` 并提供 `KafkaTemplate<String, String>`。消费者侧可注入 `InboxTemplate` 做幂等处理：

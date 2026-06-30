@@ -16,7 +16,7 @@ Use this guide when an existing Spring Boot application wants to adopt `jfoundry
 - OpenFeign
 - private platform BOMs or SDKs
 
-Run this alignment before introducing runtime `jfoundry` starters. It is safe to introduce `jfoundry-dependencies` and `jfoundry-test` during the alignment step.
+Run this alignment before introducing runtime `jfoundry` starters. It is safe to introduce `jfoundry-dependencies` and `jfoundry-architecture-test` during the alignment step.
 
 ## Recommended 1.x Baseline
 
@@ -86,11 +86,11 @@ After importing a BOM, remove duplicate dependency-management entries for the sa
 During platform alignment, prefer test-only `jfoundry` usage:
 
 ```xml
-<dependency>
-    <groupId>org.jfoundry</groupId>
-    <artifactId>jfoundry-test</artifactId>
-    <scope>test</scope>
-</dependency>
+    <dependency>
+        <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-architecture-test</artifactId>
+        <scope>test</scope>
+    </dependency>
 ```
 
 Do not add runtime starters until the platform build, dependency tree, and local startup behavior are understood.

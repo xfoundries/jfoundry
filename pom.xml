@@ -96,8 +96,7 @@
         <module>jfoundry-infrastructure</module>
         <module>jfoundry-starters</module>
         <module>jfoundry-spring</module>
-        <module>jfoundry-integration-tests</module>
-        <module>jfoundry-test</module>
+        <module>jfoundry-verification</module>
     </modules>
 
     <dependencyManagement>
@@ -111,11 +110,6 @@
             <dependency>
                 <groupId>org.jfoundry</groupId>
                 <artifactId>jfoundry-application-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-architecture-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

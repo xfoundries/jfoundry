@@ -42,7 +42,7 @@ Recorded on 2026-06-27 with local Java `21.0.10-tem` and Maven wrapper `3.9.16`.
 |------|---------|--------|
 | Unit tests | `./mvnw test` | PASS |
 | Package artifacts | `./mvnw -DskipTests package` | PASS |
-| Integration tests | `./mvnw -pl jfoundry-integration-tests -am -Pit verify` | PASS, 28 integration tests with Docker 29.5.3/Testcontainers |
+| Integration tests | `./mvnw -pl jfoundry-verification/jfoundry-middleware-integration-tests -am -Pit verify` | PASS, 28 integration tests with Docker 29.5.3/Testcontainers |
 | Release guard | `mvn -Prelease -DskipTests validate` | Expected fail fast on `Release builds require non-SNAPSHOT project versions.` |
 | Maven 4 validate | Maven `4.0.0-rc-5`, `mvn -B -DskipTests validate -e` | PASS, no model warnings |
 | Maven 4 package | Maven `4.0.0-rc-5`, `mvn -B -DskipTests package` | PASS |
@@ -72,7 +72,7 @@ See `docs/superpowers/plans/2026-06-27-spring-boot-4-java-25.md`.
 
 - `./mvnw test`
 - `./mvnw -DskipTests package`
-- `./mvnw -pl jfoundry-integration-tests -am -Pit verify`
+- `./mvnw -pl jfoundry-verification/jfoundry-middleware-integration-tests -am -Pit verify`
 - Java 25 runtime matrix for the 1.x line in CI
 - Maven 4 compatibility matrix in CI
 - Maven Central metadata guard in the `release` profile

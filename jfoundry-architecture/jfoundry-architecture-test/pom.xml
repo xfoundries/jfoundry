@@ -7,8 +7,9 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jfoundry-test</artifactId>
-    <name>jfoundry-test</name>
+    <artifactId>jfoundry-architecture-test</artifactId>
+    <name>jfoundry-architecture-test</name>
+    <description>Reusable architecture test rules and fixtures for JFoundry-based applications.</description>
 
     <dependencies>
         <dependency>

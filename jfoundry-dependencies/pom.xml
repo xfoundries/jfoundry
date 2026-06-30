@@ -70,11 +70,6 @@
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-architecture-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jfoundry</groupId>
                 <artifactId>jfoundry-domain-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -243,7 +238,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-test</artifactId>
+                <artifactId>jfoundry-architecture-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

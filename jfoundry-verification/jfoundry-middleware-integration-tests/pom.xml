@@ -7,8 +7,8 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jfoundry-integration-tests</artifactId>
-    <name>jfoundry-integration-tests</name>
+    <artifactId>jfoundry-middleware-integration-tests</artifactId>
+    <name>jfoundry-middleware-integration-tests</name>
     <description>Middleware-backed integration verification for Inbox, Outbox, and messaging adapters.</description>
 
     <dependencies>
