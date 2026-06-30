@@ -25,7 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
         classes = OutboxTableNameWithCustomInterceptorTest.TestApp.class,
         properties = {
                 "jfoundry.outbox.table-name=custom_outbox",
-                "jfoundry.outbox.dispatcher.enabled=false",
+                "jfoundry.outbox.dispatcher.mode=none",
+                "spring.autoconfigure.exclude=org.jfoundry.autoconfigure.outbox.dispatcher.OutboxDispatcherAutoConfiguration",
                 "spring.datasource.url=jdbc:h2:mem:jfoundry-custom-interceptor;DB_CLOSE_DELAY=-1",
                 "spring.sql.init.schema-locations=classpath:outbox_event.sql"
         }

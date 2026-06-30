@@ -1,7 +1,6 @@
 jfoundry:
   outbox:
     dispatcher:
-      enabled: true
       mode: scheduled
       interval-ms: 100
       batch-size: 10

@@ -50,7 +50,7 @@ public class OutboxCleanupProperties {
 
     /// 是否启用清理任务。默认 {@code true}。
     /// <p>
-    /// 注意：与 {@code jfoundry.outbox.dispatcher.enabled} 解耦——即使 dispatcher 被禁用，
+    /// 注意：与 dispatcher mode 解耦——即使不启用自动派发，
     /// cleanup 仍可独立工作（只要 OutboxMessageStore bean 存在）。本开关只控制
     /// {@link OutboxCleanupJob#runOnce()} 是否实际执行删除；Spring 调度仍会按
     /// {@link #interval} 周期触发，但 {@code runOnce} 会直接返回 0。

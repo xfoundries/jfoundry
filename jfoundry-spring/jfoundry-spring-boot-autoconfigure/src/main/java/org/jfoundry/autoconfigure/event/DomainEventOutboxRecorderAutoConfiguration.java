@@ -1,4 +1,4 @@
-package org.jfoundry.autoconfigure.messaging;
+package org.jfoundry.autoconfigure.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.application.messaging.PayloadSerializer;

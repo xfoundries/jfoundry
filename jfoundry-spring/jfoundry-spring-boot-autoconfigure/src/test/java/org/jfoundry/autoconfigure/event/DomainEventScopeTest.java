@@ -1,4 +1,4 @@
-package org.jfoundry.autoconfigure.messaging;
+package org.jfoundry.autoconfigure.event;
 
 import org.jfoundry.domain.event.EventRecordable;
 import org.jmolecules.event.types.DomainEvent;

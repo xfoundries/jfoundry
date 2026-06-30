@@ -29,10 +29,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 ///       两端都用 {@code @ConditionalOnMissingBean(OutboxDispatcher.class)} 守护，
 ///       且 mode 分别匹配 {@code scheduled} / {@code jobrunr}，不会同时命中。</li>
 /// </ul>
-/// <p>
-/// 总开关：{@code jfoundry.outbox.dispatcher.enabled=false} 将关闭整个 AutoConfiguration，
-/// 所有 Dispatcher / BackoffStrategy bean 都不会注册，{@code @EnableScheduling} 也不会生效。
-/// 默认 {@code matchIfMissing=true} 保持向后兼容。
 @AutoConfiguration
 @AutoConfigureAfter(
         value = MessageSenderAutoConfiguration.class,
@@ -40,8 +36,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 )
 @ConditionalOnClass({OutboxMessageStore.class, MessageSender.class, ScheduledOutboxDispatcher.class})
 @EnableConfigurationProperties({OutboxDispatcherProperties.class, OutboxRecoveryProperties.class, OutboxCleanupProperties.class})
-@ConditionalOnProperty(prefix = "jfoundry.outbox.dispatcher", name = "enabled",
-                       havingValue = "true", matchIfMissing = true)
 @EnableScheduling
 public class OutboxDispatcherAutoConfiguration {
 

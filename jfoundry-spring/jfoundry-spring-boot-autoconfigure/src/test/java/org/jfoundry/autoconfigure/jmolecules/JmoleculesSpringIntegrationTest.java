@@ -27,7 +27,8 @@ class JmoleculesSpringIntegrationTest {
             AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
             ctx.setServletContext(new MockServletContext());
             ctx.setEnvironment(new MockEnvironment()
-                    .withProperty("jfoundry.outbox.dispatcher.enabled", "false"));
+                    .withProperty("spring.autoconfigure.exclude",
+                            "org.jfoundry.autoconfigure.outbox.dispatcher.OutboxDispatcherAutoConfiguration"));
             ctx.register(TestApp.class);
             ctx.refresh();
             return ctx;

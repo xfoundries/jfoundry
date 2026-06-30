@@ -26,14 +26,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// <p>
 /// Test isolation: the dedicated H2 DB name {@code jfoundry-cleanup-test} avoids sharing
 /// state with other autoconfigure tests that use {@code jfoundry-outbox-test} or
-/// {@code jfoundry-starter-test}. We do NOT set {@code jfoundry.outbox.dispatcher.enabled=false}
-/// because that flag disables the entire {@link OutboxDispatcherAutoConfiguration}
-/// (including the {@link OutboxCleanupJob} bean we are testing). Instead, we rely on the
-/// fact that all seeded records are in terminal states (PUBLISHED / DEAD_LETTERED), which
-/// the scheduled dispatcher ignores — it only picks PENDING / FAILED rows. The dispatcher
-/// poll interval is bumped to 10 min via {@code jfoundry.outbox.dispatcher.interval-ms}
-/// so the scheduled dispatcher doesn't run during the short test window ( belt-and-
-/// suspenders; terminal-state seed records wouldn't be picked anyway).
+/// {@code jfoundry-starter-test}. The dispatcher mode is set to {@code none} so this test
+/// only exercises cleanup behavior.
 /// <p>
 /// Caveat 1 (brief): {@code OutboxMessageStore.findById(...)} does not exist on the SPI —
 /// we verify deletion through {@link OutboxMapper#selectById(String)} instead (same

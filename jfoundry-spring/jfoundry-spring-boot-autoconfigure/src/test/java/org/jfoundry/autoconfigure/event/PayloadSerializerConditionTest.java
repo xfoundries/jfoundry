@@ -1,4 +1,4 @@
-package org.jfoundry.autoconfigure.messaging;
+package org.jfoundry.autoconfigure.event;
 
 import org.jfoundry.application.messaging.PayloadSerializer;
 import org.jfoundry.application.outbox.DomainEventOutboxRecorder;

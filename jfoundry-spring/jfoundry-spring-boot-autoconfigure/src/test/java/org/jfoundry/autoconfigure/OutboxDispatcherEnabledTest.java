@@ -3,7 +3,6 @@ package org.jfoundry.autoconfigure;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.application.outbox.OutboxDispatcher;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -13,11 +12,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-/// P1-4 regression: jfoundry.outbox.dispatcher.enabled=false must actually disable
-/// dispatcher bean registration. The existing config javadoc admitted the bug
-/// ("业务侧需要禁用调度时...自行关闭 @EnableScheduling") — this test pins the fix.
+/// Regression test: {@code jfoundry.outbox.dispatcher.enabled} is not a public
+/// switch anymore. Dispatcher selection is controlled by
+/// {@code jfoundry.outbox.dispatcher.mode}.
 /// <p>
 /// TestApp provides an ObjectMapper bean so DomainEventOutboxRecorderAutoConfiguration's
 /// payloadSerializer（@ConditionalOnBean(ObjectMapper.class)）能正常注册；
@@ -46,15 +44,14 @@ class OutboxDispatcherEnabledTest {
     private ApplicationContext context;
 
     @Test
-    void noOutboxDispatcherBeanWhenDisabled() {
-        assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
-                .isThrownBy(() -> context.getBean(OutboxDispatcher.class));
+    void legacyEnabledPropertyDoesNotDisableDispatcher() {
+        assertThat(context.getBeansOfType(OutboxDispatcher.class)).hasSize(1);
     }
 
     @Test
-    void noScheduledOutboxDispatcherBeanWhenDisabled() {
+    void legacyEnabledPropertyDoesNotDisableScheduledDispatcher() {
         assertThat(context.containsBeanDefinition("scheduledOutboxDispatcher"))
-                .as("scheduledOutboxDispatcher bean must not be registered when enabled=false")
-                .isFalse();
+                .as("scheduledOutboxDispatcher is controlled by mode, not enabled")
+                .isTrue();
     }
 }

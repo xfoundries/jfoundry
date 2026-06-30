@@ -34,8 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// 对自定义 SQL（mapper 上的 {@code @Update}/{@code @Select}/{@code @Delete}）也生效，
 /// 不只是 BaseMapper 的标准 CRUD。
 /// <p>
-/// Isolation: this test brings up the full autoconfig chain, so we (1) disable the
-/// outbox dispatcher to avoid its polling interacting with downstream tests, and (2) use
+/// Isolation: this test brings up the full autoconfig chain, so we (1) set dispatcher
+/// mode to none to avoid polling interacting with downstream tests, and (2) use
 /// a dedicated in-memory H2 name. Same cross-test flakiness pattern as Task 2.3 (see
 /// {@code task-2.3-report.md}) — Task 2.3 moved its test to messaging-mybatis-plus; we
 /// keep this one in autoconfigure because it specifically exercises the
@@ -44,11 +44,12 @@ import static org.assertj.core.api.Assertions.assertThat;
         classes = OutboxTableNameOverrideTest.TestApp.class,
         properties = {
                 "jfoundry.outbox.table-name=custom_outbox",
-                // Disable the outbox dispatcher so this test exercises only the persistence
+                // Set dispatcher mode to none so this test exercises only the persistence
                 // layer (append → TableNameHandler → custom_outbox). Otherwise the full
                 // autoconfig chain starts a ScheduledOutboxDispatcher whose polling may
                 // interact with subsequent tests sharing the same H2 instance.
-                "jfoundry.outbox.dispatcher.enabled=false",
+                "jfoundry.outbox.dispatcher.mode=none",
+                "spring.autoconfigure.exclude=org.jfoundry.autoconfigure.outbox.dispatcher.OutboxDispatcherAutoConfiguration",
                 // Dedicated in-memory DB name for isolation from DomainEventExternalizationIntegrationTest.
                 "spring.datasource.url=jdbc:h2:mem:jfoundry-table-name-override;DB_CLOSE_DELAY=-1",
                 "spring.sql.init.schema-locations=classpath:outbox_event.sql"
