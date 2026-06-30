@@ -3,14 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.jfoundry</groupId>
-        <artifactId>jfoundry-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
-
+    <groupId>org.jfoundry</groupId>
     <artifactId>jfoundry-dependencies</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>jfoundry-dependencies</name>
@@ -33,6 +28,37 @@
         <url>${jfoundry.release.scm.url}</url>
         <tag>HEAD</tag>
     </scm>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.outputTimestamp>2026-06-27T00:00:00Z</project.build.outputTimestamp>
+        <jfoundry.release.url>https://github.com/youngledo/jfoundry</jfoundry.release.url>
+        <jfoundry.release.scm.connection>scm:git:https://github.com/youngledo/jfoundry.git</jfoundry.release.scm.connection>
+        <jfoundry.release.scm.developerConnection>scm:git:https://github.com/youngledo/jfoundry.git</jfoundry.release.scm.developerConnection>
+        <jfoundry.release.scm.url>https://github.com/youngledo/jfoundry</jfoundry.release.scm.url>
+        <spring.version>6.2.19</spring.version>
+        <spring-boot.version>3.5.16</spring-boot.version>
+        <mybatis-plus.version>3.5.16</mybatis-plus.version>
+        <mybatis-plus-spring-boot3.version>3.5.16</mybatis-plus-spring-boot3.version>
+        <jmolecules.version>2025.0.2</jmolecules.version>
+        <jmolecules-integrations.version>0.33.0</jmolecules-integrations.version>
+        <jackson.version>2.19.4</jackson.version>
+        <jobrunr.version>8.7.1</jobrunr.version>
+        <spring-kafka.version>3.3.16</spring-kafka.version>
+        <spring-amqp.version>3.2.12</spring-amqp.version>
+        <rocketmq-client.version>5.5.0</rocketmq-client.version>
+        <javassist.version>3.30.2-GA</javassist.version>
+        <snakeyaml.version>2.2</snakeyaml.version>
+        <awaitility.version>4.2.1</awaitility.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
+        <mysql-connector-j.version>9.7.0</mysql-connector-j.version>
+        <postgresql.version>42.6.2</postgresql.version>
+        <archunit.version>1.4.2</archunit.version>
+        <assertj.version>3.26.0</assertj.version>
+        <mockito.version>5.12.0</mockito.version>
+        <junit-jupiter.version>5.13.3</junit-jupiter.version>
+        <junit-platform.version>1.13.3</junit-platform.version>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -391,6 +417,31 @@
                 <groupId>org.awaitility</groupId>
                 <artifactId>awaitility</artifactId>
                 <version>${awaitility.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit-junit5</artifactId>
+                <version>${archunit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit-jupiter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-launcher</artifactId>
+                <version>${junit-platform.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
