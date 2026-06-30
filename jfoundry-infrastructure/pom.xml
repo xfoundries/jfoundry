@@ -9,12 +9,11 @@
 
     <artifactId>jfoundry-infrastructure</artifactId>
     <name>jfoundry-infrastructure</name>
-    <description>Persistence core plus technical adapters for persistence, messaging, outbox, and inbox.</description>
+    <description>Framework-neutral infrastructure adapters for persistence, messaging brokers, outbox stores, and inbox stores.</description>
     <packaging>pom</packaging>
 
     <modules>
         <module>jfoundry-persistence-core</module>
-        <module>jfoundry-event-spring</module>
         <module>jfoundry-messaging-jackson</module>
         <module>jfoundry-messaging-kafka</module>
         <module>jfoundry-messaging-rocketmq</module>
@@ -22,8 +21,6 @@
         <module>jfoundry-inbox-mybatis-plus</module>
         <module>jfoundry-persistence-mybatis-plus</module>
         <module>jfoundry-outbox-mybatis-plus</module>
-        <module>jfoundry-messaging-spring</module>
-        <module>jfoundry-outbox-spring</module>
         <module>jfoundry-outbox-jobrunr</module>
     </modules>
 </project>

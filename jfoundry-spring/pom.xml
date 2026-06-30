@@ -10,26 +10,16 @@
     <artifactId>jfoundry-spring</artifactId>
     <name>jfoundry-spring</name>
     <description>
-        DDD Spring 整合层聚合 pom：托管基于 Spring Boot 的 @AutoConfiguration 装配和具体 starter。
-        本模块仅作为容器（packaging=pom，无 Java 代码）。与 jfoundry-infrastructure（按基础设施关注点
-        纵向切分）形成正交的"按整合框架横向切分"维度——未来接入 Quarkus 等其他框架时，新建平级
-        聚合（如 jfoundry-quarkus）即可。
+        Spring ecosystem aggregate pom. Spring Framework runtime adapters and Spring Boot
+        starters are grouped in separate sub-aggregates, while Spring Boot auto-configuration
+        remains a direct child module. The framework-neutral core remains outside this module
+        so other runtime integrations can be added as peer aggregates.
     </description>
     <packaging>pom</packaging>
 
     <modules>
+        <module>jfoundry-spring-runtime</module>
         <module>jfoundry-spring-boot-autoconfigure</module>
-        <module>jfoundry-spring-boot-starter</module>
-        <module>jfoundry-event-spring-boot-starter</module>
-        <module>jfoundry-messaging-spring-boot-starter</module>
-        <module>jfoundry-messaging-kafka-spring-boot-starter</module>
-        <module>jfoundry-messaging-rocketmq-spring-boot-starter</module>
-        <module>jfoundry-messaging-rabbitmq-spring-boot-starter</module>
-        <module>jfoundry-outbox-spring-boot-starter</module>
-        <module>jfoundry-outbox-mybatis-plus-spring-boot-starter</module>
-        <module>jfoundry-outbox-jobrunr-spring-boot-starter</module>
-        <module>jfoundry-inbox-spring-boot-starter</module>
-        <module>jfoundry-inbox-mybatis-plus-spring-boot-starter</module>
-        <module>jfoundry-mybatis-plus-spring-boot-starter</module>
+        <module>jfoundry-spring-boot-starters</module>
     </modules>
 </project>

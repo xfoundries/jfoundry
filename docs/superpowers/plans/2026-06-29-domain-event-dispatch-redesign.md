@@ -15,9 +15,9 @@
 | File | Responsibility | Action |
 |---|---|---|
 | `jfoundry-application/jfoundry-messaging-core/.../CompositeDomainEventDispatcher.java` | 组合多个领域事件分发器 | Create |
-| `jfoundry-infrastructure/jfoundry-messaging-spring/.../SpringApplicationEventDispatcher.java` | 发布 Spring 应用事件 | Create |
-| `jfoundry-infrastructure/jfoundry-messaging-spring/.../SpringDomainEventDispatcher.java` | 旧耦合分发器 | Delete |
-| `jfoundry-infrastructure/jfoundry-outbox-spring/.../OutboxDomainEventDispatcher.java` | 记录领域事件到 Outbox | Create |
+| `jfoundry-spring/jfoundry-spring-runtime/jfoundry-event-spring/.../SpringApplicationEventDispatcher.java` | 发布 Spring 应用事件 | Create |
+| `jfoundry-spring/jfoundry-spring-runtime/jfoundry-event-spring/.../SpringDomainEventDispatcher.java` | 旧耦合分发器 | Delete |
+| `jfoundry-spring/jfoundry-spring-runtime/jfoundry-outbox-spring/.../OutboxDomainEventDispatcher.java` | 记录领域事件到 Outbox | Create |
 | `jfoundry-spring/jfoundry-spring-boot-autoconfigure/.../DomainEventDispatchProperties.java` | 新 dispatch 配置模型 | Modify |
 | `jfoundry-spring/jfoundry-spring-boot-autoconfigure/.../DomainEventDispatchAutoConfiguration.java` | 新自动装配条件 | Modify |
 | `*Test.java` | 红绿测试覆盖新行为 | Modify/Create |
@@ -35,7 +35,7 @@
 
 - [ ] Add `CompositeDomainEventDispatcher` in application messaging core.
 - [ ] Add `SpringApplicationEventDispatcher` in Spring messaging infrastructure.
-- [ ] Add `OutboxDomainEventDispatcher` in Outbox Spring infrastructure.
+- [ ] Add `OutboxDomainEventDispatcher` in Outbox Spring runtime integration.
 - [ ] Delete `SpringDomainEventDispatcher`.
 - [ ] Run dispatcher module tests.
 
@@ -55,7 +55,7 @@
 - [ ] Run:
 
 ```bash
-mvn -pl jfoundry-application/jfoundry-messaging-core,jfoundry-infrastructure/jfoundry-messaging-spring,jfoundry-infrastructure/jfoundry-outbox-spring,jfoundry-spring/jfoundry-spring-boot-autoconfigure -am test
+mvn -pl jfoundry-application/jfoundry-messaging-core,jfoundry-spring/jfoundry-spring-runtime/jfoundry-event-spring,jfoundry-spring/jfoundry-spring-runtime/jfoundry-outbox-spring,jfoundry-spring/jfoundry-spring-boot-autoconfigure -am test
 mvn validate
 rg -n "SpringDomainEventDispatcher|jfoundry.domain.event.enabled" .
 ```

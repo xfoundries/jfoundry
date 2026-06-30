@@ -316,13 +316,13 @@ Expected: `BUILD SUCCESS`.
 ### Task 4: Rewire Spring Boot MyBatis-Plus Starter
 
 **Files:**
-- Modify: `/Users/huangxiao/Workspace/mine/jfoundry/jfoundry-spring/jfoundry-mybatis-plus-spring-boot-starter/pom.xml`
+- Modify: `/Users/huangxiao/Workspace/mine/jfoundry/jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-mybatis-plus-spring-boot-starter/pom.xml`
 - Modify: `/Users/huangxiao/Workspace/mine/jfoundry/docs/framework-boundaries.md`
 - Modify: `/Users/huangxiao/Workspace/mine/jfoundry/README.md`
 
 - [ ] **Step 1: Replace direct persistence and architecture dependencies**
 
-In `/Users/huangxiao/Workspace/mine/jfoundry/jfoundry-spring/jfoundry-mybatis-plus-spring-boot-starter/pom.xml`, dependencies should be:
+In `/Users/huangxiao/Workspace/mine/jfoundry/jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-mybatis-plus-spring-boot-starter/pom.xml`, dependencies should be:
 
 ```xml
 <dependencies>
@@ -380,7 +380,7 @@ In `/Users/huangxiao/Workspace/mine/jfoundry/README.md`, show:
 Run:
 
 ```bash
-mvn -Pmy-nexus -pl jfoundry-spring/jfoundry-mybatis-plus-spring-boot-starter dependency:tree -Dincludes=org.jfoundry
+mvn -Pmy-nexus -pl jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-mybatis-plus-spring-boot-starter dependency:tree -Dincludes=org.jfoundry
 ```
 
 Expected tree contains `jfoundry-infrastructure-mybatis-plus-starter` and does not contain `jfoundry-architecture-starter`.
@@ -505,7 +505,7 @@ ci-start -> jfoundry-mybatis-plus-spring-boot-starter
 Run:
 
 ```bash
-mvn -Pmy-nexus -pl jfoundry-starters,jfoundry-spring/jfoundry-mybatis-plus-spring-boot-starter -am test -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false
+mvn -Pmy-nexus -pl jfoundry-starters,jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-mybatis-plus-spring-boot-starter -am test -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false
 ```
 
 Expected: `BUILD SUCCESS`.
@@ -515,7 +515,7 @@ Expected: `BUILD SUCCESS`.
 Run:
 
 ```bash
-mvn -Pmy-nexus -pl jfoundry-dependencies,jfoundry-starters,jfoundry-spring/jfoundry-mybatis-plus-spring-boot-starter -am install -DskipTests -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false
+mvn -Pmy-nexus -pl jfoundry-dependencies,jfoundry-starters,jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-mybatis-plus-spring-boot-starter -am install -DskipTests -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false
 ```
 
 Expected: `BUILD SUCCESS`.

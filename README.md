@@ -1,10 +1,8 @@
 # jfoundry
 
-> jfoundry 是基于 jMolecules 的 DDD 开发框架，当前 main 分支面向生产级 1.x 版本线。当前支持矩阵和发布门禁见 `docs/release/compatibility.md`。
+> `jfoundry` 可以理解为 Java / jMolecules 生态中的 “foundry”。foundry 原意是铸造厂或工坊，本项目希望提供一组可组合、可验证、可落地的 DDD 基础构件，帮助团队把领域建模和工程约束稳定落地。
 
-## 名称含义
-
-`jfoundry` 可以理解为 Java / jMolecules 生态中的 “foundry”。foundry 原意是铸造厂或工坊，本项目希望提供一组可组合、可验证、可落地的 DDD 基础构件：领域模型、架构规则、持久化适配器、消息外部化和 Spring Boot 集成。它不是业务框架模板，而是帮助团队把领域建模和工程约束稳定落地的基础设施。
+jfoundry 的核心模块保持运行时框架无关：DDD、架构风格、CQRS、领域事件、Outbox/Inbox 契约、持久化 SPI 和消息 SPI 不绑定 Spring。Spring 是当前第一套运行时集成，集中放在 `jfoundry-spring` 下；未来如果需要支持 Helidon、Micronaut、Quarkus 等运行时，应以平级集成模块扩展，而不是让核心层反向耦合某个框架。
 
 jfoundry 基于 jMolecules 的领域建模语义，并复用 jMolecules integrations 在 Jackson、Spring、ArchUnit 等生态中的集成能力，在此基础上补充面向业务项目的 Outbox、持久化适配器、Spring Boot starter 和架构规则组合。
 
@@ -17,7 +15,7 @@ jfoundry 基于 jMolecules 的领域建模语义，并复用 jMolecules integrat
 - **真实 broker adapter**：提供 Kafka `MessageSender` adapter；通过 messaging-kafka starter 显式引入
 - **多 ORM 抽象**：核心 SPI 与具体实现解耦，当前提供 MyBatis-Plus 实现，未来可扩展 JPA / Mongo
 - **多数据库支持**：MySQL（`MEDIUMTEXT`）、达梦 DM（`CLOB`），通过 Flyway 自动迁移
-- **Spring Boot 自动装配**：按能力提供 starter，业务侧只引入需要的 messaging / outbox / inbox / adapter 组合
+- **运行时框架集成**：核心能力不绑定 Spring；当前提供 Spring Framework adapter 与 Spring Boot starter，未来可扩展 Helidon / Micronaut / Quarkus 等平级运行时集成
 - **JobRunr 集成**（可选）：基于 JobRunr 的分布式 Outbox 派发
 - **ArchUnit 规则库**：开箱即用的架构守护，覆盖持久化层无 `@Transactional`、自动配置零 `@Component`、值对象不可变等约束
 
@@ -43,23 +41,25 @@ jfoundry-parent
 │   ├── jfoundry-messaging-kafka                  Kafka MessageSender adapter（可选）
 │   ├── jfoundry-inbox-mybatis-plus               Inbox MyBatis-Plus store adapter
 │   ├── jfoundry-outbox-mybatis-plus              Outbox MyBatis-Plus store adapter
-│   ├── jfoundry-event-spring                     Spring ApplicationEvent 领域事件发布适配器
-│   ├── jfoundry-messaging-spring                 默认 LoggingMessageSender
-│   ├── jfoundry-outbox-spring                    领域事件写入 Outbox 的 Spring 适配器 + scheduled 派发器
 │   └── jfoundry-outbox-jobrunr                   Outbox 的 JobRunr 派发器（可选）
 ├── jfoundry-starters                             非 Spring 能力聚合入口
 │   ├── jfoundry-domain-starter                   领域建模 + 架构边界语义
 │   ├── jfoundry-application-starter              应用层契约 + CQRS + 领域 starter
 │   └── jfoundry-infrastructure-mybatis-plus-starter MyBatis-Plus 持久化能力
-├── jfoundry-spring                               Spring 整合层聚合
+├── jfoundry-spring                               Spring 生态集成聚合
+│   ├── jfoundry-spring-runtime                   Spring Framework 运行时适配器
+│   │   ├── jfoundry-event-spring                 Spring ApplicationEvent 领域事件发布适配器
+│   │   ├── jfoundry-messaging-spring             Spring 默认 LoggingMessageSender 适配器
+│   │   └── jfoundry-outbox-spring                领域事件写入 Outbox 的 Spring 适配器 + scheduled 派发器
 │   ├── jfoundry-spring-boot-autoconfigure        Spring Boot AutoConfiguration
-│   ├── jfoundry-spring-boot-starter              DDD + Spring Boot 基础 starter
-│   ├── jfoundry-event-spring-boot-starter        领域事件 Spring 发布 starter
-│   ├── jfoundry-messaging-spring-boot-starter    Messaging transport 能力 starter
-│   ├── jfoundry-outbox-spring-boot-starter       Outbox 能力 starter
-│   ├── jfoundry-inbox-spring-boot-starter        Inbox 能力 starter
-│   ├── jfoundry-mybatis-plus-spring-boot-starter MyBatis-Plus persistence starter
-│   └── ...
+│   └── jfoundry-spring-boot-starters             Spring Boot starter 依赖入口
+│       ├── jfoundry-spring-boot-starter          DDD + Spring Boot 基础 starter
+│       ├── jfoundry-event-spring-boot-starter    领域事件 Spring 发布 starter
+│       ├── jfoundry-messaging-spring-boot-starter Messaging transport 能力 starter
+│       ├── jfoundry-outbox-spring-boot-starter   Outbox 能力 starter
+│       ├── jfoundry-inbox-spring-boot-starter    Inbox 能力 starter
+│       ├── jfoundry-mybatis-plus-spring-boot-starter MyBatis-Plus persistence starter
+│       └── ...
 ├── jfoundry-architecture
 │   └── jfoundry-architecture-test                架构测试规则库（业务侧测试直接引用）
 └── jfoundry-verification
