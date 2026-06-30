@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" child.project.url.inherit.append.path="false" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jfoundry</groupId>
-  <artifactId>jfoundry-dependencies</artifactId>
+  <artifactId>jfoundry-spring-dependencies</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>jfoundry-dependencies</name>
-  <description>Framework-neutral dependency management BOM for jfoundry.</description>
+  <name>jfoundry-spring-dependencies</name>
+  <description>Aggregate Spring dependency management BOM for jfoundry applications.</description>
   <url>${jfoundry.release.url}</url>
   <licenses>
     <license>
@@ -29,25 +29,25 @@
     <jfoundry.release.scm.developerConnection>scm:git:https://github.com/youngledo/jfoundry.git</jfoundry.release.scm.developerConnection>
     <jfoundry.release.scm.url>https://github.com/youngledo/jfoundry</jfoundry.release.scm.url>
   </properties>
-  <modules>
-    <module>jfoundry-modules-dependencies</module>
-    <module>jfoundry-third-party-dependencies</module>
-    <module>jfoundry-spring-official-dependencies</module>
-    <module>jfoundry-spring-integration-dependencies</module>
-    <module>jfoundry-spring-dependencies</module>
-  </modules>
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.jfoundry</groupId>
-        <artifactId>jfoundry-modules-dependencies</artifactId>
+        <artifactId>jfoundry-dependencies</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>org.jfoundry</groupId>
-        <artifactId>jfoundry-third-party-dependencies</artifactId>
+        <artifactId>jfoundry-spring-official-dependencies</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-spring-integration-dependencies</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>

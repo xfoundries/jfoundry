@@ -73,10 +73,10 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Public dependency versions are managed by the jfoundry BOM. -->
+            <!-- The Spring aggregate BOM also imports the framework-neutral jfoundry BOM. -->
             <dependency>
                 <groupId>org.jfoundry</groupId>
-                <artifactId>jfoundry-dependencies</artifactId>
+                <artifactId>jfoundry-spring-dependencies</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
