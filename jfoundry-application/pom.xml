@@ -15,6 +15,7 @@
     <modules>
         <module>jfoundry-application-core</module>
         <module>jfoundry-event-core</module>
+        <module>jfoundry-event-externalization-core</module>
         <module>jfoundry-messaging-core</module>
         <module>jfoundry-outbox-core</module>
         <module>jfoundry-inbox-core</module>

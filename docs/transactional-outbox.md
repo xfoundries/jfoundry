@@ -17,11 +17,13 @@ Transactional Outbox（事务性发件箱）是一种可靠发布消息的通用
 
 ## jfoundry 事件链路
 
-业务侧在应用服务上标注 `@ApplicationService` 后，框架会在成功返回的应用服务边界自动 drain 聚合记录的领域事件，并通过 `DomainEventDispatcher` 分发。默认 Spring dispatcher 会先调用 `DomainEventOutboxRecorder` 在事务内写 Outbox，再通过 `ApplicationEventPublisher` 安排 Spring 进程内事件发布。这里有一个边界要点：
+业务侧在应用服务上标注 `@ApplicationService` 后，框架会在成功返回的应用服务边界自动 drain 聚合记录的领域事件，并通过 `DomainEventDispatcher` 分发。默认启用的是组合分发：`jfoundry-event-spring` 负责通过 `ApplicationEventPublisher` 安排 Spring 进程内事件发布；启用 Outbox 后，`jfoundry-outbox-spring` 负责调用 `DomainEventOutboxRecorder` 在事务内写 Outbox。这里有一个边界要点：
 
 - `jfoundry-domain` 定义领域事件抽象与聚合事件记录能力
-- `jfoundry-messaging-core` 定义应用层事件分发契约、领域事件外部化规则、路由元数据和消息发送 SPI
-- `jfoundry-messaging-spring` 提供 Spring `DomainEventDispatcher` 实现
+- `jfoundry-event-core` 定义应用层事件登记与分发契约
+- `jfoundry-event-externalization-core` 定义领域事件外部化规则与路由元数据
+- `jfoundry-messaging-core` 定义底层消息发送与 payload 序列化 SPI
+- `jfoundry-event-spring` 提供 Spring `ApplicationEventPublisher` 领域事件发布适配器
 - `jfoundry-outbox-spring` 提供默认 `DomainEventOutboxRecorder` 实现，把匹配规则的领域事件写入 Outbox
 
 jfoundry 内置的 `DefaultDomainEventOutboxRecorder` 只处理标记了 `@Externalized` 的事件，并把匹配的事件序列化写入 Outbox 表。

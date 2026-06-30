@@ -7,7 +7,7 @@ import org.jfoundry.application.outbox.DomainEventOutboxRecorder;
 import org.jfoundry.autoconfigure.event.DomainEventDispatchAutoConfiguration;
 import org.jfoundry.autoconfigure.event.DomainEventDispatchInterceptor;
 import org.jfoundry.autoconfigure.event.DomainEventScope;
-import org.jfoundry.infrastructure.messaging.spring.dispatcher.SpringApplicationEventDispatcher;
+import org.jfoundry.infrastructure.event.spring.dispatcher.SpringApplicationEventDispatcher;
 import org.jfoundry.infrastructure.outbox.spring.externalization.OutboxDomainEventDispatcher;
 import org.jmolecules.event.types.DomainEvent;
 import org.junit.jupiter.api.Test;
@@ -73,9 +73,9 @@ class DomainEventDispatchAutoConfigurationTest {
     }
 
     @Test
-    void missingSpringMessagingModuleDoesNotBreakMinimalStarter() {
+    void missingSpringEventModuleDoesNotBreakMinimalStarter() {
         contextRunner
-                .withClassLoader(new FilteredClassLoader("org.jfoundry.infrastructure.messaging.spring"))
+                .withClassLoader(new FilteredClassLoader("org.jfoundry.infrastructure.event.spring"))
                 .run(context -> {
                     assertThat(context).hasSingleBean(DomainEventScope.class);
                     assertThat(context).hasSingleBean(DomainEventContext.class);

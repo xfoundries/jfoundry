@@ -1,4 +1,4 @@
-package org.jfoundry.infrastructure.messaging.spring.dispatcher;
+package org.jfoundry.infrastructure.event.spring.dispatcher;
 
 import org.jmolecules.event.types.DomainEvent;
 import org.junit.jupiter.api.AfterEach;

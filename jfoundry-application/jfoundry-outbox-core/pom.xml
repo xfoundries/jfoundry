@@ -15,6 +15,10 @@
     <dependencies>
         <dependency>
             <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-event-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-messaging-core</artifactId>
         </dependency>
         <dependency>

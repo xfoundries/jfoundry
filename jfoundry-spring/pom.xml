@@ -20,6 +20,7 @@
     <modules>
         <module>jfoundry-spring-boot-autoconfigure</module>
         <module>jfoundry-spring-boot-starter</module>
+        <module>jfoundry-event-spring-boot-starter</module>
         <module>jfoundry-messaging-spring-boot-starter</module>
         <module>jfoundry-messaging-kafka-spring-boot-starter</module>
         <module>jfoundry-messaging-rocketmq-spring-boot-starter</module>

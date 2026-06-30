@@ -1,10 +1,9 @@
 /**
- * Spring-specific messaging adapters.
+ * Spring-specific messaging transport adapters.
  *
- * <p>This package groups runtime adapters that integrate jfoundry messaging and domain-event
- * dispatch contracts with the Spring ecosystem. It contains Spring-facing implementations for
- * dispatching domain events and default outbound message delivery behavior, while leaving
- * application-layer routing and externalization policy in {@code jfoundry-messaging-core}.
+ * <p>This package groups runtime adapters that integrate jfoundry messaging transport contracts
+ * with the Spring ecosystem. Domain-event dispatch adapters live in {@code jfoundry-event-spring},
+ * while externalization policy lives in {@code jfoundry-event-externalization-core}.
  */
 @org.jmolecules.architecture.onion.simplified.InfrastructureRing
 package org.jfoundry.infrastructure.messaging.spring;

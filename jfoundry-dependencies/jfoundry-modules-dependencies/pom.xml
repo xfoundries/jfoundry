@@ -90,6 +90,11 @@
       </dependency>
       <dependency>
         <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-event-externalization-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jfoundry</groupId>
         <artifactId>jfoundry-messaging-core</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -151,6 +156,11 @@
       </dependency>
       <dependency>
         <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-event-spring</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jfoundry</groupId>
         <artifactId>jfoundry-messaging-spring</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -178,6 +188,11 @@
       <dependency>
         <groupId>org.jfoundry</groupId>
         <artifactId>jfoundry-spring-boot-starter</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jfoundry</groupId>
+        <artifactId>jfoundry-event-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

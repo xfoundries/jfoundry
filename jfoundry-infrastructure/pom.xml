@@ -14,6 +14,7 @@
 
     <modules>
         <module>jfoundry-persistence-core</module>
+        <module>jfoundry-event-spring</module>
         <module>jfoundry-messaging-jackson</module>
         <module>jfoundry-messaging-kafka</module>
         <module>jfoundry-messaging-rocketmq</module>

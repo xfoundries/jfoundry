@@ -8,12 +8,9 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-messaging-spring-boot-starter</artifactId>
-    <name>jfoundry-messaging-spring-boot-starter</name>
-    <description>
-        Spring Boot starter for jfoundry messaging transport contracts, Jackson payload serialization,
-        and the default logging MessageSender.
-    </description>
+    <artifactId>jfoundry-event-spring-boot-starter</artifactId>
+    <name>jfoundry-event-spring-boot-starter</name>
+    <description>Spring Boot starter for jfoundry domain event dispatch and Spring application event publishing.</description>
 
     <dependencies>
         <dependency>
@@ -22,19 +19,11 @@
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-messaging-core</artifactId>
+            <artifactId>jfoundry-event-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-messaging-jackson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-messaging-spring</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jmolecules.integrations</groupId>
-            <artifactId>jmolecules-jackson</artifactId>
+            <artifactId>jfoundry-event-spring</artifactId>
         </dependency>
     </dependencies>
 

@@ -10,7 +10,7 @@
 
     <artifactId>jfoundry-messaging-spring</artifactId>
     <name>jfoundry-messaging-spring</name>
-    <description>Spring messaging adapters: application event publishing for domain events and the default LoggingMessageSender.</description>
+    <description>Spring infrastructure adapter for the default logging MessageSender.</description>
 
     <dependencies>
         <dependency>
@@ -18,31 +18,8 @@
             <artifactId>jfoundry-messaging-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
-            <artifactId>jfoundry-outbox-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jmolecules</groupId>
             <artifactId>jmolecules-onion-architecture</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -61,32 +38,5 @@
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <argLine>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED</argLine>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

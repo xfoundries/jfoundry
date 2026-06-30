@@ -1,4 +1,4 @@
-package org.jfoundry.application.messaging.externalization;
+package org.jfoundry.application.event.externalization;
 
 /// 外部化规则解析结果。
 /// @param topic      目标 topic

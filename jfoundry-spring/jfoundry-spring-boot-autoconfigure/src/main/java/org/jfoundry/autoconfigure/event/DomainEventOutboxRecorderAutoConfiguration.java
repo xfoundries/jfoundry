@@ -2,8 +2,8 @@ package org.jfoundry.autoconfigure.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.application.messaging.PayloadSerializer;
-import org.jfoundry.application.messaging.externalization.AggregateRoutingResolver;
-import org.jfoundry.application.messaging.externalization.ExternalizationRuleResolver;
+import org.jfoundry.application.event.externalization.AggregateRoutingResolver;
+import org.jfoundry.application.event.externalization.ExternalizationRuleResolver;
 import org.jfoundry.application.outbox.DomainEventOutboxRecorder;
 import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.infrastructure.messaging.jackson.JacksonPayloadSerializer;

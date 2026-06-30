@@ -5,7 +5,7 @@ import org.jfoundry.application.event.CompositeDomainEventDispatcher;
 import org.jfoundry.application.event.DomainEventContext;
 import org.jfoundry.application.event.DomainEventDispatcher;
 import org.jfoundry.application.outbox.DomainEventOutboxRecorder;
-import org.jfoundry.infrastructure.messaging.spring.dispatcher.SpringApplicationEventDispatcher;
+import org.jfoundry.infrastructure.event.spring.dispatcher.SpringApplicationEventDispatcher;
 import org.jfoundry.infrastructure.outbox.spring.externalization.OutboxDomainEventDispatcher;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
@@ -93,7 +93,7 @@ public class DomainEventDispatchAutoConfiguration {
     }
 
     @Configuration(proxyBeanMethods = false)
-    @ConditionalOnClass(name = "org.jfoundry.infrastructure.messaging.spring.dispatcher.SpringApplicationEventDispatcher")
+    @ConditionalOnClass(name = "org.jfoundry.infrastructure.event.spring.dispatcher.SpringApplicationEventDispatcher")
     @ConditionalOnProperty(prefix = "jfoundry.domain.event.dispatch", name = "enabled",
                            havingValue = "true", matchIfMissing = true)
     static class SpringDispatchConfiguration {

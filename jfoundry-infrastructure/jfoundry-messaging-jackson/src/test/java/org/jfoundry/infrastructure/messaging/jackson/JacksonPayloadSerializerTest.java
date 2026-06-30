@@ -1,7 +1,6 @@
 package org.jfoundry.infrastructure.messaging.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jfoundry.domain.event.AbstractDomainEvent;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -22,11 +21,8 @@ class JacksonPayloadSerializerTest {
         assertThat(json).contains("\"@class\":\"org.jfoundry.infrastructure.messaging.jackson.JacksonPayloadSerializerTest$SerializerTestEvent\"");
     }
 
-    static class SerializerTestEvent extends AbstractDomainEvent {
-        public SerializerTestEvent() {
-            super();
-        }
-        @Override
+    static class SerializerTestEvent {
+
         public Instant getOccurredAt() {
             return Instant.parse("2026-06-18T10:00:00Z");
         }

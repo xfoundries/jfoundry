@@ -1,4 +1,4 @@
-package org.jfoundry.infrastructure.messaging.spring.dispatcher;
+package org.jfoundry.infrastructure.event.spring.dispatcher;
 
 import org.jfoundry.application.event.DomainEventBatch;
 import org.jfoundry.application.event.DomainEventDispatcher;

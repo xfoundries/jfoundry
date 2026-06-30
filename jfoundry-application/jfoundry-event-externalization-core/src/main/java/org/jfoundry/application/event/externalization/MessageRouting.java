@@ -1,4 +1,4 @@
-package org.jfoundry.application.messaging.externalization;
+package org.jfoundry.application.event.externalization;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

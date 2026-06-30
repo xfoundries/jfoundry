@@ -1,10 +1,10 @@
 package org.jfoundry.infrastructure.outbox.spring.externalization;
 
 import org.jfoundry.application.messaging.PayloadSerializer;
-import org.jfoundry.application.messaging.externalization.AggregateRoutingMetadata;
-import org.jfoundry.application.messaging.externalization.AggregateRoutingResolver;
-import org.jfoundry.application.messaging.externalization.ExternalizationRule;
-import org.jfoundry.application.messaging.externalization.ExternalizationRuleResolver;
+import org.jfoundry.application.event.externalization.AggregateRoutingMetadata;
+import org.jfoundry.application.event.externalization.AggregateRoutingResolver;
+import org.jfoundry.application.event.externalization.ExternalizationRule;
+import org.jfoundry.application.event.externalization.ExternalizationRuleResolver;
 import org.jfoundry.application.outbox.DomainEventOutboxRecorder;
 import org.jfoundry.application.outbox.OutboxMessage;
 import org.jfoundry.application.outbox.OutboxMessageStore;

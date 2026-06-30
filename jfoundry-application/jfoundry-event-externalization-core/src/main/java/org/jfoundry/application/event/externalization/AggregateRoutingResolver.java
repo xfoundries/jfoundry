@@ -1,4 +1,4 @@
-package org.jfoundry.application.messaging.externalization;
+package org.jfoundry.application.event.externalization;
 
 import org.jmolecules.event.types.DomainEvent;
 import org.slf4j.Logger;

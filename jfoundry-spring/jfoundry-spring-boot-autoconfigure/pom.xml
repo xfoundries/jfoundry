@@ -31,6 +31,16 @@
         </dependency>
         <dependency>
             <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-event-externalization-core</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
+            <artifactId>jfoundry-event-spring</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jfoundry</groupId>
             <artifactId>jfoundry-messaging-core</artifactId>
             <optional>true</optional>
         </dependency>

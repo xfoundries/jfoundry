@@ -59,7 +59,7 @@ org.jfoundry.application.event.CompositeDomainEventDispatcher
 新增：
 
 ```text
-org.jfoundry.infrastructure.messaging.spring.dispatcher.SpringApplicationEventDispatcher
+org.jfoundry.infrastructure.event.spring.dispatcher.SpringApplicationEventDispatcher
 ```
 
 职责：

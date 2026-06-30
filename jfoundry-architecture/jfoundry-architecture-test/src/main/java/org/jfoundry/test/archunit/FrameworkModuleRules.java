@@ -128,6 +128,20 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("PayloadSerializer belongs to the Onion application ring");
 
+    public static final ArchRule externalization_rules_should_not_be_in_messaging_package =
+            noClasses()
+                    .that().resideInAPackage("org.jfoundry.application.event.externalization..")
+                    .should().resideInAPackage("org.jfoundry.application.messaging..")
+                    .allowEmptyShould(true)
+                    .because("domain event externalization metadata is not the messaging transport SPI");
+
+    public static final ArchRule event_externalization_rules_should_be_in_application_ring =
+            classes()
+                    .that().resideInAPackage("org.jfoundry.application.event.externalization..")
+                    .should(resideInPackageAnnotatedWith(ApplicationRing.class))
+                    .allowEmptyShould(true)
+                    .because("domain event externalization rules belong to the Onion application ring");
+
     public static final ArchRule outbox_dispatcher_should_be_in_application_ring =
             classes()
                     .that().haveFullyQualifiedName("org.jfoundry.application.outbox.OutboxDispatcher")
@@ -146,10 +160,17 @@ public final class FrameworkModuleRules {
     public static final ArchRule spring_application_event_dispatcher_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName(
-                            "org.jfoundry.infrastructure.messaging.spring.dispatcher.SpringApplicationEventDispatcher")
+                            "org.jfoundry.infrastructure.event.spring.dispatcher.SpringApplicationEventDispatcher")
                     .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
                     .allowEmptyShould(true)
-                    .because("SpringApplicationEventDispatcher belongs to the Onion infrastructure ring");
+                    .because("SpringApplicationEventDispatcher is a Spring adapter for domain event dispatch");
+
+    public static final ArchRule spring_event_dispatcher_should_not_be_in_messaging_package =
+            noClasses()
+                    .that().haveSimpleName("SpringApplicationEventDispatcher")
+                    .should().resideInAPackage("org.jfoundry.infrastructure.messaging..")
+                    .allowEmptyShould(true)
+                    .because("Spring ApplicationEvent publishing is a domain event adapter, not a messaging transport adapter");
 
     public static final ArchRule logging_message_sender_should_be_in_infrastructure_ring =
             classes()

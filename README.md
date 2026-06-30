@@ -31,7 +31,9 @@ jfoundry-parent
 │   ├── jfoundry-hexagonal                        Hexagonal Architecture 端口/适配器注解
 │   └── jfoundry-onion                            Onion Architecture 环形注解
 ├── jfoundry-application                          应用层聚合
-│   ├── jfoundry-messaging-core                   消息发送 SPI + 领域事件外部化应用契约 / rules
+│   ├── jfoundry-event-core                       领域事件登记 / 分发应用契约
+│   ├── jfoundry-event-externalization-core       领域事件外部化规则与路由元数据
+│   ├── jfoundry-messaging-core                   消息发送与 payload 序列化 SPI
 │   ├── jfoundry-outbox-core                      Outbox message store 契约 + 状态机 + dispatcher service
 │   └── jfoundry-inbox-core                       Inbox message store 契约 + InboxTemplate
 ├── jfoundry-infrastructure                       基础设施层聚合
@@ -41,7 +43,8 @@ jfoundry-parent
 │   ├── jfoundry-messaging-kafka                  Kafka MessageSender adapter（可选）
 │   ├── jfoundry-inbox-mybatis-plus               Inbox MyBatis-Plus store adapter
 │   ├── jfoundry-outbox-mybatis-plus              Outbox MyBatis-Plus store adapter
-│   ├── jfoundry-messaging-spring                 Spring 领域事件发布适配器 + 默认 MessageSender
+│   ├── jfoundry-event-spring                     Spring ApplicationEvent 领域事件发布适配器
+│   ├── jfoundry-messaging-spring                 默认 LoggingMessageSender
 │   ├── jfoundry-outbox-spring                    领域事件写入 Outbox 的 Spring 适配器 + scheduled 派发器
 │   └── jfoundry-outbox-jobrunr                   Outbox 的 JobRunr 派发器（可选）
 ├── jfoundry-starters                             非 Spring 能力聚合入口
@@ -51,7 +54,8 @@ jfoundry-parent
 ├── jfoundry-spring                               Spring 整合层聚合
 │   ├── jfoundry-spring-boot-autoconfigure        Spring Boot AutoConfiguration
 │   ├── jfoundry-spring-boot-starter              DDD + Spring Boot 基础 starter
-│   ├── jfoundry-messaging-spring-boot-starter    Messaging 能力 starter
+│   ├── jfoundry-event-spring-boot-starter        领域事件 Spring 发布 starter
+│   ├── jfoundry-messaging-spring-boot-starter    Messaging transport 能力 starter
 │   ├── jfoundry-outbox-spring-boot-starter       Outbox 能力 starter
 │   ├── jfoundry-inbox-spring-boot-starter        Inbox 能力 starter
 │   ├── jfoundry-mybatis-plus-spring-boot-starter MyBatis-Plus persistence starter
@@ -80,7 +84,8 @@ inboxTemplate.executeOnce(eventId, "order-projection", () -> {
 - 应用层：`jfoundry-application-starter`
 - MyBatis-Plus 基础设施层：`jfoundry-infrastructure-mybatis-plus-starter`
 - 基础 DDD + Spring Boot：`jfoundry-spring-boot-starter`
-- Messaging：`jfoundry-messaging-spring-boot-starter`
+- Event Spring bridge：`jfoundry-event-spring-boot-starter`
+- Messaging transport：`jfoundry-messaging-spring-boot-starter`
 - Kafka adapter：`jfoundry-messaging-kafka-spring-boot-starter`
 - Outbox：`jfoundry-outbox-spring-boot-starter`
 - Outbox MyBatis-Plus store：`jfoundry-outbox-mybatis-plus-spring-boot-starter`
@@ -199,7 +204,7 @@ class MyAppArchitectureTest {
 
 ### 4. 可选：配置领域事件外部化（Outbox）
 
-领域事件不强制使用 Outbox。业务侧在应用服务上标注 `@ApplicationService` 后，框架会在成功返回的应用服务边界自动 drain 聚合记录的领域事件，并通过 `DomainEventDispatcher` 分发；默认 Spring 实现会在事务提交后通过 `ApplicationEventPublisher` 发布本地事件。如果业务只需要进程内监听器，可不配置 Outbox。
+领域事件不强制使用 Outbox。业务侧在应用服务上标注 `@ApplicationService` 后，框架会在成功返回的应用服务边界自动 drain 聚合记录的领域事件，并通过 `DomainEventDispatcher` 分发；`jfoundry-event-spring-boot-starter` 提供的 Spring 实现会在事务提交后通过 `ApplicationEventPublisher` 发布本地事件。如果业务只需要进程内监听器，可不配置 Outbox。
 
 当事件需要可靠外部化、跨进程投递或失败重试时，再为事件标记 `@Externalized` / `@MessageRouting`，并启用 Outbox 存储与派发。业务侧只要提供 `OutboxMessageStore` Bean（或引入 `jfoundry-outbox-mybatis-plus-spring-boot-starter`），匹配外部化规则的领域事件就会写入 Outbox 表：
 

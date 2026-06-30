@@ -65,6 +65,14 @@ class FrameworkArchitectureSelfTest {
             FrameworkModuleRules.payload_serializer_should_be_in_application_ring;
 
     @ArchTest
+    static final ArchRule externalization_rules_should_not_be_in_messaging_package =
+            FrameworkModuleRules.externalization_rules_should_not_be_in_messaging_package;
+
+    @ArchTest
+    static final ArchRule event_externalization_rules_should_be_in_application_ring =
+            FrameworkModuleRules.event_externalization_rules_should_be_in_application_ring;
+
+    @ArchTest
     static final ArchRule outbox_dispatcher_should_be_in_application_ring =
             FrameworkModuleRules.outbox_dispatcher_should_be_in_application_ring;
 
@@ -75,6 +83,10 @@ class FrameworkArchitectureSelfTest {
     @ArchTest
     static final ArchRule spring_application_event_dispatcher_should_be_in_infrastructure_ring =
             FrameworkModuleRules.spring_application_event_dispatcher_should_be_in_infrastructure_ring;
+
+    @ArchTest
+    static final ArchRule spring_event_dispatcher_should_not_be_in_messaging_package =
+            FrameworkModuleRules.spring_event_dispatcher_should_not_be_in_messaging_package;
 
     @ArchTest
     static final ArchRule logging_message_sender_should_be_in_infrastructure_ring =
