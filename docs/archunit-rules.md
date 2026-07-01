@@ -54,6 +54,29 @@ class CiArchitectureTest {
 | `application_packages_should_be_onion_application_ring` | `org.jfoundry.application..` 必须标注 Onion simplified `ApplicationRing` |
 | `infrastructure_packages_should_be_onion_infrastructure_ring` | `org.jfoundry.infrastructure..` 必须标注 Onion simplified `InfrastructureRing` |
 
+### AggregateRepositoryConventionRules
+
+这组规则是可选约定，不会进入 `JFoundryRules.hexagonal()`、`onionSimple()` 等主架构入口。它只守护明确的技术类型泄漏，不通过类名猜测某个返回值是不是读模型。
+
+| 规则 | 作用 |
+|------|------|
+| `aggregate_repositories_must_not_expose_query_condition_types` | `AggregateRepository` 子接口方法签名和继承关系中禁止暴露 MyBatis-Plus `Wrapper`、Spring Data JPA `Specification` 等通用条件 API |
+| `aggregate_repositories_must_not_expose_paging_types` | `AggregateRepository` 子接口禁止暴露 `Page`、`IPage`、`Pageable` 等分页 API |
+| `aggregate_repositories_must_not_expose_persistence_service_types` | `AggregateRepository` 子接口禁止暴露 `BaseMapper`、`IService`、Spring Data Repository 等持久化 service/mapper API |
+
+启用方式：
+
+```java
+@ArchTest
+ArchRule[] aggregateRepositoryRules = JFoundryRules.aggregateRepositoryConventions();
+```
+
+说明：
+
+- 该规则不禁止业务具名方法，例如 `findCurrentOperation` 或 `findByBusinessKey`。这类方法是否属于命令侧聚合定位，需要项目按业务语义评审。
+- 该规则不根据 `*View`、`*Summary`、`*Record`、`*Response`、`*DTO` 等后缀判断读模型，因为这些名称也可能是合法聚合或领域概念。
+- 如果项目希望禁止应用层或领域层直接依赖 MyBatis-Plus `Wrapper`、本地历史框架 `Specification` 或其它条件对象，应在业务侧按自己的模块/包名补充本地 ArchUnit 规则，避免 JFoundry 对开源用户做过度假设。
+
 ## 架构风格入口
 
 如果业务项目选择明确的架构风格，可使用显式主风格入口：
@@ -101,6 +124,9 @@ ArchRule[] valueObjectRules = {
     ValueObjectRules.value_object_fields_must_be_final,
     ValueObjectRules.value_objects_must_implement_equals_and_hashCode
 };
+
+@ArchTest
+ArchRule[] aggregateRepositoryRules = JFoundryRules.aggregateRepositoryConventions();
 ```
 
 ## Maven 依赖

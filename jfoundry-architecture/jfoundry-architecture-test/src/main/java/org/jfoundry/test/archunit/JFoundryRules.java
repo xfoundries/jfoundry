@@ -34,7 +34,8 @@ import java.util.stream.Stream;
 /// {@link #hexagonal()}、{@link #onionSimple()} 和 {@link #onionClassical()}
 /// 返回 JFoundry 基础守护规则 + 单一主架构风格规则；
 /// {@link #jmoleculesDdd()} 返回 jmolecules 官方提供的 DDD 规则；
-/// {@link #cqrs()} 返回 JFoundry 提供的可选 CQRS 规则。
+/// {@link #cqrs()} returns optional CQRS rules;
+/// {@link #aggregateRepositoryConventions()} returns optional aggregate repository boundary conventions.
 public final class JFoundryRules {
 
     private JFoundryRules() {
@@ -95,6 +96,15 @@ public final class JFoundryRules {
     /// 该规则不会默认加入主架构风格规则，业务侧需要显式启用。
     public static ArchRule[] cqrs() {
         return publicStaticArchRules(CqrsRules.class).toArray(new ArchRule[0]);
+    }
+
+    /// Aggregate Repository convention rules.
+    /// <p>
+    /// This rule group is not included in the primary architecture style entrypoints by default.
+    /// Applications should opt in explicitly when they are ready to guard aggregate repositories
+    /// against generic query conditions, paging APIs, and persistence service or mapper APIs.
+    public static ArchRule[] aggregateRepositoryConventions() {
+        return publicStaticArchRules(AggregateRepositoryConventionRules.class).toArray(new ArchRule[0]);
     }
 
     /// jmolecules 官方提供的 DDD 规则（精选）。
