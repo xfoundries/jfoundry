@@ -74,6 +74,21 @@ inboxTemplate.executeOnce(eventId, "order-projection", () -> {
 });
 ```
 
+## 业务项目接入入口
+
+如果你是在业务项目中首次接入 jfoundry，请先阅读 [业务项目接入指南](docs/getting-started-for-business-projects.md)。它会先帮你确定项目形态、架构风格、依赖选择、包结构、ArchUnit 架构测试，以及 Outbox / Inbox 是否应该启用。
+
+如果你使用 AI Agent 辅助开发，本仓库提供了 [use-jfoundry skill](skills/use-jfoundry/SKILL.md)。该 skill 是给 Agent 使用的英文指令集，业务开发者通常不需要直接阅读；你可以在支持 Codex skills 的环境中让 Agent 使用 `$use-jfoundry`，例如：
+
+```text
+Use $use-jfoundry to create the initial architecture for a new Java 21 Spring Boot business project.
+Base package: com.example.order
+Project shape: multi-module Maven
+Persistence: MyBatis-Plus
+Messaging: Kafka later, not in the initial skeleton
+Architecture: default
+```
+
 ## 快速开始
 
 ### 1. 引入依赖
@@ -222,7 +237,7 @@ jfoundry:
 
 ## 文档
 
-- [平台对齐指南](docs/platform-alignment.md)
+- [业务项目接入指南](docs/getting-started-for-business-projects.md)
 - [值对象（Value Object）规范](docs/value-object.md)
 - [架构风格指南](docs/architecture-styles.md)
 - [ArchUnit 架构规则](docs/archunit-rules.md)
@@ -231,17 +246,17 @@ jfoundry:
 
 ## 技术栈
 
-| 关注点 | 选型 |
-|--------|------|
-| JDK | 21 |
-| Spring Boot | 3.5.16 |
-| Spring | 6.2.19 |
-| MyBatis-Plus | 3.5.16 |
-| jmolecules | 2025.0.2（integrations 0.33.0） |
-| ArchUnit | 1.4.2 |
-| Jackson | 2.19.4 |
-| Flyway | （业务侧提供，本仓库仅提供迁移脚本） |
-| JobRunr | 8.7.1（可选） |
+| 关注点       | 选型                                 |
+|--------------|--------------------------------------|
+| JDK          | 21（推荐25）                         |
+| Spring Boot  | 3.5.16                               |
+| Spring       | 6.2.19                               |
+| MyBatis-Plus | 3.5.16                               |
+| jmolecules   | 2025.0.2（integrations 0.33.0）      |
+| ArchUnit     | 1.4.2                                |
+| Jackson      | 2.19.4                               |
+| Flyway       | （业务侧提供，本仓库仅提供迁移脚本） |
+| JobRunr      | 8.7.1（可选）                        |
 
 ## 构建
 
