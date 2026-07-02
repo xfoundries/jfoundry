@@ -27,3 +27,10 @@ Recent history follows Conventional Commits, for example `fix(outbox): ...`, `te
 ## Documentation Comments
 
 Public API Javadoc must be written in English so generated documentation, IDE hints, and Maven Central artifacts are friendly to the wider Java ecosystem. Keep comments concise and focused on API intent; avoid restating obvious implementation details.
+
+## Project Skills
+
+- When modifying this repository's framework code, module boundaries, starters, BOMs, Spring Boot auto-configuration, architecture rules, runtime adapters, or release/compatibility docs, use `skills/maintain-jfoundry-framework`.
+- When helping a downstream business project adopt or use jfoundry, use `skills/use-jfoundry`.
+- Do not apply `maintain-jfoundry-framework` rules to downstream business projects.
+- Do not apply `use-jfoundry` scaffolding rules when changing jfoundry internals.
