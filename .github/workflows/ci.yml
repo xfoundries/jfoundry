@@ -73,7 +73,7 @@ jobs:
           cache: maven
 
       - name: Run middleware integration tests
-        run: ./mvnw -B -pl jfoundry-integration-tests -am -Pit verify
+        run: ./mvnw -B -pl jfoundry-verification/jfoundry-middleware-integration-tests -am -Pit verify
 
   maven-4:
     name: Maven 4 compatibility

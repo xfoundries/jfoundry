@@ -33,13 +33,6 @@
     <dependencies>
       <dependency>
         <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-dependencies</artifactId>
-        <version>${project.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-spring-official-dependencies</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
@@ -48,6 +41,13 @@
       <dependency>
         <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-spring-integration-dependencies</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.github.xfoundries</groupId>
+        <artifactId>jfoundry-dependencies</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
