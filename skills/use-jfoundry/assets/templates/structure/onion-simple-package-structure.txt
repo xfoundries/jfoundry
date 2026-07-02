@@ -1,0 +1,26 @@
+PACKAGE_NAME
+├── boot
+│   └── Application.java
+├── domain
+│   ├── model
+│   ├── event
+│   ├── service
+│   └── repository
+├── application
+│   ├── command
+│   ├── query
+│   ├── port
+│   └── service
+└── infrastructure
+    ├── web
+    ├── persistence
+    ├── messaging
+    ├── client
+    └── config
+
+Rules:
+- dependencies point inward toward the domain.
+- domain does not depend on application or infrastructure.
+- application orchestrates use cases and depends on domain plus outbound ports.
+- infrastructure implements persistence, messaging, web, scheduler, client, and framework details.
+

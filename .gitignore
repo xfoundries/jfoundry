@@ -9,4 +9,5 @@ target/
 .factorypath
 *.log
 .DS_Store
+.codegraph/
 graphify-out/

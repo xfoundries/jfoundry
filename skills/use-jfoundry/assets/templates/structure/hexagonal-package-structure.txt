@@ -1,0 +1,31 @@
+PACKAGE_NAME
+├── boot
+│   └── Application.java
+├── domain
+│   ├── model
+│   ├── event
+│   └── repository
+├── application
+│   ├── port
+│   │   ├── in
+│   │   └── out
+│   └── service
+├── adapter
+│   ├── in
+│   │   ├── web
+│   │   ├── messaging
+│   │   └── scheduler
+│   └── out
+│       ├── persistence
+│       ├── messaging
+│       └── client
+└── infrastructure
+    └── config
+
+Rules:
+- domain contains aggregates, entities, value objects, domain events, domain services, and aggregate repository contracts.
+- application contains use cases, application services, primary ports, secondary ports, commands, and query models.
+- adapter.in contains primary adapters that call primary ports or application services.
+- adapter.out contains secondary adapters that implement secondary ports.
+- infrastructure contains runtime configuration and technical wiring, not domain logic.
+
