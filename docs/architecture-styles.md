@@ -43,10 +43,10 @@ class ArchitectureTest {
 
 ```java
 @ArchTest
-ArchRule[] rules = JFoundryRules.hexagonal();
+ArchRule[] rules = JFoundryRules.hexagonalStrict();
 ```
 
-`JFoundryRules.onionSimple()`、`JFoundryRules.onionClassical()` 和 `JFoundryRules.hexagonal()` 分别给出基础守护规则 + 单一主架构风格入口，并附带 Hexagonal/Onion 互斥规则，避免一个项目同时标注两种主风格。
+`JFoundryRules.onionSimple()` 和 `JFoundryRules.onionClassical()` 分别给出基础守护规则 + 单一主架构风格入口，并附带 Hexagonal/Onion 互斥规则。`JFoundryRules.hexagonalStrict()` 是 Hexagonal 项目的推荐入口：它包含 `JFoundryRules.hexagonal()` 的基础 Hexagonal 依赖规则，也包含 JFoundry 对端口、适配器、包名和持久化细节隔离的推荐落地约定。若只需要 jMolecules 原生 Hexagonal 规则，可单独使用 `JFoundryRules.hexagonal()`。
 
 ## 权威参考
 

@@ -226,6 +226,7 @@ jfoundry:
 - [值对象（Value Object）规范](docs/value-object.md)
 - [架构风格指南](docs/architecture-styles.md)
 - [ArchUnit 架构规则](docs/archunit-rules.md)
+- [Repository 与读侧端口迁移指南](docs/repository-vs-read-ports.md)
 - [Transactional Outbox 事务性发件箱](docs/transactional-outbox.md)
 
 ## 技术栈
