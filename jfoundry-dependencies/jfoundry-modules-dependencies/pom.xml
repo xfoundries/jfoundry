@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" child.project.url.inherit.append.path="false" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.jfoundry</groupId>
+  <groupId>io.github.xfoundries</groupId>
   <artifactId>jfoundry-modules-dependencies</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -24,229 +24,229 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.build.outputTimestamp>2026-06-27T00:00:00Z</project.build.outputTimestamp>
-    <jfoundry.release.url>https://github.com/youngledo/jfoundry</jfoundry.release.url>
-    <jfoundry.release.scm.connection>scm:git:https://github.com/youngledo/jfoundry.git</jfoundry.release.scm.connection>
-    <jfoundry.release.scm.developerConnection>scm:git:https://github.com/youngledo/jfoundry.git</jfoundry.release.scm.developerConnection>
-    <jfoundry.release.scm.url>https://github.com/youngledo/jfoundry</jfoundry.release.scm.url>
+    <jfoundry.release.url>https://github.com/xfoundries/jfoundry</jfoundry.release.url>
+    <jfoundry.release.scm.connection>scm:git:https://github.com/xfoundries/jfoundry.git</jfoundry.release.scm.connection>
+    <jfoundry.release.scm.developerConnection>scm:git:https://github.com/xfoundries/jfoundry.git</jfoundry.release.scm.developerConnection>
+    <jfoundry.release.scm.url>https://github.com/xfoundries/jfoundry</jfoundry.release.scm.url>
   </properties>
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-architecture</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-hexagonal</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-onion</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-cqrs</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-domain</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-application-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-domain-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-application-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-infrastructure-mybatis-plus-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-application</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-event-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-event-externalization-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-messaging-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-outbox-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-inbox-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-infrastructure</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-persistence-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-messaging-jackson</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-messaging-kafka</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-messaging-rocketmq</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-messaging-rabbitmq</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-inbox-mybatis-plus</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-persistence-mybatis-plus</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-outbox-mybatis-plus</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-event-spring</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-messaging-spring</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-outbox-spring</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-outbox-jobrunr</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-spring</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-spring-boot-autoconfigure</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-event-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-messaging-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-messaging-kafka-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-messaging-rocketmq-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-messaging-rabbitmq-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-outbox-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-outbox-mybatis-plus-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-outbox-jobrunr-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-inbox-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-inbox-mybatis-plus-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-architecture-test</artifactId>
         <version>${project.version}</version>
       </dependency>

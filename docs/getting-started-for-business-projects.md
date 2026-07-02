@@ -68,7 +68,7 @@ Architecture: default
 <dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-spring-dependencies</artifactId>
             <version>1.0.0-SNAPSHOT</version>
             <type>pom</type>
@@ -79,7 +79,7 @@ Architecture: default
 
 <dependencies>
     <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-spring-boot-starter</artifactId>
     </dependency>
 </dependencies>

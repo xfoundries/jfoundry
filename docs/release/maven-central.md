@@ -1,16 +1,16 @@
 # Maven Central Release
 
-This project has Maven Central publishing infrastructure for the public `youngledo/jfoundry` repository.
+This project has Maven Central publishing infrastructure for the public `xfoundries/jfoundry` repository.
 
 ## Metadata
 
-The root POM publishes URL and SCM metadata for `https://github.com/youngledo/jfoundry`. Verify that the published groupId is authorized in Sonatype Central Portal before the first release.
+The root POM publishes URL and SCM metadata for `https://github.com/xfoundries/jfoundry`. Published Maven coordinates use the verified Central namespace `io.github.xfoundries`, while Java API packages remain under `org.jfoundry.*`.
 
 ## Prerequisites
 
 - Java 21 or newer.
 - Maven 3.9.0 or newer.
-- A Sonatype Central Portal account with publishing rights for `org.jfoundry`.
+- A Sonatype Central Portal account with publishing rights for `io.github.xfoundries`.
 - For local release dry-runs, a Maven server entry named `central` in `~/.m2/settings.xml`.
 - For GitHub Actions release publishing, repository environment `maven-central` with these secrets:
   - `CENTRAL_USERNAME`: Sonatype Central Portal username or publishing token username.

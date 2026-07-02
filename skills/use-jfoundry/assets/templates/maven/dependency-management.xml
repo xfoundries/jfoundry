@@ -1,7 +1,7 @@
 <dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-spring-dependencies</artifactId>
             <version>JFOUNDRY_VERSION</version>
             <type>pom</type>

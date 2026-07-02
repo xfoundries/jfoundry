@@ -139,7 +139,7 @@ ArchRule[] aggregateRepositoryRules = JFoundryRules.aggregateRepositoryConventio
 
 ```xml
 <dependency>
-    <groupId>org.jfoundry</groupId>
+    <groupId>io.github.xfoundries</groupId>
     <artifactId>jfoundry-architecture-test</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <scope>test</scope>

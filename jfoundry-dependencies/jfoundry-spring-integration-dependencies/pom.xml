@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" child.project.url.inherit.append.path="false" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.jfoundry</groupId>
+  <groupId>io.github.xfoundries</groupId>
   <artifactId>jfoundry-spring-integration-dependencies</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -24,10 +24,10 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.build.outputTimestamp>2026-06-27T00:00:00Z</project.build.outputTimestamp>
-    <jfoundry.release.url>https://github.com/youngledo/jfoundry</jfoundry.release.url>
-    <jfoundry.release.scm.connection>scm:git:https://github.com/youngledo/jfoundry.git</jfoundry.release.scm.connection>
-    <jfoundry.release.scm.developerConnection>scm:git:https://github.com/youngledo/jfoundry.git</jfoundry.release.scm.developerConnection>
-    <jfoundry.release.scm.url>https://github.com/youngledo/jfoundry</jfoundry.release.scm.url>
+    <jfoundry.release.url>https://github.com/xfoundries/jfoundry</jfoundry.release.url>
+    <jfoundry.release.scm.connection>scm:git:https://github.com/xfoundries/jfoundry.git</jfoundry.release.scm.connection>
+    <jfoundry.release.scm.developerConnection>scm:git:https://github.com/xfoundries/jfoundry.git</jfoundry.release.scm.developerConnection>
+    <jfoundry.release.scm.url>https://github.com/xfoundries/jfoundry</jfoundry.release.scm.url>
     <mybatis-plus-spring-boot3.version>3.5.16</mybatis-plus-spring-boot3.version>
     <jmolecules-integrations.version>0.33.0</jmolecules-integrations.version>
     <jobrunr.version>8.7.1</jobrunr.version>

@@ -5,7 +5,7 @@
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-spring</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -20,77 +20,77 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-application-core</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-event-core</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-event-externalization-core</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-event-spring</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-messaging-core</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-messaging-jackson</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-messaging-kafka</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-messaging-rocketmq</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-messaging-rabbitmq</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-messaging-spring</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-inbox-core</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-inbox-mybatis-plus</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-outbox-mybatis-plus</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-outbox-spring</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-outbox-jobrunr</artifactId>
             <optional>true</optional>
         </dependency>

@@ -93,6 +93,8 @@ Architecture: default
 
 ### 1. 引入依赖
 
+JFoundry 的 Maven 发布坐标使用已验证的 Central namespace `io.github.xfoundries`；Java API 包名仍保持 `org.jfoundry.*`，业务代码中的 import 不需要写成 `io.github.xfoundries.*`。
+
 业务侧应按能力显式选择 starter：
 
 - 领域层：`jfoundry-domain-starter`
@@ -115,7 +117,7 @@ MyBatis-Plus 项目示例：
 <dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>org.jfoundry</groupId>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-dependencies</artifactId>
             <version>1.0.0-SNAPSHOT</version>
             <type>pom</type>
@@ -127,25 +129,25 @@ MyBatis-Plus 项目示例：
 <dependencies>
     <!-- domain module -->
     <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-domain-starter</artifactId>
     </dependency>
 
     <!-- application module -->
     <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-application-starter</artifactId>
     </dependency>
 
     <!-- infrastructure module -->
     <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-infrastructure-mybatis-plus-starter</artifactId>
     </dependency>
 
     <!-- Spring Boot assembly module -->
     <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>
     </dependency>
 </dependencies>
@@ -156,15 +158,15 @@ MyBatis-Plus + Outbox + Inbox 项目示例：
 ```xml
 <dependencies>
     <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-outbox-mybatis-plus-spring-boot-starter</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-inbox-mybatis-plus-spring-boot-starter</artifactId>
     </dependency>
 </dependencies>
@@ -175,7 +177,7 @@ Spring Data / JPA 项目示例：
 ```xml
 <dependencies>
     <dependency>
-        <groupId>org.jfoundry</groupId>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-spring-boot-starter</artifactId>
     </dependency>
 </dependencies>
