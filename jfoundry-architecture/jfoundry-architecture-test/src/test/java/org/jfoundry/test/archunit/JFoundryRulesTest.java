@@ -1,5 +1,6 @@
 package org.jfoundry.test.archunit;
 
+import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchRule;
 import org.junit.jupiter.api.Test;
 
@@ -8,6 +9,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /// P3-3: JFoundryRules must expose explicit primary-style entrypoints, not a catch-all all().
 class JFoundryRulesTest {
+
+    private static final ClassFileImporter IMPORTER = new ClassFileImporter();
 
     @Test
     void doesNotExposeAllAggregator() {
@@ -61,5 +64,15 @@ class JFoundryRulesTest {
         for (ArchRule rule : JFoundryRules.jmoleculesDdd()) {
             assertThat(rule).as("rule in JFoundryRules.jmoleculesDdd() must not be null").isNotNull();
         }
+    }
+
+    @Test
+    void hexagonalRulesRecognizeJfoundryMetaAnnotatedStereotypes() {
+        assertThatThrownBy(() -> {
+            for (ArchRule rule : JFoundryRules.hexagonal()) {
+                rule.check(IMPORTER.importPackages(
+                        "org.jfoundry.test.archunit.fixture.hexagonalconventions.invalid.primaryadapter"));
+            }
+        }).isInstanceOf(AssertionError.class);
     }
 }

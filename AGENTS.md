@@ -27,7 +27,3 @@ Recent history follows Conventional Commits, for example `fix(outbox): ...`, `te
 ## Documentation Comments
 
 Public API Javadoc must be written in English so generated documentation, IDE hints, and Maven Central artifacts are friendly to the wider Java ecosystem. Keep comments concise and focused on API intent; avoid restating obvious implementation details.
-
-## Agent-Specific Instructions
-
-Prefer CodeGraph for structural questions such as symbol definitions, callers, callees, and impact analysis when available. Use text search for literal strings, comments, log messages, and file discovery.
