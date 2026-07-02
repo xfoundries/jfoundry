@@ -1,0 +1,52 @@
+<mxfile host="Electron">
+  <diagram id="b5Fm8d1Y6Q8xYzYw7JJj" name="第 1 页">
+    <mxGraphModel dx="1222" dy="792" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="100" parent="1" style="text;align=center;fontSize=14;fontStyle=1;" value="六边形架构 (Hexagonal / Ports &amp; Adapters) Architecture" vertex="1">
+          <mxGeometry height="25" width="460" x="380" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="4" parent="1" style="shape=hexagon;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;perimeter=hexagonPerimeter;" value="" vertex="1">
+          <mxGeometry height="370" width="440" x="390" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="3" parent="1" style="shape=hexagon;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;perimeter=hexagonPerimeter;" value="" vertex="1">
+          <mxGeometry height="270" width="320" x="450" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="2" parent="1" style="shape=hexagon;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;perimeter=hexagonPerimeter;fontSize=12;" value="Domain Core&#xa;&#xa;Entity | ValueObject&#xa;Aggregate | DomainEvent" vertex="1">
+          <mxGeometry height="195" width="220" x="500" y="255" as="geometry" />
+        </mxCell>
+        <mxCell id="30" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=11;fontStyle=1;" value="Application Layer&#xa;AppService | DTO | UseCase" vertex="1">
+          <mxGeometry height="60" width="100" x="560" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="10" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=11;align=center;" value="Primary Adapter&#xa;&#xa;REST Controller&#xa;MQTT Listener&#xa;Scheduled Job&#xa;CLI / Test" vertex="1">
+          <mxGeometry height="160" width="130" x="280" y="272.5" as="geometry" />
+        </mxCell>
+        <mxCell id="11" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=11;align=center;" value="Secondary Adapter&#xa;&#xa;Database&#xa;External API&#xa;Message Queue&#xa;File System" vertex="1">
+          <mxGeometry height="160" width="130" x="820" y="275" as="geometry" />
+        </mxCell>
+        <mxCell id="20" edge="1" parent="1" style="endArrow=classic;startArrow=classic;edgeStyle=orthogonalEdgeStyle;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="354.5" as="sourcePoint" />
+            <mxPoint x="480" y="354.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="21" edge="1" parent="1" style="endArrow=classic;startArrow=classic;edgeStyle=orthogonalEdgeStyle;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="740" y="354.5" as="sourcePoint" />
+            <mxPoint x="800" y="354.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="50" parent="1" style="text;align=left;spacingLeft=5;fontColor=#d79b00;fontSize=11;" value="核心原则：&#xa;• 领域层在核心，无框架依赖&#xa;• 通过端口 (Port) 与外部交互&#xa;• 适配器 (Adapter) 实现端口&#xa;• 左右两侧对称设计" vertex="1">
+          <mxGeometry height="85" width="170" x="320" y="455" as="geometry" />
+        </mxCell>
+        <mxCell id="yJNtVHxkISHtGPe8fxgm-100" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1;fontColor=#FF3333;" value="&lt;span style=&quot;font-size: 10px; font-style: italic; white-space: nowrap;&quot;&gt;Primary Port&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="450" y="314" as="geometry" />
+        </mxCell>
+        <mxCell id="yJNtVHxkISHtGPe8fxgm-101" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontColor=#FF3333;fontStyle=1" value="&lt;span style=&quot;font-size: 10px; font-style: italic; white-space: nowrap;&quot;&gt;Secondary Port&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="90" x="690" y="314" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

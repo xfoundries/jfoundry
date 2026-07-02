@@ -1,0 +1,46 @@
+<mxfile host="Electron">
+  <diagram id="scLu95JOy1CE4gDvA5KE" name="第 1 页">
+    <mxGraphModel dx="1222" dy="792" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="10" parent="1" style="text;align=center;fontSize=14;fontStyle=1;" value="分层架构（Layered Architecture）" vertex="1">
+          <mxGeometry height="30" width="400" x="200" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="2" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Presentation Layer&#xa;Controller, REST API" vertex="1">
+          <mxGeometry height="80" width="400" x="200" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="3" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Application Layer&#xa;AppService, CQRS, DTO, Converter" vertex="1">
+          <mxGeometry height="80" width="400" x="200" y="255" as="geometry" />
+        </mxCell>
+        <mxCell id="4" parent="1" style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;" value="Domain Layer&#xa;Entity, Aggregate, ValueObject&#xa;DomainService, DomainEvent" vertex="1">
+          <mxGeometry height="80" width="400" x="200" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="5" parent="1" style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;" value="Infrastructure Layer&#xa;Repository Impl, Mapper, External Client" vertex="1">
+          <mxGeometry height="80" width="400" x="200" y="463" as="geometry" />
+        </mxCell>
+        <mxCell id="6" edge="1" parent="1" style="endArrow=classic;edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="3" value="">
+          <mxGeometry x="400" y="120" as="geometry">
+            <mxPoint x="400" y="230" as="sourcePoint" />
+            <mxPoint x="400" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="7" edge="1" parent="1" style="endArrow=classic;edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="4" value="">
+          <mxGeometry x="400" y="220" as="geometry">
+            <mxPoint x="400" y="335" as="sourcePoint" />
+            <mxPoint x="400" y="355" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="8" edge="1" parent="1" style="endArrow=classic;edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="5" value="">
+          <mxGeometry x="400" y="320" as="geometry">
+            <mxPoint x="400" y="440" as="sourcePoint" />
+            <mxPoint x="400" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9" parent="1" style="text;align=left;spacingLeft=5;fontColor=#d79b00;" value="无框架依赖&#xa;纯业务逻辑" vertex="1">
+          <mxGeometry height="40" width="70" x="530" y="380" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

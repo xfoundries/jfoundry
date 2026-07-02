@@ -1,0 +1,40 @@
+<mxfile host="Electron">
+  <diagram id="V_8z0TAm9IBCvmzrY4JN" name="第 1 页">
+    <mxGraphModel dx="1222" dy="792" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="100" parent="1" style="text;align=center;fontSize=14;fontStyle=1;" value="洋葱架构（Onion Classic Architecture）" vertex="1">
+          <mxGeometry height="25" width="600" x="460" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="6" parent="1" style="ellipse;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="540" width="696.66" x="413.34" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="4" parent="1" style="ellipse;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;" value="" vertex="1">
+          <mxGeometry height="380" width="520" x="500" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="3" parent="1" style="ellipse;whiteSpace=wrap;fillColor=#ffd966;strokeColor=#b8860b;" value="" vertex="1">
+          <mxGeometry height="260" width="360" x="580" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="2" parent="1" style="ellipse;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;" value="" vertex="1">
+          <mxGeometry height="150" width="190" x="665" y="365" as="geometry" />
+        </mxCell>
+        <mxCell id="60" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=11;fontStyle=1;" value="Infrastructure:  Framework, DB, UI, Tests, External" vertex="1">
+          <mxGeometry height="35" width="320" x="600" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="41" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=11;fontStyle=1;" value="Application:  Use Cases, App Services, CQRS, DTO" vertex="1">
+          <mxGeometry height="35" width="270" x="620" y="580" as="geometry" />
+        </mxCell>
+        <mxCell id="31" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#b8860b;fontSize=11;fontStyle=1;" value="Domain Services:  Business Logic" vertex="1">
+          <mxGeometry height="35" width="220" x="660" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="21" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#d79b00;fontSize=11;fontStyle=1;" value="Domain Model&#xa;Aggregate | Entity | ValueObject | Event" vertex="1">
+          <mxGeometry height="45" width="140" x="690" y="417.5" as="geometry" />
+        </mxCell>
+        <mxCell id="50" parent="1" style="text;align=left;spacingLeft=5;fontColor=#d79b00;fontSize=11;" value="核心原则：&#xa;• 所有依赖指向中心&#xa;• Domain Model 在最内层&#xa;• Infrastructure 在最外层&#xa;• 无框架依赖" vertex="1">
+          <mxGeometry height="90" width="150" x="976.67" y="410" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

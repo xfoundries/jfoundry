@@ -29,6 +29,8 @@ Hexagonal 角色语义：
 
 JFoundry 不提供裸 `@Port` / `@Adapter` 包装注解；如果方向明确，就使用 Primary 或 Secondary 特化注解。如果项目确实需要模糊角色，请直接使用 jMolecules 原生 `@Port` / `@Adapter`。Spring Boot auto-configuration 只负责装配 adapter，不标注为 adapter。
 
+![hexagonal-architecture.png](assets/hexagonal-architecture.png)
+
 Onion 角色语义：
 
 | 风格 | 注解 | 含义 | 常见位置 | 示例 |
@@ -42,6 +44,8 @@ Onion 角色语义：
 | Onion Classical | `@InfrastructureRing` | 基础设施环 | `infrastructure` | 数据库、消息、外部系统、框架配置 |
 
 普通新项目如果选择 Onion，优先使用 Onion Simple；只有团队明确需要区分 domain model、domain service、application service 等更细 ring 语义时，再使用 Onion Classical。无论 Simple 还是 Classical，依赖方向都应指向领域核心，Spring Boot auto-configuration 仍只负责装配，不作为 Onion ring 参与建模。
+
+![onion-architecture.png](assets/onion-architecture.png)
 
 JFoundry 框架内部直接使用 jMolecules 原生架构注解，`jfoundry-hexagonal` 与 `jfoundry-onion` 保留为业务项目使用的稳定门面。`JFoundryRules` 会同时识别 JFoundry 包装注解和 jMolecules 原生注解。
 
