@@ -19,8 +19,9 @@ Default to a new Java 21 Maven project using Hexagonal Architecture unless the u
 4. Read `references/architecture.md` and copy the matching package structure from `assets/templates/structure/`.
 5. Copy one architecture test template from `assets/templates/java/`, replace `PACKAGE_NAME`, and add it under the business project's test source set.
 6. Read `references/repository-and-ports.md` before creating repositories, query ports, lookup ports, read models, or maintenance ports.
-7. Read `references/outbox-inbox.md` only when the project needs reliable external event publication or idempotent message consumption.
-8. Run the smallest relevant Maven verification command, usually `mvn test`, or a module-scoped `mvn -pl <module> test`.
+7. Read `references/persistence-data-converters.md` before implementing `AggregateData`, `DataConverter`, MyBatis-Plus data objects, or MapStruct converters.
+8. Read `references/outbox-inbox.md` only when the project needs reliable external event publication or idempotent message consumption.
+9. Run the smallest relevant Maven verification command, usually `mvn test`, or a module-scoped `mvn -pl <module> test`.
 
 ## Core Rules
 
@@ -30,6 +31,7 @@ Default to a new Java 21 Maven project using Hexagonal Architecture unless the u
 - Express outbound needs as secondary ports. Put MyBatis, JPA, Redis, HTTP clients, MQ clients, and other technology details in infrastructure adapters.
 - Primary adapters such as controllers, message listeners, CLI commands, and schedulers must call primary ports or application services, not secondary adapters directly.
 - Use aggregate repositories for aggregate lifecycle and command-side aggregate loading. Use lookup/read/maintenance ports for non-aggregate reads.
+- Keep persistence data converters infrastructure-local. Prefer MapStruct `@Mapper` interfaces with `INSTANCE`; keep `toEntity(...)` explicit and call aggregate `restore(...)`.
 - Enable Outbox only for reliable publication to an external process or broker. Use local domain event dispatch when events stay in-process.
 - Enable Inbox only when a consumer must handle duplicate delivery safely.
 - Add ArchUnit tests early. They are part of the project skeleton, not a late cleanup.
@@ -64,6 +66,7 @@ Replace placeholders such as `PACKAGE_NAME` and `JFOUNDRY_VERSION`. Keep optiona
 - Read `references/architecture.md` for package roles, annotations, dependency direction, and architecture style selection.
 - Read `references/dependencies.md` for starter selection and Maven snippets.
 - Read `references/repository-and-ports.md` before modeling persistence, aggregate repositories, read models, or query ports.
+- Read `references/persistence-data-converters.md` before writing `DataConverter` implementations, persistence data objects, or MapStruct mapping rules.
 - Read `references/outbox-inbox.md` before adding event externalization, broker adapters, Outbox tables, dispatchers, or consumer idempotency.
 - Read `references/testing.md` before adding or changing architecture tests.
 

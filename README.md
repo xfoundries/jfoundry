@@ -78,6 +78,8 @@ inboxTemplate.executeOnce(eventId, "order-projection", () -> {
 
 如果你是在业务项目中首次接入 jfoundry，请先阅读 [业务项目接入指南](docs/getting-started-for-business-projects.md)。它会先帮你确定项目形态、架构风格、依赖选择、包结构、ArchUnit 架构测试，以及 Outbox / Inbox 是否应该启用。
 
+如果你正在迁移聚合仓储、MyBatis-Plus Data 对象或 MapStruct 转换器，请阅读 [持久化 DataConverter 与 MapStruct 使用指南](docs/persistence-data-converters.md)。它说明如何让 `toData(...)` 交给 MapStruct、让 `toEntity(...)` 保留显式 `restore(...)` 还原语义，并避免把 converter 默认注册为 Spring Bean。
+
 如果你使用 AI Agent 辅助开发，本仓库提供了 [use-jfoundry skill](skills/use-jfoundry/SKILL.md)。该 skill 是给 Agent 使用的英文指令集，业务开发者通常不需要直接阅读；你可以在支持 Codex skills 的环境中让 Agent 使用 `$use-jfoundry`，例如：
 
 ```text
