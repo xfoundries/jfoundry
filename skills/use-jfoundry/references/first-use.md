@@ -5,9 +5,10 @@
 Use this prompt when starting a business project from scratch:
 
 ```text
-Use $use-jfoundry to create the initial architecture for a new Java 21 Spring Boot business project.
+Use $use-jfoundry to create the initial architecture for a new Java 21 business project.
 Base package: PACKAGE_NAME
-Project shape: single app or multi-module Maven
+Project shape: multi-module Maven preferred, or single app for small projects
+Runtime: none, Spring Boot, Spring Framework, or undecided
 Persistence: none, MyBatis-Plus, JPA, or undecided
 Messaging: none, Kafka, RabbitMQ, RocketMQ, or undecided
 Architecture: default
@@ -17,9 +18,9 @@ Architecture: default
 
 The agent should:
 
-1. Confirm or infer the base package and project shape.
+1. Confirm or infer the base package and project shape; prefer multi-module Maven for normal DDD projects.
 2. Default architecture to Hexagonal unless the user requests Onion.
-3. Copy Maven snippets from `assets/templates/maven/`.
+3. Copy Maven snippets by module or layer from `assets/templates/maven/`; never put Spring Boot starters in domain or application modules.
 4. Copy package structure from `assets/templates/structure/`.
 5. Copy `HexagonalArchitectureTest.java` or `OnionSimpleArchitectureTest.java`.
 6. Replace placeholders.
@@ -32,11 +33,12 @@ The agent should:
 Use these defaults when the user has no preference:
 
 - Java 21
-- Maven
-- Spring Boot
+- multi-module Maven for normal DDD projects
 - Hexagonal Architecture
-- `jfoundry-spring-dependencies`
-- `jfoundry-spring-boot-starter`
+- no runtime framework binding yet
+- `jfoundry-dependencies`
+- `jfoundry-domain-starter` in the domain module
+- `jfoundry-application-starter` in the application module
 - no Outbox
 - no Inbox
 - no broker starter

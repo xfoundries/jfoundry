@@ -13,9 +13,9 @@ jfoundry 适合这类业务系统：
 - 希望用 ArchUnit 把架构约束变成自动化测试。
 - 需要可靠领域事件外部化，例如 Transactional Outbox、消息重试、死信状态。
 - 需要消费端幂等，例如 Inbox。
-- 希望在 MyBatis-Plus、消息中间件、Spring Boot 自动装配之间保留清晰边界。
+- 希望在运行时框架、持久化实现、消息中间件和自动装配之间保留清晰边界。
 
-如果项目只是短期 CRUD 原型、没有领域复杂度、也不需要架构守护，直接使用 Spring Boot + ORM 可能更简单。
+如果项目只是短期 CRUD 原型、没有领域复杂度、也不需要架构守护，直接使用所选运行时框架 + ORM 可能更简单。
 
 ## 推荐默认路线
 
@@ -23,34 +23,35 @@ jfoundry 适合这类业务系统：
 
 - Java 21
 - Maven
-- Spring Boot
 - Hexagonal Architecture
-- `jfoundry-spring-dependencies` BOM
-- `jfoundry-spring-boot-starter`
+- 先选择 `jfoundry-dependencies` 或 `jfoundry-spring-dependencies` BOM
+- 只引入当前需要的 starter
 - 先添加 ArchUnit 架构测试
 - 先不启用 Outbox、Inbox、MQ adapter
-- 明确需要持久化时再加入 MyBatis-Plus 或其他持久化实现
+- 明确运行时、持久化、消息中间件后再加入对应集成
 
-这样可以先稳定 domain、application、adapter 和 infrastructure 的边界，再按业务需要逐步打开 Outbox、Inbox、Kafka、RabbitMQ、RocketMQ、JobRunr 等能力。
+这样可以先稳定 domain、application、adapter 和 infrastructure 的边界，再按业务需要逐步打开 Spring、Spring Boot、MyBatis-Plus、Outbox、Inbox、Kafka、RabbitMQ、RocketMQ、JobRunr 等能力。
 
 ## 新项目第一步
 
-开始前先确定 5 个问题：
+开始前先确定 6 个问题：
 
 | 问题 | 推荐默认值 |
 |------|------------|
 | 基础包名 | 业务自己的包名，例如 `com.example.order` |
-| 项目形态 | 复杂项目用多模块 Maven；小项目可先单 Spring Boot app |
+| 项目形态 | 正常 DDD 项目推荐多模块 Maven；小项目可先单应用模块 |
 | 架构风格 | 默认 Hexagonal；团队明确偏好 Onion 时再选 Onion |
+| 运行时框架 | 未确定时先不绑定；使用 Spring Boot 时显式选择 Spring Boot starter |
 | 持久化 | 未确定时先不绑定；使用 MyBatis-Plus 时显式加入对应 starter |
 | 外部消息 | 未确定时先不启用 Outbox/Inbox/MQ |
 
 如果使用 AI Agent，可以直接给出：
 
 ```text
-Use $use-jfoundry to create the initial architecture for a new Java 21 Spring Boot business project.
+Use $use-jfoundry to create the initial architecture for a new Java 21 business project.
 Base package: com.example.order
 Project shape: multi-module Maven
+Runtime: undecided
 Persistence: MyBatis-Plus
 Messaging: Kafka later, not in the initial skeleton
 Architecture: default
@@ -60,9 +61,32 @@ Architecture: default
 
 ## 依赖选择原则
 
-业务侧应按能力显式选择 starter，不要一次性引入所有模块。
+业务侧先在父 POM 选择 BOM，再按模块职责显式选择 starter，不要一次性引入所有模块。
 
-最小 Spring Boot 入口：
+### 1. 选择 BOM
+
+| 项目类型 | 推荐 BOM | 使用场景 |
+|----------|----------|----------|
+| 框架无关核心项目 | `jfoundry-dependencies` | 只使用 DDD、架构注解、应用契约、Outbox/Inbox SPI、框架无关 adapter |
+| Spring / Spring Boot 项目 | `jfoundry-spring-dependencies` | 使用 Spring Framework adapter、Spring Boot auto-configuration 或 Spring Boot starter |
+
+框架无关核心项目：
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>io.github.xfoundries</groupId>
+            <artifactId>jfoundry-dependencies</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+Spring / Spring Boot 项目：
 
 ```xml
 <dependencyManagement>
@@ -76,13 +100,67 @@ Architecture: default
         </dependency>
     </dependencies>
 </dependencyManagement>
+```
 
+### 2. 按模块放置 starter
+
+多模块 Maven 是正常 DDD 项目的推荐形态，因为依赖边界可以被 Maven 直接守住。依赖放置原则如下：
+
+| 模块 / 层 | 应放依赖 | 不应放 |
+|-----------|----------|--------|
+| `domain` | `jfoundry-domain-starter` | Spring、MyBatis-Plus、JPA、MQ client、HTTP client、Spring Boot starter |
+| `application` | `jfoundry-application-starter` | Spring Boot starter、MyBatis mapper/service、broker adapter |
+| `infrastructure` | `jfoundry-infrastructure-mybatis-plus-starter`（仅使用框架无关 MyBatis-Plus adapter 时） | Controller、应用入口、Spring Boot 自动装配 starter |
+| `boot` / 运行时装配模块 | `jfoundry-spring-boot-starter`，以及按需加入 `jfoundry-mybatis-plus-spring-boot-starter`、Outbox、Inbox、broker starter | 领域模型和业务规则实现 |
+| 架构测试模块或测试源集 | `jfoundry-architecture-test`，`test` scope | production scope |
+
+domain 模块：
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>io.github.xfoundries</groupId>
+        <artifactId>jfoundry-domain-starter</artifactId>
+    </dependency>
+</dependencies>
+```
+
+application 模块：
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>io.github.xfoundries</groupId>
+        <artifactId>jfoundry-application-starter</artifactId>
+    </dependency>
+</dependencies>
+```
+
+boot / 运行时装配模块：
+
+```xml
 <dependencies>
     <dependency>
         <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-spring-boot-starter</artifactId>
     </dependency>
+
+    <!-- Spring Boot + MyBatis-Plus runtime assembly. -->
+    <dependency>
+        <groupId>io.github.xfoundries</groupId>
+        <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>
+    </dependency>
 </dependencies>
+```
+
+架构测试依赖放在执行 ArchUnit 测试的模块中，通常是 boot 模块的测试源集，或单独的 architecture-test 模块：
+
+```xml
+<dependency>
+    <groupId>io.github.xfoundries</groupId>
+    <artifactId>jfoundry-architecture-test</artifactId>
+    <scope>test</scope>
+</dependency>
 ```
 
 按需追加：
@@ -99,6 +177,8 @@ Architecture: default
 - RabbitMQ adapter：`jfoundry-messaging-rabbitmq-spring-boot-starter`
 - RocketMQ adapter：`jfoundry-messaging-rocketmq-spring-boot-starter`
 - 架构测试：`jfoundry-architecture-test`，`test` scope
+
+单应用模块可以作为小项目的折中做法，但不要因此把职责混在一起：仍应保留 domain、application、adapter、infrastructure 包边界，并让 ArchUnit 测试覆盖这些包。
 
 ## 推荐包结构
 
@@ -236,4 +316,3 @@ Add architecture tests before implementation.
 - [Repository 与读侧端口迁移指南](repository-vs-read-ports.md)
 - [Transactional Outbox](transactional-outbox.md)
 - [值对象规范](value-object.md)
-

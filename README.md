@@ -81,9 +81,10 @@ inboxTemplate.executeOnce(eventId, "order-projection", () -> {
 如果你使用 AI Agent 辅助开发，本仓库提供了 [use-jfoundry skill](skills/use-jfoundry/SKILL.md)。该 skill 是给 Agent 使用的英文指令集，业务开发者通常不需要直接阅读；你可以在支持 Codex skills 的环境中让 Agent 使用 `$use-jfoundry`，例如：
 
 ```text
-Use $use-jfoundry to create the initial architecture for a new Java 21 Spring Boot business project.
+Use $use-jfoundry to create the initial architecture for a new Java 21 business project.
 Base package: com.example.order
 Project shape: multi-module Maven
+Runtime: undecided
 Persistence: MyBatis-Plus
 Messaging: Kafka later, not in the initial skeleton
 Architecture: default
@@ -95,23 +96,14 @@ Architecture: default
 
 JFoundry 的 Maven 发布坐标使用已验证的 Central namespace `io.github.xfoundries`；Java API 包名仍保持 `org.jfoundry.*`，业务代码中的 import 不需要写成 `io.github.xfoundries.*`。
 
-业务侧应按能力显式选择 starter：
+先在父 POM 选择 BOM，再按模块职责显式选择 starter。对于有明确领域模型和架构边界的 DDD 项目，推荐使用多模块 Maven，因为 domain、application、infrastructure、boot 的依赖边界可以由 Maven 直接守住；很小的项目也可以先做单应用模块，但仍应保持包边界和 ArchUnit 架构测试。
 
-- 领域层：`jfoundry-domain-starter`
-- 应用层：`jfoundry-application-starter`
-- MyBatis-Plus 基础设施层：`jfoundry-infrastructure-mybatis-plus-starter`
-- 基础 DDD + Spring Boot：`jfoundry-spring-boot-starter`
-- Event Spring bridge：`jfoundry-event-spring-boot-starter`
-- Messaging transport：`jfoundry-messaging-spring-boot-starter`
-- Kafka adapter：`jfoundry-messaging-kafka-spring-boot-starter`
-- Outbox：`jfoundry-outbox-spring-boot-starter`
-- Outbox MyBatis-Plus store：`jfoundry-outbox-mybatis-plus-spring-boot-starter`
-- Outbox JobRunr dispatcher：`jfoundry-outbox-jobrunr-spring-boot-starter`
-- Inbox：`jfoundry-inbox-spring-boot-starter`
-- Inbox MyBatis-Plus store：`jfoundry-inbox-mybatis-plus-spring-boot-starter`
-- MyBatis-Plus business persistence：`jfoundry-mybatis-plus-spring-boot-starter`
+| 项目类型 | 推荐 BOM | 说明 |
+|----------|----------|------|
+| 只使用 DDD、架构注解、应用契约、框架无关 SPI | `jfoundry-dependencies` | 不引入 Spring / Spring Boot 依赖管理 |
+| 使用 Spring Framework、Spring Boot starter、Spring Boot auto-configuration | `jfoundry-spring-dependencies` | 聚合 `jfoundry-dependencies`，并管理 Spring / Spring Boot / Spring 集成依赖 |
 
-MyBatis-Plus 项目示例：
+父 POM 示例：
 
 ```xml
 <dependencyManagement>
@@ -125,54 +117,55 @@ MyBatis-Plus 项目示例：
         </dependency>
     </dependencies>
 </dependencyManagement>
-
-<dependencies>
-    <!-- domain module -->
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-domain-starter</artifactId>
-    </dependency>
-
-    <!-- application module -->
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-application-starter</artifactId>
-    </dependency>
-
-    <!-- infrastructure module -->
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-infrastructure-mybatis-plus-starter</artifactId>
-    </dependency>
-
-    <!-- Spring Boot assembly module -->
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>
-    </dependency>
-</dependencies>
 ```
 
-MyBatis-Plus + Outbox + Inbox 项目示例：
+如果项目使用 Spring / Spring Boot，将上面的 BOM 换成：
+
+```xml
+<dependency>
+    <groupId>io.github.xfoundries</groupId>
+    <artifactId>jfoundry-spring-dependencies</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <type>pom</type>
+    <scope>import</scope>
+</dependency>
+```
+
+多模块项目中，依赖应放在对应模块，不要因为最终运行时是 Spring Boot 就把 Spring starter 放进领域层或应用层：
+
+| 模块 / 层 | 应放依赖 | 不应放 |
+|-----------|----------|--------|
+| `domain` | `jfoundry-domain-starter` | Spring、MyBatis-Plus、JPA、MQ client、HTTP client、Spring Boot starter |
+| `application` | `jfoundry-application-starter` | Spring Boot starter、MyBatis mapper/service、broker adapter |
+| `infrastructure` | `jfoundry-infrastructure-mybatis-plus-starter`（仅使用框架无关 MyBatis-Plus adapter 时） | Controller、应用入口、Spring Boot 自动装配 starter |
+| `boot` / 运行时装配模块 | `jfoundry-spring-boot-starter`，以及按需加入 `jfoundry-mybatis-plus-spring-boot-starter`、Outbox、Inbox、broker starter | 领域模型和业务规则实现 |
+| 架构测试模块或测试源集 | `jfoundry-architecture-test`，`test` scope | production scope |
+
+典型多模块依赖示例：
+
+domain 模块：
 
 ```xml
 <dependencies>
     <dependency>
         <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-outbox-mybatis-plus-spring-boot-starter</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-inbox-mybatis-plus-spring-boot-starter</artifactId>
+        <artifactId>jfoundry-domain-starter</artifactId>
     </dependency>
 </dependencies>
 ```
 
-Spring Data / JPA 项目示例：
+application 模块：
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>io.github.xfoundries</groupId>
+        <artifactId>jfoundry-application-starter</artifactId>
+    </dependency>
+</dependencies>
+```
+
+boot / 运行时装配模块：
 
 ```xml
 <dependencies>
@@ -180,8 +173,52 @@ Spring Data / JPA 项目示例：
         <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-spring-boot-starter</artifactId>
     </dependency>
+
+    <!-- Spring Boot + MyBatis-Plus runtime assembly. -->
+    <dependency>
+        <groupId>io.github.xfoundries</groupId>
+        <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>
+    </dependency>
+
+    <!-- Add only when reliable external domain event publication is required. -->
+    <dependency>
+        <groupId>io.github.xfoundries</groupId>
+        <artifactId>jfoundry-outbox-spring-boot-starter</artifactId>
+    </dependency>
+
+    <!-- Add only when Outbox uses the MyBatis-Plus store. -->
+    <dependency>
+        <groupId>io.github.xfoundries</groupId>
+        <artifactId>jfoundry-outbox-mybatis-plus-spring-boot-starter</artifactId>
+    </dependency>
+
+    <!-- Add only when consumers need idempotency. -->
+    <dependency>
+        <groupId>io.github.xfoundries</groupId>
+        <artifactId>jfoundry-inbox-spring-boot-starter</artifactId>
+    </dependency>
+
+    <!-- Add only when Inbox uses the MyBatis-Plus store. -->
+    <dependency>
+        <groupId>io.github.xfoundries</groupId>
+        <artifactId>jfoundry-inbox-mybatis-plus-spring-boot-starter</artifactId>
+    </dependency>
 </dependencies>
 ```
+
+架构测试依赖放在执行 ArchUnit 测试的模块中，通常是 boot 模块的测试源集，或单独的 architecture-test 模块：
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>io.github.xfoundries</groupId>
+        <artifactId>jfoundry-architecture-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+```
+
+不要一次性引入所有 starter。领域、应用、持久化、消息、Outbox、Inbox 应按项目实际需要逐步打开；Spring Boot 相关 starter 通常只放在 boot / 运行时装配模块。
 
 ### 2. 创建领域模型
 

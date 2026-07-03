@@ -9,13 +9,13 @@ description: Guide AI agents and developers when starting or modifying Java busi
 
 Use this skill to build business applications on jfoundry without drifting from the framework's intended architecture. It is for application projects, not for changing the jfoundry framework internals.
 
-Default to a new Java 21 Maven project using Hexagonal Architecture unless the user explicitly chooses Onion. Prefer copying the bundled templates first, then adapting names and packages.
+Default to a new Java 21 Maven project using Hexagonal Architecture unless the user explicitly chooses Onion. Do not default the runtime framework to Spring Boot; choose Spring only when the user selects Spring Framework, Spring Boot, or a Spring-specific starter. Prefer copying the bundled templates first, then adapting names and packages.
 
 ## First-Time Workflow
 
-1. Identify the project shape: single Spring Boot app, multi-module Maven app, or separate domain/application/infrastructure modules.
+1. Identify the project shape: single application module, multi-module Maven app, or separate domain/application/infrastructure modules. Prefer multi-module Maven for normal DDD projects.
 2. Choose one primary architecture style. Prefer Hexagonal for new business projects; choose Onion only when the user asks for it or the codebase already uses it. Do not mix Hexagonal and Onion in the same ArchUnit analysis scope.
-3. Read `references/dependencies.md` and copy the matching Maven template snippets from `assets/templates/maven/`.
+3. Read `references/dependencies.md`, choose the BOM by runtime, and copy the matching Maven template snippets from `assets/templates/maven/`.
 4. Read `references/architecture.md` and copy the matching package structure from `assets/templates/structure/`.
 5. Copy one architecture test template from `assets/templates/java/`, replace `PACKAGE_NAME`, and add it under the business project's test source set.
 6. Read `references/repository-and-ports.md` before creating repositories, query ports, lookup ports, read models, or maintenance ports.
@@ -25,6 +25,7 @@ Default to a new Java 21 Maven project using Hexagonal Architecture unless the u
 ## Core Rules
 
 - Keep domain code free of Spring, MyBatis, persistence models, message broker clients, and framework lifecycle APIs.
+- Put Spring Boot starters only in the boot/runtime assembly module, never in domain or application modules.
 - Put use case orchestration and transaction-facing workflow in the application layer.
 - Express outbound needs as secondary ports. Put MyBatis, JPA, Redis, HTTP clients, MQ clients, and other technology details in infrastructure adapters.
 - Primary adapters such as controllers, message listeners, CLI commands, and schedulers must call primary ports or application services, not secondary adapters directly.
@@ -39,13 +40,18 @@ Copy templates instead of rewriting them from memory:
 
 - `assets/templates/java/HexagonalArchitectureTest.java`
 - `assets/templates/java/OnionSimpleArchitectureTest.java`
-- `assets/templates/maven/dependency-management.xml`
+- `assets/templates/maven/dependency-management-core.xml`
+- `assets/templates/maven/dependency-management-spring.xml`
 - `assets/templates/maven/domain-module-dependencies.xml`
 - `assets/templates/maven/application-module-dependencies.xml`
 - `assets/templates/maven/infrastructure-mybatis-plus-dependencies.xml`
+- `assets/templates/maven/architecture-test-dependencies.xml`
 - `assets/templates/maven/spring-boot-app-dependencies.xml`
 - `assets/templates/maven/spring-boot-mybatis-plus-dependencies.xml`
-- `assets/templates/maven/outbox-inbox-dependencies.xml`
+- `assets/templates/maven/outbox-dependencies.xml`
+- `assets/templates/maven/outbox-mybatis-plus-dependencies.xml`
+- `assets/templates/maven/inbox-dependencies.xml`
+- `assets/templates/maven/inbox-mybatis-plus-dependencies.xml`
 - `assets/templates/maven/broker-dependencies.xml`
 - `assets/templates/structure/hexagonal-package-structure.txt`
 - `assets/templates/structure/onion-simple-package-structure.txt`
@@ -67,18 +73,20 @@ When guiding a new project, start by asking for the base package, project/module
 
 - Java 21
 - Maven
-- Spring Boot runtime
+- no runtime framework binding yet
 - Hexagonal Architecture
-- `jfoundry-spring-dependencies` BOM
-- `jfoundry-spring-boot-starter`
+- `jfoundry-dependencies` BOM
+- `jfoundry-domain-starter`
+- `jfoundry-application-starter`
 - `JFoundryRules.hexagonalStrict()` and `JFoundryRules.jmoleculesDdd()`
 
 Suggested user prompt for a new business project:
 
 ```text
-Use $use-jfoundry to create the initial architecture for a new Java 21 Spring Boot business project.
+Use $use-jfoundry to create the initial architecture for a new Java 21 business project.
 Base package: com.example.order
 Project shape: multi-module Maven
+Runtime: undecided
 Persistence: MyBatis-Plus
 Messaging: Kafka later, not in the initial skeleton
 Architecture: default unless you need to choose

@@ -1,6 +1,8 @@
 <dependencies>
     <dependency>
         <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-spring-boot-starter</artifactId>
+        <artifactId>jfoundry-architecture-test</artifactId>
+        <scope>test</scope>
     </dependency>
 </dependencies>
+
