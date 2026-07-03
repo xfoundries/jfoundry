@@ -58,7 +58,7 @@ public OrderRepositoryImpl(OrderMapper mapper) {
 }
 ```
 
-For Spring Boot applications, jfoundry auto-configuration injects `DomainEventContext` into `AbstractPersistenceRepository` internally. Business repository constructors should not expose `DomainEventContext`. For non-Spring or manual assembly, use the compatibility constructor or call `setDomainEventContext(...)` explicitly.
+For Spring Boot applications, jfoundry auto-configuration injects `DomainEventContext` into `AbstractPersistenceRepository` internally. Business repository constructors should not expose `DomainEventContext`. For non-Spring or manual assembly, call `setDomainEventContext(...)` after constructing the repository.
 
 ## Audit Fields
 

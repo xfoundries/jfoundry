@@ -42,12 +42,6 @@ public abstract class AbstractPersistenceRepository<
     private final DataConverter<T, ID, D, K> converter;
 
     protected AbstractPersistenceRepository(DataConverter<T, ID, D, K> converter) {
-        this(null, converter);
-    }
-
-    protected AbstractPersistenceRepository(DomainEventContext domainEventContext,
-                                             DataConverter<T, ID, D, K> converter) {
-        this.domainEventContext = domainEventContext;
         this.converter = Objects.requireNonNull(converter, "DataConverter must not be null.");
     }
 

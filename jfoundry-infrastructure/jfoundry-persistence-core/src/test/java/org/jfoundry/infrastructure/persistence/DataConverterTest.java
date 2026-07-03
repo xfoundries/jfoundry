@@ -1,11 +1,13 @@
 package org.jfoundry.infrastructure.persistence;
 
+import org.jfoundry.application.event.DomainEventContext;
 import org.jfoundry.domain.entity.agg.BaseAggregateRoot;
 import org.jmolecules.ddd.types.AggregateRoot;
 import org.jmolecules.ddd.types.Identifier;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.TypeVariable;
 import java.util.List;
 
@@ -75,8 +77,21 @@ class DataConverterTest {
         assertThat(typeParameterNames(AbstractPersistenceRepository.class)).containsExactly("T", "ID", "D", "K");
     }
 
+    @Test
+    void persistenceRepositoryConstructorShouldNotExposeDomainEventContext() {
+        assertThat(constructorParameterTypes(AbstractPersistenceRepository.class))
+                .noneMatch(parameterTypes -> parameterTypes.contains(DomainEventContext.class));
+    }
+
     private static List<String> typeParameterNames(Class<?> type) {
         return List.of(type.getTypeParameters()).stream().map(TypeVariable::getName).toList();
+    }
+
+    private static List<List<Class<?>>> constructorParameterTypes(Class<?> type) {
+        return List.of(type.getDeclaredConstructors()).stream()
+                .map(Constructor::getParameterTypes)
+                .map(List::of)
+                .toList();
     }
 
     record TestId(String value) implements Identifier, Serializable {
