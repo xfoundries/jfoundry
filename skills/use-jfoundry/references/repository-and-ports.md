@@ -1,5 +1,7 @@
 # Repository And Port Guidance
 
+This guide uses `LookupPort`, `ReadModelPort`, and `MaintenancePort` as recommended JFoundry read-side categories and suffixes. They are not mandatory DDD, Hexagonal Architecture, or CQRS terms. A business project may use established names such as `QueryPort`, `ReadPort`, `Finder`, `Gateway`, `Resolver`, or `Scanner` when the responsibility is clear.
+
 ## Aggregate Repository
 
 Use an aggregate repository for aggregate lifecycle and command-side aggregate loading:
@@ -13,7 +15,7 @@ Name methods by domain intent, not SQL shape. Prefer `findCurrentOperation(...)`
 
 ## LookupPort
 
-Use a `LookupPort` when an application service needs context for a workflow but will not modify the loaded object:
+Consider a lookup-style read port when an application service needs context for a workflow but will not modify the loaded object. `LookupPort` is the recommended suffix when the project has no existing name:
 
 - Tenant, environment, account, or application key lookup.
 - Existence checks for related objects.
@@ -23,13 +25,13 @@ Return lightweight records or DTOs, not MyBatis/JPA data objects.
 
 ## ReadModelPort
 
-Use a `ReadModelPort` for query use cases, page views, dashboards, reports, list screens, projections, and read shapes that differ from write aggregates.
+Consider a read-model port for query use cases, page views, dashboards, reports, list screens, projections, and read shapes that differ from write aggregates. `ReadModelPort` is the recommended suffix; `QueryPort`, `ReadPort`, `ReadRepository`, or `ProjectionPort` can also be reasonable project-local names.
 
 CQRS is useful when commands and reads have different models, performance needs, or consistency expectations. Do not introduce CQRS just because a method is read-only.
 
 ## MaintenancePort
 
-Use a `MaintenancePort` for technical scanning and background maintenance:
+Consider a maintenance-style port for technical scanning and background maintenance. `MaintenancePort` is a JFoundry recommendation, not a widely standardized suffix:
 
 - Find timed-out processing records.
 - Find expired IDs to clean up.
@@ -43,10 +45,16 @@ When replacing Active Record, MyBatis-Plus `IService`, generic `Wrapper`, or spe
 
 1. Ask whether the query exists to modify an aggregate.
 2. If yes, load by aggregate ID or stable business identity when possible.
-3. If the result prepares workflow context, use `LookupPort`.
-4. If the result serves UI, reporting, list, or page reads, use `ReadModelPort`.
-5. If the result serves background scan, cleanup, or repair, use `MaintenancePort`.
+3. If the result prepares workflow context, prefer a lookup-style read port such as `LookupPort`.
+4. If the result serves UI, reporting, list, or page reads, prefer a read-model/query port such as `ReadModelPort` or `QueryPort`.
+5. If the result serves background scan, cleanup, or repair, prefer a maintenance-style port such as `MaintenancePort` or `Scanner`.
 6. If one old method serves commands and queries, split it.
+
+## Gradual Adoption
+
+Small projects may start with one read-side port, such as `OrderQueryPort` or `OrderReadPort`, alongside aggregate repositories. Split lookup, read-model, and maintenance responsibilities later when query purposes, result shapes, or change reasons diverge.
+
+Do not split ports for naming symmetry. Split when it clarifies use-case responsibility, protects aggregate repositories from generic queries, or isolates infrastructure-specific read capabilities.
 
 ## Forbidden Leaks
 
@@ -57,5 +65,4 @@ Aggregate repository interfaces should not expose:
 - Persistence data objects or mapper types.
 - Page DTOs or reporting projections that are not aggregates.
 
-Add `JFoundryRules.aggregateRepositoryConventions()` when the project is ready to enforce these conventions.
-
+Add `JFoundryRules.aggregateRepositoryConventions()` when the project is ready to enforce these repository leak conventions. The rule group does not force `LookupPort`, `ReadModelPort`, or `MaintenancePort` suffixes.

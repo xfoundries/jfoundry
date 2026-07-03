@@ -18,7 +18,7 @@ Default to a new Java 21 Maven project using Hexagonal Architecture unless the u
 3. Read `references/dependencies.md`, choose the BOM by runtime, and copy the matching Maven template snippets from `assets/templates/maven/`.
 4. Read `references/architecture.md` and copy the matching package structure from `assets/templates/structure/`.
 5. Copy one architecture test template from `assets/templates/java/`, replace `PACKAGE_NAME`, and add it under the business project's test source set.
-6. Read `references/repository-and-ports.md` before creating repositories, query ports, lookup ports, read models, or maintenance ports.
+6. Read `references/repository-and-ports.md` before creating aggregate repositories, read-side ports, query ports, lookup ports, read models, or maintenance ports.
 7. Read `references/persistence-data-converters.md` before implementing `AggregateData`, `DataConverter`, MyBatis-Plus data objects, or MapStruct converters.
 8. Read `references/outbox-inbox.md` only when the project needs reliable external event publication or idempotent message consumption.
 9. Run the smallest relevant Maven verification command, usually `mvn test`, or a module-scoped `mvn -pl <module> test`.
@@ -30,7 +30,7 @@ Default to a new Java 21 Maven project using Hexagonal Architecture unless the u
 - Put use case orchestration and transaction-facing workflow in the application layer.
 - Express outbound needs as secondary ports. Put MyBatis, JPA, Redis, HTTP clients, MQ clients, and other technology details in infrastructure adapters.
 - Primary adapters such as controllers, message listeners, CLI commands, and schedulers must call primary ports or application services, not secondary adapters directly.
-- Use aggregate repositories for aggregate lifecycle and command-side aggregate loading. Use lookup/read/maintenance ports for non-aggregate reads.
+- Use aggregate repositories for aggregate lifecycle and command-side aggregate loading. For non-aggregate reads, prefer read-side ports and split them into lookup/read-model/maintenance roles only when that distinction helps the project.
 - Keep persistence data converters infrastructure-local. Prefer MapStruct `@Mapper` interfaces with `INSTANCE`; keep `toEntity(...)` explicit and call aggregate `restore(...)`.
 - Enable Outbox only for reliable publication to an external process or broker. Use local domain event dispatch when events stay in-process.
 - Enable Inbox only when a consumer must handle duplicate delivery safely.

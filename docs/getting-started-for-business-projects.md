@@ -272,7 +272,7 @@ ArchRule[] jfoundryRules = JFoundryRules.onionSimple();
 
 不要把分页列表、报表、页面 DTO、Dashboard 统计、MyBatis-Plus `Wrapper`、Spring Data `Pageable` 等查询能力塞进聚合 Repository。
 
-读侧能力按用途拆分：
+读侧能力可以按用途渐进拆分。`LookupPort`、`ReadModelPort`、`MaintenancePort` 是 jfoundry 推荐的分类和命名后缀，不是强制规范；业务项目也可以使用已有的 `QueryPort`、`Finder`、`Gateway`、`Scanner` 等命名。
 
 - `LookupPort`：应用服务为了执行业务流程读取轻量上下文。
 - `ReadModelPort`：页面、列表、报表、统计和投影查询。
@@ -309,7 +309,7 @@ inboxTemplate.executeOnce(eventId, "order-projection", () -> {
 
 1. 先让 Agent 使用 `$use-jfoundry` 生成项目骨架和架构测试。
 2. 再围绕第一个 bounded context 建模聚合和值对象。
-3. 每新增一个外部系统、数据库查询或消息链路，都让 Agent 先判断它是 Repository、LookupPort、ReadModelPort、MaintenancePort、Outbox 还是 Inbox。
+3. 每新增一个外部系统、数据库查询或消息链路，都让 Agent 先判断它是聚合 Repository、读侧端口、维护端口、Outbox 还是 Inbox；读侧端口可按复杂度再细分为 Lookup、ReadModel 或 Maintenance。
 4. 每次变更后运行 Maven 测试和 ArchUnit 测试。
 
 推荐提示词：
