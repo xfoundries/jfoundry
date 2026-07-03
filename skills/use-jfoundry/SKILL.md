@@ -1,6 +1,6 @@
 ---
 name: use-jfoundry
-description: Guide AI agents and developers when starting or modifying Java business projects that use the jfoundry framework. Use for new project setup, Maven dependency selection, Hexagonal or Onion package layout, jMolecules/JFoundry architecture annotations, aggregate repository versus read port decisions, Outbox/Inbox integration, and ArchUnit test setup in business applications. Do not use for maintaining the jfoundry framework repository itself.
+description: Guide AI agents and developers when starting or modifying Java business projects that use the jfoundry framework. Use for DDD modeling, Maven dependency selection, Hexagonal or Onion package layout, jMolecules/JFoundry architecture annotations, aggregate repository versus read-side port decisions, Outbox/Inbox integration, and ArchUnit test setup. Do not use for maintaining jfoundry internals.
 ---
 
 # Use JFoundry
@@ -18,14 +18,16 @@ Default to a new Java 21 Maven project using Hexagonal Architecture unless the u
 3. Read `references/dependencies.md`, choose the BOM by runtime, and copy the matching Maven template snippets from `assets/templates/maven/`.
 4. Read `references/architecture.md` and copy the matching package structure from `assets/templates/structure/`.
 5. Copy one architecture test template from `assets/templates/java/`, replace `PACKAGE_NAME`, and add it under the business project's test source set.
-6. Read `references/repository-and-ports.md` before creating aggregate repositories, read-side ports, query ports, lookup ports, read models, or maintenance ports.
-7. Read `references/persistence-data-converters.md` before implementing `AggregateData`, `DataConverter`, MyBatis-Plus data objects, or MapStruct converters.
-8. Read `references/outbox-inbox.md` only when the project needs reliable external event publication or idempotent message consumption.
-9. Run the smallest relevant Maven verification command, usually `mvn test`, or a module-scoped `mvn -pl <module> test`.
+6. Read `references/domain-modeling.md` before creating aggregates, entities, value objects, domain services, domain events, or command behaviors.
+7. Read `references/repository-and-ports.md` before creating aggregate repositories, read-side ports, query ports, lookup ports, read models, or maintenance ports.
+8. Read `references/persistence-data-converters.md` before implementing `AggregateData`, `DataConverter`, MyBatis-Plus data objects, or MapStruct converters.
+9. Read `references/outbox-inbox.md` only when the project needs reliable external event publication or idempotent message consumption.
+10. Run the smallest relevant Maven verification command, usually `mvn test`, or a module-scoped `mvn -pl <module> test`.
 
 ## Core Rules
 
 - Keep domain code free of Spring, MyBatis, persistence models, message broker clients, and framework lifecycle APIs.
+- Model business behavior in the domain when rules and invariants are meaningful; use simpler CRUD or transaction scripts for low-complexity areas.
 - Put Spring Boot starters only in the boot/runtime assembly module, never in domain or application modules.
 - Put use case orchestration and transaction-facing workflow in the application layer.
 - Express outbound needs as secondary ports. Put MyBatis, JPA, Redis, HTTP clients, MQ clients, and other technology details in infrastructure adapters.
@@ -65,6 +67,7 @@ Replace placeholders such as `PACKAGE_NAME` and `JFOUNDRY_VERSION`. Keep optiona
 - Read `references/first-use.md` when the user is starting a new project or asks how to invoke this skill.
 - Read `references/architecture.md` for package roles, annotations, dependency direction, and architecture style selection.
 - Read `references/dependencies.md` for starter selection and Maven snippets.
+- Read `references/domain-modeling.md` before modeling aggregates, entities, value objects, domain services, domain events, or command behavior.
 - Read `references/repository-and-ports.md` before modeling persistence, aggregate repositories, read models, or query ports.
 - Read `references/persistence-data-converters.md` before writing `DataConverter` implementations, persistence data objects, or MapStruct mapping rules.
 - Read `references/outbox-inbox.md` before adding event externalization, broker adapters, Outbox tables, dispatchers, or consumer idempotency.

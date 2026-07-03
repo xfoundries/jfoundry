@@ -11,6 +11,8 @@ Use this skill when changing this repository as a framework. It protects jfoundr
 
 Do not apply this skill to downstream business projects. Use `skills/use-jfoundry` for application projects that consume jfoundry.
 
+When framework docs, examples, or test fixtures mention DDD modeling concepts, keep the wording source-aware: distinguish DDD concepts from JFoundry conventions, and avoid presenting project recommendations as universal DDD rules. Put downstream business modeling workflow in `skills/use-jfoundry`, not in this framework-maintenance skill.
+
 ## Maintenance Workflow
 
 1. Classify the task: domain API, architecture annotation/rule, application SPI, infrastructure adapter, Spring runtime adapter, Boot auto-configuration, starter, BOM, verification, docs, release compatibility, or integration test.
@@ -58,4 +60,3 @@ When reporting a framework change, include:
 - boundary decision made
 - tests or verification command run
 - compatibility or migration impact
-
