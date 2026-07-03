@@ -53,10 +53,12 @@ Repository adapters should hold a static converter reference:
 ```java
 private static final OrderDataConverter CONVERTER = OrderDataConverter.INSTANCE;
 
-public OrderRepositoryImpl(OrderMapper mapper, DomainEventContext domainEventContext) {
-    super(mapper, domainEventContext, CONVERTER);
+public OrderRepositoryImpl(OrderMapper mapper) {
+    super(mapper, CONVERTER);
 }
 ```
+
+For Spring Boot applications, jfoundry auto-configuration injects `DomainEventContext` into `AbstractPersistenceRepository` internally. Business repository constructors should not expose `DomainEventContext`. For non-Spring or manual assembly, use the compatibility constructor or call `setDomainEventContext(...)` explicitly.
 
 ## Audit Fields
 

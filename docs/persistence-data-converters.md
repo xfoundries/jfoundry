@@ -71,12 +71,13 @@ public class HelpDocumentRepositoryImpl
 
     private static final HelpDocumentDataConverter CONVERTER = HelpDocumentDataConverter.INSTANCE;
 
-    public HelpDocumentRepositoryImpl(HelpDocumentMapper mapper,
-                                      DomainEventContext domainEventContext) {
-        super(mapper, domainEventContext, CONVERTER);
+    public HelpDocumentRepositoryImpl(HelpDocumentMapper mapper) {
+        super(mapper, CONVERTER);
     }
 }
 ```
+
+在 Spring Boot 应用中，`DomainEventContext` 由 jfoundry 自动配置注入到 `AbstractPersistenceRepository`，业务仓储构造器不需要暴露这个框架内部参数。非 Spring 或手动装配场景仍可使用兼容构造器或 `setDomainEventContext(...)` 显式设置。
 
 ## 审计字段与逻辑删除
 

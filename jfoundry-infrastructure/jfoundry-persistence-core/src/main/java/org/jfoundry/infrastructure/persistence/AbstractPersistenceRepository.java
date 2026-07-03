@@ -9,6 +9,7 @@ import org.jmolecules.ddd.types.Identifier;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /// 持久化仓储抽象基类(模板方法模式)。
 /// <p>
@@ -37,13 +38,26 @@ public abstract class AbstractPersistenceRepository<
         K extends Serializable>
         implements AggregateRepository<T, ID> {
 
-    private final DomainEventContext domainEventContext;
+    private DomainEventContext domainEventContext;
     private final DataConverter<T, ID, D, K> converter;
+
+    protected AbstractPersistenceRepository(DataConverter<T, ID, D, K> converter) {
+        this(null, converter);
+    }
 
     protected AbstractPersistenceRepository(DomainEventContext domainEventContext,
                                              DataConverter<T, ID, D, K> converter) {
         this.domainEventContext = domainEventContext;
-        this.converter = converter;
+        this.converter = Objects.requireNonNull(converter, "DataConverter must not be null.");
+    }
+
+    /**
+     * Injects the event context used to register successfully persisted aggregates.
+     * Framework integrations call this after repository construction so business
+     * repositories do not have to expose infrastructure constructor parameters.
+     */
+    public final void setDomainEventContext(DomainEventContext domainEventContext) {
+        this.domainEventContext = Objects.requireNonNull(domainEventContext, "DomainEventContext must not be null.");
     }
 
     /// 子类实现的模板方法:单条新增。

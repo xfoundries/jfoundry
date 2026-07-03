@@ -1,3 +1,4 @@
+org.jfoundry.autoconfigure.event.DomainEventPersistenceAutoConfiguration
 org.jfoundry.autoconfigure.event.DomainEventDispatchAutoConfiguration
 org.jfoundry.autoconfigure.messaging.kafka.KafkaMessageSenderAutoConfiguration
 org.jfoundry.autoconfigure.messaging.rocketmq.RocketMqMessageSenderAutoConfiguration

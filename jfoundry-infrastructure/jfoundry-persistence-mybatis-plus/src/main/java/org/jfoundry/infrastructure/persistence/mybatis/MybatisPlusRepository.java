@@ -32,10 +32,16 @@ public abstract class MybatisPlusRepository<
     protected final BaseMapper<D> mapper;
 
     protected MybatisPlusRepository(BaseMapper<D> mapper,
+                                    DataConverter<T, ID, D, K> converter) {
+        super(converter);
+        this.mapper = mapper;
+    }
+
+    protected MybatisPlusRepository(BaseMapper<D> mapper,
                                      DomainEventContext domainEventContext,
                                      DataConverter<T, ID, D, K> converter) {
-        super(domainEventContext, converter);
-        this.mapper = mapper;
+        this(mapper, converter);
+        setDomainEventContext(domainEventContext);
     }
 
     @Override

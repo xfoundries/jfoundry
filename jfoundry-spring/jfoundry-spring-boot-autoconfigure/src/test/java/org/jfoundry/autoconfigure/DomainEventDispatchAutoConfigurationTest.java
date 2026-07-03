@@ -4,9 +4,16 @@ import org.jfoundry.application.event.CompositeDomainEventDispatcher;
 import org.jfoundry.application.event.DomainEventContext;
 import org.jfoundry.application.event.DomainEventDispatcher;
 import org.jfoundry.application.outbox.DomainEventOutboxRecorder;
+import org.jfoundry.domain.entity.agg.BaseAggregateRoot;
+import org.jfoundry.domain.event.EventRecordable;
 import org.jfoundry.autoconfigure.event.DomainEventDispatchAutoConfiguration;
 import org.jfoundry.autoconfigure.event.DomainEventDispatchInterceptor;
+import org.jfoundry.autoconfigure.event.DomainEventPersistenceAutoConfiguration;
 import org.jfoundry.autoconfigure.event.DomainEventScope;
+import org.jfoundry.infrastructure.persistence.AbstractPersistenceRepository;
+import org.jfoundry.infrastructure.persistence.AggregateData;
+import org.jfoundry.infrastructure.persistence.DataConverter;
+import org.jmolecules.ddd.types.Identifier;
 import org.jfoundry.infrastructure.event.spring.dispatcher.SpringApplicationEventDispatcher;
 import org.jfoundry.infrastructure.outbox.spring.externalization.OutboxDomainEventDispatcher;
 import org.jmolecules.event.types.DomainEvent;
@@ -19,6 +26,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +35,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DomainEventDispatchAutoConfigurationTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(DomainEventDispatchAutoConfiguration.class))
+            .withConfiguration(AutoConfigurations.of(
+                    DomainEventPersistenceAutoConfiguration.class,
+                    DomainEventDispatchAutoConfiguration.class))
             .withBean(ApplicationEventPublisher.class, () -> event -> {
             });
 
@@ -86,6 +96,18 @@ class DomainEventDispatchAutoConfigurationTest {
     }
 
     @Test
+    void missingPersistenceModuleDoesNotBreakEventDispatch() {
+        contextRunner
+                .withClassLoader(new FilteredClassLoader("org.jfoundry.infrastructure.persistence"))
+                .run(context -> {
+                    assertThat(context).hasSingleBean(DomainEventScope.class);
+                    assertThat(context).hasSingleBean(DomainEventContext.class);
+                    assertThat(context).hasSingleBean(SpringApplicationEventDispatcher.class);
+                    assertThat(context).doesNotHaveBean("domainEventContextBeanPostProcessorRegistrar");
+                });
+    }
+
+    @Test
     void disabledSpringDispatcherDoesNotRegisterSpringPublisher() {
         contextRunner
                 .withPropertyValues("jfoundry.domain.event.dispatch.spring.enabled=false")
@@ -115,6 +137,21 @@ class DomainEventDispatchAutoConfigurationTest {
                 });
     }
 
+    @Test
+    void injectsDomainEventContextIntoPersistenceRepositories() {
+        contextRunner
+                .withUserConfiguration(PersistenceRepositoryConfiguration.class)
+                .run(context -> {
+                    TestPersistenceRepository repository = context.getBean(TestPersistenceRepository.class);
+                    RecordingDomainEventContext domainEventContext = context.getBean(RecordingDomainEventContext.class);
+                    TestAggregate aggregate = TestAggregate.create("order-1");
+
+                    repository.add(aggregate);
+
+                    assertThat(domainEventContext.registeredAggregates).containsExactly(aggregate);
+                });
+    }
+
     @Configuration
     static class OutboxRecorderConfiguration {
 
@@ -137,5 +174,94 @@ class DomainEventDispatchAutoConfigurationTest {
     }
 
     record TestEvent(String id) implements DomainEvent {
+    }
+
+    @Configuration
+    static class PersistenceRepositoryConfiguration {
+
+        @Bean
+        RecordingDomainEventContext recordingDomainEventContext() {
+            return new RecordingDomainEventContext();
+        }
+
+        @Bean
+        TestPersistenceRepository testPersistenceRepository() {
+            return new TestPersistenceRepository();
+        }
+    }
+
+    static final class RecordingDomainEventContext implements DomainEventContext {
+
+        private final List<EventRecordable> registeredAggregates = new ArrayList<>();
+
+        @Override
+        public void register(EventRecordable aggregate) {
+            registeredAggregates.add(aggregate);
+        }
+    }
+
+    static final class TestPersistenceRepository
+            extends AbstractPersistenceRepository<TestAggregate, TestAggregateId, TestAggregateData, String> {
+
+        TestPersistenceRepository() {
+            super(new TestDataConverter());
+        }
+
+        @Override
+        protected void insertData(TestAggregateData data) {
+        }
+
+        @Override
+        protected long updateData(TestAggregateData data) {
+            return 1;
+        }
+
+        @Override
+        protected long deleteDataById(String id) {
+            return 1;
+        }
+
+        @Override
+        protected TestAggregateData selectDataById(String id) {
+            return null;
+        }
+    }
+
+    static final class TestAggregate extends BaseAggregateRoot<TestAggregate, TestAggregateId> {
+
+        private TestAggregate(TestAggregateId id) {
+            super(id);
+        }
+
+        static TestAggregate create(String id) {
+            return new TestAggregate(new TestAggregateId(id));
+        }
+    }
+
+    record TestAggregateId(String value) implements Identifier, Serializable {
+    }
+
+    static final class TestAggregateData extends AggregateData<String> {
+    }
+
+    static final class TestDataConverter
+            implements DataConverter<TestAggregate, TestAggregateId, TestAggregateData, String> {
+
+        @Override
+        public TestAggregateData toData(TestAggregate entity) {
+            TestAggregateData data = new TestAggregateData();
+            data.setId(entity.getId().value());
+            return data;
+        }
+
+        @Override
+        public TestAggregate toEntity(TestAggregateData data) {
+            return TestAggregate.create(data.getId());
+        }
+
+        @Override
+        public String toDataId(TestAggregateId id) {
+            return id.value();
+        }
     }
 }

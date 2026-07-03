@@ -50,7 +50,9 @@ class PersistenceTestConfig {
     TestOrderRepository testOrderRepository(TestOrderMapper mapper,
                                              DomainEventContext domainEventContext,
                                              TestOrderDataConverter converter) {
-        return new TestOrderRepository(mapper, domainEventContext, converter);
+        TestOrderRepository repository = new TestOrderRepository(mapper, converter);
+        repository.setDomainEventContext(domainEventContext);
+        return repository;
     }
 
     @Bean
