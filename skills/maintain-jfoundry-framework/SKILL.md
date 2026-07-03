@@ -9,9 +9,9 @@ description: Guide AI agents when modifying the jfoundry framework repository it
 
 Use this skill when changing this repository as a framework. It protects jfoundry's module boundaries, dependency direction, starter semantics, public API compatibility, and verification discipline.
 
-Do not apply this skill to downstream business projects. Use `skills/use-jfoundry` for application projects that consume jfoundry.
+Do not apply this skill to downstream business projects. For application projects that consume jfoundry, use the `use-jfoundry` skill from the `domain-architecture` plugin in `xfoundries/software-architecture-skills`.
 
-When framework docs, examples, or test fixtures mention DDD modeling concepts, keep the wording source-aware: distinguish DDD concepts from JFoundry conventions, and avoid presenting project recommendations as universal DDD rules. Put general business modeling workflow in a dedicated domain-modeling skill; use `skills/use-jfoundry` only for jfoundry-specific application guidance.
+When framework docs, examples, or test fixtures mention DDD modeling concepts, keep the wording source-aware: distinguish DDD concepts from JFoundry conventions, and avoid presenting project recommendations as universal DDD rules. Put general business modeling workflow in the external `domain-modeling` skill; keep `use-jfoundry` focused on jfoundry-specific application guidance.
 
 ## Maintenance Workflow
 

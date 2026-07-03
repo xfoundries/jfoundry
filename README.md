@@ -80,7 +80,19 @@ inboxTemplate.executeOnce(eventId, "order-projection", () -> {
 
 如果你正在迁移聚合仓储、MyBatis-Plus Data 对象或 MapStruct 转换器，请阅读 [持久化 DataConverter 与 MapStruct 使用指南](docs/persistence-data-converters.md)。它说明如何让 `toData(...)` 交给 MapStruct、让 `toEntity(...)` 保留显式 `restore(...)` 还原语义，并避免把 converter 默认注册为 Spring Bean。
 
-如果你使用 AI Agent 辅助开发，本仓库提供了 [use-jfoundry skill](skills/use-jfoundry/SKILL.md)。该 skill 是给 Agent 使用的英文指令集，业务开发者通常不需要直接阅读；你可以在支持 Codex skills 的环境中让 Agent 使用 `$use-jfoundry`，例如：
+如果你使用 AI Agent 辅助开发，建议安装 `xfoundries/software-architecture-skills` 提供的 `domain-architecture` 插件，并让 Agent 使用其中的 `$use-jfoundry` skill。该 skill 是给 Agent 使用的英文指令集，业务开发者通常不需要直接阅读；例如：
+
+```bash
+codex plugin marketplace add xfoundries/software-architecture-skills
+codex plugin add domain-architecture@domain-architecture
+```
+
+Claude Code 可使用：
+
+```bash
+claude plugin marketplace add xfoundries/software-architecture-skills
+claude plugin install domain-architecture@domain-architecture
+```
 
 ```text
 Use $use-jfoundry to create the initial architecture for a new Java 21 business project.

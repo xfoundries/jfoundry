@@ -1,4 +1,0 @@
-interface:
-  display_name: "Use JFoundry"
-  short_description: "Guide new business projects using jfoundry"
-  default_prompt: "Use $use-jfoundry to design a new Java business project with jfoundry."

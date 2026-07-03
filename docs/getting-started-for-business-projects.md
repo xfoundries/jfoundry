@@ -2,7 +2,21 @@
 
 本文面向准备在业务系统中使用 jfoundry 的开发者和 AI Agent 使用者。README 负责介绍 jfoundry 的整体能力，本文负责回答“一个新业务项目第一步该怎么接入”。
 
-如果你使用 AI Agent 辅助开发，请优先让 Agent 使用仓库内的 `skills/use-jfoundry` skill。该 skill 是英文的 Agent 指令集，业务开发者通常不需要直接阅读；你只需要把本文中的提示词交给支持 Codex skills 的 Agent。
+如果你使用 AI Agent 辅助开发，建议先安装 `xfoundries/software-architecture-skills` 提供的 `domain-architecture` 插件，并让 Agent 使用其中的 `$use-jfoundry` skill。该 skill 是英文的 Agent 指令集，业务开发者通常不需要直接阅读；你只需要把本文中的提示词交给支持插件或 skills 的 Agent。
+
+Codex 安装示例：
+
+```bash
+codex plugin marketplace add xfoundries/software-architecture-skills
+codex plugin add domain-architecture@domain-architecture
+```
+
+Claude Code 安装示例：
+
+```bash
+claude plugin marketplace add xfoundries/software-architecture-skills
+claude plugin install domain-architecture@domain-architecture
+```
 
 ## 什么时候选择 jfoundry
 
@@ -296,7 +310,7 @@ inboxTemplate.executeOnce(eventId, "order-projection", () -> {
 
 ## AI Agent 使用方式
 
-`skills/use-jfoundry` 是给 Agent 使用的英文 skill，包含：
+`$use-jfoundry` 是 `xfoundries/software-architecture-skills` 的 `domain-architecture` 插件提供给 Agent 使用的英文 skill，包含：
 
 - 新项目接入流程
 - Maven 依赖模板
