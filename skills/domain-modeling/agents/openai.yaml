@@ -1,0 +1,4 @@
+interface:
+  display_name: "Domain Modeling"
+  short_description: "Model business domains before implementation"
+  default_prompt: "Use $domain-modeling to turn these requirements into a concise domain model before implementation."

@@ -11,7 +11,7 @@ Use this skill when changing this repository as a framework. It protects jfoundr
 
 Do not apply this skill to downstream business projects. Use `skills/use-jfoundry` for application projects that consume jfoundry.
 
-When framework docs, examples, or test fixtures mention DDD modeling concepts, keep the wording source-aware: distinguish DDD concepts from JFoundry conventions, and avoid presenting project recommendations as universal DDD rules. Put downstream business modeling workflow in `skills/use-jfoundry`, not in this framework-maintenance skill.
+When framework docs, examples, or test fixtures mention DDD modeling concepts, keep the wording source-aware: distinguish DDD concepts from JFoundry conventions, and avoid presenting project recommendations as universal DDD rules. Put general business modeling workflow in a dedicated domain-modeling skill; use `skills/use-jfoundry` only for jfoundry-specific application guidance.
 
 ## Maintenance Workflow
 
