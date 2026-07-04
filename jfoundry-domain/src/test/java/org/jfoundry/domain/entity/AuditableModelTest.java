@@ -5,6 +5,7 @@ import org.jmolecules.ddd.types.Identifier;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -27,6 +28,16 @@ class AuditableModelTest {
     }
 
     @Test
+    void auditableEntityCanUseOwnIdentifierDifferentFromAggregateRootIdentifier() {
+        var entityId = new TestEntityId("entity-1");
+        var entity = new TestEntityWithOwnId(entityId);
+
+        assertEquals(entityId, entity.getId());
+        assertInstanceOf(Auditable.class, entity);
+        assertInstanceOf(Deletable.class, entity);
+    }
+
+    @Test
     void customModelCanImplementAuditCapabilitiesWithoutBaseClass() {
         var model = new CustomAuditModel();
 
@@ -37,6 +48,9 @@ class AuditableModelTest {
     record TestId(String value) implements Identifier {
     }
 
+    record TestEntityId(String value) implements Identifier {
+    }
+
     private static class TestAggregateRoot extends AuditableAggregateRoot<TestAggregateRoot, TestId> {
         private TestAggregateRoot(TestId id) {
             super(id);
@@ -45,6 +59,12 @@ class AuditableModelTest {
 
     private static class TestEntity extends AuditableEntity<TestAggregateRoot, TestId> {
         private TestEntity(TestId id) {
+            super(id);
+        }
+    }
+
+    private static class TestEntityWithOwnId extends AuditableEntity<TestAggregateRoot, TestEntityId> {
+        private TestEntityWithOwnId(TestEntityId id) {
             super(id);
         }
     }

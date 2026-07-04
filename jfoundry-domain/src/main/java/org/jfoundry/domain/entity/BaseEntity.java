@@ -4,20 +4,20 @@ import org.jmolecules.ddd.types.AggregateRoot;
 import org.jmolecules.ddd.types.Entity;
 import org.jmolecules.ddd.types.Identifier;
 
-/// 聚合内实体基类。
+/// Base class for entities that live inside an aggregate.
 ///
-/// 提供聚合内实体的通用实现：
-/// - 标识符管理。
-/// - 不提供事件发布能力，领域事件由聚合根统一记录。
-/// - 不持有 parent 引用，避免实体到聚合根的隐式事件冒泡。
+/// Provides common entity behavior:
+/// - identifier management.
+/// - no event publication capability; aggregate roots record domain events.
+/// - no parent reference, avoiding implicit event bubbling from entities to aggregate roots.
 ///
-/// @param <T>  所属聚合根类型（self type，与 BaseAggregateRoot 的 T 一致）
-/// @param <ID> 标识符类型
+/// @param <T>  aggregate root type that owns this entity
+/// @param <ID> entity identifier type, independent from the aggregate root identifier type
 ///
-public abstract class BaseEntity<T extends AggregateRoot<T, ID>, ID extends Identifier>
+public abstract class BaseEntity<T extends AggregateRoot<T, ?>, ID extends Identifier>
         implements Entity<T, ID> {
 
-    /// 标识符。
+    /// Entity identifier.
     private ID id;
 
     public BaseEntity(ID id) {
@@ -29,11 +29,12 @@ public abstract class BaseEntity<T extends AggregateRoot<T, ID>, ID extends Iden
         return id;
     }
 
-    /// 重新指定标识符。
+    /// Reassigns the entity identifier.
     /// <p>
-    /// 该方法只面向子类和持久化转换场景开放，业务代码应优先通过构造函数确定实体标识。
+    /// This method is intended for subclasses and persistence restoration. Business code should
+    /// prefer assigning the identifier through the constructor.
     ///
-    /// @param id 标识符
+    /// @param id entity identifier
     protected void identify(ID id) {
         this.id = id;
     }
