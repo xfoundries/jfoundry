@@ -74,11 +74,13 @@ inboxTemplate.executeOnce(eventId, "order-projection", () -> {
 });
 ```
 
-## 业务项目接入入口
+## 业务项目接入
 
 如果你是在业务项目中首次接入 jfoundry，请先阅读 [业务项目接入指南](docs/getting-started-for-business-projects.md)。它会先帮你确定项目形态、架构风格、依赖选择、包结构、ArchUnit 架构测试，以及 Outbox / Inbox 是否应该启用。
 
 如果你正在迁移聚合仓储、MyBatis-Plus Data 对象或 MapStruct 转换器，请阅读 [持久化 DataConverter 与 MapStruct 使用指南](docs/persistence-data-converters.md)。它说明如何让 `toData(...)` 交给 MapStruct、让 `toEntity(...)` 保留显式 `restore(...)` 还原语义，并避免把 converter 默认注册为 Spring Bean。
+
+### AI Agent
 
 如果你使用 AI Agent 辅助开发，建议安装 `xfoundries/software-architecture-skills` 提供的 `domain-architecture` 插件，并让 Agent 使用其中的 `$use-jfoundry` skill。该 skill 是给 Agent 使用的英文指令集，业务开发者通常不需要直接阅读；例如：
 
@@ -109,6 +111,23 @@ Architecture: default
 ### 1. 引入依赖
 
 JFoundry 的 Maven 发布坐标使用已验证的 Central namespace `io.github.xfoundries`；Java API 包名仍保持 `org.jfoundry.*`，业务代码中的 import 不需要写成 `io.github.xfoundries.*`。
+
+当前可用版本是 `1.0.0-SNAPSHOT`，发布在 [Central Portal snapshots repository](https://central.sonatype.com/repository/maven-snapshots/io/github/xfoundries/)；正式版发布后可在 [Maven Central / Central Portal](https://central.sonatype.com/namespace/io.github.xfoundries) 查看。使用 SNAPSHOT 版本时，需要在父 POM 中启用 snapshots 仓库：
+
+```xml
+<repositories>
+    <repository>
+        <id>central-portal-snapshots</id>
+        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+```
 
 先在父 POM 选择 BOM，再按模块职责显式选择 starter。对于有明确领域模型和架构边界的 DDD 项目，推荐使用多模块 Maven，因为 domain、application、infrastructure、boot 的依赖边界可以由 Maven 直接守住；很小的项目也可以先做单应用模块，但仍应保持包边界和 ArchUnit 架构测试。
 
