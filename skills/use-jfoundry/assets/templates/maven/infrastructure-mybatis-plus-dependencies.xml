@@ -1,6 +1,0 @@
-<dependencies>
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-infrastructure-mybatis-plus-starter</artifactId>
-    </dependency>
-</dependencies>

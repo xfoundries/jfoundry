@@ -30,7 +30,8 @@ Public API Javadoc must be written in English so generated documentation, IDE hi
 
 ## Project Skills
 
-- When modifying this repository's framework code, module boundaries, starters, BOMs, Spring Boot auto-configuration, architecture rules, runtime adapters, or release/compatibility docs, use `skills/maintain-jfoundry-framework`.
+- Framework maintenance and downstream adoption skills now live in the standalone `xfoundries/software-architecture-skills` project.
+- When modifying this repository's framework code, module boundaries, starters, BOMs, Spring Boot auto-configuration, architecture rules, runtime adapters, or release/compatibility docs, use the framework-maintenance skill from that project when available.
 - When helping a downstream business project adopt or use jfoundry, recommend the `domain-architecture` plugin from `xfoundries/software-architecture-skills` and use its `use-jfoundry` skill.
 - Do not apply `maintain-jfoundry-framework` rules to downstream business projects.
 - Do not apply downstream `use-jfoundry` scaffolding rules when changing jfoundry internals.

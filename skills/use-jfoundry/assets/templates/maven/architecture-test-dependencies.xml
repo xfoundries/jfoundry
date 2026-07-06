@@ -1,8 +1,0 @@
-<dependencies>
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-architecture-test</artifactId>
-        <scope>test</scope>
-    </dependency>
-</dependencies>
-

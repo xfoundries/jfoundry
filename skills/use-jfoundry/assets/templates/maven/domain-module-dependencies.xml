@@ -1,6 +1,0 @@
-<dependencies>
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-domain-starter</artifactId>
-    </dependency>
-</dependencies>

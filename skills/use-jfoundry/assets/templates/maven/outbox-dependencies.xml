@@ -1,8 +1,0 @@
-<dependencies>
-    <!-- Reliable external domain event publication. -->
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-outbox-spring-boot-starter</artifactId>
-    </dependency>
-</dependencies>
-
