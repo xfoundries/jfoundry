@@ -167,6 +167,22 @@ boot / 运行时装配模块：
 </dependencies>
 ```
 
+### 3. 应用层需要编程式事务时使用 TransactionRunner
+
+如果应用服务只需要整方法事务，Spring 项目可以继续使用 `@Transactional`。如果应用编排中只有某个代码块需要事务，或者 application 模块不希望依赖 Spring `TransactionTemplate`，可以依赖 `jfoundry-application-starter` 提供的 `TransactionRunner`：
+
+```java
+transactionRunner.run(TransactionOptions.builder()
+        .name("create-env-app")
+        .timeout(Duration.ofSeconds(30))
+        .build(), () -> {
+    envAppRepository.save(envApp);
+    operationRecordRepository.save(record);
+});
+```
+
+`TransactionRunner` 只能用于 UseCase / Application Service 等应用层编排。领域对象和领域服务不应直接控制事务。Spring Boot 项目在 boot 模块引入 `jfoundry-spring-boot-starter` 后，只要存在 `PlatformTransactionManager`，框架会自动装配基于 Spring `TransactionTemplate` 的实现；没有事务管理器时不会创建该 Bean。
+
 架构测试依赖放在执行 ArchUnit 测试的模块中，通常是 boot 模块的测试源集，或单独的 architecture-test 模块：
 
 ```xml

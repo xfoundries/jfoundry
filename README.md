@@ -14,6 +14,7 @@ jfoundry 基于 jMolecules 的领域建模语义，并复用 jMolecules integrat
 - **消费端幂等 (Inbox)**：提供 `InboxTemplate` 与 MyBatis-Plus 存储适配器，帮助消费者按 message/consumer 去重
 - **真实 broker adapter**：提供 Kafka `MessageSender` adapter；通过 messaging-kafka starter 显式引入
 - **多 ORM 抽象**：核心 SPI 与具体实现解耦，当前提供 MyBatis-Plus 实现，未来可扩展 JPA / Mongo
+- **应用层事务边界**：提供框架无关 `TransactionRunner`，Spring Boot starter 可基于 `TransactionTemplate` 自动装配运行时适配器
 - **多数据库支持**：MySQL（`MEDIUMTEXT`）、达梦 DM（`CLOB`），通过 Flyway 自动迁移
 - **运行时框架集成**：核心能力不绑定 Spring；当前提供 Spring Framework adapter 与 Spring Boot starter，未来可扩展 Helidon / Micronaut / Quarkus 等平级运行时集成
 - **JobRunr 集成**（可选）：基于 JobRunr 的分布式 Outbox 派发
@@ -29,6 +30,7 @@ jfoundry-parent
 │   ├── jfoundry-hexagonal                        Hexagonal Architecture 端口/适配器注解
 │   └── jfoundry-onion                            Onion Architecture 环形注解
 ├── jfoundry-application                          应用层聚合
+│   ├── jfoundry-application-core                 应用层运行时边界契约（ApplicationService / TransactionRunner）
 │   ├── jfoundry-event-core                       领域事件登记 / 分发应用契约
 │   ├── jfoundry-event-externalization-core       领域事件外部化规则与路由元数据
 │   ├── jfoundry-messaging-core                   消息发送与 payload 序列化 SPI
@@ -50,7 +52,8 @@ jfoundry-parent
 │   ├── jfoundry-spring-runtime                   Spring Framework 运行时适配器
 │   │   ├── jfoundry-event-spring                 Spring ApplicationEvent 领域事件发布适配器
 │   │   ├── jfoundry-messaging-spring             Spring 默认 LoggingMessageSender 适配器
-│   │   └── jfoundry-outbox-spring                领域事件写入 Outbox 的 Spring 适配器 + scheduled 派发器
+│   │   ├── jfoundry-outbox-spring                领域事件写入 Outbox 的 Spring 适配器 + scheduled 派发器
+│   │   └── jfoundry-transaction-spring           TransactionRunner 的 Spring TransactionTemplate 适配器
 │   ├── jfoundry-spring-boot-autoconfigure        Spring Boot AutoConfiguration
 │   └── jfoundry-spring-boot-starters             Spring Boot starter 依赖入口
 │       ├── jfoundry-spring-boot-starter          DDD + Spring Boot 基础 starter
@@ -252,6 +255,21 @@ boot / 运行时装配模块：
 ```
 
 不要一次性引入所有 starter。领域、应用、持久化、消息、Outbox、Inbox 应按项目实际需要逐步打开；Spring Boot 相关 starter 通常只放在 boot / 运行时装配模块。
+
+### 应用层编程式事务
+
+应用层如果需要局部事务边界，可以在 application 模块依赖 `TransactionRunner`，而不是直接依赖 Spring `TransactionTemplate`：
+
+```java
+transactionRunner.run(TransactionOptions.builder()
+        .name("install-app")
+        .propagation(TransactionPropagation.REQUIRES_NEW)
+        .build(), () -> {
+    appInstaller.install(command);
+});
+```
+
+`TransactionRunner` 属于应用层运行时边界，适合 UseCase / Application Service 编排使用；领域对象和领域服务不应依赖它。Spring Boot 项目引入 `jfoundry-spring-boot-starter` 后，如果容器中存在 `PlatformTransactionManager`，框架会自动创建基于 `TransactionTemplate` 的实现。简单整方法事务仍可继续使用 Spring `@Transactional`，`TransactionRunner` 主要用于需要显式控制事务代码块且希望 application 层保持框架无关的场景。
 
 ### 2. 创建领域模型
 
