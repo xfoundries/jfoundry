@@ -31,8 +31,6 @@ jobs:
           server-id: central
           server-username: CENTRAL_USERNAME
           server-password: CENTRAL_PASSWORD
-          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: GPG_PASSPHRASE
 
       - name: Ensure current version is a SNAPSHOT
         run: |
@@ -53,5 +51,6 @@ jobs:
         env:
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: ./mvnw -B -Prelease -DskipTests deploy -Dgpg.passphrase="${GPG_PASSPHRASE}"
+        run: >
+          ./mvnw -B -DskipTests deploy
+          -DaltDeploymentRepository=central::https://central.sonatype.com/repository/maven-snapshots/

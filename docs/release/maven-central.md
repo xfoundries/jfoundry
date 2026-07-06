@@ -83,13 +83,15 @@ The Central publishing plugin is configured with `autoPublish=false`, so the dep
 ## Publish SNAPSHOTs
 
 Central Portal supports publishing `*-SNAPSHOT` versions when SNAPSHOT publishing is enabled for
-the namespace. The project uses `central-publishing-maven-plugin` 0.11.0, which supports Central
-Portal SNAPSHOT deployment.
+the namespace. SNAPSHOTs are deployed through Maven's standard deploy flow to the Central Portal
+snapshots repository. This avoids the release-only staging path and works for all reactor modules,
+including standalone BOM modules.
 
 Publish the current development version locally with:
 
 ```bash
-mvn -Prelease -DskipTests deploy
+mvn -DskipTests deploy \
+  -DaltDeploymentRepository=central::https://central.sonatype.com/repository/maven-snapshots/
 ```
 
 The current reactor version must end with `-SNAPSHOT`. Do not use the release workflow for
@@ -100,7 +102,8 @@ is pushed and can also be started manually from the Actions tab. The workflow ve
 current root version is a SNAPSHOT before deploying:
 
 ```bash
-./mvnw -B -Prelease -DskipTests deploy
+./mvnw -B -DskipTests deploy \
+  -DaltDeploymentRepository=central::https://central.sonatype.com/repository/maven-snapshots/
 ```
 
 Consumers must add the Central Portal snapshots repository to resolve these versions:
