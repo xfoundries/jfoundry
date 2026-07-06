@@ -1,0 +1,57 @@
+name: Snapshot
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: snapshot-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish-snapshot:
+    name: Publish SNAPSHOT to Maven Central
+    runs-on: ubuntu-latest
+    environment: maven-central
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java and Maven Central credentials
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+
+      - name: Ensure current version is a SNAPSHOT
+        run: |
+          set -euo pipefail
+
+          version="$(./mvnw -q help:evaluate -Dexpression=project.version -DforceStdout | tail -n 1)"
+          case "${version}" in
+            *-SNAPSHOT)
+              echo "Publishing ${version}"
+              ;;
+            *)
+              echo "Refusing to publish non-SNAPSHOT version: ${version}" >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Publish SNAPSHOT
+        env:
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: ./mvnw -B -Prelease -DskipTests deploy -Dgpg.passphrase="${GPG_PASSPHRASE}"

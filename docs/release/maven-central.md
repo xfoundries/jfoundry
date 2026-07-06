@@ -11,8 +11,9 @@ The root POM publishes URL and SCM metadata for `https://github.com/xfoundries/j
 - Java 21 or newer.
 - Maven 3.9.0 or newer.
 - A Sonatype Central Portal account with publishing rights for `io.github.xfoundries`.
+- SNAPSHOT publishing enabled for the `io.github.xfoundries` namespace if publishing development snapshots.
 - For local release dry-runs, a Maven server entry named `central` in `~/.m2/settings.xml`.
-- For GitHub Actions release publishing, repository environment `maven-central` with these secrets:
+- For GitHub Actions release or SNAPSHOT publishing, repository environment `maven-central` with these secrets:
   - `CENTRAL_USERNAME`: Sonatype Central Portal username or publishing token username.
   - `CENTRAL_PASSWORD`: Sonatype Central Portal password or publishing token password.
   - `GPG_PRIVATE_KEY`: ASCII-armored private key used to sign artifacts.
@@ -78,6 +79,46 @@ mvn -Prelease -DskipTests deploy
 ```
 
 The Central publishing plugin is configured with `autoPublish=false`, so the deployment uploads a staged deployment to Central Portal for manual review and publishing.
+
+## Publish SNAPSHOTs
+
+Central Portal supports publishing `*-SNAPSHOT` versions when SNAPSHOT publishing is enabled for
+the namespace. The project uses `central-publishing-maven-plugin` 0.11.0, which supports Central
+Portal SNAPSHOT deployment.
+
+Publish the current development version locally with:
+
+```bash
+mvn -Prelease -DskipTests deploy
+```
+
+The current reactor version must end with `-SNAPSHOT`. Do not use the release workflow for
+SNAPSHOTs; it intentionally rejects SNAPSHOT versions.
+
+GitHub Actions publishes SNAPSHOTs through `.github/workflows/snapshot.yml`. It runs when `main`
+is pushed and can also be started manually from the Actions tab. The workflow verifies that the
+current root version is a SNAPSHOT before deploying:
+
+```bash
+./mvnw -B -Prelease -DskipTests deploy
+```
+
+Consumers must add the Central Portal snapshots repository to resolve these versions:
+
+```xml
+<repositories>
+  <repository>
+    <id>central-portal-snapshots</id>
+    <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+    <releases>
+      <enabled>false</enabled>
+    </releases>
+    <snapshots>
+      <enabled>true</enabled>
+    </snapshots>
+  </repository>
+</repositories>
+```
 
 ## GitHub Release Publishing
 
