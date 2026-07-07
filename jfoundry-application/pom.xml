@@ -14,6 +14,7 @@
 
     <modules>
         <module>jfoundry-application-core</module>
+        <module>jfoundry-transaction-core</module>
         <module>jfoundry-event-core</module>
         <module>jfoundry-event-externalization-core</module>
         <module>jfoundry-messaging-core</module>

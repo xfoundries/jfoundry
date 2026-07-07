@@ -30,7 +30,8 @@ jfoundry-parent
 │   ├── jfoundry-hexagonal                        Hexagonal Architecture 端口/适配器注解
 │   └── jfoundry-onion                            Onion Architecture 环形注解
 ├── jfoundry-application                          应用层聚合
-│   ├── jfoundry-application-core                 应用层运行时边界契约（ApplicationService / TransactionRunner）
+│   ├── jfoundry-application-core                 应用层基础契约（ApplicationService / 应用异常）
+│   ├── jfoundry-transaction-core                 框架无关应用层事务边界契约（TransactionRunner）
 │   ├── jfoundry-event-core                       领域事件登记 / 分发应用契约
 │   ├── jfoundry-event-externalization-core       领域事件外部化规则与路由元数据
 │   ├── jfoundry-messaging-core                   消息发送与 payload 序列化 SPI
@@ -89,14 +90,14 @@ inboxTemplate.executeOnce(eventId, "order-projection", () -> {
 
 ```bash
 codex plugin marketplace add xfoundries/software-architecture-skills
-codex plugin add domain-architecture@domain-architecture
+codex plugin add domain-architecture@xfoundries
 ```
 
 Claude Code 可使用：
 
 ```bash
 claude plugin marketplace add xfoundries/software-architecture-skills
-claude plugin install domain-architecture@domain-architecture
+claude plugin install domain-architecture@xfoundries
 ```
 
 ```text
@@ -258,7 +259,7 @@ boot / 运行时装配模块：
 
 ### 应用层编程式事务
 
-应用层如果需要局部事务边界，可以在 application 模块依赖 `TransactionRunner`，而不是直接依赖 Spring `TransactionTemplate`：
+应用层如果需要局部事务边界，可以在 application 模块通过 `jfoundry-application-starter` 使用 `TransactionRunner`；如果只需要事务契约，也可以直接依赖 `jfoundry-transaction-core`。业务代码不应直接依赖 Spring `TransactionTemplate`：
 
 ```java
 transactionRunner.run(TransactionOptions.builder()

@@ -8,14 +8,14 @@ Codex 安装示例：
 
 ```bash
 codex plugin marketplace add xfoundries/software-architecture-skills
-codex plugin add domain-architecture@domain-architecture
+codex plugin add domain-architecture@xfoundries
 ```
 
 Claude Code 安装示例：
 
 ```bash
 claude plugin marketplace add xfoundries/software-architecture-skills
-claude plugin install domain-architecture@domain-architecture
+claude plugin install domain-architecture@xfoundries
 ```
 
 ## 什么时候选择 jfoundry
@@ -169,7 +169,7 @@ boot / 运行时装配模块：
 
 ### 3. 应用层需要编程式事务时使用 TransactionRunner
 
-如果应用服务只需要整方法事务，Spring 项目可以继续使用 `@Transactional`。如果应用编排中只有某个代码块需要事务，或者 application 模块不希望依赖 Spring `TransactionTemplate`，可以依赖 `jfoundry-application-starter` 提供的 `TransactionRunner`：
+如果应用服务只需要整方法事务，Spring 项目可以继续使用 `@Transactional`。如果应用编排中只有某个代码块需要事务，或者 application 模块不希望依赖 Spring `TransactionTemplate`，可以通过 `jfoundry-application-starter` 使用 `TransactionRunner`；如果只需要事务契约，也可以直接依赖 `jfoundry-transaction-core`：
 
 ```java
 transactionRunner.run(TransactionOptions.builder()
