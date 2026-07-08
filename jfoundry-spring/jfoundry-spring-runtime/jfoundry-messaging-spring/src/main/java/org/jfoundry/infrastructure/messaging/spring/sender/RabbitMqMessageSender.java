@@ -1,25 +1,22 @@
-package org.jfoundry.infrastructure.messaging.rabbitmq;
+package org.jfoundry.infrastructure.messaging.spring.sender;
 
-import com.rabbitmq.client.Channel;
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
+import org.springframework.amqp.rabbit.core.RabbitOperations;
 
-import java.nio.charset.StandardCharsets;
-
-/// RabbitMQ-backed {@link MessageSender}.
+/// Spring RabbitMQ-backed {@link MessageSender}.
 public class RabbitMqMessageSender implements MessageSender {
 
-    private final Channel channel;
+    private final RabbitOperations rabbitOperations;
 
-    public RabbitMqMessageSender(Channel channel) {
-        this.channel = channel;
+    public RabbitMqMessageSender(RabbitOperations rabbitOperations) {
+        this.rabbitOperations = rabbitOperations;
     }
 
     @Override
     public SendResult send(String topic, String payloadKey, String payload) {
         try {
-            String routingKey = payloadKey == null ? "" : payloadKey;
-            channel.basicPublish(topic, routingKey, null, payload.getBytes(StandardCharsets.UTF_8));
+            rabbitOperations.convertAndSend(topic, payloadKey, payload);
             return SendResult.ok();
         } catch (Exception e) {
             Throwable cause = e.getCause() != null ? e.getCause() : e;

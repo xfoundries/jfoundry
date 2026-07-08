@@ -12,6 +12,18 @@
     <name>jfoundry-architecture-test</name>
     <description>Reusable architecture test rules and fixtures for JFoundry-based applications.</description>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.xfoundries</groupId>
+                <artifactId>jfoundry-spring-dependencies</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>io.github.xfoundries</groupId>

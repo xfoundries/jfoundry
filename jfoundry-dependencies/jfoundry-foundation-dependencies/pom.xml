@@ -59,11 +59,14 @@
 
     <!-- Messaging and background jobs -->
     <jobrunr.version>8.7.1</jobrunr.version>
+    <kafka-clients.version>3.9.2</kafka-clients.version>
     <mqttv3.version>1.2.5</mqttv3.version>
+    <rabbitmq-amqp-client.version>5.25.0</rabbitmq-amqp-client.version>
     <rocketmq-client.version>5.5.0</rocketmq-client.version>
 
     <!-- Runtime utilities -->
     <javassist.version>3.30.2-GA</javassist.version>
+    <slf4j.version>2.0.18</slf4j.version>
     <snakeyaml.version>2.2</snakeyaml.version>
 
     <!-- Testing -->
@@ -210,9 +213,19 @@
         <version>${jobrunr.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.kafka</groupId>
+        <artifactId>kafka-clients</artifactId>
+        <version>${kafka-clients.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.rocketmq</groupId>
         <artifactId>rocketmq-client</artifactId>
         <version>${rocketmq-client.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.rabbitmq</groupId>
+        <artifactId>amqp-client</artifactId>
+        <version>${rabbitmq-amqp-client.version}</version>
       </dependency>
 
       <!-- Runtime utilities -->
@@ -220,6 +233,11 @@
         <groupId>org.javassist</groupId>
         <artifactId>javassist</artifactId>
         <version>${javassist.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.yaml</groupId>

@@ -10,7 +10,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "jfoundry.outbox.dispatcher")
 public class OutboxDispatcherProperties {
 
-    private boolean enabled = true;
     private String mode = "scheduled";
     private long intervalMs = 5000;
     private String cron = "*/10 * * * * *";
@@ -19,8 +18,6 @@ public class OutboxDispatcherProperties {
     private long backoffBaseMs = 1000;
     private long backoffMaxMs = 300_000;
 
-    public boolean isEnabled() { return enabled; }
-    public void setEnabled(boolean enabled) { this.enabled = enabled; }
     public String getMode() { return mode; }
     public void setMode(String mode) { this.mode = mode; }
     public long getIntervalMs() { return intervalMs; }

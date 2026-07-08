@@ -1,3 +1,7 @@
+-- Common jfoundry_inbox_message schema template.
+-- The current DDL uses only portable VARCHAR, TIMESTAMP, primary key, unique
+-- constraint, and plain index syntax. It is shared by MySQL and PostgreSQL
+-- until a supported database requires dialect-specific DDL.
 CREATE TABLE jfoundry_inbox_message (
     id            VARCHAR(64)   NOT NULL,
     message_id    VARCHAR(128)  NOT NULL,

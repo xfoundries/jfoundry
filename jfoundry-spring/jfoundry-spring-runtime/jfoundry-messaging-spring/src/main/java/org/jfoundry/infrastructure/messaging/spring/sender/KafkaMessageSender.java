@@ -1,28 +1,27 @@
-package org.jfoundry.infrastructure.messaging.kafka;
+package org.jfoundry.infrastructure.messaging.spring.sender;
 
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
+import org.springframework.kafka.core.KafkaOperations;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-/// Kafka-backed {@link MessageSender}.
+/// Spring Kafka-backed {@link MessageSender}.
 public class KafkaMessageSender implements MessageSender {
 
-    private final Producer<String, String> producer;
+    private final KafkaOperations<String, String> kafkaOperations;
     private final Duration sendTimeout;
 
-    public KafkaMessageSender(Producer<String, String> producer, Duration sendTimeout) {
-        this.producer = producer;
+    public KafkaMessageSender(KafkaOperations<String, String> kafkaOperations, Duration sendTimeout) {
+        this.kafkaOperations = kafkaOperations;
         this.sendTimeout = sendTimeout;
     }
 
     @Override
     public SendResult send(String topic, String payloadKey, String payload) {
         try {
-            producer.send(new ProducerRecord<>(topic, payloadKey, payload))
+            kafkaOperations.send(topic, payloadKey, payload)
                     .get(sendTimeout.toMillis(), TimeUnit.MILLISECONDS);
             return SendResult.ok();
         } catch (InterruptedException e) {

@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
 /// <p>
 /// 设计原则：所有跨方言能力（分页、CRUD、条件构造）由 MyBatis-Plus + PaginationInnerInterceptor
 /// 在运行时根据 {@link com.baomidou.mybatisplus.annotation.DbType} 生成对应方言 SQL，
-/// 不在源码层为每种数据库（MySQL / H2 / 达梦 / PostgreSQL / Oracle / ...）维护独立的 SQL 副本。
+/// 不在源码层为每种数据库（MySQL / H2 / PostgreSQL / Oracle / ...）维护独立的 SQL 副本。
 /// <p>
 /// 关键操作实现策略（均在 {@link MybatisPlusOutboxMessageStore}）：
 /// <ul>

@@ -17,6 +17,18 @@
     </description>
     <packaging>pom</packaging>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.xfoundries</groupId>
+                <artifactId>jfoundry-spring-dependencies</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <modules>
         <module>jfoundry-spring-runtime</module>
         <module>jfoundry-spring-boot-autoconfigure</module>

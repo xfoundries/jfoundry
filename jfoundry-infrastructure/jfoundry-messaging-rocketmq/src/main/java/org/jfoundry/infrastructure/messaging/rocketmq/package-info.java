@@ -1,2 +1,2 @@
-@org.jmolecules.architecture.onion.classical.InfrastructureRing
+@org.jmolecules.architecture.onion.simplified.InfrastructureRing
 package org.jfoundry.infrastructure.messaging.rocketmq;

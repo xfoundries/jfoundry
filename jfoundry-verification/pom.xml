@@ -16,6 +16,18 @@
     <name>jfoundry-verification</name>
     <description>Internal verification modules for JFoundry runtime integrations</description>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.xfoundries</groupId>
+                <artifactId>jfoundry-spring-dependencies</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <modules>
         <module>jfoundry-middleware-integration-tests</module>
     </modules>

@@ -3,24 +3,24 @@ package org.jfoundry.autoconfigure.outbox;
 import org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/// Outbox 配置。
+/// Outbox configuration.
 /// <p>
 /// Prefix: {@code jfoundry.outbox}
 /// <p>
-/// P2-2: 通过 {@link #tableName} 业务侧可覆盖 OutboxData 实体对应的物理表名；
-/// {@link OutboxMybatisPlusAutoConfiguration} 会注册
-/// {@code DynamicTableNameInnerInterceptor} 把框架内部的逻辑表名
-/// {@code jfoundry_outbox_event} 在运行时重写为业务配置的表名。
+/// Business applications may override the physical table used by the OutboxData
+/// entity through {@link #tableName}. {@link OutboxMybatisPlusAutoConfiguration}
+/// registers a {@code DynamicTableNameInnerInterceptor} that rewrites the
+/// framework logical table name {@code jfoundry_outbox_event} at runtime.
 @ConfigurationProperties(prefix = "jfoundry.outbox")
 public class JfoundryOutboxProperties {
 
-    /// OutboxData 实体对应的物理表名。默认 {@code jfoundry_outbox_event}（向后兼容）。
+    /// Physical table name for the OutboxData entity.
     /// <p>
-    /// 配置后由 {@code DynamicTableNameInnerInterceptor} 在 SQL 解析阶段进行表名重写，
-    /// 业务侧需自行通过 Flyway/Liquibase 或手动 DDL 创建对应表，schema 需与
-    /// {@code jfoundry_outbox_event} 一致（event_id / topic / payload_* / status / retry_count /
-    /// error_message / occurred_at / last_attempt_at / next_retry_at / created_at /
-    /// updated_at / claimed_at / claimed_by）。
+    /// Defaults to {@code jfoundry_outbox_event}. When customized, business
+    /// applications must create the table themselves through Flyway, Liquibase,
+    /// or manual DDL. SQL templates are packaged under
+    /// {@code jfoundry/sql/outbox/{database}/create_outbox_event.sql}; the
+    /// schema must match the default outbox table.
     private String tableName = "jfoundry_outbox_event";
 
     public String getTableName() { return tableName; }

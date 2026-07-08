@@ -73,10 +73,9 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- The Spring aggregate BOM also imports the framework-neutral jfoundry BOM. -->
             <dependency>
                 <groupId>io.github.xfoundries</groupId>
-                <artifactId>jfoundry-spring-dependencies</artifactId>
+                <artifactId>jfoundry-dependencies</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>

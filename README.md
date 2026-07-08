@@ -1,154 +1,97 @@
 # jfoundry
 
-> `jfoundry` 可以理解为 Java / jMolecules 生态中的 “foundry”。foundry 原意是铸造厂或工坊，本项目希望提供一组可组合、可验证、可落地的 DDD 基础构件，帮助团队把领域建模和工程约束稳定落地。
+English | [中文](README_ZH.md)
 
-jfoundry 的核心模块保持运行时框架无关：DDD、架构风格、CQRS、领域事件、Outbox/Inbox 契约、持久化 SPI 和消息 SPI 不绑定 Spring。Spring 是当前第一套运行时集成，集中放在 `jfoundry-spring` 下；未来如果需要支持 Helidon、Micronaut、Quarkus 等运行时，应以平级集成模块扩展，而不是让核心层反向耦合某个框架。
+---
 
-jfoundry 基于 jMolecules 的领域建模语义，并复用 jMolecules integrations 在 Jackson、Spring、ArchUnit 等生态中的集成能力，在此基础上补充面向业务项目的 Outbox、持久化适配器、Spring Boot starter 和架构规则组合。
+`jfoundry` is a practical DDD framework for Java, built on jMolecules and designed to fit well-known Hexagonal Architecture and Onion Architecture styles.
 
-## 特性
+Its goal is straightforward: help business projects make domain modeling, architecture boundaries, and reliable integration executable in code, while keeping the core independent of runtime frameworks. DDD concepts, architecture semantics, application contracts, domain events, Outbox/Inbox, persistence SPI, and messaging SPI do not depend on Spring, Spring Boot, Quarkus, Helidon, or Micronaut.
 
-- **架构风格语义**：基于 jmolecules 的 Hexagonal、Onion 注解，配套 ArchUnit 规则强制依赖方向与风格选择；JFoundry 框架内部默认采用 Onion simplified，对外仍同时支持 Hexagonal 与 Onion；Layered 不再由 JFoundry 包装，确需使用时直接引入 jMolecules 原生模块
-- **聚合根 / 值对象**：提供 `ValueObject` 标记接口，强制不可变 + `equals/hashCode` 契约
-- **事务性发件箱 (Outbox)**：5 状态机（`PENDING` → `DISPATCHING` → `PUBLISHED` / `FAILED` / `DEAD_LETTERED`），原子化 `claimDispatchable` 避免多实例重复派发
-- **消费端幂等 (Inbox)**：提供 `InboxTemplate` 与 MyBatis-Plus 存储适配器，帮助消费者按 message/consumer 去重
-- **真实 broker adapter**：提供 Kafka `MessageSender` adapter；通过 messaging-kafka starter 显式引入
-- **多 ORM 抽象**：核心 SPI 与具体实现解耦，当前提供 MyBatis-Plus 实现，未来可扩展 JPA / Mongo
-- **应用层事务边界**：提供框架无关 `TransactionRunner`，Spring Boot starter 可基于 `TransactionTemplate` 自动装配运行时适配器
-- **多数据库支持**：MySQL（`MEDIUMTEXT`）、达梦 DM（`CLOB`），通过 Flyway 自动迁移
-- **运行时框架集成**：核心能力不绑定 Spring；当前提供 Spring Framework adapter 与 Spring Boot starter，未来可扩展 Helidon / Micronaut / Quarkus 等平级运行时集成
-- **JobRunr 集成**（可选）：基于 JobRunr 的分布式 Outbox 派发
-- **ArchUnit 规则库**：开箱即用的架构守护，覆盖持久化层无 `@Transactional`、自动配置零 `@Component`、值对象不可变等约束
+Spring is the first runtime integration and lives under `jfoundry-spring`. Future Quarkus, Helidon, Micronaut, or other runtime integrations should be added as peer integration modules on top of the same core SPI, instead of pushing runtime dependencies into the core.
 
-## 模块清单
+## Why jfoundry
 
-```
-jfoundry-parent
-├── jfoundry-dependencies                         BOM（依赖版本集中管理）
-├── jfoundry-domain                               领域层（实体 / 值对象 / 事件 / 仓储接口，零 Spring 依赖）
-├── jfoundry-architecture                         架构风格聚合 POM（零 Spring 依赖，基于 jmolecules）
-│   ├── jfoundry-hexagonal                        Hexagonal Architecture 端口/适配器注解
-│   └── jfoundry-onion                            Onion Architecture 环形注解
-├── jfoundry-application                          应用层聚合
-│   ├── jfoundry-application-core                 应用层基础契约（ApplicationService / 应用异常）
-│   ├── jfoundry-transaction-core                 框架无关应用层事务边界契约（TransactionRunner）
-│   ├── jfoundry-event-core                       领域事件登记 / 分发应用契约
-│   ├── jfoundry-event-externalization-core       领域事件外部化规则与路由元数据
-│   ├── jfoundry-messaging-core                   消息发送与 payload 序列化 SPI
-│   ├── jfoundry-outbox-core                      Outbox message store 契约 + 状态机 + dispatcher service
-│   └── jfoundry-inbox-core                       Inbox message store 契约 + InboxTemplate
-├── jfoundry-infrastructure                       基础设施层聚合
-│   ├── jfoundry-persistence-core                 持久化抽象（AbstractPersistenceRepository）
-│   ├── jfoundry-persistence-mybatis-plus         MyBatis-Plus 实现
-│   ├── jfoundry-messaging-jackson                Jackson PayloadSerializer adapter
-│   ├── jfoundry-messaging-kafka                  Kafka MessageSender adapter（可选）
-│   ├── jfoundry-inbox-mybatis-plus               Inbox MyBatis-Plus store adapter
-│   ├── jfoundry-outbox-mybatis-plus              Outbox MyBatis-Plus store adapter
-│   └── jfoundry-outbox-jobrunr                   Outbox 的 JobRunr 派发器（可选）
-├── jfoundry-starters                             非 Spring 能力聚合入口
-│   ├── jfoundry-domain-starter                   领域建模 + 架构边界语义
-│   ├── jfoundry-application-starter              应用层契约 + CQRS + 领域 starter
-│   └── jfoundry-infrastructure-mybatis-plus-starter MyBatis-Plus 持久化能力
-├── jfoundry-spring                               Spring 生态集成聚合
-│   ├── jfoundry-spring-runtime                   Spring Framework 运行时适配器
-│   │   ├── jfoundry-event-spring                 Spring ApplicationEvent 领域事件发布适配器
-│   │   ├── jfoundry-messaging-spring             Spring 默认 LoggingMessageSender 适配器
-│   │   ├── jfoundry-outbox-spring                领域事件写入 Outbox 的 Spring 适配器 + scheduled 派发器
-│   │   └── jfoundry-transaction-spring           TransactionRunner 的 Spring TransactionTemplate 适配器
-│   ├── jfoundry-spring-boot-autoconfigure        Spring Boot AutoConfiguration
-│   └── jfoundry-spring-boot-starters             Spring Boot starter 依赖入口
-│       ├── jfoundry-spring-boot-starter          DDD + Spring Boot 基础 starter
-│       ├── jfoundry-event-spring-boot-starter    领域事件 Spring 发布 starter
-│       ├── jfoundry-messaging-spring-boot-starter Messaging transport 能力 starter
-│       ├── jfoundry-outbox-spring-boot-starter   Outbox 能力 starter
-│       ├── jfoundry-inbox-spring-boot-starter    Inbox 能力 starter
-│       ├── jfoundry-mybatis-plus-spring-boot-starter MyBatis-Plus persistence starter
-│       └── ...
-├── jfoundry-architecture
-│   └── jfoundry-architecture-test                架构测试规则库（业务侧测试直接引用）
-└── jfoundry-verification
-    └── jfoundry-middleware-integration-tests     中间件集成验证（框架内部）
-```
+Many DDD projects fail not because they lack concepts, but because those concepts never become engineering boundaries. The domain layer gets polluted by Spring, ORM, or MQ APIs; application transaction boundaries become unclear; repositories gradually become generic query interfaces; domain events cannot be externalized reliably; architecture rules remain only in documents.
 
-默认 Outbox 表名是 `jfoundry_outbox_event`，可通过 `jfoundry.outbox.table-name` 覆盖物理表名；自定义表需要与默认 DDL 保持同构。Kafka 是当前第一个真实 broker adapter，业务侧如需使用需额外引入 `jfoundry-messaging-kafka-spring-boot-starter` 并提供 `KafkaTemplate<String, String>`。消费者侧可注入 `InboxTemplate` 做幂等处理：
+`jfoundry` addresses these practical problems:
 
-```java
-inboxTemplate.executeOnce(eventId, "order-projection", () -> {
-    handler.handle(event);
-});
-```
+- Express DDD, Hexagonal, Onion, and CQRS semantics with jMolecules.
+- Use Maven modules, starters, and SPI to preserve dependency direction across domain, application, infrastructure, and runtime integration boundaries.
+- Turn architecture constraints into executable tests with ArchUnit.
+- Provide production-oriented building blocks such as Outbox/Inbox, messaging SPI, persistence SPI, and application transaction boundary contracts.
 
-## 业务项目接入
+## Core Principles
 
-如果你是在业务项目中首次接入 jfoundry，请先阅读 [业务项目接入指南](docs/getting-started-for-business-projects.md)。它会先帮你确定项目形态、架构风格、依赖选择、包结构、ArchUnit 架构测试，以及 Outbox / Inbox 是否应该启用。
+### Domain First
 
-如果你正在迁移聚合仓储、MyBatis-Plus Data 对象或 MapStruct 转换器，请阅读 [持久化 DataConverter 与 MapStruct 使用指南](docs/persistence-data-converters.md)。它说明如何让 `toData(...)` 交给 MapStruct、让 `toEntity(...)` 保留显式 `restore(...)` 还原语义，并避免把 converter 默认注册为 Spring Bean。
+The domain model is the center. Aggregates, value objects, domain events, repository contracts, and domain exceptions do not depend on Spring, ORM, HTTP, MQ, or database clients.
 
-### AI Agent
+### Architecture Friendly
 
-如果你使用 AI Agent 辅助开发，建议安装 `xfoundries/software-architecture-skills` 提供的 `domain-architecture` 插件，并让 Agent 使用其中的 `$use-jfoundry` skill。该 skill 是给 Agent 使用的英文指令集，业务开发者通常不需要直接阅读；例如：
+DDD is not Hexagonal Architecture, and it is not Onion Architecture. They are design tools at different levels. `jfoundry` provides first-class support for Hexagonal Architecture and Onion Architecture so projects can explicitly choose an architecture style and enforce dependency direction with rules.
 
-```bash
-codex plugin marketplace add xfoundries/software-architecture-skills
-codex plugin add domain-architecture@xfoundries
-```
+### Runtime-neutral Core
 
-Claude Code 可使用：
+Core modules only express business modeling, application orchestration, and external capability contracts. Spring Boot auto-configuration, Spring transactions, Spring events, Web MVC, JobRunr, and similar concerns belong to outer runtime integration modules.
 
-```bash
-claude plugin marketplace add xfoundries/software-architecture-skills
-claude plugin install domain-architecture@xfoundries
-```
+### Production Reliability
+
+The framework includes Transactional Outbox, consumer-side Inbox idempotency, application transaction boundaries, messaging SPI, payload serialization SPI, MyBatis-Plus persistence adapters, and reusable architecture test rules.
+
+## Capabilities
+
+| Area | Capability |
+|------|------------|
+| DDD building blocks | Aggregate roots, entity base types, value object marker, domain events, repository contracts, domain exceptions |
+| Architecture styles | jMolecules-based Hexagonal / Onion annotations and ArchUnit rules |
+| Application layer | `ApplicationService`, application exceptions, `TransactionRunner`, CQRS semantics |
+| Domain events | Event recording, scoped event context, dispatch contracts, Spring ApplicationEvent adapter |
+| Reliable messaging | Transactional Outbox, Inbox idempotency, broker-neutral `MessageSender`, payload serialization SPI |
+| Persistence | Runtime-neutral persistence contracts and MyBatis-Plus adapters |
+| Runtime integration | Optional Spring Framework / Spring Boot starters, auto-configuration, Web MVC ProblemDetail support |
+| Verification | Reusable ArchUnit rules for business projects and internal framework module boundaries |
+
+## Architecture Layers
+
+`jfoundry` makes the following boundaries explicit:
 
 ```text
-Use $use-jfoundry to create the initial architecture for a new Java 21 business project.
-Base package: com.example.order
-Project shape: multi-module Maven
-Runtime: undecided
-Persistence: MyBatis-Plus
-Messaging: Kafka later, not in the initial skeleton
-Architecture: default
+domain
+  DDD model, value objects, domain events, repository contracts
+
+application
+  application services, transaction boundary contracts, CQRS, Outbox/Inbox SPI,
+  domain event orchestration, messaging SPI
+
+infrastructure
+  persistence adapters, messaging adapters, serialization adapters,
+  background dispatch adapters
+
+runtime integration
+  Spring Framework adapters, Spring Boot auto-configuration, and starters
 ```
 
-## 快速开始
+Dependencies point inward:
 
-### 1. 引入依赖
-
-JFoundry 的 Maven 发布坐标使用已验证的 Central namespace `io.github.xfoundries`；Java API 包名仍保持 `org.jfoundry.*`，业务代码中的 import 不需要写成 `io.github.xfoundries.*`。
-
-当前可用版本是 `1.0.0-SNAPSHOT`，发布在 [Central Portal snapshots repository](https://central.sonatype.com/repository/maven-snapshots/io/github/xfoundries/)；正式版发布后可在 [Maven Central / Central Portal](https://central.sonatype.com/namespace/io.github.xfoundries) 查看。使用 SNAPSHOT 版本时，需要在父 POM 中启用 snapshots 仓库：
-
-```xml
-<repositories>
-    <repository>
-        <id>central-portal-snapshots</id>
-        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-        <releases>
-            <enabled>false</enabled>
-        </releases>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
-    </repository>
-</repositories>
+```text
+runtime integration -> infrastructure -> application -> domain
 ```
 
-先在父 POM 选择 BOM，再按模块职责显式选择 starter。对于有明确领域模型和架构边界的 DDD 项目，推荐使用多模块 Maven，因为 domain、application、infrastructure、boot 的依赖边界可以由 Maven 直接守住；很小的项目也可以先做单应用模块，但仍应保持包边界和 ArchUnit 架构测试。
+The same core can be assembled by Spring today, and by Quarkus, Helidon, Micronaut, or another runtime later.
 
-| 项目类型 | 推荐 BOM | 说明 |
-|----------|----------|------|
-| 只使用 DDD、架构注解、应用契约、框架无关 SPI | `jfoundry-dependencies` | 不引入 Spring / Spring Boot 依赖管理 |
-| 使用 Spring Framework、Spring Boot starter、Spring Boot auto-configuration | `jfoundry-spring-dependencies` | 聚合 `jfoundry-dependencies`，并管理 Spring / Spring Boot / Spring 集成依赖 |
+## Quick Start
 
-父 POM 示例：
+Choose the BOM for your runtime first, then add starters explicitly by module responsibility.
 
 ```xml
 <dependencyManagement>
     <dependencies>
+        <!-- Runtime-neutral core: DDD, architecture semantics, application contracts, SPI. -->
         <dependency>
             <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-dependencies</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${jfoundry.version}</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -156,213 +99,133 @@ JFoundry 的 Maven 发布坐标使用已验证的 Central namespace `io.github.x
 </dependencyManagement>
 ```
 
-如果项目使用 Spring / Spring Boot，将上面的 BOM 换成：
+For Spring Boot applications, use the Spring BOM instead:
 
 ```xml
 <dependency>
     <groupId>io.github.xfoundries</groupId>
     <artifactId>jfoundry-spring-dependencies</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>${jfoundry.version}</version>
     <type>pom</type>
     <scope>import</scope>
 </dependency>
 ```
 
-多模块项目中，依赖应放在对应模块，不要因为最终运行时是 Spring Boot 就把 Spring starter 放进领域层或应用层：
-
-| 模块 / 层 | 应放依赖 | 不应放 |
-|-----------|----------|--------|
-| `domain` | `jfoundry-domain-starter` | Spring、MyBatis-Plus、JPA、MQ client、HTTP client、Spring Boot starter |
-| `application` | `jfoundry-application-starter` | Spring Boot starter、MyBatis mapper/service、broker adapter |
-| `infrastructure` | `jfoundry-infrastructure-mybatis-plus-starter`（仅使用框架无关 MyBatis-Plus adapter 时） | Controller、应用入口、Spring Boot 自动装配 starter |
-| `boot` / 运行时装配模块 | `jfoundry-spring-boot-starter`，以及按需加入 `jfoundry-mybatis-plus-spring-boot-starter`、Outbox、Inbox、broker starter | 领域模型和业务规则实现 |
-| 架构测试模块或测试源集 | `jfoundry-architecture-test`，`test` scope | production scope |
-
-典型多模块依赖示例：
-
-domain 模块：
+Typical module dependencies:
 
 ```xml
-<dependencies>
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-domain-starter</artifactId>
-    </dependency>
-</dependencies>
+<!-- domain module -->
+<dependency>
+    <groupId>io.github.xfoundries</groupId>
+    <artifactId>jfoundry-domain-starter</artifactId>
+</dependency>
+
+<!-- application module -->
+<dependency>
+    <groupId>io.github.xfoundries</groupId>
+    <artifactId>jfoundry-application-starter</artifactId>
+</dependency>
+
+<!-- Spring Boot runtime assembly module, optional -->
+<dependency>
+    <groupId>io.github.xfoundries</groupId>
+    <artifactId>jfoundry-spring-boot-starter</artifactId>
+</dependency>
 ```
 
-application 模块：
+Persistence, Outbox, Inbox, and broker starters should be added explicitly based on business needs. Avoid adding every starter by default. See [Getting Started for Business Projects](docs/getting-started-for-business-projects.md) for module-level dependency guidance.
 
-```xml
-<dependencies>
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-application-starter</artifactId>
-    </dependency>
-</dependencies>
-```
-
-boot / 运行时装配模块：
-
-```xml
-<dependencies>
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-spring-boot-starter</artifactId>
-    </dependency>
-
-    <!-- Spring Boot + MyBatis-Plus runtime assembly. -->
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>
-    </dependency>
-
-    <!-- Add only when reliable external domain event publication is required. -->
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-outbox-spring-boot-starter</artifactId>
-    </dependency>
-
-    <!-- Add only when Outbox uses the MyBatis-Plus store. -->
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-outbox-mybatis-plus-spring-boot-starter</artifactId>
-    </dependency>
-
-    <!-- Add only when consumers need idempotency. -->
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-inbox-spring-boot-starter</artifactId>
-    </dependency>
-
-    <!-- Add only when Inbox uses the MyBatis-Plus store. -->
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-inbox-mybatis-plus-spring-boot-starter</artifactId>
-    </dependency>
-</dependencies>
-```
-
-架构测试依赖放在执行 ArchUnit 测试的模块中，通常是 boot 模块的测试源集，或单独的 architecture-test 模块：
-
-```xml
-<dependencies>
-    <dependency>
-        <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-architecture-test</artifactId>
-        <scope>test</scope>
-    </dependency>
-</dependencies>
-```
-
-不要一次性引入所有 starter。领域、应用、持久化、消息、Outbox、Inbox 应按项目实际需要逐步打开；Spring Boot 相关 starter 通常只放在 boot / 运行时装配模块。
-
-### 应用层编程式事务
-
-应用层如果需要局部事务边界，可以在 application 模块通过 `jfoundry-application-starter` 使用 `TransactionRunner`；如果只需要事务契约，也可以直接依赖 `jfoundry-transaction-core`。业务代码不应直接依赖 Spring `TransactionTemplate`：
-
-```java
-transactionRunner.run(TransactionOptions.builder()
-        .name("install-app")
-        .propagation(TransactionPropagation.REQUIRES_NEW)
-        .build(), () -> {
-    appInstaller.install(command);
-});
-```
-
-`TransactionRunner` 属于应用层运行时边界，适合 UseCase / Application Service 编排使用；领域对象和领域服务不应依赖它。Spring Boot 项目引入 `jfoundry-spring-boot-starter` 后，如果容器中存在 `PlatformTransactionManager`，框架会自动创建基于 `TransactionTemplate` 的实现。简单整方法事务仍可继续使用 Spring `@Transactional`，`TransactionRunner` 主要用于需要显式控制事务代码块且希望 application 层保持框架无关的场景。
-
-### 2. 创建领域模型
+## Domain Model Example
 
 ```java
 import org.jfoundry.domain.valueobject.ValueObject;
+import org.jmolecules.ddd.annotation.AggregateRoot;
 
-// 值对象（推荐用 record，天生满足不可变 + equals/hashCode）
-public record Money(BigDecimal amount, String currency) implements ValueObject {}
+import java.math.BigDecimal;
 
-// 聚合根
+public record Money(BigDecimal amount, String currency) implements ValueObject {
+}
+
 @AggregateRoot
 public class Order {
+
     private OrderId id;
     private Money total;
-    // ...
+
+    public void changeTotal(Money total) {
+        this.total = total;
+    }
 }
 ```
 
-### 3. 启用架构守护（推荐）
+## Architecture Verification
 
-在业务模块的测试目录下添加一个 ArchUnit 测试，引用框架自带的规则：
+Architecture rules should run in business project tests, not remain only in framework documentation:
 
 ```java
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
 import org.jfoundry.test.archunit.JFoundryRules;
 
 @AnalyzeClasses(packages = "com.mycompany.myapp")
 class MyAppArchitectureTest {
-    @ArchTest
-    ArchRule[] jfoundryRules = JFoundryRules.onionSimple();
 
     @ArchTest
-    ArchRule[] jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
+    static final ArchRule[] onion = JFoundryRules.onionSimple();
+
+    @ArchTest
+    static final ArchRule[] ddd = JFoundryRules.jmoleculesDdd();
 }
 ```
 
-### 4. 可选：配置领域事件外部化（Outbox）
+Use `JFoundryRules.hexagonalStrict()` when the project chooses Hexagonal Architecture. Use `JFoundryRules.onionSimple()` or `JFoundryRules.onionClassical()` when it chooses Onion Architecture.
 
-领域事件不强制使用 Outbox。业务侧在应用服务上标注 `@ApplicationService` 后，框架会在成功返回的应用服务边界自动 drain 聚合记录的领域事件，并通过 `DomainEventDispatcher` 分发；`jfoundry-event-spring-boot-starter` 提供的 Spring 实现会在事务提交后通过 `ApplicationEventPublisher` 发布本地事件。如果业务只需要进程内监听器，可不配置 Outbox。
+## Reliable Event Externalization
 
-当事件需要可靠外部化、跨进程投递或失败重试时，再为事件标记 `@Externalized` / `@MessageRouting`，并启用 Outbox 存储与派发。业务侧只要提供 `OutboxMessageStore` Bean（或引入 `jfoundry-outbox-mybatis-plus-spring-boot-starter`），匹配外部化规则的领域事件就会写入 Outbox 表：
+Domain events can stay in-process, or they can be externalized reliably through Outbox:
 
-```yaml
-jfoundry:
-  outbox:
-    table-name: jfoundry_outbox_event       # 与 Flyway 迁移脚本一致
-    dispatcher:
-      enabled: true
-      mode: scheduled                  # 或 jobrunr（需额外引入 jfoundry-outbox-jobrunr-spring-boot-starter）
-    cleanup:
-      published-retention-days: 7      # PUBLISHED 状态保留 7 天后清理
-      dead-lettered-retention-days: 30 # DEAD_LETTERED 保留 30 天
+```text
+aggregate records domain event
+  -> application service boundary drains events
+  -> externalization rule selects topic/key/payload
+  -> Outbox row is written in the same database transaction
+  -> dispatcher claims and sends through MessageSender
+  -> consumer side uses InboxTemplate for message/consumer idempotency
 ```
 
-## 文档
+Outbox is optional. Enable it only when events need cross-process delivery, retry, or reliable externalization. See [Transactional Outbox](docs/transactional-outbox.md) for details.
 
-- [业务项目接入指南](docs/getting-started-for-business-projects.md)
-- [值对象（Value Object）规范](docs/value-object.md)
-- [架构风格指南](docs/architecture-styles.md)
-- [ArchUnit 架构规则](docs/archunit-rules.md)
-- [Repository 与读侧端口迁移指南](docs/repository-vs-read-ports.md)
-- [Transactional Outbox 事务性发件箱](docs/transactional-outbox.md)
+## Modules
 
-## 技术栈
+| Module | Purpose |
+|--------|---------|
+| `jfoundry-domain` | Domain base types, value object contract, domain events, repository contracts |
+| `jfoundry-architecture` | Hexagonal, Onion, CQRS architecture semantics and architecture test rules |
+| `jfoundry-application` | Application service contracts, transaction boundary, domain event orchestration, messaging, Outbox/Inbox SPI |
+| `jfoundry-infrastructure` | Technical adapters for persistence, serialization, messaging, and background dispatch |
+| `jfoundry-starters` | Runtime-neutral dependency entry points |
+| `jfoundry-spring` | Spring Framework adapters, Spring Boot auto-configuration, and starters |
+| `jfoundry-verification` | Internal middleware and runtime behavior verification |
 
-| 关注点       | 选型                                 |
-|--------------|--------------------------------------|
-| JDK          | 21（推荐25）                         |
-| Spring Boot  | 3.5.16                               |
-| Spring       | 6.2.19                               |
-| MyBatis-Plus | 3.5.16                               |
-| jmolecules   | 2025.0.2（integrations 0.33.0）      |
-| ArchUnit     | 1.4.2                                |
-| Jackson      | 2.19.4                               |
-| Flyway       | （业务侧提供，本仓库仅提供迁移脚本） |
-| JobRunr      | 8.7.1（可选）                        |
+## Documentation
 
-## 构建
+- [Getting Started for Business Projects](docs/getting-started-for-business-projects.md)
+- [Architecture Styles](docs/architecture-styles.md)
+- [ArchUnit Architecture Rules](docs/archunit-rules.md)
+- [Repository and Read-side Ports Migration Guide](docs/repository-vs-read-ports.md)
+- [Transactional Outbox](docs/transactional-outbox.md)
+- [Persistence DataConverter and MapStruct Guide](docs/persistence-data-converters.md)
+- [Value Object Guide](docs/value-object.md)
+- [Framework Boundaries](docs/framework-boundaries.md)
+
+## Build
 
 ```bash
-# 完整构建（含测试）
-mvn clean install
-
-# 跳过测试
-mvn clean install -DskipTests
-
-# 仅验证 Maven 模块结构
 mvn validate
+mvn test
+mvn clean install
 ```
-
-> **JVM 参数提示**：Specification 规约模式需要通过反射从方法引用中提取字段名，构建时需要 `--add-opens=java.base/java.lang.invoke=ALL-UNNAMED`。`jfoundry-spring-boot-autoconfigure` 等模块的 surefire 插件已配置；业务侧如需可参考 `.mvn/jvm.config`。
 
 ## License
 

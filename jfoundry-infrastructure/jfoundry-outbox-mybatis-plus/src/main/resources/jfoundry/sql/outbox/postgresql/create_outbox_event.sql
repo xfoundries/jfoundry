@@ -16,17 +16,18 @@ CREATE TABLE jfoundry_outbox_event (
     next_retry_at   TIMESTAMP,
     created_at      TIMESTAMP     NOT NULL,
     updated_at      TIMESTAMP     NOT NULL,
-    -- P2-1: atomic claim columns (DISPATCHING state)
+    -- Atomic claim columns used by dispatchers while records are DISPATCHING.
     claimed_at      TIMESTAMP,
     claimed_by      VARCHAR(100),
-    -- P3-2: 每次 claimDispatchable 调用生成的唯一 token；回读时按 token 精确匹配，
-    -- 避免按稳定 podId 回读时把前一批未完成状态更新的 DISPATCHING 旧记录一起带走。
+    -- Unique token generated per claim batch; read-back matches this token
+    -- exactly so stale DISPATCHING records from previous batches are excluded.
     claim_token     VARCHAR(36),
     PRIMARY KEY (event_id)
 );
 CREATE INDEX idx_outbox_status_retry ON jfoundry_outbox_event (status, next_retry_at);
--- P2-1: composite index for atomic claimDispatchable WHERE clause
+-- Composite index for dispatcher claim predicates.
 CREATE INDEX idx_outbox_claim ON jfoundry_outbox_event (status, claimed_at);
--- P3-2: lookup by claim_token (回读本批 claim 的条目)
+CREATE INDEX idx_outbox_cleanup ON jfoundry_outbox_event (status, occurred_at, event_id);
+-- Lookup records claimed by the current claim batch.
 CREATE INDEX idx_outbox_claim_token ON jfoundry_outbox_event (claim_token);
 CREATE INDEX idx_outbox_aggregate ON jfoundry_outbox_event (aggregate_type, aggregate_id, aggregate_version);

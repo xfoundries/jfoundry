@@ -2,7 +2,7 @@ package org.jfoundry.autoconfigure.messaging.rabbitmq;
 
 import org.jfoundry.autoconfigure.messaging.MessageSenderAutoConfiguration;
 import org.jfoundry.application.messaging.MessageSender;
-import org.jfoundry.infrastructure.messaging.rabbitmq.RabbitMqMessageSender;
+import org.jfoundry.infrastructure.messaging.spring.sender.RabbitMqMessageSender;
 import org.springframework.amqp.rabbit.core.RabbitOperations;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.autoconfigure.AutoConfiguration;

@@ -9,8 +9,20 @@
 
     <artifactId>jfoundry-infrastructure</artifactId>
     <name>jfoundry-infrastructure</name>
-    <description>Framework-neutral infrastructure adapters for persistence, messaging brokers, outbox stores, and inbox stores.</description>
+    <description>Technical adapters for persistence, messaging brokers, outbox stores, and inbox stores.</description>
     <packaging>pom</packaging>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.xfoundries</groupId>
+                <artifactId>jfoundry-spring-dependencies</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <modules>
         <module>jfoundry-persistence-core</module>

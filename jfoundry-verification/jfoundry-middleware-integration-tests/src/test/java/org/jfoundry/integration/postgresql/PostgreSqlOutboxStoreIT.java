@@ -60,7 +60,7 @@ class PostgreSqlOutboxStoreIT {
 
     @BeforeAll
     static void createSchema(@Autowired DataSource dataSource) {
-        SqlScripts.run(dataSource, "db/migration/V20260617__create_outbox_event_postgresql.sql");
+        SqlScripts.run(dataSource, "jfoundry/sql/outbox/postgresql/create_outbox_event.sql");
     }
 
     @BeforeEach

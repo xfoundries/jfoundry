@@ -4,6 +4,8 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -21,8 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.kafka.core.DefaultKafkaProducerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MySQLContainer;
@@ -33,7 +33,6 @@ import org.testcontainers.utility.DockerImageName;
 
 import javax.sql.DataSource;
 import java.time.Duration;
-import java.util.Map;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,7 +69,7 @@ class KafkaOutboxDispatchIT {
 
     @BeforeAll
     static void createSchema(@Autowired DataSource dataSource) {
-        SqlScripts.run(dataSource, "db/migration/V20260617__create_outbox_event.sql");
+        SqlScripts.run(dataSource, "jfoundry/sql/outbox/mysql/create_outbox_event.sql");
     }
 
     @BeforeEach
@@ -85,11 +84,10 @@ class KafkaOutboxDispatchIT {
                 TOPIC,
                 "order-1",
                 "{\"event\":\"created\"}"));
-        KafkaTemplateFixture kafka = kafkaTemplate();
-        try {
+        try (Producer<String, String> producer = producer()) {
             new DefaultOutboxDispatchService(
                     store,
-                    new KafkaMessageSender(kafka.template(), Duration.ofSeconds(10)),
+                    new KafkaMessageSender(producer, Duration.ofSeconds(10)),
                     3,
                     retry -> Duration.ofMillis(10),
                     "it-pod").dispatch(10);
@@ -101,8 +99,6 @@ class KafkaOutboxDispatchIT {
                 assertThat(record.key()).isEqualTo("order-1");
                 assertThat(record.value()).isEqualTo("{\"event\":\"created\"}");
             }
-        } finally {
-            kafka.destroy();
         }
 
         OutboxData data = mapper.selectById("evt-kafka-1");
@@ -137,13 +133,13 @@ class KafkaOutboxDispatchIT {
         assertThat(data.getClaimedBy()).isNull();
     }
 
-    private KafkaTemplateFixture kafkaTemplate() {
-        Map<String, Object> props = new java.util.HashMap<>();
+    private Producer<String, String> producer() {
+        Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        DefaultKafkaProducerFactory<String, String> factory = new DefaultKafkaProducerFactory<>(props);
-        return new KafkaTemplateFixture(new KafkaTemplate<>(factory), factory);
+        props.put(ProducerConfig.ACKS_CONFIG, "all");
+        return new KafkaProducer<>(props);
     }
 
     private Consumer<String, String> consumer(String groupId) {
@@ -167,15 +163,5 @@ class KafkaOutboxDispatchIT {
             }
         }
         throw new AssertionError("No Kafka record received from topic " + TOPIC);
-    }
-
-    private record KafkaTemplateFixture(
-            KafkaTemplate<String, String> template,
-            DefaultKafkaProducerFactory<String, String> factory) {
-
-        void destroy() {
-            template.destroy();
-            factory.destroy();
-        }
     }
 }

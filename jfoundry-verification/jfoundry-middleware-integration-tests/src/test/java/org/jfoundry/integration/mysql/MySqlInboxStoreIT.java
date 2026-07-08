@@ -54,7 +54,7 @@ class MySqlInboxStoreIT {
 
     @BeforeAll
     static void createSchema(@Autowired DataSource dataSource) {
-        SqlScripts.run(dataSource, "db/migration/V20260624__create_inbox_message.sql");
+        SqlScripts.run(dataSource, "jfoundry/sql/inbox/common/create_inbox_message.sql");
     }
 
     @BeforeEach

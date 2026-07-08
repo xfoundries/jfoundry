@@ -1,5 +1,9 @@
 package org.jfoundry.integration.rabbitmq;
 
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.GetResponse;
 import org.jfoundry.application.messaging.SendResult;
 import org.jfoundry.application.outbox.DefaultOutboxDispatchService;
 import org.jfoundry.infrastructure.messaging.rabbitmq.RabbitMqMessageSender;
@@ -12,12 +16,6 @@ import org.jfoundry.integration.support.SqlScripts;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -28,6 +26,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.sql.DataSource;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,37 +64,40 @@ class RabbitMqOutboxDispatchIT {
 
     @BeforeAll
     static void createSchema(@Autowired DataSource dataSource) {
-        SqlScripts.run(dataSource, "db/migration/V20260617__create_outbox_event.sql");
+        SqlScripts.run(dataSource, "jfoundry/sql/outbox/mysql/create_outbox_event.sql");
     }
 
     @BeforeEach
-    void cleanDb() {
+    void cleanDb() throws Exception {
         mapper.delete(null);
-        RabbitAdmin admin = new RabbitAdmin(connectionFactory());
-        DirectExchange exchange = new DirectExchange(EXCHANGE, true, false);
-        Queue queue = new Queue(QUEUE, true, false, false);
-        admin.declareExchange(exchange);
-        admin.declareQueue(queue);
-        admin.declareBinding(BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY));
-        rabbitTemplate().receiveAndConvert(QUEUE);
+        try (Connection connection = connectionFactory().newConnection();
+             Channel channel = connection.createChannel()) {
+            channel.exchangeDeclare(EXCHANGE, "direct", true, false, null);
+            channel.queueDeclare(QUEUE, true, false, false, null);
+            channel.queueBind(QUEUE, EXCHANGE, ROUTING_KEY);
+            channel.queuePurge(QUEUE);
+        }
     }
 
     @Test
-    void dispatchPublishesRabbitMqMessageAndMarksOutboxPublished() {
+    void dispatchPublishesRabbitMqMessageAndMarksOutboxPublished() throws Exception {
         store.append(OutboxMessages.pending(
                 "evt-rabbit-1",
                 EXCHANGE,
                 ROUTING_KEY,
                 "{\"event\":\"created\"}"));
 
-        new DefaultOutboxDispatchService(
-                store,
-                new RabbitMqMessageSender(rabbitTemplate()),
-                3,
-                retry -> Duration.ofMillis(10),
-                "it-pod").dispatch(10);
+        try (Connection connection = connectionFactory().newConnection();
+             Channel channel = connection.createChannel()) {
+            new DefaultOutboxDispatchService(
+                    store,
+                    new RabbitMqMessageSender(channel),
+                    3,
+                    retry -> Duration.ofMillis(10),
+                    "it-pod").dispatch(10);
+        }
 
-        Object payload = rabbitTemplate().receiveAndConvert(QUEUE, 10_000);
+        String payload = singleMessage();
 
         assertThat(payload).isEqualTo("{\"event\":\"created\"}");
         OutboxData data = mapper.selectById("evt-rabbit-1");
@@ -130,15 +132,27 @@ class RabbitMqOutboxDispatchIT {
         assertThat(data.getClaimedBy()).isNull();
     }
 
-    private static CachingConnectionFactory connectionFactory() {
-        CachingConnectionFactory connectionFactory = new CachingConnectionFactory(
-                rabbitmq.getHost(), rabbitmq.getAmqpPort());
+    private static ConnectionFactory connectionFactory() {
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        connectionFactory.setHost(rabbitmq.getHost());
+        connectionFactory.setPort(rabbitmq.getAmqpPort());
         connectionFactory.setUsername(rabbitmq.getAdminUsername());
         connectionFactory.setPassword(rabbitmq.getAdminPassword());
         return connectionFactory;
     }
 
-    private static RabbitTemplate rabbitTemplate() {
-        return new RabbitTemplate(connectionFactory());
+    private static String singleMessage() throws Exception {
+        long deadline = System.nanoTime() + Duration.ofSeconds(10).toNanos();
+        try (Connection connection = connectionFactory().newConnection();
+             Channel channel = connection.createChannel()) {
+            while (System.nanoTime() < deadline) {
+                GetResponse response = channel.basicGet(QUEUE, true);
+                if (response != null) {
+                    return new String(response.getBody(), StandardCharsets.UTF_8);
+                }
+                Thread.sleep(250);
+            }
+        }
+        throw new AssertionError("No RabbitMQ message received from queue " + QUEUE);
     }
 }
