@@ -12,19 +12,19 @@ class HexagonalStereotypesTest {
     @Test
     void allStereotypesAreMetaAnnotated() {
         assertThat(Application.class.getAnnotation(org.jmolecules.architecture.hexagonal.Application.class))
-                .as("@Application must be meta-annotated with jmolecules @Application")
+                .as("@Application must be meta-annotated with jMolecules @Application")
                 .isNotNull();
         assertThat(PrimaryAdapter.class.getAnnotation(org.jmolecules.architecture.hexagonal.PrimaryAdapter.class))
-                .as("@PrimaryAdapter must be meta-annotated with jmolecules @PrimaryAdapter")
+                .as("@PrimaryAdapter must be meta-annotated with jMolecules @PrimaryAdapter")
                 .isNotNull();
         assertThat(PrimaryPort.class.getAnnotation(org.jmolecules.architecture.hexagonal.PrimaryPort.class))
-                .as("@PrimaryPort must be meta-annotated with jmolecules @PrimaryPort")
+                .as("@PrimaryPort must be meta-annotated with jMolecules @PrimaryPort")
                 .isNotNull();
         assertThat(SecondaryAdapter.class.getAnnotation(org.jmolecules.architecture.hexagonal.SecondaryAdapter.class))
-                .as("@SecondaryAdapter must be meta-annotated with jmolecules @SecondaryAdapter")
+                .as("@SecondaryAdapter must be meta-annotated with jMolecules @SecondaryAdapter")
                 .isNotNull();
         assertThat(SecondaryPort.class.getAnnotation(org.jmolecules.architecture.hexagonal.SecondaryPort.class))
-                .as("@SecondaryPort must be meta-annotated with jmolecules @SecondaryPort")
+                .as("@SecondaryPort must be meta-annotated with jMolecules @SecondaryPort")
                 .isNotNull();
     }
 
@@ -47,7 +47,7 @@ class HexagonalStereotypesTest {
                 PrimaryAdapter.class, PrimaryPort.class, SecondaryAdapter.class, SecondaryPort.class
         }) {
             assertThat(Stream.of(stereotype.getDeclaredMethods()).map(java.lang.reflect.Method::getName))
-                    .as(stereotype.getSimpleName() + " must not redeclare jmolecules name/description attributes")
+                    .as(stereotype.getSimpleName() + " must not redeclare jMolecules name/description attributes")
                     .doesNotContain("name", "description");
         }
     }

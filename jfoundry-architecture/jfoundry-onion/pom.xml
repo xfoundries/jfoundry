@@ -13,7 +13,7 @@
 
     <artifactId>jfoundry-onion</artifactId>
     <name>jfoundry-onion</name>
-    <description>Pure-Java onion architecture stereotypes on jmolecules — zero Spring dependency</description>
+    <description>Pure-Java onion architecture stereotypes on jMolecules — zero Spring dependency</description>
 
     <dependencies>
         <dependency>

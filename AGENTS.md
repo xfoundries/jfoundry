@@ -32,6 +32,7 @@ The core framework must remain independent of runtime frameworks such as Spring,
 As an open-source framework, source-level artifacts must be friendly to the wider Java ecosystem:
 
 - Source comments must be written in English. This includes Java Javadocs, `package-info.java`, inline comments, test documentation comments, configuration property comments, architecture rule explanations, SQL comments, XML/POM comments, YAML/properties comments, and other resource comments shipped in jars.
+- Use `jMolecules` as the prose spelling for the upstream project. Keep lowercase forms only when they are exact technical identifiers, such as `org.jmolecules`, `jmolecules-*` artifact IDs, property names, package names, class names, method names, URLs, or string literals.
 - Public documentation may be localized, but languages must not be mixed in the same document. `README_ZH.md` is the default Chinese overview; `README.md` is the English overview. Add or update separate localized files instead of mixing Chinese and English sections in one file.
 - Commit messages, release notes intended for repository history, Maven metadata, generated documentation text, and PR descriptions should be written in English.
 - When editing existing Chinese comments in source files, translate them to English instead of adding new Chinese comments nearby. Do not translate user-facing Chinese documentation unless the file is meant to be English.

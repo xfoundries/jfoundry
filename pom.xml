@@ -11,7 +11,7 @@
     <packaging>pom</packaging>
 
     <name>jfoundry-parent</name>
-    <description>jfoundry — production-grade DDD framework on jmolecules</description>
+    <description>jfoundry — production-grade DDD framework on jMolecules</description>
     <url>${jfoundry.release.url}</url>
 
     <licenses>

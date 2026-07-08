@@ -137,8 +137,9 @@
             <optional>true</optional>
         </dependency>
         <!--
-          jmolecules-jackson：复用上游 JMoleculesModule 自动配置，而不是在 jfoundry 中重复实现。
-          它让 ValueObject / Identifier 以单值形式序列化，是 Outbox payload 的默认基础能力。
+          jmolecules-jackson: reuse upstream JMoleculesModule auto-configuration instead of
+          duplicating it in jfoundry. It serializes ValueObject / Identifier as single-value
+          types and provides the default baseline for Outbox payloads.
         -->
         <dependency>
             <groupId>org.jmolecules.integrations</groupId>
@@ -217,7 +218,7 @@
         <!--
           Web test scope: required so Spring Boot's JacksonAutoConfiguration can
           build the default ObjectMapper via Jackson2ObjectMapperBuilder, which applies all
-          registered Module beans (including JMoleculesModule), and so jmolecules-spring's
+          registered Module beans (including JMoleculesModule), and so jMolecules Spring's
           WebMvcConfigurer can register Identifier / Association converters on MVC's
           ConversionService. In a real Spring Boot app, these classes are normally present
           via spring-boot-starter-web/-webflux; here we pull them in only for integration tests.

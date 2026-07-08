@@ -20,7 +20,7 @@ class CiArchitectureTest {
 ```
 
 `JFoundryRules.hexagonalStrict()` 启用 JFoundry 基础守护规则 + jMolecules Hexagonal 主架构规则 + JFoundry Hexagonal 推荐落地约定。
-`JFoundryRules.jmoleculesDdd()` 引入 jmolecules 官方 DDD 规则。
+`JFoundryRules.jmoleculesDdd()` 引入 jMolecules 官方 DDD 规则。
 
 ## jfoundry 自有规则
 
@@ -102,9 +102,9 @@ ArchRule[] hexagonalRules = JFoundryRules.hexagonalStrict();
 若只想启用某一类底层规则，请直接使用 `PersistenceRules`、`ValueObjectRules` 或
 `ArchitectureStyleRules` 等具体规则类；`JFoundryRules` 只提供主架构风格入口。
 
-## jmolecules 官方 DDD 规则
+## jMolecules 官方 DDD 规则
 
-`JFoundryRules.jmoleculesDdd()` 返回 jmolecules-archunit `0.33.0` 提供的 DDD 原生规则：
+`JFoundryRules.jmoleculesDdd()` 返回 `jmolecules-archunit` `0.33.0` 提供的 DDD 原生规则：
 
 - `JMoleculesDddRules.aggregateReferencesShouldBeViaIdOrAssociation()` —— 聚合之间只能通过 Id 或 Association 引用，避免直接对象引用导致的边界穿透
 - `JMoleculesDddRules.valueObjectsMustNotReferToIdentifiables()` —— 值对象不得引用具备身份的实体或聚合
@@ -112,7 +112,7 @@ ArchRule[] hexagonalRules = JFoundryRules.hexagonalStrict();
 jMolecules 原生架构规则不再通过一个混合入口暴露，而是随 `JFoundryRules.hexagonal()`、`JFoundryRules.hexagonalStrict()`、
 `JFoundryRules.onionSimple()` 或 `JFoundryRules.onionClassical()` 进入对应主风格入口。
 
-> 说明：jmolecules-integrations 的版本由 `jmolecules-bom` `2025.0.2` 统一锁定为 `0.33.0`（`0.34.0` 并不存在于 Maven Central，jmolecules-integrations 的版本号从 `0.33.0` 直接跳到 `1.6.0`）。业务侧无需在 pom 中单独声明此版本。
+> 说明：`jmolecules-integrations` 的版本由 `jmolecules-bom` `2025.0.2` 统一锁定为 `0.33.0`（`0.34.0` 并不存在于 Maven Central，`jmolecules-integrations` 的版本号从 `0.33.0` 直接跳到 `1.6.0`）。业务侧无需在 pom 中单独声明此版本。
 
 ## 精细控制
 

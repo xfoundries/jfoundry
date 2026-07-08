@@ -12,7 +12,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// Verifies that jfoundry relies on jmolecules-spring's own converter auto-configuration
+/// Verifies that jfoundry relies on jMolecules Spring's own converter auto-configuration
 /// instead of duplicating Identifier / Association converters.
 class JmoleculesSpringIntegrationTest {
 

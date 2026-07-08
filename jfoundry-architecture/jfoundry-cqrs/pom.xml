@@ -13,7 +13,7 @@
 
     <artifactId>jfoundry-cqrs</artifactId>
     <name>jfoundry-cqrs</name>
-    <description>Pure-Java CQRS architecture stereotypes on jmolecules — zero Spring dependency</description>
+    <description>Pure-Java CQRS architecture stereotypes on jMolecules — zero Spring dependency</description>
 
     <dependencies>
         <dependency>

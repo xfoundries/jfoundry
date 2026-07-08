@@ -69,6 +69,6 @@ class CiArchitectureTest {
 - `value_object_fields_must_be_final` —— 所有字段 final
 - `value_objects_must_implement_equals_and_hashCode` —— 必须实现 equals/hashCode
 
-## jmolecules 生态
+## jMolecules 生态
 
-`ValueObject` 继承 `org.jmolecules.ddd.types.ValueObject`，所以 jmolecules 工具链（jmolecules-jackson 序列化、jmolecules-archunit 规则）开箱即用。
+`ValueObject` 继承 `org.jmolecules.ddd.types.ValueObject`，所以 jMolecules 工具链（`jmolecules-jackson` 序列化、`jmolecules-archunit` 规则）开箱即用。

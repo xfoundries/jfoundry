@@ -9,11 +9,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// P2-3 regression: jmolecules-jackson already ships {@code JMoleculesJacksonAutoConfiguration}
+/// P2-3 regression: {@code jmolecules-jackson} already ships {@code JMoleculesJacksonAutoConfiguration}
 /// registered through its {@code META-INF/spring/...AutoConfiguration.imports}. A previously copied
 /// {@code JfoundryJacksonAutoConfiguration} caused duplicate same-name beans.
 /// <p>
-/// This test verifies that after removing {@code JfoundryJacksonAutoConfiguration}, the jmolecules
+/// This test verifies that after removing {@code JfoundryJacksonAutoConfiguration}, the jMolecules
 /// module is still registered with ObjectMapper through upstream auto-configuration.
 @SpringBootTest(classes = JmoleculesJacksonIntegrationTest.TestApp.class)
 class JmoleculesJacksonIntegrationTest {
@@ -29,7 +29,7 @@ class JmoleculesJacksonIntegrationTest {
     @Test
     void jmoleculesModuleIsRegisteredByUpstreamAutoConfiguration() {
         assertThat(objectMapper.getRegisteredModuleIds())
-                .as("jmolecules-jackson upstream auto-configuration must register JMoleculesModule")
+                .as("jMolecules Jackson upstream auto-configuration must register JMoleculesModule")
                 .anyMatch(id -> id.toString().contains("jmolecules"));
     }
 }

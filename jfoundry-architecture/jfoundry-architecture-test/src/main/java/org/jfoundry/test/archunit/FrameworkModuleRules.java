@@ -45,7 +45,7 @@ public final class FrameworkModuleRules {
                     .and().doNotHaveFullyQualifiedName("org.jfoundry.test.archunit.ArchitectureStyleRules")
                     .should().dependOnClassesThat().resideInAnyPackage("org.jfoundry.architecture..")
                     .allowEmptyShould(true)
-                    .because("JFoundry architecture annotations are public API wrappers; framework internals use jmolecules directly");
+                    .because("JFoundry architecture annotations are public API wrappers; framework internals use jMolecules directly");
 
     public static final ArchRule domain_packages_should_be_onion_domain_ring =
             classes()

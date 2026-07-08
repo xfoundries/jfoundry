@@ -13,7 +13,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 /// Hexagonal Architecture / Ports and Adapters convention rules.
 /// <p>
-/// These rules complement jmolecules' role dependency rules with package and type-shape
+/// These rules complement jMolecules role dependency rules with package and type-shape
 /// conventions used by JFoundry projects.
 public final class HexagonalConventionRules {
 
