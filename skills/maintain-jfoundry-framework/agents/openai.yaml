@@ -1,0 +1,4 @@
+interface:
+  display_name: "Maintain JFoundry"
+  short_description: "Guide maintenance of the jfoundry framework"
+  default_prompt: "Use $maintain-jfoundry-framework to modify the jfoundry framework safely."

@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This is a Java 21 multi-module Maven project for a jMolecules-based, runtime-neutral DDD framework. Top-level modules are declared in `pom.xml`: `jfoundry-dependencies`, `jfoundry-architecture`, `jfoundry-domain`, `jfoundry-application`, `jfoundry-infrastructure`, `jfoundry-starters`, `jfoundry-spring`, and `jfoundry-verification`. Production code uses standard Maven paths such as `src/main/java`; tests live under `src/test/java`; module resources live under `src/main/resources` or `src/test/resources`. SQL files shipped by jfoundry are templates, not auto-run migrations. Documentation is in `docs/`, with the default English overview in `README.md` and the Chinese overview in `README_ZH.md`.
+This is a Java 21 multi-module Maven project for a jMolecules-based, runtime-neutral DDD framework. Top-level modules are declared in `pom.xml`: `jfoundry-dependencies`, `jfoundry-architecture`, `jfoundry-domain`, `jfoundry-application`, `jfoundry-infrastructure`, `jfoundry-starters`, `jfoundry-spring`, and `jfoundry-verification`. Production code uses standard Maven paths such as `src/main/java`; tests live under `src/test/java`; module resources live under `src/main/resources` or `src/test/resources`. SQL files shipped by jfoundry are copyable templates, not auto-run migrations. Documentation is in `docs/`, with the default English overview in `README.md` and the Chinese overview in `README_ZH.md`.
 
 ## Build, Test, and Development Commands
 
@@ -14,16 +14,16 @@ This is a Java 21 multi-module Maven project for a jMolecules-based, runtime-neu
 
 ## Coding Style & Naming Conventions
 
-Use Java 21 features where they simplify the model, especially records for immutable value objects. Follow the existing package root `org.jfoundry.*` and standard Maven layout. Keep domain modules free of Spring and persistence dependencies; place Spring auto-configuration under `jfoundry-spring`, persistence implementations under `jfoundry-infrastructure`, reusable architecture test rules under `jfoundry-architecture/jfoundry-architecture-test`, and internal middleware verification under `jfoundry-verification`. Name tests with a `*Test` suffix. No formatter plugin is configured, so match the surrounding Java style: four-space indentation, clear method names, and concise English Javadocs/comments only where API intent or non-obvious behavior needs explanation.
+Use Java 21 features where they simplify the model, especially records for immutable value objects. Follow the existing package root `org.jfoundry.*` and standard Maven layout. Keep domain modules free of Spring and persistence dependencies; place Spring auto-configuration under `jfoundry-spring/jfoundry-spring-boot-autoconfigure`, Spring runtime adapters under `jfoundry-spring/jfoundry-spring-runtime`, persistence and broker adapters under `jfoundry-infrastructure`, reusable architecture test rules under `jfoundry-architecture/jfoundry-architecture-test`, and internal middleware verification under `jfoundry-verification`. Name tests with a `*Test` suffix. No formatter plugin is configured, so match the surrounding Java style: four-space indentation, clear method names, and concise English Javadocs/comments only where API intent or non-obvious behavior needs explanation.
 
 ## Architecture Boundaries
 
-The core framework must remain independent of runtime frameworks such as Spring, Spring Boot, Quarkus, Helidon, and Micronaut. Keep these boundaries explicit:
+The core framework must remain independent of runtime frameworks such as Spring, Spring Boot, Quarkus, Helidon, Micronaut, CDI, and Jakarta EE runtime APIs. Keep these boundaries explicit:
 
 - `jfoundry-domain` contains domain modeling primitives and must not depend on application, infrastructure, persistence, messaging, or runtime integration modules.
-- `jfoundry-application` contains application-layer contracts, transaction abstractions, domain event orchestration, Outbox/Inbox SPI, messaging SPI, and serialization SPI. It must not depend on Spring, MyBatis-Plus, broker clients, or concrete databases.
+- `jfoundry-application` contains application-layer contracts, transaction abstractions, domain event orchestration, event externalization rules, Outbox/Inbox SPI, messaging SPI, and serialization SPI. It must not depend on Spring, MyBatis-Plus, broker clients, or concrete databases.
 - `jfoundry-infrastructure` contains concrete adapters for persistence, messaging, serialization, and job execution. Infrastructure adapters may depend on native clients such as MyBatis-Plus, Kafka clients, RabbitMQ Java client, RocketMQ client, Jackson, or JobRunr, but they must not depend on Spring Framework or Spring Boot unless they are deliberately placed under `jfoundry-spring`.
-- `jfoundry-spring` is the Spring runtime integration layer. Put Spring Framework adapters, Spring Boot auto-configuration, and Spring Boot starters here. Spring-side wrappers may adapt Spring clients such as `KafkaTemplate` or `RabbitTemplate` to core SPI interfaces, but core and infrastructure modules must not require those Spring clients.
+- `jfoundry-spring` is the Spring runtime integration layer. Put Spring Framework adapters under `jfoundry-spring-runtime`, Spring Boot auto-configuration under `jfoundry-spring-boot-autoconfigure`, and Spring Boot starters under `jfoundry-spring-boot-starters`. Spring-side wrappers may adapt Spring clients such as `KafkaTemplate` or `RabbitTemplate` to core SPI interfaces, but core and infrastructure modules must not require those Spring clients.
 - `jfoundry-starters` and `jfoundry-spring/jfoundry-spring-boot-starters` should assemble existing capabilities; avoid placing domain logic, persistence logic, or broker-specific behavior directly in starters.
 - `jfoundry-verification` is for framework-internal smoke, integration, and architecture verification. Do not publish business-facing APIs from verification modules.
 
@@ -31,7 +31,7 @@ The core framework must remain independent of runtime frameworks such as Spring,
 
 As an open-source framework, source-level artifacts must be friendly to the wider Java ecosystem:
 
-- Java source comments must be written in English. This includes Javadocs, `package-info.java`, inline comments, test documentation comments, configuration property comments, architecture rule explanations, and SQL/resource comments shipped in jars.
+- Source comments must be written in English. This includes Java Javadocs, `package-info.java`, inline comments, test documentation comments, configuration property comments, architecture rule explanations, SQL comments, XML/POM comments, YAML/properties comments, and other resource comments shipped in jars.
 - Public documentation may be localized, but languages must not be mixed in the same document. `README_ZH.md` is the default Chinese overview; `README.md` is the English overview. Add or update separate localized files instead of mixing Chinese and English sections in one file.
 - Commit messages, release notes intended for repository history, Maven metadata, generated documentation text, and PR descriptions should be written in English.
 - When editing existing Chinese comments in source files, translate them to English instead of adding new Chinese comments nearby. Do not translate user-facing Chinese documentation unless the file is meant to be English.
@@ -58,8 +58,8 @@ Javadocs and documentation comments in source code must follow the Language Poli
 
 ## Project Skills
 
-- Framework maintenance and downstream adoption skills now live in the standalone `xfoundries/software-architecture-skills` project.
-- When modifying this repository's framework code, module boundaries, starters, BOMs, Spring Boot auto-configuration, architecture rules, runtime adapters, or release/compatibility docs, use the framework-maintenance skill from that project when available.
-- When helping a downstream business project adopt or use jfoundry, recommend the `domain-architecture` plugin from `xfoundries/software-architecture-skills` and use its `use-jfoundry` skill.
-- Do not apply `maintain-jfoundry-framework` rules to downstream business projects.
-- Do not apply downstream `use-jfoundry` scaffolding rules when changing jfoundry internals.
+- This repository owns a local framework-maintenance skill at `skills/maintain-jfoundry-framework`. When modifying jfoundry framework internals, use `$maintain-jfoundry-framework` if the agent runtime exposes it. If it is not auto-loaded, read `skills/maintain-jfoundry-framework/SKILL.md` and the relevant files under `skills/maintain-jfoundry-framework/references/` directly before editing.
+- Use `maintain-jfoundry-framework` for changes to module boundaries, public APIs, jMolecules architecture annotations, ArchUnit rules, Maven BOMs, starters, Spring Boot auto-configuration, runtime adapters, persistence adapters, messaging adapters, Outbox/Inbox internals, release compatibility, and framework documentation.
+- Treat this file, the local maintenance skill, and repository documentation as the project contract. For framework-internal changes, cross-check the relevant local docs before editing: `docs/framework-boundaries.md` for module placement, `docs/architecture-styles.md` and `docs/archunit-rules.md` for architecture semantics, `docs/transactional-outbox.md` for Outbox behavior, and `docs/release/compatibility.md` for platform baselines.
+- Keep framework maintenance guidance separate from downstream business-project guidance. Do not apply `maintain-jfoundry-framework` rules to downstream business projects that merely consume jfoundry, and do not use downstream business-project guidance as authority for changing jfoundry internals.
+- Do not add instructions that depend on unavailable private repositories or local-only skill names outside this repository. If a useful external tool or plugin is unavailable, continue from this repository's docs and state the assumption explicitly.
