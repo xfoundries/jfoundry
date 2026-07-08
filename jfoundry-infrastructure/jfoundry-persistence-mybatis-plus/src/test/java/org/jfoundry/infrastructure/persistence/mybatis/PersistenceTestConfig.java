@@ -18,10 +18,10 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-/// 集成测试 Spring 配置。
+/// Spring configuration for integration tests.
 /// <p>
-/// 镜像 jfoundry-outbox-mybatis-plus 的 OutboxPersistenceTestConfig 模式:
-/// H2 embedded + 手写 @SpringBootConfiguration + @MapperScan。
+/// Mirrors the OutboxPersistenceTestConfig pattern in jfoundry-outbox-mybatis-plus:
+/// embedded H2 plus explicit @SpringBootConfiguration and @MapperScan.
 @SpringBootConfiguration
 @EnableAutoConfiguration
 @MapperScan(basePackageClasses = TestOrderMapper.class)

@@ -16,20 +16,22 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
-/// JobRunr Outbox Dispatcher 自动装配。
+/// Auto-configuration for the JobRunr Outbox Dispatcher.
 /// <p>
-/// 引入 {@code jfoundry-outbox-jobrunr} jar 并设置
-/// {@code jfoundry.outbox.dispatcher.mode=jobrunr} 时，本类自动注册
-/// {@link JobRunrOutboxDispatcher} bean，覆盖 {@code scheduled} 模式下的
-/// {@code ScheduledOutboxDispatcher}（后者由 {@code OutboxDispatcherAutoConfiguration}
-/// 在 mode=scheduled 或 matchIfMissing 时注册，互斥键是 bean name）。
+/// When {@code jfoundry-outbox-jobrunr} is on the classpath and
+/// {@code jfoundry.outbox.dispatcher.mode=jobrunr}, this class automatically registers a
+/// {@link JobRunrOutboxDispatcher} bean, overriding the {@code scheduled}-mode
+/// {@code ScheduledOutboxDispatcher}. The latter is registered by
+/// {@code OutboxDispatcherAutoConfiguration} when mode is scheduled or missing; mutual exclusion is
+/// based on the OutboxDispatcher bean.
 /// <p>
-/// 业务侧无需自己 {@code @ComponentScan} 扫到 {@code org.jfoundry.infrastructure.outbox.jobrunr}
-/// —— Spring Boot starter 通过 jfoundry-spring-boot-autoconfigure 的
-/// {@code META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports} 注册本配置。
+/// Applications do not need to component-scan {@code org.jfoundry.infrastructure.outbox.jobrunr};
+/// the Spring Boot starter registers this configuration through
+/// {@code META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports} in
+/// jfoundry-spring-boot-autoconfigure.
 /// <p>
-/// batchSize / maxRetries / cron 全部从 {@link OutboxDispatcherProperties} 读取，与 scheduled
-/// 模式行为一致（同一套 {@code jfoundry.outbox.dispatcher.*} 配置）。
+/// batchSize, maxRetries, and cron are all read from {@link OutboxDispatcherProperties}, matching
+/// scheduled-mode behavior with the same {@code jfoundry.outbox.dispatcher.*} configuration.
 @AutoConfiguration
 @ConditionalOnClass(name = {
         "org.jobrunr.jobs.annotations.Job",

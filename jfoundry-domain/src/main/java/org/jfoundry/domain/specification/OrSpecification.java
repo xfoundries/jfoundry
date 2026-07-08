@@ -2,13 +2,13 @@ package org.jfoundry.domain.specification;
 
 import java.util.Objects;
 
-/// 或运算领域规约。
+/// Disjunction specification.
 /// <p>
-/// 至少一个领域规约满足时返回 true。
+/// Returns true when at least one specification is satisfied.
 ///
-/// @param left 左侧领域规约
-/// @param right 右侧领域规约
-/// @param <T> 候选对象类型
+/// @param left left specification
+/// @param right right specification
+/// @param <T> candidate type
 public record OrSpecification<T>(
         Specification<T> left,
         Specification<T> right

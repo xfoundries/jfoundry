@@ -19,14 +19,15 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/// MybatisPlusRepository 集成测试。
+/// Integration tests for MybatisPlusRepository.
 /// <p>
-/// 用 H2 embedded 跑全链路,覆盖:
-/// - add / addAll 新建链路 + 主键冲突防御
-/// - modify / modifyAll 更新链路 + 0 行防御
-/// - remove 删除链路 + 0 行防御
-/// - findById 加载链路
-/// - 上下文注册链接(add/modify/remove 成功后向 DomainEventContext 注册聚合)
+/// Runs the full path with embedded H2 and covers:
+/// - add / addAll creation path plus primary-key conflict defense.
+/// - modify / modifyAll update path plus zero-row defense.
+/// - remove path plus zero-row defense.
+/// - findById loading path.
+/// - context registration path, registering aggregates with DomainEventContext after successful
+///   add/modify/remove.
 @SpringBootTest(classes = PersistenceTestConfig.class)
 class MybatisPlusRepositoryIntegrationTest {
 
@@ -54,10 +55,10 @@ class MybatisPlusRepositoryIntegrationTest {
         return List.of(type.getTypeParameters()).stream().map(TypeVariable::getName).toList();
     }
 
-    // ---- add 链路 ----
+    // ---- add path ----
 
     @Test
-    void add_新聚合_单条插入成功_注册聚合且不清空事件() {
+    void addNewAggregateInsertsOneRowRegistersAggregateAndKeepsEvents() {
         TestOrderId id = new TestOrderId("ORD-001");
         TestOrder order = TestOrder.create(id, 100);
         List<DomainEvent> expectedEvents = order.drainEvents();
@@ -78,7 +79,7 @@ class MybatisPlusRepositoryIntegrationTest {
     }
 
     @Test
-    void add_主键冲突_抛异常_且不注册聚合() {
+    void addDuplicateIdThrowsAndDoesNotRegisterAggregate() {
         TestOrderId id = new TestOrderId("ORD-DUP");
         TestOrder first = TestOrder.create(id, 100);
         repository.add(first);
@@ -92,10 +93,10 @@ class MybatisPlusRepositoryIntegrationTest {
         assertThat(second.drainEvents()).hasSize(1);
     }
 
-    // ---- modify 链路 ----
+    // ---- modify path ----
 
     @Test
-    void modify_已存在聚合_update成功_注册聚合且不清空事件() {
+    void modifyExistingAggregateUpdatesRegistersAggregateAndKeepsEvents() {
         TestOrderId id = new TestOrderId("ORD-MOD-1");
         repository.add(TestOrder.create(id, 100));
         domainEventContext.drainRegistered();
@@ -116,7 +117,7 @@ class MybatisPlusRepositoryIntegrationTest {
     }
 
     @Test
-    void modify_修改不存在对象_受影响0行_抛IllegalStateException() {
+    void modifyMissingAggregateAffectsZeroRowsAndThrowsIllegalStateException() {
         TestOrderId ghostId = new TestOrderId("ORD-GHOST");
         TestOrder ghost = TestOrder.create(ghostId, 100);
 
@@ -128,10 +129,10 @@ class MybatisPlusRepositoryIntegrationTest {
         assertThat(ghost.drainEvents()).hasSize(1);
     }
 
-    // ---- addAll / modifyAll 链路 ----
+    // ---- addAll / modifyAll path ----
 
     @Test
-    void addAll_批量插入成功_按顺序注册全部聚合且不清空事件() {
+    void addAllInsertsBatchRegistersAllAggregatesInOrderAndKeepsEvents() {
         TestOrder o1 = TestOrder.create(new TestOrderId("ORD-B-1"), 10);
         TestOrder o2 = TestOrder.create(new TestOrderId("ORD-B-2"), 20);
         TestOrder o3 = TestOrder.create(new TestOrderId("ORD-B-3"), 30);
@@ -149,7 +150,7 @@ class MybatisPlusRepositoryIntegrationTest {
     }
 
     @Test
-    void modifyAll_批量修改成功_按顺序注册全部聚合且不清空事件() {
+    void modifyAllUpdatesBatchRegistersAllAggregatesInOrderAndKeepsEvents() {
         TestOrderId id1 = new TestOrderId("ORD-MB-1");
         TestOrderId id2 = new TestOrderId("ORD-MB-2");
         repository.addAll(List.of(
@@ -174,7 +175,7 @@ class MybatisPlusRepositoryIntegrationTest {
     }
 
     @Test
-    void 同一聚合在同一上下文内多次持久化_只注册一次且事件持续累积() {
+    void sameAggregatePersistedMultipleTimesInOneContextRegistersOnceAndKeepsAccumulatingEvents() {
         TestOrderId id = new TestOrderId("ORD-DEDUP-1");
         TestOrder order = TestOrder.create(id, 100);
 
@@ -187,7 +188,7 @@ class MybatisPlusRepositoryIntegrationTest {
     }
 
     @Test
-    void modifyAll_部分元素不存在_抛IllegalStateException_聚合不注册且事件保留() {
+    void modifyAllWithMissingElementThrowsDoesNotRegisterAggregatesAndKeepsEvents() {
         TestOrderId id1 = new TestOrderId("ORD-MB-OK");
         repository.add(TestOrder.create(id1, 10));
         domainEventContext.drainRegistered();
@@ -205,10 +206,10 @@ class MybatisPlusRepositoryIntegrationTest {
         assertThat(ghost.drainEvents()).hasSize(1);
     }
 
-    // ---- remove 链路 ----
+    // ---- remove path ----
 
     @Test
-    void remove_已存在_删除成功_注册聚合且不清空事件() {
+    void removeExistingAggregateDeletesRegistersAggregateAndKeepsEvents() {
         TestOrderId id = new TestOrderId("ORD-RM-1");
         TestOrder order = TestOrder.create(id, 100);
         repository.add(order);
@@ -227,7 +228,7 @@ class MybatisPlusRepositoryIntegrationTest {
     }
 
     @Test
-    void remove_删除不存在对象_受影响0行_抛IllegalStateException() {
+    void removeMissingAggregateAffectsZeroRowsAndThrowsIllegalStateException() {
         TestOrderId ghostId = new TestOrderId("ORD-RM-GHOST");
         TestOrder ghost = TestOrder.create(ghostId, 100);
 
@@ -239,10 +240,10 @@ class MybatisPlusRepositoryIntegrationTest {
         assertThat(ghost.drainEvents()).hasSize(1);
     }
 
-    // ---- findById 链路 ----
+    // ---- findById path ----
 
     @Test
-    void findById_存在_返回聚合() {
+    void findByIdExistingReturnsAggregate() {
         TestOrderId id = new TestOrderId("ORD-FIND-1");
         repository.add(TestOrder.create(id, 100));
 
@@ -252,12 +253,12 @@ class MybatisPlusRepositoryIntegrationTest {
     }
 
     @Test
-    void findById_不存在_返回null() {
+    void findByIdMissingReturnsNull() {
         assertThat(repository.findById(new TestOrderId("ORD-NOPE"))).isNull();
     }
 
     @Test
-    void findById_null参数_抛IllegalArgumentException() {
+    void findByIdNullArgumentThrowsIllegalArgumentException() {
         assertThatThrownBy(() -> repository.findById(null))
                 .isInstanceOf(IllegalArgumentException.class);
     }

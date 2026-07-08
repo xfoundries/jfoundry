@@ -9,15 +9,17 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.time.Duration;
 import java.time.Instant;
 
-/// 周期性恢复卡住的 DISPATCHING 记录。
+/// Periodically recovers stuck DISPATCHING records.
 /// <p>
-/// 场景：pod 在 DISPATCHING 中途崩溃 / kill -9，记录残留在 DISPATCHING 状态。
-/// 本任务按 {@code jfoundry.outbox.recovery.stuck-timeout} 阈值回滚。
+/// Scenario: a pod may crash or be killed while rows are in DISPATCHING, leaving records stuck in
+/// that state. This job rolls them back according to the
+/// {@code jfoundry.outbox.recovery.stuck-timeout} threshold.
 /// <p>
-/// 调度：{@code @Scheduled(fixedDelayString = "${jfoundry.outbox.recovery.interval:60000}")}，
-/// 默认 60s（60000ms）。{@code jfoundry.outbox.recovery.interval} 接受 Spring Boot 的
-/// Duration 字符串（如 {@code 60s}/{@code PT1M}/{@code 60000}），由
-/// {@link OutboxRecoveryProperties#getInterval()} 解析；placeholder 退出时必须以毫秒呈现。
+/// Scheduling: {@code @Scheduled(fixedDelayString = "${jfoundry.outbox.recovery.interval:60000}")},
+/// defaulting to 60s (60000ms). {@code jfoundry.outbox.recovery.interval} accepts Spring Boot
+/// Duration strings such as {@code 60s}, {@code PT1M}, or {@code 60000}, parsed by
+/// {@link OutboxRecoveryProperties#getInterval()}. The resolved placeholder must be rendered as
+/// milliseconds.
 public class OutboxRecoveryJob {
 
     private static final Logger log = LoggerFactory.getLogger(OutboxRecoveryJob.class);
@@ -31,7 +33,7 @@ public class OutboxRecoveryJob {
         this.properties = properties;
     }
 
-    /// 重置卡住的 DISPATCHING 记录。返回回滚的记录数，便于测试断言与运维监控。
+    /// Resets stuck DISPATCHING records and returns the recovered count for tests and monitoring.
     @Scheduled(fixedDelayString = "${jfoundry.outbox.recovery.interval:60000}")
     public int recoverStuckDispatching() {
         Duration timeout = properties.getStuckTimeout();

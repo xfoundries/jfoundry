@@ -6,77 +6,96 @@ import org.jmolecules.ddd.types.Repository;
 
 import java.util.Collection;
 
-/// 聚合根仓储接口。
+/// Repository interface for aggregate roots.
 /// <p>
-/// 仓储模拟聚合根集合(Eric Evans《DDD》"conceptual set"),负责聚合生命周期持久化:
-/// - findById: 按聚合标识加载单个聚合根
-/// - add: 加入集合(新建,对应 SQL insert)
-/// - modify: 修改集合中已存在元素(对应 SQL update)
-/// - addAll / modifyAll: 批量版本
-/// - remove: 从集合移除(对应 SQL delete)
+/// A repository models a conceptual set of aggregate roots and persists their
+/// lifecycle:
+/// - findById: load one aggregate root by id
+/// - add: add a new aggregate to the set, usually an SQL insert
+/// - modify: update an existing aggregate in the set, usually an SQL update
+/// - addAll / modifyAll: batch variants
+/// - remove: remove an aggregate from the set, usually an SQL delete
 /// <p>
-/// 集合语义说明:
-/// - 业务方法名(create / update / cancel 等)和调用上下文(new 出来 vs find 来的)天然决定是新建还是修改,业务侧显式选 add 或 modify,Repository 不替业务做判断
-/// - MyBatis 无 persistence context(Unit of Work),无法像 JPA 那样自动脏检查,因此 modify 必须显式调用
+/// Collection semantics:
+/// - Business method names and call context naturally decide whether an
+///   aggregate is new or existing; callers choose {@code add} or {@code modify}
+///   explicitly, and the repository does not infer that decision.
+/// - MyBatis has no persistence context / Unit of Work and cannot perform JPA
+///   style dirty checking, so {@code modify} must be called explicitly.
 /// <p>
-/// 设计约束:
-/// - 仓储只针对聚合根(AggregateRoot)
-/// - 一个事务默认只修改一个聚合根
-/// - 读模型、统计、分页和维护清理应通过业务具名边界表达,不通过 Repository 暴露通用条件能力
+/// Design constraints:
+/// - Repositories are only for aggregate roots.
+/// - One transaction should modify one aggregate root by default.
+/// - Read models, statistics, pagination, and maintenance cleanup should be
+///   exposed through named business boundaries, not generic repository criteria.
 ///
-/// @param <T>  聚合根类型
-/// @param <ID> 标识符类型
+/// @param <T> aggregate root type
+/// @param <ID> identifier type
 public interface AggregateRepository<T extends AggregateRoot<T, ID>, ID extends Identifier>
         extends Repository<T, ID> {
 
-    /// 根据标识符查找聚合根。
+    /// Finds an aggregate root by identifier.
     ///
-    /// @param id 标识符
-    /// @return 聚合根,如果不存在返回 null
+    /// @param id identifier
+    /// @return aggregate root, or null when it does not exist
     T findById(ID id);
 
-    /// 加入聚合集合(新建)。
+    /// Adds a new aggregate to the aggregate set.
     /// <p>
-    /// 直接走 insert 路径。主键冲突由底层数据库抛出(如 DuplicateKeyException),不在 Repository 层做"已存在"预检——保持零额外开销。
-    /// 成功后移交聚合根中已经记录的领域事件,并立即清空。
+    /// This goes directly through the insert path. Primary-key conflicts are
+    /// reported by the underlying database; the repository does not pre-check
+    /// existence, keeping the path free of extra reads. After success, recorded
+    /// domain events are handed off and cleared immediately.
     ///
-    /// @param entity 聚合根
+    /// @param entity aggregate root
     void add(T entity);
 
-    /// 修改聚合集合中已存在的元素。
+    /// Modifies an existing aggregate in the aggregate set.
     /// <p>
-    /// 直接走 update 路径。受影响行数为 0 时(即聚合不存在或乐观锁版本冲突)抛出 {@link IllegalStateException},防御"修改了不存在对象"的沉默失败。
-    /// 成功后移交聚合根中已经记录的领域事件,并立即清空。
+    /// This goes directly through the update path. When zero rows are affected
+    /// because the aggregate is missing or an optimistic-lock version conflicts,
+    /// implementations throw {@link IllegalStateException} to avoid silent
+    /// updates of missing objects. After success, recorded domain events are
+    /// handed off and cleared immediately.
     ///
-    /// @param entity 聚合根
+    /// @param entity aggregate root
     void modify(T entity);
 
-    /// 批量加入聚合集合(新建)。
+    /// Adds multiple new aggregates to the aggregate set.
     /// <p>
-    /// 批量语义：逐个调用 {@link #add} 顺序执行。<b>本方法不提供事务边界</b>——
-    /// 部分失败时已完成的写入不会回滚。
+    /// Batch semantics are sequential calls to {@link #add}. <b>This method does
+    /// not provide a transaction boundary</b>; completed writes are not rolled
+    /// back when a later item fails.
     /// <p>
-    /// 事务边界归属应用层。如需原子性，调用方应在应用服务方法上显式标注 {@code @Transactional}，
-    /// 并优先按 "一个事务修改一个聚合根" 的 DDD 原则拆分聚合边界。
+    /// Transaction boundaries belong to the application layer. If atomicity is
+    /// required, callers should manage transactions explicitly in application
+    /// services and prefer splitting aggregate boundaries according to the DDD
+    /// guideline of modifying one aggregate root per transaction.
     ///
-    /// @param entities 聚合根集合
+    /// @param entities aggregate roots
     void addAll(Collection<T> entities);
 
-    /// 批量修改聚合集合中已存在的元素。
+    /// Modifies multiple existing aggregates in the aggregate set.
     /// <p>
-    /// 批量语义：逐个调用 {@link #modify} 顺序执行。<b>本方法不提供事务边界</b>——
-    /// 部分失败时已完成的写入不会回滚。任一元素受影响行数为 0 时抛出 {@link IllegalStateException}。
-    /// 如需原子性，请在应用层显式管理事务。
+    /// Batch semantics are sequential calls to {@link #modify}. <b>This method
+    /// does not provide a transaction boundary</b>; completed writes are not
+    /// rolled back when a later item fails. Any item with zero affected rows
+    /// should cause {@link IllegalStateException}. Manage transactions explicitly
+    /// in the application layer when atomicity is required.
     ///
-    /// @param entities 聚合根集合
+    /// @param entities aggregate roots
     void modifyAll(Collection<T> entities);
 
-    /// 移除聚合。
+    /// Removes an aggregate.
     /// <p>
-    /// 这是业务物理删除(或基于 @TableLogic 的逻辑删除)的推荐入口。调用方应先加载聚合根,并通过聚合业务方法表达删除语义、维护不变量和记录领域事件。
-    /// Repository 只负责持久化移除。受影响行数为 0 时(即聚合不存在)抛出 {@link IllegalStateException},防御"删除了不存在对象"的沉默失败。
-    /// 删除成功后移交聚合根中已经记录的领域事件,并立即清空。
+    /// This is the recommended entry point for business deletion, either physical
+    /// deletion or logical deletion through persistence-specific mechanisms. The
+    /// caller should load the aggregate first and express deletion semantics,
+    /// invariant checks, and domain event recording through aggregate behavior.
+    /// The repository only persists removal. Zero affected rows should cause
+    /// {@link IllegalStateException}. After success, recorded domain events are
+    /// handed off and cleared immediately.
     ///
-    /// @param entity 聚合根
+    /// @param entity aggregate root
     void remove(T entity);
 }

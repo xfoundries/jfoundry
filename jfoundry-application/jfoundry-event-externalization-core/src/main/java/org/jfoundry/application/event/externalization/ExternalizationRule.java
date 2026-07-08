@@ -1,7 +1,7 @@
 package org.jfoundry.application.event.externalization;
 
-/// 外部化规则解析结果。
-/// @param topic      目标 topic
-/// @param payloadKey routing key（可能为 null）
+/// Resolved externalization rule.
+/// @param topic target topic
+/// @param payloadKey routing key, possibly null
 public record ExternalizationRule(String topic, String payloadKey) {
 }

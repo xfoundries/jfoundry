@@ -1,21 +1,23 @@
 package org.jfoundry.domain.valueobject;
 
-/// 领域层值对象标记接口。
+/// Marker interface for domain-layer value objects.
 /// <p>
-/// 业务值对象实现此接口即获得：
+/// Business value objects implementing this interface receive:
 /// <ul>
-///   <li>jmolecules {@code ValueObject} 类型语义（可被 jmolecules 生态工具识别）</li>
-///   <li>框架 ArchUnit 规则保护（强制不可变、强制 equals/hashCode，见 {@code ValueObjectRules}）</li>
+///   <li>jMolecules {@code ValueObject} type semantics recognized by jMolecules tooling</li>
+///   <li>framework ArchUnit rule protection for immutability and equals/hashCode</li>
 /// </ul>
 /// <p>
-/// 推荐使用 Java 21 {@code record} 作为实现载体——record 天生满足不可变和 equals/hashCode 契约。
-/// 若使用 class 实现，必须：
+/// Java 21 {@code record} types are recommended because records naturally
+/// satisfy immutability and equals/hashCode contracts. Class implementations
+/// must:
 /// <ul>
-///   <li>声明为 {@code final}</li>
-///   <li>所有字段 {@code final}</li>
-///   <li>重写 {@code equals} / {@code hashCode}</li>
+///   <li>be declared {@code final}</li>
+///   <li>declare all fields as {@code final}</li>
+///   <li>override {@code equals} and {@code hashCode}</li>
 /// </ul>
 /// <p>
-/// 本接口不添加任何方法——它是纯标记接口，仅用于类型擦除后的业务可见性。
+/// This interface adds no methods. It is a pure marker interface used for
+/// business-visible typing after type erasure.
 public interface ValueObject extends org.jmolecules.ddd.types.ValueObject {
 }

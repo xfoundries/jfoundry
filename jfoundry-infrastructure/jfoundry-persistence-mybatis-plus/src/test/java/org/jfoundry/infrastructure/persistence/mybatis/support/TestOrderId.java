@@ -4,7 +4,7 @@ import org.jmolecules.ddd.types.Identifier;
 
 import java.io.Serializable;
 
-/// 测试用聚合根 ID(强类型 Identifier)。
+/// Test aggregate root ID using a strongly typed Identifier.
 public record TestOrderId(String value) implements Identifier, Serializable {
 
     @Override

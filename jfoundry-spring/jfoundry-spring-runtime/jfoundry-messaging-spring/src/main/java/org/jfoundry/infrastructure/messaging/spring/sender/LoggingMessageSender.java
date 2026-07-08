@@ -5,11 +5,12 @@ import org.jfoundry.application.messaging.SendResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// MessageSender fallback 实现：仅打日志，不真正发送。
+/// MessageSender fallback implementation that only logs messages and does not perform delivery.
 /// <p>
-/// 业务方在 starter 中通过 {@code @ConditionalOnMissingBean(MessageSender.class)} 兜底注册；
-/// 业务方覆盖此 Bean 即接入真实 MQ。由于它不会进行外部投递，发送结果必须失败，
-/// 避免 Outbox dispatcher 将消息误标记为已发布。
+/// Starters register this as a fallback through {@code @ConditionalOnMissingBean(MessageSender.class)}.
+/// Applications should override this bean to integrate a real message broker. Because this sender
+/// does not deliver externally, it must return a failed result so the Outbox dispatcher does not mark
+/// messages as published by mistake.
 public class LoggingMessageSender implements MessageSender {
 
     private static final Logger log = LoggerFactory.getLogger(LoggingMessageSender.class);

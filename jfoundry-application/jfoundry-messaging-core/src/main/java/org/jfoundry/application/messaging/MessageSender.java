@@ -1,11 +1,11 @@
 package org.jfoundry.application.messaging;
 
-/// MQ 发送抽象。业务侧提供具体实现（Kafka/RabbitMQ 等）。
+/// Outbound message sending abstraction.
 public interface MessageSender {
 
-    /// @param topic      目标 topic（来自 @MessageRouting 或 @Externalized.value）
-    /// @param payloadKey routing key（可能为 null，由具体 MQ 实现决定是否使用）
-    /// @param payload    序列化后的 JSON 字符串
-    /// @return 发送结果
+    /// @param topic target topic, usually from {@code @MessageRouting} or {@code @Externalized.value}
+    /// @param payloadKey routing key, possibly null; concrete adapters decide whether to use it
+    /// @param payload serialized payload string
+    /// @return send result
     SendResult send(String topic, String payloadKey, String payload);
 }

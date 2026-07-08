@@ -5,9 +5,9 @@ import org.jmolecules.event.types.DomainEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-/// 捕获聚合事件的测试工具。
+/// Test utility for capturing aggregate events.
 /// <p>
-/// 与 DomainEventDispatcherStub 配合使用，断言事件是否被移交和分发。
+/// Used with {@link DomainEventDispatcherStub} to assert whether events were handed off and dispatched.
 public class DomainEventCapture {
 
     private final List<DomainEvent> captured = new ArrayList<>();

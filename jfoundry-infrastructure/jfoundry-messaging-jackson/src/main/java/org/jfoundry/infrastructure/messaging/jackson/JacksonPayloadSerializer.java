@@ -9,12 +9,12 @@ import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.jfoundry.application.messaging.PayloadSerializer;
 
-/// Outbox payload 默认序列化器（Jackson + JSR-310）。
+/// Default Outbox payload serializer based on Jackson and JSR-310.
 /// <p>
-/// 激活 {@code WRITE_DATES_AS_TIMESTAMPS=false} 以输出 ISO-8601 字符串；
-/// 启用 default typing {@code @class} 字段，便于反序列化时还原具体事件类型。
+/// Disables {@code WRITE_DATES_AS_TIMESTAMPS} to emit ISO-8601 strings and enables default typing
+/// with the {@code @class} property so deserialization can restore concrete event types.
 /// <p>
-/// 业务侧需要替换序列化实现时，注册自己的 {@link PayloadSerializer} Bean 覆盖默认即可。
+/// Applications can replace serialization by registering their own {@link PayloadSerializer} bean.
 public class JacksonPayloadSerializer implements PayloadSerializer {
 
     private final ObjectMapper objectMapper;

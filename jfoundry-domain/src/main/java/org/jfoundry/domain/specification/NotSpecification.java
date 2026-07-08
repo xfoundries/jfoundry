@@ -2,12 +2,12 @@ package org.jfoundry.domain.specification;
 
 import java.util.Objects;
 
-/// 非运算领域规约。
+/// Negation specification.
 /// <p>
-/// 领域规约取反。
+/// Negates another specification.
 ///
-/// @param specification 被取反的领域规约
-/// @param <T> 候选对象类型
+/// @param specification specification to negate
+/// @param <T> candidate type
 public record NotSpecification<T>(Specification<T> specification) implements Specification<T> {
 
     public NotSpecification {

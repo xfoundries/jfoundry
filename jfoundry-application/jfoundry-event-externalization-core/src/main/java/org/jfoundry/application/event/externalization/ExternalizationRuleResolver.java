@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-/// 解析领域事件的外部化规则：
+/// Resolves externalization rules for domain events:
 /// <ol>
-///   <li>类上有 {@link MessageRouting} → 使用其 {@code topic()}（最高优先级）。</li>
-///   <li>类上无 {@code @MessageRouting}，有 {@link Externalized} 且 {@code value()} 非空 → 使用 {@code value()}。</li>
-///   <li>类上无 {@code @MessageRouting}，{@code @Externalized.value()} 为空 → fail-fast。</li>
-///   <li>类上无 {@code @Externalized} → 返回空 {@code Optional}。</li>
+///   <li>{@link MessageRouting} on the event class wins and provides {@code topic()}.</li>
+///   <li>Without {@code @MessageRouting}, non-empty {@link Externalized#value()} provides the topic.</li>
+///   <li>Without {@code @MessageRouting}, an empty {@code @Externalized.value()} fails fast.</li>
+///   <li>Without {@code @Externalized}, this resolver returns an empty {@code Optional}.</li>
 /// </ol>
 public class ExternalizationRuleResolver {
 
@@ -27,8 +27,8 @@ public class ExternalizationRuleResolver {
         ResolvedMetadata metadata = cache.computeIfAbsent(eventType, this::computeMetadata);
         if (!metadata.externalized()) {
             if (metadata.routingOnly()) {
-                log.warn("类 {} 标记了 @MessageRouting 但未标记 @Externalized，事件将不参与外部化。"
-                        + "若需外部化，请同时标注 @Externalized。", eventType.getName());
+                log.warn("Class {} is annotated with @MessageRouting but not @Externalized; the event will not be externalized. "
+                        + "Add @Externalized as well when externalization is required.", eventType.getName());
             }
             return Optional.empty();
         }
@@ -53,8 +53,8 @@ public class ExternalizationRuleResolver {
             String externalizedValue = externalized.value();
             if (externalizedValue == null || externalizedValue.isEmpty()) {
                 throw new IllegalStateException(
-                        "事件类 " + eventType.getName() + " 标记了 @Externalized 但未指定 topic，"
-                                + "请使用 @MessageRouting(topic = ...) 或 @Externalized(\"<topic>\") 显式指定 topic。");
+                        "Event class " + eventType.getName() + " is annotated with @Externalized but does not specify a topic. "
+                                + "Use @MessageRouting(topic = ...) or @Externalized(\"<topic>\") to specify one explicitly.");
             }
             topic = externalizedValue;
         }
@@ -74,7 +74,7 @@ public class ExternalizationRuleResolver {
             Object value = PropertyPathReader.read(event, keyPath);
             return value == null ? null : value.toString();
         } catch (Exception e) {
-            log.warn("事件 {} 的 @MessageRouting.key 属性路径解析失败，降级 payloadKey=null。原因：{}",
+            log.warn("Failed to resolve @MessageRouting.key property path for event {}; payloadKey falls back to null. Cause: {}",
                     event.getClass().getName(), e.getMessage());
             return null;
         }

@@ -7,10 +7,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 
-/// MessageSender 默认实现的自动配置。
+/// Auto-configuration for the default MessageSender implementation.
 /// <p>
-/// 当业务侧未提供 MessageSender Bean 时，注册 LoggingMessageSender 作为默认实现。
-/// LoggingMessageSender 只记录消息并返回失败结果，避免 Outbox 将未外部投递的消息标记为成功。
+/// Registers LoggingMessageSender as the default implementation when the application has not
+/// provided a MessageSender bean. LoggingMessageSender only logs messages and returns failures, so
+/// Outbox does not mark externally undelivered messages as successful.
 @AutoConfiguration
 @ConditionalOnClass({MessageSender.class, LoggingMessageSender.class})
 public class MessageSenderAutoConfiguration {

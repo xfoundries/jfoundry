@@ -11,44 +11,51 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
-/// 持久化层架构规则集合。
+/// Architecture rules for persistence adapters.
 /// <p>
-/// 强制执行 spec Section 6.3 的约束：事务边界属于应用层，持久化层零 {@code @Transactional}。
+/// Enforces the spec Section 6.3 constraint that transaction boundaries belong to the application
+/// layer and persistence adapters must not use {@code @Transactional}.
 public final class PersistenceRules {
 
     private PersistenceRules() {
     }
 
-    /// 持久化实现包下零 {@code @Transactional}（类级别和方法级别都禁）。
+    /// Persistence implementation packages must not use {@code @Transactional} at class or method level.
     /// <p>
-    /// P1-3 修复的防护网：防止 javadoc 修对后，未来有人误把 @Transactional 加到 Repository 实现上。
+    /// Guardrail for the P1-3 fix: prevents future accidental {@code @Transactional} annotations on
+    /// repository implementations after the Javadoc contract was corrected.
     /// <p>
-    /// ArchUnit 1.4.2 没有 {@code haveMethodsAnnotatedWith} API，因此用自定义 {@link ArchCondition}
-    /// 同时检查类级别和方法级别的 {@code @Transactional}（含元注解）。
+    /// ArchUnit 1.4.2 has no {@code haveMethodsAnnotatedWith} API, so this rule uses a custom
+    /// {@link ArchCondition} to check both class-level and method-level {@code @Transactional}
+    /// annotations, including meta-annotations.
     /// <p>
-    /// {@code allowEmptyShould(true)}：本规则由框架分发，业务代码可能在尚未引入 persistence
-    /// 实现或 autoconfig 模块时引用；ArchUnit 默认对空 should 报错是为捕获本地规则拼写错误，
-    /// 但库规则需要支持「尚未应用」的合法场景（与 {@link ValueObjectRules} 同样的处理方式，
-    /// 详见 Task 3.3 review 结论）。
+    /// {@code allowEmptyShould(true)} is required because this rule is distributed by the framework
+    /// and applications may reference it before adding persistence implementations or
+    /// auto-configuration modules. Empty matches should pass vacuously for reusable library rules,
+    /// matching {@link ValueObjectRules}.
     public static final ArchRule persistence_repository_must_not_use_transactional =
             noClasses()
                     .that().resideInAPackage("..infrastructure.persistence..")
                     .should(haveTransactionalAtClassOrMethodLevel())
                     .allowEmptyShould(true)
-                    .because("事务边界属于应用层；持久化层 @Transactional 是 P1-3 修复的契约漂移信号");
+                    .because("Transaction boundaries belong to the application layer; "
+                            + "persistence-layer @Transactional usage indicates contract drift from the P1-3 fix");
 
-    /// autoconfig 模块禁止使用 {@code @Component}（P1-1 防护网）。
+    /// Auto-configuration modules must not use {@code @Component}.
     /// <p>
-    /// autoconfig 类应该用 {@code @AutoConfiguration} + {@code @Bean}，不允许 {@code @ComponentScan}。
+    /// Auto-configuration classes should use {@code @AutoConfiguration} and {@code @Bean}; they
+    /// should not rely on component scanning.
     /// <p>
-    /// {@code allowEmptyShould(true)}：本规则由框架分发，业务代码可能在尚未引入 autoconfig
-    /// 模块时引用；空匹配应视为 vacuously pass（与 {@link ValueObjectRules} 同样的处理方式）。
+    /// {@code allowEmptyShould(true)} is required because this rule is distributed by the framework
+    /// and applications may reference it before adding auto-configuration modules. Empty matches
+    /// should pass vacuously, matching {@link ValueObjectRules}.
     public static final ArchRule autoconfig_must_not_use_component =
             noClasses()
                     .that().resideInAPackage("..autoconfigure..")
                     .should(beAnnotatedWithOrMetaAnnotatedWith(Component.class))
                     .allowEmptyShould(true)
-                    .because("autoconfig 模块应使用 @AutoConfiguration + @Bean，禁止 @Component/@ComponentScan (P1-1)");
+                    .because("Auto-configuration modules should use @AutoConfiguration and @Bean; "
+                            + "@Component/@ComponentScan usage is forbidden (P1-1)");
 
     private static ArchCondition<JavaClass> haveTransactionalAtClassOrMethodLevel() {
         return new ArchCondition<JavaClass>("be annotated with @Transactional at class or method level") {

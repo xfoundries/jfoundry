@@ -30,7 +30,7 @@ public class AggregateRoutingResolver {
             return Optional.of(new AggregateRoutingMetadata(
                     metadata.aggregateType(), aggregateId.toString(), aggregateVersion));
         } catch (Exception e) {
-            log.warn("事件 {} 的 @AggregateRouting 属性路径解析失败，降级 aggregate metadata 为空。原因：{}",
+            log.warn("Failed to resolve @AggregateRouting property path for event {}; aggregate metadata is empty. Cause: {}",
                     eventType.getName(), e.getMessage());
             return Optional.empty();
         }

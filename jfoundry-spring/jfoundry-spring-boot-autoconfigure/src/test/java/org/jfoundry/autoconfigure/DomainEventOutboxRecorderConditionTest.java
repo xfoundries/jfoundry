@@ -23,8 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// the framework default outbox recorder explicitly.
 /// <p>
 /// TestApp provides an ObjectMapper bean so DomainEventOutboxRecorderAutoConfiguration's
-/// payloadSerializer（@ConditionalOnBean(ObjectMapper.class)）能正常注册，
-/// 让 DomainEventOutboxRecorder 的依赖链完整。
+/// payloadSerializer can be registered normally through @ConditionalOnBean(ObjectMapper.class),
+/// completing the DomainEventOutboxRecorder dependency chain.
 @SpringBootTest(classes = {
         DomainEventOutboxRecorderConditionTest.TestApp.class,
         DomainEventOutboxRecorderConditionTest.WithCustomOutboxRecorder.class

@@ -3,13 +3,15 @@ package org.jfoundry.infrastructure.persistence;
 import java.io.Serializable;
 import java.util.Objects;
 
-/// 聚合根持久化数据对象基类。
+/// Base class for aggregate root persistence data objects.
 /// <p>
-/// 该类型用于领域聚合仓储链路中的持久化映射对象。ID 泛型代表持久化层主键类型，
-/// 通常是数据库和持久化框架天然支持的 {@link String}、{@link Long}、{@link java.util.UUID} 等类型。
-/// 领域聚合根可以继续使用 jMolecules Identifier 强类型 ID，由 DataConverter 在仓储边界完成转换。
+/// This type represents persistence mapping objects used by the domain aggregate repository path.
+/// The ID generic parameter is the persistence-layer primary-key type, typically a type natively
+/// supported by databases and persistence frameworks such as {@link String}, {@link Long}, or
+/// {@link java.util.UUID}. Domain aggregate roots may still use strongly typed jMolecules
+/// identifiers; {@link DataConverter} performs the conversion at the repository boundary.
 ///
-/// @param <ID> 持久化标识符类型，必须可序列化
+/// @param <ID> persistence identifier type, which must be serializable
 public abstract class AggregateData<ID extends Serializable> {
 
     private ID id;
@@ -22,11 +24,12 @@ public abstract class AggregateData<ID extends Serializable> {
         this.id = id;
     }
 
-    /// hashCode 与 equals 基于 ID 判断。
+    /// hashCode and equals are based on the ID.
     /// <p>
-    /// ID 为 null 时（未持久化的新建对象），hashCode 回退到对象身份哈希，
-    /// equals 拒绝返回 true，避免两个不同的新建对象被 HashSet/HashMap 折叠。
-    /// 这是 JPA/Hibernate {@code AbstractPersistable} 的标准做法。
+    /// When the ID is null for a new, non-persisted object, hashCode falls back to the object
+    /// identity hash and equals refuses to return true. This prevents distinct new objects from
+    /// collapsing into one entry in HashSet/HashMap. This follows the standard approach used by
+    /// JPA/Hibernate {@code AbstractPersistable}.
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : System.identityHashCode(this);

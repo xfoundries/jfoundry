@@ -6,21 +6,24 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-/// 领域事件基类。
+/// Base class for domain events.
 /// <p>
-/// 业务事件继承此类即获得 occurredAt（事件发生时间）和 eventId（事件唯一标识）元数据，
-/// 用于下游消费、审计追踪和幂等去重。
+/// Business events that extend this class receive {@code occurredAt} and
+/// {@code eventId} metadata for downstream consumption, audit tracing, and
+/// idempotency.
 /// <p>
-/// 本类为不可变：occurredAt 和 eventId 均为 final 字段，子类业务字段亦应声明为 final。
+/// This class is immutable: {@code occurredAt} and {@code eventId} are final
+/// fields, and subclass business fields should also be final.
 /// <p>
-/// 幂等去重的权威键是 {@link #getEventId()}：消费方应基于 eventId 而非对象身份判断重复。
-/// 本类的 equals/hashCode 同样基于 eventId，便于在 Set/Map 等集合场景做去重。
+/// The authoritative idempotency key is {@link #getEventId()}; consumers should
+/// deduplicate by event id instead of object identity. This class also bases
+/// equals/hashCode on {@code eventId}, which makes Set/Map deduplication stable.
 public abstract class AbstractDomainEvent implements DomainEvent {
 
-    /// 事件发生时间。
+    /// Time when the event occurred.
     private final Instant occurredAt;
 
-    /// 事件唯一标识。
+    /// Unique event identifier.
     private final UUID eventId;
 
     protected AbstractDomainEvent() {

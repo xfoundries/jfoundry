@@ -4,23 +4,24 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.time.Duration;
 
-/// Outbox DISPATCHING 恢复任务配置。
+/// Outbox DISPATCHING recovery job configuration.
 /// <p>
 /// Prefix: {@code jfoundry.outbox.recovery}
 /// <p>
-/// 场景：pod 在 DISPATCHING 中途崩溃 / kill -9，记录残留在 DISPATCHING 状态。
-/// {@link OutboxRecoveryJob} 按 {@link #stuckTimeout} 阈值周期性回滚。
+/// Scenario: a pod may crash or be killed while rows are in DISPATCHING, leaving records stuck in
+/// that state. {@link OutboxRecoveryJob} periodically rolls them back according to
+/// {@link #stuckTimeout}.
 @ConfigurationProperties(prefix = "jfoundry.outbox.recovery")
 public class OutboxRecoveryProperties {
 
-    /// 恢复任务执行间隔。默认 60s。
+    /// Recovery job interval. Defaults to 60s.
     /// <p>
-    /// 绑定 {@code jfoundry.outbox.recovery.interval}（{@code @Scheduled} 读取）。
+    /// Binds {@code jfoundry.outbox.recovery.interval}, which is read by {@code @Scheduled}.
     private Duration interval = Duration.ofSeconds(60);
 
-    /// DISPATCHING 卡住阈值。默认 5min。
+    /// DISPATCHING stuck threshold. Defaults to 5min.
     /// <p>
-    /// claimedAt 早于 {@code now - stuckTimeout} 的记录被回滚为 PENDING。
+    /// Records with claimedAt earlier than {@code now - stuckTimeout} are rolled back to PENDING.
     private Duration stuckTimeout = Duration.ofMinutes(5);
 
     public Duration getInterval() { return interval; }

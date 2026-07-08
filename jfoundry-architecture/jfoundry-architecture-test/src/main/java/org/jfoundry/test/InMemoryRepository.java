@@ -11,18 +11,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/// 内存仓储,业务测试时复用。
+/// In-memory repository for application tests.
 /// <p>
-/// 用 {@link HashMap} 模拟聚合集合,提供 {@link #add} / {@link #modify} / {@link #remove} 集合三件套,
-/// 事件移交语义与 {@code MybatisPlusRepository} 保持一致(移交后立即 clearEvents)。
+/// Uses a {@link HashMap} to simulate an aggregate collection and provides the {@link #add},
+/// {@link #modify}, and {@link #remove} collection operations. Event handoff semantics match
+/// {@code MybatisPlusRepository}: events are cleared immediately after handoff.
 /// <p>
-/// 防御契约与持久化实现一致:
-/// - {@link #add}:重复 add 同一 ID 抛 {@link IllegalStateException}(模拟主键冲突)
-/// - {@link #modify}:集合中不存在该 ID 抛 {@link IllegalStateException}(模拟"修改了不存在对象")
-/// - {@link #remove}:集合中不存在该 ID 抛 {@link IllegalStateException}(模拟"删除了不存在对象")
+/// Defensive contracts match the persistence implementation:
+/// - {@link #add}: adding the same ID twice throws {@link IllegalStateException}, simulating a
+///   primary-key conflict.
+/// - {@link #modify}: modifying an ID that is not present throws {@link IllegalStateException}.
+/// - {@link #remove}: removing an ID that is not present throws {@link IllegalStateException}.
 ///
-/// @param <T>  聚合根类型
-/// @param <ID> 标识符类型
+/// @param <T>  aggregate root type
+/// @param <ID> identifier type
 public class InMemoryRepository<T extends AggregateRoot<T, ID> & EventRecordable, ID extends Identifier>
         implements AggregateRepository<T, ID> {
 

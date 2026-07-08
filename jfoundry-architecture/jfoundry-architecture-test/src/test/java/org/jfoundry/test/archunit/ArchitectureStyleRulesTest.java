@@ -9,7 +9,8 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/// 架构风格规则：同一分析范围应选择一种主架构风格，Hexagonal 与 Onion 互斥。
+/// Architecture style rule: one analyzed scope should choose one primary architecture style;
+/// Hexagonal and Onion are mutually exclusive.
 class ArchitectureStyleRulesTest {
 
     private final ClassFileImporter importer = new ClassFileImporter()

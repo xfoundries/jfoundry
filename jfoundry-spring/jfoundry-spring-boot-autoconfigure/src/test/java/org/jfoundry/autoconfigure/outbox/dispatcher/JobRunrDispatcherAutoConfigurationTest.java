@@ -21,15 +21,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/// P2-1 regression: {@link JobRunrDispatcherAutoConfiguration} 必须由
-/// jfoundry-spring-boot-autoconfigure 的 {@code META-INF/spring/...AutoConfiguration.imports} 注册，并在
-/// {@code mode=jobrunr} 时把 {@link JobRunrOutboxDispatcher} 注册为
-/// {@link OutboxDispatcher} bean。
+/// P2-1 regression: {@link JobRunrDispatcherAutoConfiguration} must be registered through
+/// jfoundry-spring-boot-autoconfigure's {@code META-INF/spring/...AutoConfiguration.imports}, and
+/// must register {@link JobRunrOutboxDispatcher} as the {@link OutboxDispatcher} bean when
+/// {@code mode=jobrunr}.
 /// <p>
-/// 用 {@link ApplicationContextRunner} + {@link AutoConfigurations#of} 而不是
-/// {@code @SpringBootTest}：避免触发 JobRunr 自带的 autoconfig
-/// ({@code BackgroundJobServer} / dashboard)，那些需要完整 DataSource 和
-/// schema 才能启动，与本测试无关。
+/// Uses {@link ApplicationContextRunner} + {@link AutoConfigurations#of} instead of
+/// {@code @SpringBootTest} to avoid triggering JobRunr's own auto-configuration
+/// ({@code BackgroundJobServer} / dashboard), which requires a full DataSource and schema and is
+/// unrelated to this test.
 class JobRunrDispatcherAutoConfigurationTest {
 
     private final ApplicationContextRunner runner =
@@ -85,14 +85,15 @@ class JobRunrDispatcherAutoConfigurationTest {
                     OutboxMessageStore repo = context.getBean(OutboxMessageStore.class);
                     when(repo.claimDispatchable(anyInt(), any())).thenReturn(List.of());
 
-                    // recurringDispatch 走构造函数注入的 batchSize 字段（@Job 入口），
-                    // 而不是 dispatch(int) 的入参 —— 这是 properties 注入实际起作用的路径。
+                    // recurringDispatch uses the batchSize field injected through the constructor
+                    // (@Job entrypoint), not the dispatch(int) argument. This is the actual path
+                    // where properties injection takes effect.
                     context.getBean(JobRunrOutboxDispatcher.class).recurringDispatch();
 
                     ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
                     verify(repo).claimDispatchable(captor.capture(), any());
                     assertThat(captor.getValue())
-                            .as("batchSize 必须来自 jfoundry.outbox.dispatcher.batchSize=20")
+                            .as("batchSize must come from jfoundry.outbox.dispatcher.batchSize=20")
                             .isEqualTo(20);
                 });
     }

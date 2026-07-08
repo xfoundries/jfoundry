@@ -11,26 +11,29 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-/// 持久化仓储抽象基类(模板方法模式)。
+/// Abstract base class for persistence repositories using the template method pattern.
 /// <p>
-/// 骨架逻辑:
-/// - 上下文登记:add/modify/addAll/modifyAll/remove 成功后向 DomainEventContext 注册聚合
-/// - 防御契约:modify/remove 受影响行数为 0 时抛 IllegalStateException,避免沉默失败
-/// - addAll/modifyAll 批量处理:逐个聚合登记上下文
+/// Skeleton behavior:
+/// - context registration: registers aggregates with DomainEventContext after add/modify/addAll/
+///   modifyAll/remove succeeds.
+/// - defensive contract: throws IllegalStateException when modify/remove affects 0 rows, avoiding
+///   silent failures.
+/// - batch handling: addAll/modifyAll register each aggregate with the context.
 /// <p>
-/// 子类需要实现的模板方法:
-/// - {@link #insertData}:单条新增
-/// - {@link #updateData}:单条更新,返回受影响行数
-/// - {@link #deleteDataById}:按 ID 删除,返回受影响行数
-/// - {@link #selectDataById}:按 ID 查询
+/// Template methods implemented by subclasses:
+/// - {@link #insertData}: insert one data object.
+/// - {@link #updateData}: update one data object and return affected row count.
+/// - {@link #deleteDataById}: delete by ID and return affected row count.
+/// - {@link #selectDataById}: select by ID.
 /// <p>
-/// 具体实现示例:{@code jfoundry-persistence-mybatis-plus} 模块的 {@code MybatisPlusRepository}(基于 MyBatis-Plus BaseMapper)。
-/// 未来可扩展 JPA / Mongo 等同位模块。
+/// Example implementation: {@code MybatisPlusRepository} in the {@code jfoundry-persistence-mybatis-plus}
+/// module, based on MyBatis-Plus {@code BaseMapper}. Sibling modules such as JPA or Mongo adapters can
+/// be added later.
 ///
-/// @param <T>  聚合根类型,必须同时是 jMolecules AggregateRoot 和 framework EventRecordable
-/// @param <ID> 领域标识符类型
-/// @param <D>  数据库实体类型
-/// @param <K>  持久化主键类型
+/// @param <T>  aggregate root type, which must be both a jMolecules AggregateRoot and a framework EventRecordable
+/// @param <ID> domain identifier type
+/// @param <D>  database entity type
+/// @param <K>  persistence primary-key type
 public abstract class AbstractPersistenceRepository<
         T extends AggregateRoot<T, ID> & EventRecordable,
         ID extends Identifier & Serializable,
@@ -54,19 +57,19 @@ public abstract class AbstractPersistenceRepository<
         this.domainEventContext = Objects.requireNonNull(domainEventContext, "DomainEventContext must not be null.");
     }
 
-    /// 子类实现的模板方法:单条新增。
+    /// Template method implemented by subclasses: insert one data object.
     protected abstract void insertData(D data);
 
-    /// 子类实现的模板方法:单条更新,返回受影响行数(用于 modify 校验沉默失败)。
+    /// Template method implemented by subclasses: update one data object and return affected row count.
     protected abstract long updateData(D data);
 
-    /// 子类实现的模板方法:按 ID 删除,返回受影响行数(用于 remove 校验沉默失败)。
+    /// Template method implemented by subclasses: delete by ID and return affected row count.
     protected abstract long deleteDataById(K id);
 
-    /// 子类实现的模板方法:按 ID 查询,返回 null 表示不存在。
+    /// Template method implemented by subclasses: select by ID, returning null when not found.
     protected abstract D selectDataById(K id);
 
-    /// 子类可访问的 converter(用于 findById 转换)。
+    /// Converter available to subclasses, for example when implementing findById variants.
     protected DataConverter<T, ID, D, K> converter() {
         return converter;
     }
@@ -166,7 +169,8 @@ public abstract class AbstractPersistenceRepository<
         }
     }
 
-    /// 持久化层只登记成功持久化的聚合，由应用层在用例边界统一提取并分发事件。
+    /// The persistence layer registers only successfully persisted aggregates; the application
+    /// layer extracts and dispatches events at the use-case boundary.
     private void registerAggregate(T entity) {
         if (domainEventContext == null) {
             return;

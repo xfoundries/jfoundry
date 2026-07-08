@@ -22,8 +22,8 @@ public class ScheduledOutboxDispatcher implements OutboxDispatcher {
         this(repository, messageSender, maxRetries, backoff, batchSize, OutboxRuntimeIds.generateClaimerId());
     }
 
-    /// 测试专用：允许注入 podId 以断言并发互斥行为。生产构造函数走
-    /// {@link OutboxRuntimeIds#generateClaimerId()}。
+    /// Test-only constructor that allows injecting a podId to assert concurrent mutual exclusion.
+    /// The production constructor uses {@link OutboxRuntimeIds#generateClaimerId()}.
     public ScheduledOutboxDispatcher(OutboxMessageStore repository,
                                      MessageSender messageSender,
                                      int maxRetries,

@@ -1,8 +1,8 @@
 package org.jfoundry.domain.specification;
 
-/// 永不满足领域规约。
+/// Specification that is never satisfied.
 ///
-/// @param <T> 候选对象类型
+/// @param <T> candidate type
 public final class NeverSpecification<T> implements Specification<T> {
 
     @Override

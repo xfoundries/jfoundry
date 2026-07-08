@@ -4,6 +4,6 @@ import org.jmolecules.event.types.DomainEvent;
 
 import java.time.Instant;
 
-/// 测试用领域事件:订单已创建。
+/// Test domain event for order creation.
 public record TestOrderCreatedEvent(String orderId, Instant occurredAt) implements DomainEvent {
 }

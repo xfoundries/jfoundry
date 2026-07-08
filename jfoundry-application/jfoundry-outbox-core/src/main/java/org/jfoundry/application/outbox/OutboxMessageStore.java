@@ -3,21 +3,22 @@ package org.jfoundry.application.outbox;
 import java.time.Instant;
 import java.util.List;
 
-/// Outbox 持久化 SPI。
+/// Outbox persistence SPI.
 /// <p>
-/// 实现侧契约（read-then-update 模式）：
+/// Implementation contract for the read-then-update mode:
 /// <ul>
 ///   <li>{@link #markAsPublished(String)} / {@link #markAsFailed(String, String, int, BackoffStrategy)}
-///       / {@link #reactivate(String)} 均为 load → mutate → save。entry 不存在时静默返回。</li>
-///   <li>{@link #reactivate(String)} 当 entry 非 DEAD_LETTERED 时由 {@link OutboxMessage#reactivate()}
-///       抛 {@link IllegalStateException}（fail-fast）。</li>
+///       / {@link #reactivate(String)} are load -> mutate -> save operations. Missing entries return silently.</li>
+///   <li>{@link #reactivate(String)} delegates non-DEAD_LETTERED failures to
+///       {@link OutboxMessage#reactivate()}, which throws {@link IllegalStateException}.</li>
 /// </ul>
-/// 多实例安全性：v1 不实现分布式锁，依赖消费端幂等（详见 spec §5.8）。
+/// Multi-instance safety does not rely on distributed locks; consumers should
+/// still remain idempotent.
 public interface OutboxMessageStore {
 
     void append(OutboxMessage entry);
 
-    /// 取出待 dispatch 的条目：
+    /// Finds dispatchable entries:
     /// <pre>
     /// status IN (PENDING, FAILED) AND (next_retry_at IS NULL OR next_retry_at <= now)
     /// ORDER BY occurredAt ASC
@@ -40,10 +41,11 @@ public interface OutboxMessageStore {
 
     void reactivate(String eventId);
 
-    /// 原子声明一批待派发事件（多实例安全）。
+    /// Atomically claims dispatchable events for multi-instance safe dispatch.
     /// <p>
-    /// 实现必须保证同一条记录不会被两个并发 claimer 同时返回。推荐实现方式是先分页选取
-    /// dispatchable 候选，再对每条候选执行 CAS update：
+    /// Implementations must ensure that the same record is not returned to two
+    /// concurrent claimers. The recommended implementation first pages
+    /// dispatchable candidates, then performs a CAS update for each candidate:
     /// <pre>
     /// UPDATE jfoundry_outbox_event
     ///   SET status = 'DISPATCHING', claimed_at = CURRENT_TIMESTAMP,
@@ -52,60 +54,69 @@ public interface OutboxMessageStore {
     ///     AND status = #{candidateStatus};
     /// </pre>
     /// <p>
-    /// CAS 成功的记录才允许出现在返回值中；CAS 失败说明其它 claimer 已抢走该记录，应跳过并
-    /// 继续补齐本批次。实现也可以使用数据库原生 top-N update/locking 语法，但对外语义必须一致。
+    /// Only records whose CAS update succeeds may appear in the return value.
+    /// CAS failure means another claimer already claimed the record, so the
+    /// implementation should skip it and keep filling the batch. Implementations
+    /// may use native top-N update or locking syntax, but the exposed semantics
+    /// must remain the same.
     /// <p>
-    /// 每次调用应生成唯一 {@code claimToken}（UUID 或等价随机标识）写入 {@code claim_token}
-    /// 列，便于诊断本批 claim，并让 {@link #markAsPublished(String, String)} /
-    /// {@link #markAsFailed(String, String, String, int, BackoffStrategy)} 能校验调用方仍持有
-    /// 该记录。token 在离开 DISPATCHING 状态时应被清空。
+    /// Each call should generate a unique {@code claimToken}, for example a UUID,
+    /// and write it to {@code claim_token}. This helps diagnose the claim batch
+    /// and lets {@link #markAsPublished(String, String)} /
+    /// {@link #markAsFailed(String, String, String, int, BackoffStrategy)} verify
+    /// that the caller still owns the record. The token should be cleared when
+    /// leaving DISPATCHING.
     /// <p>
-    /// 参数约束：
+    /// Parameter constraints:
     /// <ul>
-    ///   <li>{@code limit <= 0} 抛 {@link IllegalArgumentException}</li>
-    ///   <li>{@code claimerId} 为 null 或空白抛 {@link IllegalArgumentException}</li>
+    ///   <li>{@code limit <= 0} throws {@link IllegalArgumentException}</li>
+    ///   <li>null or blank {@code claimerId} throws {@link IllegalArgumentException}</li>
     /// </ul>
     List<OutboxMessage> claimDispatchable(int limit, String claimerId);
 
-    /// 恢复卡住的 DISPATCHING 记录：claimedAt 早于 {@code cutoff} 的记录回滚为 PENDING。
+    /// Recovers stuck DISPATCHING records whose {@code claimedAt} is before {@code cutoff}.
     /// <p>
-    /// 实现 SQL 形如（跨方言）：
+    /// Implementations typically use SQL similar to:
     /// <pre>
     /// UPDATE jfoundry_outbox_event
     ///   SET status = 'PENDING', claimed_at = NULL, claimed_by = NULL, claim_token = NULL
     ///   WHERE status = 'DISPATCHING' AND claimed_at &lt; #{cutoff};
     /// </pre>
     /// <p>
-    /// 场景：pod 在 DISPATCHING 中途崩溃 / kill -9，记录残留在 DISPATCHING 状态。
-    /// 周期性调用本方法（传入 {@code Instant.now().minus(stuckTimeout)}）即可回收。
+    /// This covers pods that crash while records remain DISPATCHING. Call this
+    /// periodically with {@code Instant.now().minus(stuckTimeout)} to recover
+    /// those records.
     /// <p>
-    /// 参数约束：
+    /// Parameter constraints:
     /// <ul>
-    ///   <li>{@code cutoff} 为 null 抛 {@link IllegalArgumentException}</li>
+    ///   <li>null {@code cutoff} throws {@link IllegalArgumentException}</li>
     /// </ul>
-    /// @param cutoff 截止时刻，claimedAt 严格早于该时刻的 DISPATCHING 记录被回滚
-    /// @return 回滚的记录数（0 表示没有卡住的记录）
+    /// @param cutoff cutoff instant; DISPATCHING records claimed strictly before it are recovered
+    /// @return number of recovered records, or 0 when no records are stuck
     int recoverStuckDispatching(Instant cutoff);
 
-    /// P2-5: 批量删除指定终态（PUBLISHED / DEAD_LETTERED）且 {@code occurredAt} 早于
-    /// {@code cutoff} 的记录，单批最多 {@code batchSize} 条。
+    /// Deletes terminal records in batches by status and occurrence time.
     /// <p>
-    /// 实现侧契约：每批最多删除 {@code batchSize} 条，并循环到候选耗尽。可以使用
-    /// selectPage + deleteByIds，也可以使用数据库原生批量删除语法；最终返回累计删除的记录总数。
+    /// Implementations delete at most {@code batchSize} records per batch and
+    /// loop until candidates are exhausted. They may use selectPage + deleteByIds
+    /// or native batch-delete syntax. The return value is the accumulated number
+    /// of deleted records.
     /// <p>
-    /// 场景：Outbox 表中 PUBLISHED / DEAD_LETTERED 记录堆积会拖慢 claim/dispatch 查询，
-    /// 周期性调用本方法（传入 {@code Instant.now().minus(retentionDays)}）即可按保留期清理。
-    /// 任务幂等——重复执行无副作用；失败不影响 Outbox 主链路。
+    /// This prevents PUBLISHED / DEAD_LETTERED records from accumulating and
+    /// slowing claim/dispatch queries. Call it periodically with
+    /// {@code Instant.now().minus(retentionDays)}. The operation is idempotent;
+    /// repeated runs have no side effects, and failures do not affect the main
+    /// Outbox path.
     /// <p>
-    /// 参数约束：
+    /// Parameter constraints:
     /// <ul>
-    ///   <li>{@code status} 为 null 抛 {@link IllegalArgumentException}</li>
-    ///   <li>{@code cutoff} 为 null 抛 {@link IllegalArgumentException}</li>
-    ///   <li>{@code batchSize &lt;= 0} 抛 {@link IllegalArgumentException}</li>
+    ///   <li>null {@code status} throws {@link IllegalArgumentException}</li>
+    ///   <li>null {@code cutoff} throws {@link IllegalArgumentException}</li>
+    ///   <li>{@code batchSize &lt;= 0} throws {@link IllegalArgumentException}</li>
     /// </ul>
-    /// @param status    目标终态（PUBLISHED / DEAD_LETTERED）
-    /// @param cutoff    截止时刻，occurredAt 严格早于该时刻的记录被删除
-    /// @param batchSize 单批最多删除的记录数（实现侧循环到删干净）
-    /// @return 累计删除的记录总数（0 表示没有匹配的记录）
+    /// @param status terminal status, PUBLISHED or DEAD_LETTERED
+    /// @param cutoff cutoff instant; records occurred strictly before it are deleted
+    /// @param batchSize maximum number of records deleted per batch
+    /// @return accumulated number of deleted records, or 0 when no records match
     int deleteByStatusAndOccurredAtBefore(OutboxMessageStatus status, Instant cutoff, int batchSize);
 }

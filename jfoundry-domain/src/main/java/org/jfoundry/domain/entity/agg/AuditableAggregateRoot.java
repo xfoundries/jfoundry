@@ -7,12 +7,14 @@ import org.jmolecules.ddd.types.Identifier;
 
 import java.time.LocalDateTime;
 
-/// 可审计的聚合根便利基类。
+/// Convenience base class for auditable aggregate roots.
 ///
-/// 该类提供固定审计字段。字段写入通过受保护方法和意图方法暴露给子类，业务代码不应把它当作通用数据对象 setter 使用。
+/// This class provides fixed audit fields. Field mutation is exposed to
+/// subclasses through protected intent methods; business code should not treat
+/// it as a generic data-object setter surface.
 ///
-/// @param <T>  聚合根本类型（self type，与 {@link BaseAggregateRoot} 对齐）
-/// @param <ID> 标识符类型
+/// @param <T> aggregate root self type aligned with {@link BaseAggregateRoot}
+/// @param <ID> identifier type
 /// @see BaseAggregateRoot
 /// @see AggregateRoot
 ///
@@ -20,32 +22,32 @@ public abstract class AuditableAggregateRoot<T extends AggregateRoot<T, ID>, ID 
         extends BaseAggregateRoot<T, ID>
         implements Auditable, Deletable {
 
-    /// 创建人ID
+    /// Creator id.
     private String creatorId;
 
-    /// 创建人姓名
+    /// Creator name.
     private String creatorName;
 
-    /// 创建时间
+    /// Creation time.
     private LocalDateTime createdTime;
 
-    /// 最后修改人ID
+    /// Last modifier id.
     private String lastModifierId;
 
-    /// 最后修改人姓名
+    /// Last modifier name.
     private String lastModifierName;
 
-    /// 最后修改时间
+    /// Last modification time.
     private LocalDateTime lastModifiedTime;
 
-    /// 是否已删除（软删除标记）
+    /// Soft-delete flag.
     private boolean deleted;
-    /// 删除时间
+    /// Deletion time.
     private LocalDateTime deletedTime;
-    /// 删除人ID
+    /// Deleter id.
     private String deleterId;
 
-    /// 删除人姓名
+    /// Deleter name.
     private String deleterName;
 
     public AuditableAggregateRoot(ID id) {
@@ -102,21 +104,21 @@ public abstract class AuditableAggregateRoot<T extends AggregateRoot<T, ID>, ID 
         return deleterName;
     }
 
-    /// 标记创建审计信息。
+    /// Marks creation audit metadata.
     protected void markCreated(String creatorId, String creatorName, LocalDateTime createdTime) {
         this.creatorId = creatorId;
         this.creatorName = creatorName;
         this.createdTime = createdTime;
     }
 
-    /// 标记修改审计信息。
+    /// Marks modification audit metadata.
     protected void markModified(String modifierId, String modifierName, LocalDateTime modifiedTime) {
         this.lastModifierId = modifierId;
         this.lastModifierName = modifierName;
         this.lastModifiedTime = modifiedTime;
     }
 
-    /// 标记软删除审计信息。
+    /// Marks soft-delete audit metadata.
     protected void markDeleted(String deleterId, String deleterName, LocalDateTime deletedTime) {
         this.deleted = true;
         this.deleterId = deleterId;
@@ -124,7 +126,7 @@ public abstract class AuditableAggregateRoot<T extends AggregateRoot<T, ID>, ID 
         this.deletedTime = deletedTime;
     }
 
-    /// 清除软删除审计信息。
+    /// Clears soft-delete audit metadata.
     protected void restore() {
         this.deleted = false;
         this.deleterId = null;

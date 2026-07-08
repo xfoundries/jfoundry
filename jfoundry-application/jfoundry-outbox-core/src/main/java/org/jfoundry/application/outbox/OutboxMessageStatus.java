@@ -1,13 +1,13 @@
 package org.jfoundry.application.outbox;
 
-/// Outbox 条目状态。
+/// Outbox entry status.
 /// <p>
-/// 状态流转：
+/// State transitions:
 /// <ul>
-///   <li>{@code PENDING} → {@code DISPATCHING}（原子 claim，多实例下互斥）→ {@code PUBLISHED}（成功终态）</li>
-///   <li>{@code DISPATCHING} → {@code FAILED}（派发失败）→ {@code DEAD_LETTERED}（重试耗尽，死信终态）</li>
-///   <li>{@code DISPATCHING} stuck → {@code PENDING}（recovery 任务回滚，见 P2-1）</li>
-///   <li>{@code DEAD_LETTERED} → {@code PENDING}（reactivate）</li>
+///   <li>{@code PENDING} -> {@code DISPATCHING} by atomic claim -> {@code PUBLISHED}</li>
+///   <li>{@code DISPATCHING} -> {@code FAILED} on delivery failure -> {@code DEAD_LETTERED}</li>
+///   <li>stuck {@code DISPATCHING} -> {@code PENDING} by recovery</li>
+///   <li>{@code DEAD_LETTERED} -> {@code PENDING} by reactivation</li>
 /// </ul>
 public enum OutboxMessageStatus {
     PENDING,

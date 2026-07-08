@@ -35,8 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// <p>
 /// Caveat 5 (brief): {@code OutboxMessage.newBuilder()} does not exist; the real factory is
 /// {@link OutboxMessage#newPending}. After {@code append}, the row is in PENDING, so we
-/// flip it to the target terminal state via standard {@code lambdaUpdate}（mapper 上的自定义
-/// SQL helper 已移除，所有 UPDATE 由 BaseMapper + Wrapper 完成）。
+/// flip it to the target terminal state via standard {@code lambdaUpdate}. Custom SQL helpers on the
+/// mapper were removed; all UPDATE operations are performed through BaseMapper + Wrapper.
 @SpringBootTest(classes = OutboxCleanupJobTest.TestApp.class)
 @TestPropertySource(properties = {
         "jfoundry.outbox.dispatcher.interval-ms=600000",
@@ -153,7 +153,7 @@ class OutboxCleanupJobTest {
     /// Helper: append a PENDING entry with the given occurredAt, then flip it to the target status.
     /// OutboxMessage.newPending is the only factory; status transitions via markPublished /
     /// markFailed are for the dispatcher path. For the cleanup test we bypass the state machine
-    /// and set status directly via {@code lambdaUpdate}（mapper 上的自定义 SQL helper 已移除）。
+    /// and set status directly via {@code lambdaUpdate}. Custom SQL helpers on the mapper were removed.
     private void seed(String id, OutboxMessageStatus status, Instant occurredAt) {
         OutboxMessage entry = OutboxMessage.newPending(
                 id, "test.event", null, "test.type", "{}", occurredAt);

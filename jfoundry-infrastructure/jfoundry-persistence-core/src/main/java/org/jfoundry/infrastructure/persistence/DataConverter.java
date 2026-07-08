@@ -6,31 +6,32 @@ import org.jmolecules.ddd.types.Identifier;
 import java.io.Serializable;
 import java.util.List;
 
-/// 数据转换器。
+/// Data converter.
 ///
-/// 在领域聚合根 (T) 与持久化数据对象 (D) 之间转换。
-/// 实现类只需提供单对象转换；批量转换基于单对象转换默认实现。
+/// Converts between domain aggregate roots (T) and persistence data objects (D).
+/// Implementations only need to provide single-object conversion; batch conversion is derived from
+/// those methods by default.
 ///
-/// @param <T>  聚合根类型
-/// @param <ID> 领域标识符类型
-/// @param <D>  数据对象类型
-/// @param <K>  持久化主键类型
+/// @param <T>  aggregate root type
+/// @param <ID> domain identifier type
+/// @param <D>  data object type
+/// @param <K>  persistence primary-key type
 public interface DataConverter<
         T extends AggregateRoot<T, ID>,
         ID extends Identifier & Serializable,
         D extends AggregateData<K>,
         K extends Serializable> {
 
-    /// 将聚合根转换为数据对象。
+    /// Converts an aggregate root to a data object.
     D toData(T entity);
 
-    /// 将数据对象转换为聚合根。
+    /// Converts a data object to an aggregate root.
     T toEntity(D data);
 
-    /// 将领域标识符转换为持久化标识符。
+    /// Converts a domain identifier to a persistence identifier.
     K toDataId(ID id);
 
-    /// 将聚合根列表转换为数据对象列表。
+    /// Converts aggregate roots to data objects.
     default List<D> toDataList(List<T> entities) {
         if (entities == null || entities.isEmpty()) {
             return List.of();
@@ -38,7 +39,7 @@ public interface DataConverter<
         return entities.stream().map(this::toData).toList();
     }
 
-    /// 将数据对象列表转换为聚合根列表。
+    /// Converts data objects to aggregate roots.
     default List<T> toEntityList(List<D> dataList) {
         if (dataList == null || dataList.isEmpty()) {
             return List.of();

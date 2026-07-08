@@ -2,10 +2,12 @@ package org.jfoundry.domain.entity;
 
 import java.time.LocalDateTime;
 
-/// 可审计能力。
+/// Capability for auditable domain objects.
 /// <p>
-/// 该接口只表达领域对象具备创建和修改审计信息，不强制对象继承固定字段基类。
-/// 使用非标准字段、外部审计组件或自定义持久化模型时，可以直接实现该接口。
+/// This interface only expresses creation and modification audit metadata. It
+/// does not force objects to inherit a fixed field base class. Implement this
+/// interface directly when using non-standard fields, external audit components,
+/// or custom persistence models.
 public interface Auditable {
 
     String getCreatorId();

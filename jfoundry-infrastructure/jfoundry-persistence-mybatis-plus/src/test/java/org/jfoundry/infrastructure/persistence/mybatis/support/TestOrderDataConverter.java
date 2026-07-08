@@ -2,7 +2,7 @@ package org.jfoundry.infrastructure.persistence.mybatis.support;
 
 import org.jfoundry.infrastructure.persistence.DataConverter;
 
-/// 测试用聚合根 ↔ Data 转换器。
+/// Test converter between aggregate roots and Data objects.
 public class TestOrderDataConverter implements DataConverter<TestOrder, TestOrderId, TestOrderData, String> {
 
     @Override

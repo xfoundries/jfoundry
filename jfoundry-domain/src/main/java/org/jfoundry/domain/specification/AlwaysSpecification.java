@@ -1,8 +1,8 @@
 package org.jfoundry.domain.specification;
 
-/// 恒满足领域规约。
+/// Specification that is always satisfied.
 ///
-/// @param <T> 候选对象类型
+/// @param <T> candidate type
 public final class AlwaysSpecification<T> implements Specification<T> {
 
     @Override

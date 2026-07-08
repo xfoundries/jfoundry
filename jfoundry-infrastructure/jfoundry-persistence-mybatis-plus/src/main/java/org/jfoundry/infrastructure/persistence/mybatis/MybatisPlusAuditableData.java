@@ -8,58 +8,61 @@ import org.jfoundry.infrastructure.persistence.AggregateData;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/// MyBatis Plus 可审计的数据类
-/// 继承自 AggregateData，添加审计相关字段
+/// Auditable MyBatis-Plus data base class.
+/// Extends AggregateData with auditing fields.
 /// <p>
-/// 这是 MyBatis-Plus 适配层提供的固定字段 convenience base class。非标准聚合字段模型可以直接继承 AggregateData，
-/// 并在领域对象上实现 Auditable/Deletable 能力接口。
+/// This is a fixed-field convenience base class provided by the MyBatis-Plus adapter. Non-standard
+/// aggregate field models can extend AggregateData directly and implement Auditable/Deletable
+/// capability interfaces on the domain object.
 /// <p>
-/// 主键字段 {@code id} 由父类 AggregateData 提供；MyBatis-Plus 默认按字段名 {@code id} 识别为主键，
-/// 因此无需在本类或父类上显式标注 {@code @TableId}。如需自定义主键策略（如 {@code IdType.AUTO}），
-/// 业务子类可重新声明字段并标注 {@code @TableId}。
+/// The primary-key field {@code id} is provided by the parent AggregateData. MyBatis-Plus recognizes
+/// a field named {@code id} as the primary key by default, so neither this class nor its parent needs
+/// an explicit {@code @TableId}. If a custom key strategy is required, such as {@code IdType.AUTO},
+/// application subclasses can redeclare the field and annotate it with {@code @TableId}.
 /// <p>
-/// hashCode / equals / toString 直接继承父类实现（基于 ID 判断），
-/// 与审计字段无关，避免两个未持久化对象因审计字段不同被错误折叠。
+/// hashCode, equals, and toString are inherited from the parent and are based on ID, not auditing
+/// fields, preventing distinct non-persisted objects from being folded together because of auditing
+/// field differences.
 ///
-/// @param <ID> 持久化标识符类型，必须可序列化
+/// @param <ID> persistence identifier type, which must be serializable
 public abstract class MybatisPlusAuditableData<ID extends Serializable> extends AggregateData<ID> {
 
-    /// 创建人ID
+    /// Creator ID.
     @TableField(fill = FieldFill.INSERT)
     private String creatorId;
 
-    /// 创建人姓名
+    /// Creator name.
     @TableField(fill = FieldFill.INSERT)
     private String creatorName;
 
-    /// 创建时间
+    /// Creation time.
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdTime;
 
-    /// 最后修改人ID
+    /// Last modifier ID.
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private String lastModifierId;
 
-    /// 最后修改人姓名
+    /// Last modifier name.
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private String lastModifierName;
 
-    /// 最后修改时间
+    /// Last modification time.
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime lastModifiedTime;
 
-    /// 是否已删除（软删除标记）
+    /// Soft-delete flag.
     @TableField(value = "is_deleted")
     @TableLogic
     private boolean deleted;
 
-    /// 删除时间
+    /// Deletion time.
     private LocalDateTime deletedTime;
 
-    /// 删除人ID
+    /// Deleter ID.
     private String deleterId;
 
-    /// 删除人姓名
+    /// Deleter name.
     private String deleterName;
 
     public String getCreatorId() {

@@ -106,8 +106,8 @@ class ClaimDispatchableConcurrencyTest {
                 .containsExactlyInAnyOrder("pending-1", "pending-2", "pending-3");
     }
 
-    /// P1-2 回归测试：claim 必须覆盖 retry-due FAILED（与 {@code findDispatchable} 候选集语义一致），
-    /// 否则切到 claim 模式后失败重试会饿死。
+    /// P1-2 regression: claim must include retry-due FAILED rows, matching {@code findDispatchable}
+    /// candidate semantics. Otherwise, failed retries starve after switching to claim mode.
     @Test
     void claimDispatchableAlsoTakesRetryDueFailed() {
         repository.append(pendingMessage("pending-1"));
@@ -189,12 +189,14 @@ class ClaimDispatchableConcurrencyTest {
                 eventId, "topic", null, "com.example.Foo", "{}", Instant.now());
     }
 
-    /// P3-2 regression: 同一 pod 重入 dispatch 时，回读必须按每次调用现生成的 claimToken
-    /// 精确匹配 —— 不能把前一批因 {@code markAsPublished}/{@code markAsFailed} 状态更新失败
-    /// （或 pod 在 send 循环中被重入）残留的 DISPATCHING 记录一起带走，否则会重复发送。
+    /// P3-2 regression: when the same pod re-enters dispatch, readback must match the claimToken
+    /// generated for the current call. It must not include DISPATCHING stragglers from a previous
+    /// batch caused by {@code markAsPublished}/{@code markAsFailed} status update failures or pod
+    /// re-entry during the send loop, because that would send them twice.
     /// <p>
-    /// 旧实现（按稳定 {@code claimed_by + DISPATCHING} 回读）会在第二批 claim 时重新读回
-    /// 第一批的 R1/R2，导致它们被发送两次。修复后两批的 eventId 集合严格不相交。
+    /// The previous implementation, which read back by stable {@code claimed_by + DISPATCHING},
+    /// would re-read R1/R2 from the first batch during the second claim, causing duplicate sends.
+    /// After the fix, the two batches' eventId sets are strictly disjoint.
     @Test
     void reentrantClaimOnSamePodDoesNotReReadPriorBatchStragglers() {
         // Seed R1, R2 as batch 1.
@@ -204,24 +206,24 @@ class ClaimDispatchableConcurrencyTest {
         assertThat(batch1).extracting(OutboxMessage::getEventId)
                 .containsExactlyInAnyOrder("batch1-1", "batch1-2");
 
-        // 模拟状态更新失败：batch1 的两条记录仍处 DISPATCHING（markAsPublished/markAsFailed
-        // 未被调用，或调用失败回滚），claimed_by 仍是 "pod-A"。
-        // 此时 pod A 同线程重入 dispatch，又 claim 了一批新记录。
+        // Simulate status update failure: the two batch1 records remain DISPATCHING because
+        // markAsPublished/markAsFailed was not called or rolled back, and claimed_by is still
+        // "pod-A". At this point, pod A re-enters dispatch in the same thread and claims a new batch.
         repository.append(pendingMessage("batch2-1"));
         repository.append(pendingMessage("batch2-2"));
         List<OutboxMessage> batch2 = repository.claimDispatchable(2, "pod-A");
 
-        // 关键断言：batch2 只能是 batch2-1 / batch2-2，不能重新带回 batch1 的两条记录。
+        // Key assertion: batch2 can only contain batch2-1 / batch2-2 and must not re-read batch1 rows.
         assertThat(batch2).extracting(OutboxMessage::getEventId)
                 .containsExactlyInAnyOrder("batch2-1", "batch2-2");
 
-        // 互斥性兜底：两批eventId 严格不相交。
+        // Mutual-exclusion guard: the two batches' eventIds must be strictly disjoint.
         Set<String> batch1Ids = new HashSet<>(batch1.stream().map(OutboxMessage::getEventId).toList());
         Set<String> batch2Ids = new HashSet<>(batch2.stream().map(OutboxMessage::getEventId).toList());
         Set<String> intersection = new HashSet<>(batch1Ids);
         intersection.retainAll(batch2Ids);
         assertThat(intersection)
-                .as("同 pod 重入 dispatch 不应回读前一批 DISPATCHING 残骸（P3-2 修复）")
+                .as("same-pod reentrant dispatch must not read back prior DISPATCHING stragglers (P3-2 fix)")
                 .isEmpty();
     }
 }

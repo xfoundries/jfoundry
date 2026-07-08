@@ -10,9 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/// 验证 {@link AggregateData} 的 equals/hashCode 契约。
+/// Verifies the equals/hashCode contract of {@link AggregateData}.
 /// <p>
-/// 重点回归：未持久化对象（id == null）不应被 HashSet/HashMap 折叠为同一个元素。
+/// Key regression: non-persisted objects with id == null must not be folded into one element by
+/// HashSet/HashMap.
 class AggregateDataIdentityTest {
 
     @Test
@@ -38,7 +39,7 @@ class AggregateDataIdentityTest {
         set.add(a);
         set.add(b);
 
-        assertEquals(2, set.size(), "两个未持久化对象应能共存于 HashSet");
+        assertEquals(2, set.size(), "Two non-persisted objects should coexist in HashSet");
     }
 
     @Test

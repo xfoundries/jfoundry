@@ -5,9 +5,10 @@ import org.jmolecules.event.types.DomainEvent;
 
 import java.util.List;
 
-/// DomainEventDispatcher 的测试替身。
+/// Test double for {@link DomainEventDispatcher}.
 /// <p>
-/// 不依赖 Spring 容器和事务同步，立即接收并转发给 DomainEventCapture。
+/// Does not depend on the Spring container or transaction synchronization; it receives events
+/// immediately and forwards them to {@link DomainEventCapture}.
 public class DomainEventDispatcherStub implements DomainEventDispatcher {
 
     private final DomainEventCapture capture;

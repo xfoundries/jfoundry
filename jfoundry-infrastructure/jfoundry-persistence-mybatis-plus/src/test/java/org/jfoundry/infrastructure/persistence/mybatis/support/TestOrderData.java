@@ -7,7 +7,7 @@ import org.jfoundry.infrastructure.persistence.AggregateData;
 
 import java.time.Instant;
 
-/// 测试用 Data 对象(MyBatis-Plus 表映射)。
+/// Test Data object for MyBatis-Plus table mapping.
 @TableName("test_order")
 public class TestOrderData extends AggregateData<String> {
 

@@ -8,12 +8,13 @@ import org.jfoundry.application.outbox.OutboxMessageStatus;
 
 import java.time.Instant;
 
-/// Outbox 表 MyBatis-Plus 持久化数据对象。
+/// MyBatis-Plus persistence data object for the Outbox table.
 /// <p>
-/// 与 SPI 层的 {@link OutboxMessage} 字段一一对应，但携带 MyBatis-Plus 注解
-/// （{@code @TableName("jfoundry_outbox_event")} + {@code @TableId(type = IdType.INPUT)}）。
-/// SPI 层不绑定任何 ORM；本类把 Outbox 字段固定为 MyBatis-Plus 的实体视图，
-/// 由 {@link MybatisPlusOutboxMessageStore} 负责 entry ↔ data 互转。
+/// Fields correspond one-to-one with SPI-level {@link OutboxMessage} fields, but this type carries
+/// MyBatis-Plus annotations ({@code @TableName("jfoundry_outbox_event")} and
+/// {@code @TableId(type = IdType.INPUT)}). The SPI layer is not bound to any ORM; this class fixes
+/// Outbox fields as a MyBatis-Plus entity view, and {@link MybatisPlusOutboxMessageStore} converts
+/// entry ↔ data at the boundary.
 @TableName("jfoundry_outbox_event")
 public class OutboxData {
 
@@ -34,11 +35,11 @@ public class OutboxData {
     private Instant nextRetryAt;
     private Instant createdAt;
     private Instant updatedAt;
-    /// P2-1: atomic claim columns — 与 OutboxMessage.claimedAt 对齐，由 Task 2.1 schema 增补。
+    /// P2-1: atomic claim column aligned with OutboxMessage.claimedAt, added by the Task 2.1 schema.
     private Instant claimedAt;
-    /// P2-1: claim 该条目的 pod 标识 — 与 OutboxMessage.claimedBy 对齐。
+    /// P2-1: pod identifier that claimed this entry, aligned with OutboxMessage.claimedBy.
     private String claimedBy;
-    /// P3-2: 本次 claimDispatchable 调用生成的唯一 token — 与 OutboxMessage.claimToken 对齐。
+    /// P3-2: unique token generated for this claimDispatchable call, aligned with OutboxMessage.claimToken.
     private String claimToken;
 
     public String getEventId() { return eventId; }
@@ -80,9 +81,10 @@ public class OutboxData {
     public String getClaimToken() { return claimToken; }
     public void setClaimToken(String claimToken) { this.claimToken = claimToken; }
 
-    /// SPI entry → MP data。
+    /// Converts an SPI entry to MP data.
     /// <p>
-    /// 状态字符串以 raw 形式复制（保留 OutboxMessageStatus.name() 字面量），由 SPI entry 自身维护一致性。
+    /// The status string is copied in raw form, preserving the OutboxMessageStatus.name() literal;
+    /// consistency is maintained by the SPI entry itself.
     public static OutboxData fromMessage(OutboxMessage entry) {
         OutboxData data = new OutboxData();
         data.eventId = entry.getEventId();
@@ -108,7 +110,7 @@ public class OutboxData {
         return data;
     }
 
-    /// MP data → SPI entry。
+    /// Converts MP data to an SPI entry.
     public static OutboxMessage toMessage(OutboxData data) {
         OutboxMessage entry = new OutboxMessage();
         entry.setEventId(data.eventId);

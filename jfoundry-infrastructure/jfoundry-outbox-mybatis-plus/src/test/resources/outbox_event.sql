@@ -20,7 +20,7 @@ CREATE TABLE jfoundry_outbox_event (
     -- P2-1: atomic claim columns (DISPATCHING state)
     claimed_at      TIMESTAMP,
     claimed_by      VARCHAR(100),
-    -- P3-2: 每次 claimDispatchable 调用生成的唯一 token；回读时按 token 精确匹配。
+    -- P3-2: unique token generated for each claimDispatchable call; readback matches by token exactly.
     claim_token     VARCHAR(36),
     PRIMARY KEY (event_id)
 );

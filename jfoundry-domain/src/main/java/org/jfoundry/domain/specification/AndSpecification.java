@@ -2,13 +2,13 @@ package org.jfoundry.domain.specification;
 
 import java.util.Objects;
 
-/// 与运算领域规约。
+/// Conjunction specification.
 /// <p>
-/// 两个领域规约都满足时返回 true。
+/// Returns true when both specifications are satisfied.
 ///
-/// @param left 左侧领域规约
-/// @param right 右侧领域规约
-/// @param <T> 候选对象类型
+/// @param left left specification
+/// @param right right specification
+/// @param <T> candidate type
 public record AndSpecification<T>(
         Specification<T> left,
         Specification<T> right

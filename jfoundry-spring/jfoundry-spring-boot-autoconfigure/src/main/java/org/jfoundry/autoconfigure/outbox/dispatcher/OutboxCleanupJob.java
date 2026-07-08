@@ -10,21 +10,23 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.time.Duration;
 import java.time.Instant;
 
-/// P2-5: 周期性清理 Outbox 表中已进入终态（PUBLISHED / DEAD_LETTERED）且超过保留期的记录。
+/// P2-5: Periodically cleans Outbox records that are in terminal states (PUBLISHED / DEAD_LETTERED)
+/// and exceed their retention period.
 /// <p>
-/// 场景：Outbox 表中 PUBLISHED / DEAD_LETTERED 记录堆积会拖慢 claim/dispatch 查询，
-/// 本任务按 {@link OutboxCleanupProperties#getPublishedRetentionDays()} /
-/// {@link OutboxCleanupProperties#getDeadLetteredRetentionDays()} 周期性清理。
+/// Scenario: accumulated PUBLISHED / DEAD_LETTERED records in the Outbox table can slow down
+/// claim/dispatch queries. This job periodically cleans them according to
+/// {@link OutboxCleanupProperties#getPublishedRetentionDays()} and
+/// {@link OutboxCleanupProperties#getDeadLetteredRetentionDays()}.
 /// <p>
-/// 调度：{@code @Scheduled(fixedDelayString = "${jfoundry.outbox.cleanup.interval:86400000}")}，
-/// 默认 24h（86400000ms）。{@code jfoundry.outbox.cleanup.interval} 接受 Spring Boot 的
-/// Duration 字符串（如 {@code 24h}/{@code PT24H}/{@code 86400000}），由
-/// {@link OutboxCleanupProperties#getInterval()} 解析；placeholder 退出时必须以毫秒呈现，
-/// 否则 {@code @Scheduled} 的 {@code long} 解析会抛 {@link IllegalArgumentException}
-/// （例如字面量 {@code 24h} 在 Spring 6.x 会被 {@code Long.parseLong("24h")} 拒绝）。
+/// Scheduling: {@code @Scheduled(fixedDelayString = "${jfoundry.outbox.cleanup.interval:86400000}")},
+/// defaulting to 24h (86400000ms). {@code jfoundry.outbox.cleanup.interval} accepts Spring Boot
+/// Duration strings such as {@code 24h}, {@code PT24H}, or {@code 86400000}, parsed by
+/// {@link OutboxCleanupProperties#getInterval()}. The resolved placeholder must be rendered as
+/// milliseconds; otherwise {@code @Scheduled} long parsing throws {@link IllegalArgumentException},
+/// for example when Spring 6.x tries {@code Long.parseLong("24h")}.
 /// <p>
-/// 任务是幂等的——重复执行无副作用；失败不影响 Outbox 主链路（claim/dispatch 不依赖
-/// 已删除的终态记录）。
+/// The job is idempotent. Repeated execution has no side effects, and failures do not affect the
+/// main Outbox path because claim/dispatch does not depend on deleted terminal records.
 public class OutboxCleanupJob {
 
     private static final Logger log = LoggerFactory.getLogger(OutboxCleanupJob.class);
@@ -38,11 +40,12 @@ public class OutboxCleanupJob {
         this.properties = properties;
     }
 
-    /// 执行一次清理。返回本轮删除的记录总数（PUBLISHED + DEAD_LETTERED），便于测试断言与运维监控。
+    /// Executes one cleanup round and returns the total number of deleted records
+    /// (PUBLISHED + DEAD_LETTERED), supporting tests and operational monitoring.
     /// <p>
-    /// 当 {@link OutboxCleanupProperties#isEnabled()} 为 {@code false} 时直接返回 0，
-    /// 不访问 Repository——支持业务侧通过配置 {@code jfoundry.outbox.cleanup.enabled=false}
-    /// 完全关闭删除（例如运行只读副本时）。
+    /// When {@link OutboxCleanupProperties#isEnabled()} is {@code false}, returns 0 without touching
+    /// the repository. This allows applications to fully disable deletion through
+    /// {@code jfoundry.outbox.cleanup.enabled=false}, for example on read-only replicas.
     @Scheduled(fixedDelayString = "${jfoundry.outbox.cleanup.interval:86400000}")
     public int runOnce() {
         if (!properties.isEnabled()) {

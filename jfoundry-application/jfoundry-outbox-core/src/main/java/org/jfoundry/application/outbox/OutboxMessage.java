@@ -2,15 +2,18 @@ package org.jfoundry.application.outbox;
 
 import java.time.Instant;
 
-/// Outbox 表 SPI 数据对象 + 状态机方法。
+/// Outbox SPI data object plus state-machine methods.
 /// <p>
-/// 字段对应表 {@code jfoundry_outbox_event}，但本类不携带任何 ORM 注解 —— 具体的表名/主键策略
-/// 由各持久化实现自行建模（例如 jfoundry-persistence-mybatis-plus 模块的 {@code OutboxData}）。
+/// Fields correspond to {@code jfoundry_outbox_event}, but this class carries no
+/// ORM annotations. Concrete persistence implementations own table names,
+/// primary-key strategy, and storage mapping, for example {@code OutboxData} in
+/// the MyBatis-Plus adapter.
 /// <p>
-/// 状态流转（PENDING / DISPATCHING / FAILED / PUBLISHED / DEAD_LETTERED）由
+/// State transitions (PENDING / DISPATCHING / FAILED / PUBLISHED / DEAD_LETTERED)
+/// are encapsulated by
 /// {@link #markPublished()} / {@link #markFailed(String, int, BackoffStrategy)} /
-/// {@link #reactivate()} 封装；{@code DISPATCHING} 状态的进入/退出由 P2-1 的原子 claim
-/// 与 recovery 任务负责（见 {@code claimDispatchable}）。
+/// {@link #reactivate()}. Entering and leaving {@code DISPATCHING} is controlled
+/// by atomic claim and recovery operations, see {@code claimDispatchable}.
 public class OutboxMessage {
 
     private String eventId;
@@ -29,16 +32,17 @@ public class OutboxMessage {
     private Instant nextRetryAt;
     private Instant createdAt;
     private Instant updatedAt;
-    /// P2-1: 最近一次成功原子 claim 的时间，配合 {@code idx_outbox_claim (status, claimed_at)}
-    /// 用于 DISPATCHING stuck 检测与回滚。
+    /// Time of the latest successful atomic claim. Used with
+    /// {@code idx_outbox_claim (status, claimed_at)} to detect and recover stuck
+    /// DISPATCHING records.
     private Instant claimedAt;
-    /// P2-1: claim 该条目的 pod 标识（hostname + 短 UUID），用于诊断与多实例互斥。
+    /// Identifier of the pod that claimed this entry, usually hostname plus short UUID.
     private String claimedBy;
-    /// P3-2: 本次 claimDispatchable 调用生成的唯一 token（UUID）。
+    /// Unique token generated for the current {@code claimDispatchable} call.
     /// <p>
-    /// 回读时按 token 精确匹配本批 claim 的条目，避免按稳定 podId 回读时把前一批
-    /// 因状态更新失败而残留的 DISPATCHING 旧记录一起带走（重复发送的根因）。
-    /// 离开 DISPATCHING 状态时清空。
+    /// Read-back matches this token exactly so stale DISPATCHING records from a
+    /// previous batch, potentially left behind after a failed state update, are
+    /// not mixed into the current batch. Cleared when leaving DISPATCHING.
     private String claimToken;
 
     public static OutboxMessage newPending(String eventId, String topic, String payloadKey,
@@ -75,7 +79,7 @@ public class OutboxMessage {
         Instant now = Instant.now();
         this.status = OutboxMessageStatus.PUBLISHED.name();
         this.lastAttemptAt = now;
-        // Claim 结束：本条记录不再被任何 pod 持有，清空 claim 元数据。
+        // Claim finished: this record is no longer owned by any pod.
         this.claimedAt = null;
         this.claimedBy = null;
         this.claimToken = null;
@@ -96,8 +100,8 @@ public class OutboxMessage {
             this.status = OutboxMessageStatus.FAILED.name();
             this.nextRetryAt = now.plus(delay);
         }
-        // Claim 结束（DISPATCHING → FAILED / DEAD_LETTERED）：本条记录不再被任何 pod 持有，
-        // 清空 claim 元数据；下一次 retry 时由本 pod 或其它 pod 重新 claim。
+        // Claim finished (DISPATCHING -> FAILED / DEAD_LETTERED): the next retry
+        // will claim it again from this or another pod.
         this.claimedAt = null;
         this.claimedBy = null;
         this.claimToken = null;
@@ -107,14 +111,14 @@ public class OutboxMessage {
     public void reactivate() {
         if (!OutboxMessageStatus.DEAD_LETTERED.name().equals(this.status)) {
             throw new IllegalStateException(
-                    "reactivate 仅允许从 DEAD_LETTERED 状态转入 PENDING，当前状态: " + this.status);
+                    "reactivate is only allowed from DEAD_LETTERED to PENDING; current status: " + this.status);
         }
         Instant now = Instant.now();
         this.status = OutboxMessageStatus.PENDING.name();
         this.retryCount = 0;
         this.nextRetryAt = now;
         this.errorMessage = null;
-        // Defensive：DEAD_LETTERED 已无 claim 持有者，但保证字段一致。
+        // Defensive consistency: DEAD_LETTERED should already have no claim owner.
         this.claimedAt = null;
         this.claimedBy = null;
         this.claimToken = null;

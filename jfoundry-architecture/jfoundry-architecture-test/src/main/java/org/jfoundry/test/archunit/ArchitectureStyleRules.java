@@ -12,16 +12,17 @@ import java.util.Collection;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
-/// 架构风格选择规则。
+/// Architecture style selection rules.
 /// <p>
-/// Layered、Hexagonal 与 Onion 都是表达依赖方向和边界的架构风格。业务代码应选择一种主风格，
-/// 避免在同一分析范围内用多套重叠词汇描述同一组角色。
+/// Layered, Hexagonal, and Onion architectures all express dependency direction and boundaries.
+/// Application code should choose one primary style and avoid using overlapping vocabularies for
+/// the same roles within one analyzed scope.
 public final class ArchitectureStyleRules {
 
     private ArchitectureStyleRules() {
     }
 
-    /// 同一个 ArchUnit 分析范围内不应同时出现 Hexagonal 与 Onion 风格标注。
+    /// Hexagonal and Onion style annotations should not appear in the same ArchUnit analysis scope.
     public static final ArchRule hexagonal_and_onion_must_not_be_mixed =
             classes()
                     .should(new HexagonalAndOnionMustNotBeMixedCondition())

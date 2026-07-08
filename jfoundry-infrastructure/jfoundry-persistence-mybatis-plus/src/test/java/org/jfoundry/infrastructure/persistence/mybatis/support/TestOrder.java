@@ -5,9 +5,10 @@ import org.jmolecules.ddd.types.AggregateRoot;
 
 import java.time.Instant;
 
-/// 测试用聚合根。体现典型的"业务方法决定记录什么事件"模式:
-/// - {@link #markPaid} 是修改语义,记录 TestOrderStatusChangedEvent
-/// - {@link #cancel} 是修改语义,记录 TestOrderStatusChangedEvent
+/// Test aggregate root demonstrating the typical pattern where business methods decide which events
+/// to record:
+/// - {@link #markPaid} has modification semantics and records TestOrderStatusChangedEvent.
+/// - {@link #cancel} has modification semantics and records TestOrderStatusChangedEvent.
 public class TestOrder extends BaseAggregateRoot<TestOrder, TestOrderId> implements AggregateRoot<TestOrder, TestOrderId> {
 
     private TestOrderStatus status;
@@ -15,7 +16,7 @@ public class TestOrder extends BaseAggregateRoot<TestOrder, TestOrderId> impleme
     private Instant createdAt;
     private Instant updatedAt;
 
-    /// 新建聚合的工厂方法(assigned-ID 模式)。构造时记录 CreatedEvent。
+    /// Factory method for creating a new aggregate in assigned-ID mode. Records CreatedEvent during construction.
     public static TestOrder create(TestOrderId id, int amount) {
         TestOrder order = new TestOrder(id);
         order.status = TestOrderStatus.CREATED;
@@ -27,7 +28,7 @@ public class TestOrder extends BaseAggregateRoot<TestOrder, TestOrderId> impleme
         return order;
     }
 
-    /// 持久化重建构造器(从 Data 还原,不记录事件)。
+    /// Persistence reconstruction constructor that restores from Data without recording events.
     public static TestOrder restore(TestOrderId id, TestOrderStatus status, int amount, Instant createdAt, Instant updatedAt) {
         TestOrder order = new TestOrder(id);
         order.status = status;
@@ -41,12 +42,12 @@ public class TestOrder extends BaseAggregateRoot<TestOrder, TestOrderId> impleme
         super(id);
     }
 
-    /// 业务方法:标记为已支付。修改语义,记录 StatusChangedEvent。
+    /// Business method that marks the order as paid. Has modification semantics and records StatusChangedEvent.
     public void markPaid() {
         transitionTo(TestOrderStatus.PAID);
     }
 
-    /// 业务方法:取消订单。修改语义,记录 StatusChangedEvent。
+    /// Business method that cancels the order. Has modification semantics and records StatusChangedEvent.
     public void cancel() {
         transitionTo(TestOrderStatus.CANCELLED);
     }

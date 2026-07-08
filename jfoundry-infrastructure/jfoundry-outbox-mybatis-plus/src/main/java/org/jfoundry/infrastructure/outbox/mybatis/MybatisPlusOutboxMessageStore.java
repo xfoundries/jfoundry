@@ -16,28 +16,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/// OutboxMessageStore 默认实现：基于 MyBatis-Plus。
+/// Default OutboxMessageStore implementation based on MyBatis-Plus.
 /// <p>
-/// SPI 层 {@link OutboxMessage} 不携带任何 ORM 注解，本类在边界处负责 entry ↔ {@link OutboxData}
-/// 互转。所有数据库操作走 {@link com.baomidou.mybatisplus.core.mapper.BaseMapper} 标准 API
-/// （selectPage / update / deleteBatchIds 等），跨方言 SQL 由 MyBatis-Plus +
-/// {@link PaginationInnerInterceptor} 在运行时按 {@link com.baomidou.mybatisplus.annotation.DbType}
-/// 生成；本类不维护任何数据库特定 SQL，新增方言无需改源码。
+/// The SPI-level {@link OutboxMessage} carries no ORM annotations. This class performs entry ↔
+/// {@link OutboxData} conversion at the boundary. All database operations use standard
+/// {@link com.baomidou.mybatisplus.core.mapper.BaseMapper} APIs such as selectPage, update, and
+/// deleteBatchIds. Cross-dialect SQL is generated at runtime by MyBatis-Plus and
+/// {@link PaginationInnerInterceptor} according to {@link com.baomidou.mybatisplus.annotation.DbType};
+/// this class does not maintain database-specific SQL, so adding a dialect does not require source
+/// changes here.
 /// <p>
-/// <b>多实例原子 claim（核心）</b>：放弃 MySQL 特有的 {@code UPDATE...ORDER BY...LIMIT N}，
-/// 改为 {@code selectPage(N) → 逐条 CAS UPDATE}：
+/// <b>Atomic multi-instance claim (core)</b>: this implementation avoids MySQL-specific
+/// {@code UPDATE...ORDER BY...LIMIT N} and uses {@code selectPage(N) → per-row CAS UPDATE}:
 /// <ol>
-///   <li>{@code selectPage(N, WHERE status IN (PENDING, FAILED) AND retry-due)} 选取候选集，
-///       LIMIT 由 PaginationInnerInterceptor 按方言生成。</li>
-///   <li>对每条候选执行 {@code UPDATE...WHERE event_id=? AND status=candidate.status}（CAS 守卫）。
-///       若并发 claimer 已抢走该条（{@code status} 变 DISPATCHING），CAS 失败（{@code affectedRows=0}），
-///       跳过该条不发送。CAS UPDATE 是标准 ANSI SQL，跨方言。</li>
+///   <li>{@code selectPage(N, WHERE status IN (PENDING, FAILED) AND retry-due)} selects candidates;
+///       the LIMIT clause is generated per dialect by PaginationInnerInterceptor.</li>
+///   <li>Each candidate is claimed with {@code UPDATE...WHERE event_id=? AND status=candidate.status}
+///       as a CAS guard. If a concurrent claimer already took the row and changed the status to
+///       DISPATCHING, the CAS update affects 0 rows and this row is skipped without sending. CAS
+///       UPDATE is standard ANSI SQL and is cross-dialect.</li>
 /// </ol>
-/// 这种方式在 H2（READ_COMMITTED）下 select 天然不重叠，CAS 失败概率极低；在 REPEATABLE_READ
-/// 或更高隔离级别下 CAS 提供兜底防御。{@code claimToken} 字段保留（每次调用现生成 UUID），
-/// 用于运维观测与 P3-2 语义对齐，但 CAS 模式下不再依赖 token 做回读去重。
+/// Under H2 READ_COMMITTED, selected rows naturally do not overlap and CAS failures are rare; under
+/// REPEATABLE_READ or higher isolation levels, CAS provides the defensive fallback. The
+/// {@code claimToken} field is kept and generated per call for operational observability and P3-2
+/// semantic alignment, but the CAS mode no longer relies on token-based readback deduplication.
 /// <p>
-/// 构造时 fail-fast：检测传入的 MybatisPlusInterceptor 是否含 PaginationInnerInterceptor。
+/// Construction fails fast when the supplied MybatisPlusInterceptor does not contain a
+/// PaginationInnerInterceptor.
 public class MybatisPlusOutboxMessageStore implements OutboxMessageStore {
 
     private final OutboxMapper mapper;
@@ -53,11 +58,11 @@ public class MybatisPlusOutboxMessageStore implements OutboxMessageStore {
                 .anyMatch(PaginationInnerInterceptor.class::isInstance);
         if (!hasPagination) {
             throw new IllegalStateException(
-                    "MybatisPlusInterceptor 中未包含 PaginationInnerInterceptor，"
-                            + "OutboxMessageStore 多处依赖 selectPage 生成方言 SQL（findDispatchable / "
-                            + "claimDispatchable / deleteByStatusAndOccurredAtBefore），"
-                            + "未注册时 selectPage 会 silently 返回全表。"
-                            + "请将 PaginationInnerInterceptor 加入 MybatisPlusInterceptor。");
+                    "MybatisPlusInterceptor does not contain PaginationInnerInterceptor. "
+                            + "OutboxMessageStore relies on selectPage to generate dialect SQL in "
+                            + "findDispatchable, claimDispatchable, and deleteByStatusAndOccurredAtBefore. "
+                            + "Without it, selectPage can silently return a full table. "
+                            + "Please add PaginationInnerInterceptor to MybatisPlusInterceptor.");
         }
     }
 
@@ -74,10 +79,12 @@ public class MybatisPlusOutboxMessageStore implements OutboxMessageStore {
         return result.getRecords().stream().map(OutboxData::toMessage).toList();
     }
 
-    /// "可派发候选" 的 WHERE 条件：{@code status IN (PENDING, FAILED) AND retry-due}。
-    /// {@link #findDispatchable} 与 {@link #claimDispatchable} 共用此条件，各自指定 orderBy。
+    /// WHERE condition for dispatchable candidates: {@code status IN (PENDING, FAILED) AND retry-due}.
+    /// {@link #findDispatchable} and {@link #claimDispatchable} share this condition and specify
+    /// their own orderBy clauses.
     /// <p>
-    /// retry-due 语义：{@code nextRetryAt IS NULL}（从未失败过）OR {@code nextRetryAt ≤ now}（已到重试时间）。
+    /// retry-due means {@code nextRetryAt IS NULL} for never-failed rows or {@code nextRetryAt ≤ now}
+    /// for rows whose retry time has arrived.
     private static LambdaQueryWrapper<OutboxData> dispatchableCandidatesQuery(Instant now) {
         return Wrappers.lambdaQuery(OutboxData.class)
                 .in(OutboxData::getStatus,
@@ -158,15 +165,19 @@ public class MybatisPlusOutboxMessageStore implements OutboxMessageStore {
         mapper.updateById(OutboxData.fromMessage(entry));
     }
 
-    /// CAS 两步法 claim：候选集 selectPage + 逐条 CAS UPDATE，外层 retry 直到拿满 limit 或候选耗尽。
+    /// Two-step CAS claim: select candidates with selectPage, then CAS UPDATE each row. The outer
+    /// retry loop continues until the limit is reached or the candidate pool is exhausted.
     /// <p>
-    /// 候选集语义与 {@link #findDispatchable} 一致：PENDING 全部 + FAILED 已到 {@code next_retry_at}。
-    /// CAS 守卫 {@code WHERE event_id=? AND status=candidate.status} 防止并发 claimer 抢同一行；
-    /// CAS 失败（{@code affectedRows=0}）说明该行已被其他 claimer 抢走（status 已变 DISPATCHING），
-    /// 跳过该行。所有 CAS 失败的行已被他人改成 DISPATCHING，下一轮 selectPage 天然过滤掉；
-    /// 因此外层 while 循环最终一定收敛——要么拿满 limit，要么 selectPage 返回空。
+    /// Candidate semantics match {@link #findDispatchable}: all PENDING rows plus FAILED rows whose
+    /// {@code next_retry_at} is due. The CAS guard
+    /// {@code WHERE event_id=? AND status=candidate.status} prevents concurrent claimers from taking
+    /// the same row. A CAS failure ({@code affectedRows=0}) means another claimer already changed the
+    /// row to DISPATCHING, so this row is skipped. All CAS-failed rows are naturally filtered out by
+    /// the next selectPage because another claimer has moved them to DISPATCHING. The outer while loop
+    /// therefore converges: either it reaches the limit or selectPage returns empty.
     /// <p>
-    /// 调用方契约：返回值 ≤ {@code limit}。候选池不足时返回 < limit（dispatcher 下一轮再 dispatch）。
+    /// Caller contract: the return size is ≤ {@code limit}. If the candidate pool is smaller, the
+    /// method returns fewer rows and the dispatcher can retry on the next cycle.
     @Override
     public List<OutboxMessage> claimDispatchable(int limit, String claimerId) {
         if (limit <= 0) {
@@ -175,23 +186,25 @@ public class MybatisPlusOutboxMessageStore implements OutboxMessageStore {
         if (claimerId == null || claimerId.isBlank()) {
             throw new IllegalArgumentException("claimerId must not be blank");
         }
-        // claimToken 保留：P3-2 语义对齐（运维可通过 token 关联本批 SQL），但 CAS 模式下
-        // 不再依赖 token 做回读去重——CAS 失败的行天然不会出现在返回值里。
+        // claimToken is kept for P3-2 semantic alignment and operational correlation of this SQL
+        // batch, but CAS mode no longer relies on token-based readback deduplication. CAS-failed rows
+        // naturally do not appear in the return value.
         String claimToken = UUID.randomUUID().toString();
         Instant now = Instant.now();
 
         List<OutboxMessage> claimed = new ArrayList<>(limit);
         while (claimed.size() < limit) {
             int remaining = limit - claimed.size();
-            // step 1: 候选集 selectPage（LIMIT 由 PaginationInnerInterceptor 按方言生成）。
-            // orderBy eventId 让多 pod 并发 CAS 时有确定顺序，降低死锁概率。
+            // Step 1: select candidates with selectPage; LIMIT is generated per dialect by
+            // PaginationInnerInterceptor. Ordering by eventId gives concurrent pods a deterministic
+            // CAS order and reduces deadlock probability.
             Page<OutboxData> page = new Page<>(1, remaining, false);
             IPage<OutboxData> result = mapper.selectPage(page,
                     dispatchableCandidatesQuery(now).orderByAsc(OutboxData::getEventId));
             if (result.getRecords().isEmpty()) {
                 break;
             }
-            // step 2: 逐条 CAS UPDATE。WHERE status=candidate.status 是乐观锁守卫。
+            // Step 2: per-row CAS UPDATE. WHERE status=candidate.status is the optimistic-lock guard.
             for (OutboxData candidate : result.getRecords()) {
                 if (claimed.size() >= limit) {
                     break;
@@ -206,25 +219,26 @@ public class MybatisPlusOutboxMessageStore implements OutboxMessageStore {
                                 .eq(OutboxData::getEventId, candidate.getEventId())
                                 .eq(OutboxData::getStatus, candidate.getStatus()));
                 if (updated == 1) {
-                    // 返回值反映 claim 后的状态（DB 已写入，candidate 内存副本同步）。
+                    // Return values reflect the post-claim state; the DB has been written and the
+                    // in-memory candidate copy is synchronized.
                     candidate.setStatus(OutboxMessageStatus.DISPATCHING.name());
                     candidate.setClaimedBy(claimerId);
                     candidate.setClaimToken(claimToken);
                     candidate.setClaimedAt(claimTime);
                     claimed.add(OutboxData.toMessage(candidate));
                 }
-                // CAS 失败（updated=0）说明并发 claimer 已抢走该行，跳过；
-                // 外层 while 会重新 selectPage 拿下一批候选补齐 limit。
+                // CAS failure (updated=0) means a concurrent claimer already took this row; skip it.
+                // The outer while loop selects another candidate batch to fill the remaining limit.
             }
         }
         return claimed;
     }
 
-    /// stuck-DISPATCHING 恢复：把 {@code claimed_at < cutoff} 的 DISPATCHING 记录回滚为 PENDING，
-    /// 清空 {@code claimed_at / claimed_by / claim_token}。
+    /// Stuck-DISPATCHING recovery: rolls DISPATCHING rows with {@code claimed_at < cutoff} back to
+    /// PENDING and clears {@code claimed_at / claimed_by / claim_token}.
     /// <p>
-    /// 标准 {@code UPDATE...WHERE} 跨方言。pod 崩溃 / kill -9 后 DISPATCHING 中途残留的记录在此被回收，
-    /// 下一个 dispatcher 周期会重新 claim。
+    /// The standard {@code UPDATE...WHERE} form is cross-dialect. Rows left in DISPATCHING after a
+    /// pod crash or kill -9 are recovered here and will be claimed again by a later dispatcher cycle.
     @Override
     public int recoverStuckDispatching(Instant cutoff) {
         if (cutoff == null) {
@@ -240,14 +254,18 @@ public class MybatisPlusOutboxMessageStore implements OutboxMessageStore {
                         .lt(OutboxData::getClaimedAt, cutoff));
     }
 
-    /// 批量清理：删除指定终态（PUBLISHED / DEAD_LETTERED）且 {@code occurred_at} 早于 {@code cutoff}
-    /// 的记录，每批最多 {@code batchSize} 条，循环直到候选耗尽。
+    /// Batch cleanup: deletes rows in the specified terminal status (PUBLISHED / DEAD_LETTERED) whose
+    /// {@code occurred_at} is earlier than {@code cutoff}, at most {@code batchSize} rows per batch,
+    /// looping until no candidates remain.
     /// <p>
-    /// selectPage + removeByIds 两步法：selectPage 的 LIMIT 由 PaginationInnerInterceptor 按方言生成；
-    /// removeByIds 按主键删除，是标准 ANSI SQL。不再使用 {@code DELETE...IN (SELECT...LIMIT)} 形态。
+    /// This uses a selectPage + removeByIds two-step approach: selectPage LIMIT is generated per
+    /// dialect by PaginationInnerInterceptor, and removeByIds deletes by primary key using standard
+    /// ANSI SQL. It no longer uses {@code DELETE...IN (SELECT...LIMIT)}.
     /// <p>
-    /// 循环而非单条 SQL 原因：单批 DELETE 拿锁较多且长事务影响 claim/dispatch；分批每批只锁 batchSize 行，
-    /// 批次间释放锁，其它事务能穿插。{@code deleted < batchSize} 表示候选集已耗尽。
+    /// The loop is intentional. A single large DELETE takes more locks and can affect claim/dispatch
+    /// through a long transaction. Batching locks at most batchSize rows per batch and releases locks
+    /// between batches so other transactions can proceed. {@code deleted < batchSize} means the
+    /// candidate pool is exhausted.
     @Override
     public int deleteByStatusAndOccurredAtBefore(OutboxMessageStatus status, Instant cutoff, int batchSize) {
         if (status == null) {

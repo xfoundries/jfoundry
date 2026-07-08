@@ -1,8 +1,8 @@
 package org.jfoundry.application.outbox;
 
-/// Outbox dispatch SPI。实现按 batch size 取出条目并投递。
+/// Outbox dispatch SPI. Implementations claim and deliver entries by batch size.
 public interface OutboxDispatcher {
 
-    /// @param batchSize 单次 dispatch 取出的最大条目数
+    /// @param batchSize maximum number of entries claimed by one dispatch run
     void dispatch(int batchSize);
 }

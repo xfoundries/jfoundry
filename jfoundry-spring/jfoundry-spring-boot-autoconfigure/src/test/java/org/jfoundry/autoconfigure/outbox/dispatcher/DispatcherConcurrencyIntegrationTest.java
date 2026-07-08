@@ -32,17 +32,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// P1-1 回归测试：两个 ScheduledOutboxDispatcher 实例（不同 podId）共享同一个
-/// OutboxMessageStore + 真实 H2 db，并发 dispatch 一批 PENDING 记录，断言每条记录
-/// 只被 MessageSender.send 调用一次 —— 即多实例互斥由 claimDispatchable 原子性保证，
-/// 而不是依赖业务侧幂等。
+/// P1-1 regression: two ScheduledOutboxDispatcher instances with different podIds share the same
+/// OutboxMessageStore and real H2 database, concurrently dispatch a batch of PENDING records, and
+/// assert that each record is passed to MessageSender.send only once. Multi-instance mutual
+/// exclusion is guaranteed by claimDispatchable atomicity, not by application-side idempotency.
 /// <p>
-/// 如果有人把 dispatcher 切回 {@code findDispatchable}（read-only SELECT 不会原子
-/// 占有记录），两个 pod 会读到同一批 PENDING，send 会被调用 2N 次，本测试会失败。
+/// If the dispatcher is changed back to {@code findDispatchable}, which is a read-only SELECT and
+/// does not atomically claim records, both pods will read the same PENDING batch and send will be
+/// called 2N times. This test would fail.
 /// <p>
-/// 测试隔离：dedicated H2 db name {@code jfoundry-dispatcher-concurrency-test}，
-/// 自动 dispatcher 模式设置为 none，避免 auto-config 注册的 @Scheduled dispatcher
-/// 与测试手工构造的 dispatcher 竞争记录。
+/// Test isolation: uses a dedicated H2 database name {@code jfoundry-dispatcher-concurrency-test}
+/// and sets automatic dispatcher mode to none, avoiding competition between the auto-configured
+/// @Scheduled dispatcher and manually constructed test dispatchers.
 @SpringBootTest(classes = DispatcherConcurrencyIntegrationTest.TestApp.class)
 @TestPropertySource(properties = {
         "jfoundry.outbox.dispatcher.mode=none",

@@ -18,8 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// {@code jfoundry.outbox.dispatcher.mode}.
 /// <p>
 /// TestApp provides an ObjectMapper bean so DomainEventOutboxRecorderAutoConfiguration's
-/// payloadSerializer（@ConditionalOnBean(ObjectMapper.class)）能正常注册；
-/// 同时让 DomainEventOutboxRecorder 的依赖链完整。
+/// payloadSerializer can be registered normally through @ConditionalOnBean(ObjectMapper.class),
+/// completing the DomainEventOutboxRecorder dependency chain.
 @SpringBootTest(
         classes = {OutboxDispatcherEnabledTest.TestApp.class, OutboxDispatcherEnabledTest.DisabledConfig.class},
         properties = "jfoundry.outbox.dispatcher.enabled=false"

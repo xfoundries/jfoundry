@@ -29,10 +29,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /// Side assertion: the default {@code jfoundry_outbox_event} table (also created by the test
 /// fixture) must stay empty — proving the rewrite happened, not that we widened the write.
 /// <p>
-/// P3-3: 之前只覆盖 append；现在补 claimDispatchable / recoverStuckDispatching /
-/// deleteByStatusAndOccurredAtBefore 三个运营路径，确保 {@code TableNameHandler} 改写
-/// 对自定义 SQL（mapper 上的 {@code @Update}/{@code @Select}/{@code @Delete}）也生效，
-/// 不只是 BaseMapper 的标准 CRUD。
+/// P3-3: coverage previously included only append; this test now also covers the operational paths
+/// claimDispatchable, recoverStuckDispatching, and deleteByStatusAndOccurredAtBefore. It ensures
+/// {@code TableNameHandler} rewriting also applies to custom mapper SQL
+/// ({@code @Update}/{@code @Select}/{@code @Delete}), not only standard BaseMapper CRUD.
 /// <p>
 /// Isolation: this test brings up the full autoconfig chain, so we (1) set dispatcher
 /// mode to none to avoid polling interacting with downstream tests, and (2) use
@@ -78,8 +78,9 @@ class OutboxTableNameOverrideTest {
 
     @BeforeEach
     void cleanTables() {
-        // DB_CLOSE_DELAY=-1 让 H2 跨测试保留数据，必须 @BeforeEach 清空两张表，
-        // 否则 appendWritesToCustomTable 写入的 evt-custom 会污染下一个测试的 claim/assertion。
+        // DB_CLOSE_DELAY=-1 keeps H2 data across tests, so @BeforeEach must clear both tables.
+        // Otherwise evt-custom written by appendWritesToCustomTable pollutes the next test's
+        // claim/assertion.
         jdbc.update("DELETE FROM custom_outbox");
         jdbc.update("DELETE FROM jfoundry_outbox_event");
     }
@@ -103,9 +104,9 @@ class OutboxTableNameOverrideTest {
                 .isEqualTo(0);
     }
 
-    /// P3-3 regression: claimDispatchable 的自定义 SQL（{@code UPDATE...LIMIT} + 后续 SELECT）
-    /// 也必须被 {@code DynamicTableNameInnerInterceptor} 改写到 custom_outbox，否则会把
-    /// 流量打到默认表，造成"claim 不到任何记录"的 silent failure。
+    /// P3-3 regression: claimDispatchable custom SQL ({@code UPDATE...LIMIT} plus the following
+    /// SELECT) must also be rewritten to custom_outbox by {@code DynamicTableNameInnerInterceptor};
+    /// otherwise traffic goes to the default table and silently claims no records.
     @Test
     void claimDispatchableReadsFromCustomTable() {
         appendPending("evt-claim-1", "custom_outbox");
@@ -116,7 +117,7 @@ class OutboxTableNameOverrideTest {
         assertThat(claimed).extracting(OutboxMessage::getEventId)
                 .containsExactlyInAnyOrder("evt-claim-1", "evt-claim-2");
 
-        // 两端确认：custom_outbox 里 status 已变 DISPATCHING；jfoundry_outbox_event 仍空。
+        // Confirm both sides: custom_outbox status changed to DISPATCHING; jfoundry_outbox_event is empty.
         Integer dispatchingInCustom = jdbc.queryForObject(
                 "SELECT COUNT(*) FROM custom_outbox WHERE status = 'DISPATCHING'",
                 Integer.class);
@@ -126,18 +127,19 @@ class OutboxTableNameOverrideTest {
                 "SELECT COUNT(*) FROM jfoundry_outbox_event",
                 Integer.class);
         assertThat(anyInDefault)
-                .as("claim 的 UPDATE/SELECT 也必须走 custom_outbox，默认表保持空")
+                .as("claim UPDATE/SELECT must also use custom_outbox and leave the default table empty")
                 .isEqualTo(0);
     }
 
-    /// P3-3 regression: recoverStuckDispatching 的 {@code UPDATE...WHERE status='DISPATCHING'
-    /// AND claimed_at < cutoff} 必须改写到 custom_outbox，否则 recovery job 静默失效。
+    /// P3-3 regression: recoverStuckDispatching's
+    /// {@code UPDATE...WHERE status='DISPATCHING' AND claimed_at < cutoff} must be rewritten to
+    /// custom_outbox; otherwise the recovery job silently does nothing.
     @Test
     void recoverStuckDispatchingOperatesOnCustomTable() {
-        // 在 custom_outbox 上构造一条陈旧 DISPATCHING 记录。
+        // Build one stale DISPATCHING record in custom_outbox.
         appendPending("evt-stuck", "custom_outbox");
         repository.claimDispatchable(1, "pod-stuck");
-        // 直接 age claimed_at 到 10 分钟前，模拟 pod 崩溃后的陈旧 claim。
+        // Age claimed_at directly to 10 minutes ago to simulate a stale claim after pod crash.
         jdbc.update(
                 "UPDATE custom_outbox SET claimed_at = ? WHERE event_id = ?",
                 Instant.now().minus(Duration.ofMinutes(10)), "evt-stuck");
@@ -151,27 +153,28 @@ class OutboxTableNameOverrideTest {
                 String.class, "evt-stuck");
         assertThat(status).isEqualTo(OutboxMessageStatus.PENDING.name());
 
-        // 默认表从头到尾没有任何流量。
+        // The default table receives no traffic throughout the test.
         Integer anyInDefault = jdbc.queryForObject(
                 "SELECT COUNT(*) FROM jfoundry_outbox_event",
                 Integer.class);
         assertThat(anyInDefault).isEqualTo(0);
     }
 
-    /// P3-3 regression: deleteByStatusAndOccurredAtBefore 的子查询 + LIMIT 形态 DELETE
-    /// 必须改写到 custom_outbox，否则 cleanup job 静默失效（默认表本来就空，DELETE 返回 0
-    /// 但不报错，最隐蔽）。
+    /// P3-3 regression: deleteByStatusAndOccurredAtBefore's subquery + LIMIT DELETE form must be
+    /// rewritten to custom_outbox; otherwise the cleanup job silently does nothing. The default table
+    /// is already empty, so DELETE returns 0 without an error, which is hard to notice.
     @Test
     void deleteByStatusAndOccurredAtBeforeOperatesOnCustomTable() {
-        // 构造一条"已 PUBLISHED 且 occurred_at 早于 cutoff"的记录，命中清理条件。
+        // Build one record that is PUBLISHED and whose occurred_at is older than cutoff.
         appendPending("evt-published-old", "custom_outbox");
-        // 直接 SQL 改 status（绕过 markPublished 的状态机；本测试只关心 DELETE 改写）。
+        // Change status through direct SQL, bypassing the markPublished state machine; this test only
+        // cares about DELETE rewriting.
         jdbc.update(
                 "UPDATE custom_outbox SET status = ?, occurred_at = ? WHERE event_id = ?",
                 OutboxMessageStatus.PUBLISHED.name(),
                 Instant.now().minus(Duration.ofDays(10)),
                 "evt-published-old");
-        // 一条 PUBLISHED 但新鲜的记录，不应被清理。
+        // One fresh PUBLISHED record should not be cleaned.
         appendPending("evt-published-fresh", "custom_outbox");
         jdbc.update(
                 "UPDATE custom_outbox SET status = ? WHERE event_id = ?",
@@ -191,7 +194,7 @@ class OutboxTableNameOverrideTest {
                 "SELECT COUNT(*) FROM custom_outbox WHERE event_id = ?",
                 Integer.class, "evt-published-fresh");
         assertThat(freshRemaining)
-                .as("fresh PUBLISHED 记录不应被清理")
+                .as("fresh PUBLISHED records should not be cleaned")
                 .isEqualTo(1);
 
         Integer anyInDefault = jdbc.queryForObject(

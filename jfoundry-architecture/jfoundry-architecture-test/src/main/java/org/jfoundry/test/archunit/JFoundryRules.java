@@ -10,9 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-/// jfoundry 架构规则聚合入口。
+/// Aggregated entrypoint for jfoundry architecture rules.
 /// <p>
-/// 业务侧用法（推荐）：
+/// Recommended application-side usage:
 /// <pre>
 /// import com.tngtech.archunit.junit.AnalyzeClasses;
 /// import com.tngtech.archunit.junit.ArchTest;
@@ -31,9 +31,9 @@ import java.util.stream.Stream;
 /// }
 /// </pre>
 /// <p>
-/// {@link #hexagonal()}、{@link #onionSimple()} 和 {@link #onionClassical()}
-/// 返回 JFoundry 基础守护规则 + 单一主架构风格规则；
-/// {@link #jmoleculesDdd()} 返回 jmolecules 官方提供的 DDD 规则；
+/// {@link #hexagonal()}, {@link #onionSimple()}, and {@link #onionClassical()} return JFoundry
+/// baseline guard rules plus one primary architecture style rule set.
+/// {@link #jmoleculesDdd()} returns selected official jMolecules DDD rules.
 /// {@link #cqrs()} returns optional CQRS rules;
 /// {@link #aggregateRepositoryConventions()} returns optional aggregate repository boundary conventions.
 public final class JFoundryRules {
@@ -41,9 +41,10 @@ public final class JFoundryRules {
     private JFoundryRules() {
     }
 
-    /// Hexagonal Architecture / Ports and Adapters 规则。
+    /// Hexagonal Architecture / Ports and Adapters rules.
     /// <p>
-    /// 包含 JFoundry 基础守护规则、jMolecules Hexagonal 原生规则，以及 Hexagonal/Onion 互斥规则。
+    /// Includes JFoundry baseline guard rules, native jMolecules Hexagonal rules, and the
+    /// Hexagonal/Onion mutual-exclusion rule.
     public static ArchRule[] hexagonal() {
         return concat(base(), new ArchRule[]{
                 JMoleculesArchitectureRules.ensureHexagonal(),
@@ -51,23 +52,26 @@ public final class JFoundryRules {
         });
     }
 
-    /// Hexagonal Architecture / Ports and Adapters 推荐落地约定。
+    /// Recommended implementation conventions for Hexagonal Architecture / Ports and Adapters.
     /// <p>
-    /// 该入口补充 jMolecules 原生角色依赖规则没有覆盖的类型形态、包名和适配器隔离约定。
+    /// This entrypoint adds type-shape, package-name, and adapter-isolation conventions that are
+    /// outside the native jMolecules role dependency rules.
     public static ArchRule[] hexagonalConventions() {
         return publicStaticArchRules(HexagonalConventionRules.class).toArray(new ArchRule[0]);
     }
 
-    /// Hexagonal Architecture 严格规则。
+    /// Strict Hexagonal Architecture rules.
     /// <p>
-    /// 包含 {@link #hexagonal()} 的通用依赖规则，以及 {@link #hexagonalConventions()} 的 JFoundry 推荐落地约定。
+    /// Includes the dependency rules from {@link #hexagonal()} and the JFoundry recommended
+    /// implementation conventions from {@link #hexagonalConventions()}.
     public static ArchRule[] hexagonalStrict() {
         return concat(hexagonal(), hexagonalConventions());
     }
 
-    /// Onion Architecture simplified 规则。
+    /// Simplified Onion Architecture rules.
     /// <p>
-    /// 包含 JFoundry 基础守护规则、jMolecules Onion Simple 原生规则，以及 Hexagonal/Onion 互斥规则。
+    /// Includes JFoundry baseline guard rules, native jMolecules Onion Simple rules, and the
+    /// Hexagonal/Onion mutual-exclusion rule.
     public static ArchRule[] onionSimple() {
         return concat(base(), new ArchRule[]{
                 JMoleculesArchitectureRules.ensureOnionSimple(),
@@ -75,9 +79,10 @@ public final class JFoundryRules {
         });
     }
 
-    /// Onion Architecture classical 规则。
+    /// Classical Onion Architecture rules.
     /// <p>
-    /// 包含 JFoundry 基础守护规则、jMolecules Onion Classical 原生规则，以及 Hexagonal/Onion 互斥规则。
+    /// Includes JFoundry baseline guard rules, native jMolecules Onion Classical rules, and the
+    /// Hexagonal/Onion mutual-exclusion rule.
     public static ArchRule[] onionClassical() {
         return concat(base(), new ArchRule[]{
                 JMoleculesArchitectureRules.ensureOnionClassical(),
@@ -85,15 +90,16 @@ public final class JFoundryRules {
         });
     }
 
-    /// Hexagonal 与 Onion 主架构风格互斥规则。
+    /// Mutual-exclusion rule for Hexagonal and Onion as primary architecture styles.
     public static ArchRule noMixedHexagonalAndOnion() {
         return ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed;
     }
 
-    /// CQRS 规则。
+    /// CQRS rules.
     /// <p>
-    /// jMolecules 当前没有提供独立 CQRS ArchUnit 规则集，因此这里提供 JFoundry 的轻量约束入口。
-    /// 该规则不会默认加入主架构风格规则，业务侧需要显式启用。
+    /// jMolecules currently does not provide an independent CQRS ArchUnit rule set, so JFoundry
+    /// provides this lightweight constraint entrypoint. These rules are not included in the primary
+    /// architecture style rules by default; applications must opt in explicitly.
     public static ArchRule[] cqrs() {
         return publicStaticArchRules(CqrsRules.class).toArray(new ArchRule[0]);
     }
@@ -107,16 +113,17 @@ public final class JFoundryRules {
         return publicStaticArchRules(AggregateRepositoryConventionRules.class).toArray(new ArchRule[0]);
     }
 
-    /// jmolecules 官方提供的 DDD 规则（精选）。
+    /// Selected official jMolecules DDD rules.
     /// <p>
-    /// 来源：{@code org.jmolecules.integrations:jmolecules-archunit}。
+    /// Source: {@code org.jmolecules.integrations:jmolecules-archunit}.
     /// <p>
-    /// 选取 jmolecules 的稳定原生规则：
+    /// Selected stable native jMolecules rules:
     /// <ul>
     ///   <li>{@link JMoleculesDddRules#aggregateReferencesShouldBeViaIdOrAssociation()} —
-    ///       聚合之间只能通过 Id 或关联引用，避免直接对象引用导致的边界穿透</li>
+    ///       aggregates may reference each other only through IDs or associations, avoiding boundary
+    ///       leaks caused by direct object references.</li>
     ///   <li>{@link JMoleculesDddRules#valueObjectsMustNotReferToIdentifiables()} —
-    ///       值对象不得引用具备身份的实体或聚合</li>
+    ///       value objects must not refer to identifiable entities or aggregates.</li>
     /// </ul>
     public static ArchRule[] jmoleculesDdd() {
         return new ArchRule[]{

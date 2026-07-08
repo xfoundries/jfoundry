@@ -25,12 +25,14 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// 端到端集成测试：@ApplicationService → DomainEventDispatcher → DomainEventOutboxRecorder →
-/// Outbox 表 → ScheduledOutboxDispatcher → CollectingMessageSender。
+/// End-to-end integration test:
+/// @ApplicationService → DomainEventDispatcher → DomainEventOutboxRecorder → Outbox table →
+/// ScheduledOutboxDispatcher → CollectingMessageSender.
 /// <p>
-/// 通过 @EnableAutoConfiguration 让 Spring Boot 按 @AutoConfigureAfter 排序加载所有
-/// jfoundry-spring-boot-autoconfigure 内部的 AutoConfiguration 链路；测试启动类自身负责
-/// @MapperScan 以便 mapper bean 在 ConfigurationClassParser 阶段注册。
+/// @EnableAutoConfiguration lets Spring Boot load the auto-configuration chain inside
+/// jfoundry-spring-boot-autoconfigure according to @AutoConfigureAfter ordering. The test
+/// application class is responsible for @MapperScan so mapper beans are registered during
+/// ConfigurationClassParser processing.
 @SpringBootTest(
         classes = DomainEventExternalizationIntegrationTest.TestApp.class,
         properties = {

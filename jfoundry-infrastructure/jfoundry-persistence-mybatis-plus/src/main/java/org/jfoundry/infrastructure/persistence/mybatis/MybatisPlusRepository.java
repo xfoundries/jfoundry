@@ -10,17 +10,19 @@ import org.jmolecules.ddd.types.Identifier;
 
 import java.io.Serializable;
 
-/// MyBatis-Plus 仓储实现(基于 AbstractPersistenceRepository 模板方法基类)。
+/// MyBatis-Plus repository implementation based on the AbstractPersistenceRepository template base class.
 /// <p>
-/// 本类只实现 4 个模板方法(insertData/updateData/deleteDataById/selectDataById),
-/// 聚合生命周期、事件移交、modify/remove 0 行防御等骨架逻辑由父类提供。
+/// This class implements only the four template methods: insertData, updateData, deleteDataById,
+/// and selectDataById. Aggregate lifecycle handling, event handoff, and modify/remove zero-row
+/// defenses are provided by the parent class.
 /// <p>
-/// 条件查询、统计、分页和维护删除应由具体业务边界表达,在子类中使用 MyBatis 原生能力实现。
+/// Conditional queries, counts, paging, and maintenance deletes should be expressed by concrete
+/// business boundaries and implemented in subclasses with native MyBatis capabilities.
 ///
-/// @param <T>  聚合根类型，必须同时是 jMolecules AggregateRoot 和 framework EventRecordable
-/// @param <ID> 领域标识符类型
-/// @param <D>  数据库实体类型
-/// @param <K>  持久化主键类型
+/// @param <T>  aggregate root type, which must be both a jMolecules AggregateRoot and a framework EventRecordable
+/// @param <ID> domain identifier type
+/// @param <D>  database entity type
+/// @param <K>  persistence primary-key type
 public abstract class MybatisPlusRepository<
         T extends AggregateRoot<T, ID> & EventRecordable,
         ID extends Identifier & Serializable,

@@ -18,16 +18,17 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-/// Outbox Dispatcher 自动配置。
+/// Auto-configuration for the Outbox Dispatcher.
 /// <p>
-/// 根据 {@code jfoundry.outbox.dispatcher.mode} 选择 Dispatcher 实现：
+/// Selects the Dispatcher implementation according to {@code jfoundry.outbox.dispatcher.mode}:
 /// <ul>
-///   <li>{@code scheduled}（默认）：注册 ScheduledOutboxDispatcher（本类已加 @EnableScheduling）。</li>
-///   <li>{@code jobrunr}：要求 classpath 有 jfoundry-outbox-jobrunr。Spring Boot starter
-///       通过本 auto-configuration 模块注册 {@code JobRunrDispatcherAutoConfiguration}，
-///       与本类互斥：
-///       两端都用 {@code @ConditionalOnMissingBean(OutboxDispatcher.class)} 守护，
-///       且 mode 分别匹配 {@code scheduled} / {@code jobrunr}，不会同时命中。</li>
+///   <li>{@code scheduled} (default): registers ScheduledOutboxDispatcher. This class enables
+///       scheduling.</li>
+///   <li>{@code jobrunr}: requires jfoundry-outbox-jobrunr on the classpath. The Spring Boot starter
+///       registers {@code JobRunrDispatcherAutoConfiguration} through this auto-configuration module.
+///       It is mutually exclusive with this class: both sides are guarded by
+///       {@code @ConditionalOnMissingBean(OutboxDispatcher.class)}, and their modes match
+///       {@code scheduled} and {@code jobrunr} respectively, so they cannot both apply.</li>
 /// </ul>
 @AutoConfiguration
 @AutoConfigureAfter(
@@ -58,10 +59,10 @@ public class OutboxDispatcherAutoConfiguration {
                 properties.getMaxRetries(), backoffStrategy, properties.getBatchSize());
     }
 
-    /// P2-1 stuck-DISPATCHING recovery job。
+    /// P2-1 stuck-DISPATCHING recovery job.
     /// <p>
-    /// 仅在 {@link OutboxMessageStore} 存在时注册；与 dispatcher mode 解耦，
-    /// 即使 {@code mode=jobrunr} 也能独立回收 stuck 记录。
+    /// Registered only when {@link OutboxMessageStore} exists. It is decoupled from dispatcher mode,
+    /// so it can recover stuck records independently even when {@code mode=jobrunr}.
     @Bean
     @ConditionalOnBean({OutboxMessageStore.class})
     @ConditionalOnMissingBean(OutboxRecoveryJob.class)
@@ -70,12 +71,12 @@ public class OutboxDispatcherAutoConfiguration {
         return new OutboxRecoveryJob(outboxRepository, recoveryProperties);
     }
 
-    /// P2-5 terminal-state cleanup job。
+    /// P2-5 terminal-state cleanup job.
     /// <p>
-    /// 仅在 {@link OutboxMessageStore} 存在时注册；与 dispatcher mode 解耦，
-    /// 即使 {@code mode=jobrunr} 也能独立清理 PUBLISHED / DEAD_LETTERED 记录。
-    /// 任务的启停通过 {@link OutboxCleanupProperties#isEnabled()} 控制
-    /// （默认 {@code true}），无需重启 ApplicationContext。
+    /// Registered only when {@link OutboxMessageStore} exists. It is decoupled from dispatcher mode,
+    /// so it can clean PUBLISHED / DEAD_LETTERED records independently even when {@code mode=jobrunr}.
+    /// Enablement is controlled by {@link OutboxCleanupProperties#isEnabled()} (default
+    /// {@code true}) without restarting the ApplicationContext.
     @Bean
     @ConditionalOnBean({OutboxMessageStore.class})
     @ConditionalOnMissingBean(OutboxCleanupJob.class)
