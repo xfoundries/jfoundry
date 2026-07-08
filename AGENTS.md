@@ -51,7 +51,7 @@ jfoundry ships SQL only as copyable templates. Do not place framework SQL templa
 
 ## Commit & Pull Request Guidelines
 
-Recent history follows Conventional Commits, for example `fix(outbox): ...`, `test(archunit): ...`, `refactor(ddd-framework): ...`, and `docs: ...`. Keep commits scoped and use the module or concern as the scope when helpful. Follow the Language Policy for commit and PR text: keep the Conventional Commits type and optional scope, and write the subject and body in English, for example `refactor(application): split application core module` or `fix(outbox): update retry state consistently`. Pull requests should describe the behavior change, list validation commands run, link related issues, and call out migration, configuration, or compatibility impact.
+Recent history follows Conventional Commits, for example `fix(outbox): ...`, `test(archunit): ...`, `refactor(ddd-framework): ...`, and `docs: ...`. Keep commits scoped and use the module or concern as the scope when helpful. Follow the Language Policy for commit and PR text: keep the Conventional Commits type and optional scope, and write the subject and body in English, for example `refactor(application): split application core module` or `fix(outbox): update retry state consistently`. Do not add `Co-Authored-By` trailers for AI coding tools or agents. Pull requests should describe the behavior change, list validation commands run, link related issues, and call out migration, configuration, or compatibility impact.
 
 ## Documentation Comments
 
