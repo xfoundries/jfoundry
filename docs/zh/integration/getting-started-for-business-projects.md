@@ -308,7 +308,7 @@ ArchRule[] jfoundryRules = JFoundryRules.onionSimple();
 - `ReadModelPort`：页面、列表、报表、统计和投影查询。
 - `MaintenancePort`：后台扫描、清理、重试、修复候选选择。
 
-详细判断规则见 [Repository 与读侧端口迁移指南](repository-vs-read-ports.md)。
+详细判断规则见 [Repository 与读侧端口迁移指南](../modeling/repository-vs-read-ports.md)。
 
 ## Outbox 与 Inbox 何时启用
 
@@ -353,8 +353,8 @@ Add architecture tests before implementation.
 
 ## 下一步阅读
 
-- [架构风格指南](architecture-styles.md)
-- [ArchUnit 架构规则](archunit-rules.md)
-- [Repository 与读侧端口迁移指南](repository-vs-read-ports.md)
+- [架构风格指南](../framework/architecture-styles.md)
+- [ArchUnit 架构规则](../framework/archunit-rules.md)
+- [Repository 与读侧端口迁移指南](../modeling/repository-vs-read-ports.md)
 - [Transactional Outbox](transactional-outbox.md)
-- [值对象规范](value-object.md)
+- [值对象规范](../modeling/value-object.md)

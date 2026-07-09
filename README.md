@@ -72,10 +72,13 @@ runtime integration
   Spring Framework adapters, Spring Boot auto-configuration, and starters
 ```
 
-Dependencies point inward:
+Dependencies point inward. Runtime integration modules assemble core contracts and adapters, but core modules do not depend on runtime integrations:
 
 ```text
-runtime integration -> infrastructure -> application -> domain
+runtime integration
+  -> application / infrastructure adapters
+       -> application contracts
+            -> domain
 ```
 
 The same core can be assembled by Spring today, and by Quarkus, Helidon, Micronaut, or another runtime later.
@@ -133,7 +136,7 @@ Typical module dependencies:
 </dependency>
 ```
 
-Persistence, Outbox, Inbox, and broker starters should be added explicitly based on business needs. Avoid adding every starter by default. See [Getting Started for Business Projects](docs/getting-started-for-business-projects.md) for module-level dependency guidance.
+Persistence, Outbox, Inbox, and broker starters should be added explicitly based on business needs. Avoid adding every starter by default. See [Getting Started for Business Projects](docs/en/integration/getting-started-for-business-projects.md) for module-level dependency guidance.
 
 ## Domain Model Example
 
@@ -194,7 +197,7 @@ aggregate records domain event
   -> consumer side uses InboxTemplate for message/consumer idempotency
 ```
 
-Outbox is optional. Enable it only when events need cross-process delivery, retry, or reliable externalization. See [Transactional Outbox](docs/transactional-outbox.md) for details.
+Outbox is optional. Enable it only when events need cross-process delivery, retry, or reliable externalization. See [Transactional Outbox](docs/en/integration/transactional-outbox.md) for details.
 
 ## Modules
 
@@ -210,14 +213,10 @@ Outbox is optional. Enable it only when events need cross-process delivery, retr
 
 ## Documentation
 
-- [Getting Started for Business Projects](docs/getting-started-for-business-projects.md)
-- [Architecture Styles](docs/architecture-styles.md)
-- [ArchUnit Architecture Rules](docs/archunit-rules.md)
-- [Repository and Read-side Ports Migration Guide](docs/repository-vs-read-ports.md)
-- [Transactional Outbox](docs/transactional-outbox.md)
-- [Persistence DataConverter and MapStruct Guide](docs/persistence-data-converters.md)
-- [Value Object Guide](docs/value-object.md)
-- [Framework Boundaries](docs/framework-boundaries.md)
+- [Documentation Index](docs/en/index.md)
+- Framework semantics: [Architecture Styles](docs/en/framework/architecture-styles.md), [ArchUnit Rules](docs/en/framework/archunit-rules.md), [Framework Boundaries](docs/en/framework/framework-boundaries.md)
+- Modeling conventions: [Value Objects](docs/en/modeling/value-object.md), [Repository and Read-side Ports](docs/en/modeling/repository-vs-read-ports.md)
+- Technical integration: [Getting Started](docs/en/integration/getting-started-for-business-projects.md), [Persistence DataConverter](docs/en/integration/persistence-data-converters.md), [Transactional Outbox and Inbox](docs/en/integration/transactional-outbox.md)
 
 ## Build
 

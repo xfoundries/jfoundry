@@ -109,7 +109,7 @@ Outbox/Inbox data object 不继承 `AggregateData`；对应 MyBatis store 直接
 
 `jfoundry-messaging-spring` 只放 Spring-specific messaging transport adapter，例如默认 logging `MessageSender`、Spring Kafka/RabbitMQ wrapper。它负责把 Spring 侧消息客户端适配到 `MessageSender` SPI，不负责领域事件发布或事件外部化规则。
 
-`jfoundry-outbox-spring` 只放 Spring-specific outbox adapter，例如 `DefaultDomainEventOutboxRecorder`、scheduling、transaction synchronization、properties binding 和 Spring-specific outbox wiring。它负责“如何把符合规则的领域事件写入 Outbox 并调度派发”，不定义领域事件本身，也不定义 broker 抽象。
+`jfoundry-outbox-spring` 只放 Spring-specific outbox runtime adapter，例如 `DefaultDomainEventOutboxRecorder`、scheduled dispatcher、transaction synchronization 和 Spring-specific outbox runtime wiring。`@ConfigurationProperties`、条件装配和 Spring Boot bean wiring 属于 `jfoundry-spring-boot-autoconfigure`。它负责“如何把符合规则的领域事件写入 Outbox 并调度派发”，不定义领域事件本身，也不定义 broker 抽象。
 
 `jfoundry-outbox-jobrunr` 只放纯 JobRunr adapter。JobRunr 的 Spring Boot auto-configuration 属于 `jfoundry-spring/jfoundry-spring-boot-autoconfigure`。
 

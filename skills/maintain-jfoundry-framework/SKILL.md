@@ -43,12 +43,12 @@ When framework docs, examples, or test fixtures mention DDD modeling concepts, k
 
 Prefer current repository documents and code over memory:
 
-- `docs/framework-boundaries.md`
-- `docs/architecture-styles.md`
-- `docs/archunit-rules.md`
-- `docs/transactional-outbox.md`
-- `docs/repository-vs-read-ports.md`
-- `docs/release/compatibility.md`
+- `docs/en/framework/framework-boundaries.md`
+- `docs/en/framework/architecture-styles.md`
+- `docs/en/framework/archunit-rules.md`
+- `docs/en/integration/transactional-outbox.md`
+- `docs/en/modeling/repository-vs-read-ports.md`
+- `docs/en/release/compatibility.md`
 - `AGENTS.md` for repository-wide language, SQL template, and project skill policy
 - top-level `pom.xml` and module POMs
 - nearby tests in the module being changed

@@ -50,7 +50,7 @@ Check:
 2. Does it make an optional capability implicit?
 3. Does it pull a broker, ORM, migration tool, or scheduler into the default path?
 4. Does auto-configuration still have matching conditions?
-5. Does README or `docs/getting-started-for-business-projects.md` need an update?
+5. Does README or `docs/en/integration/getting-started-for-business-projects.md` need an update? If the change affects localized user guidance, update the matching `docs/zh/` page too.
 6. Does the compatibility matrix need a version entry?
 
 ## Release Compatibility

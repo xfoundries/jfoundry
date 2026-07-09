@@ -13,7 +13,7 @@ Transactional Outbox（事务性发件箱）是一种可靠发布消息的通用
 
 只在需要把领域事件可靠投递到进程外系统时使用 Outbox，例如 Kafka、RabbitMQ、异步集成、跨服务通知、失败重试和最终一致性链路。如果事件只需要进程内 Spring 监听器处理，不需要配置 Outbox。
 
-![transactional-outbox.png](outbox/transactional-outbox.png)
+![transactional-outbox.png](../../assets/outbox/transactional-outbox.png)
 
 ## jfoundry 事件链路
 

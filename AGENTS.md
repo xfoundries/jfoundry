@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This is a Java 21 multi-module Maven project for a jMolecules-based, runtime-neutral DDD framework. Top-level modules are declared in `pom.xml`: `jfoundry-dependencies`, `jfoundry-architecture`, `jfoundry-domain`, `jfoundry-application`, `jfoundry-infrastructure`, `jfoundry-starters`, `jfoundry-spring`, and `jfoundry-verification`. Production code uses standard Maven paths such as `src/main/java`; tests live under `src/test/java`; module resources live under `src/main/resources` or `src/test/resources`. SQL files shipped by jfoundry are copyable templates, not auto-run migrations. Documentation is in `docs/`, with the default English overview in `README.md` and the Chinese overview in `README_ZH.md`.
+This is a Java 21 multi-module Maven project for a jMolecules-based, runtime-neutral DDD framework. Top-level modules are declared in `pom.xml`: `jfoundry-dependencies`, `jfoundry-architecture`, `jfoundry-domain`, `jfoundry-application`, `jfoundry-infrastructure`, `jfoundry-starters`, `jfoundry-spring`, and `jfoundry-verification`. Production code uses standard Maven paths such as `src/main/java`; tests live under `src/test/java`; module resources live under `src/main/resources` or `src/test/resources`. SQL files shipped by jfoundry are copyable templates, not auto-run migrations. Documentation is organized by language under `docs/en/` and `docs/zh/`, with the default English overview in `README.md` and the Chinese overview in `README_ZH.md`.
 
 ## Build, Test, and Development Commands
 
@@ -33,13 +33,17 @@ As an open-source framework, source-level artifacts must be friendly to the wide
 
 - Source comments must be written in English. This includes Java Javadocs, `package-info.java`, inline comments, test documentation comments, configuration property comments, architecture rule explanations, SQL comments, XML/POM comments, YAML/properties comments, and other resource comments shipped in jars.
 - Use `jMolecules` as the prose spelling for the upstream project. Keep lowercase forms only when they are exact technical identifiers, such as `org.jmolecules`, `jmolecules-*` artifact IDs, property names, package names, class names, method names, URLs, or string literals.
-- Public documentation may be localized, but languages must not be mixed in the same document. `README.md` is the default English overview; `README_ZH.md` is the Chinese overview. Add or update separate localized files instead of mixing Chinese and English sections in one file.
+- Public documentation may be localized, but languages must not be mixed in the same document. `README.md` is the default English overview; `README_ZH.md` is the Chinese overview. Detailed documentation should use matching language-specific paths under `docs/en/` and `docs/zh/`, keeping the same conceptual structure when practical.
 - Commit messages, release notes intended for repository history, Maven metadata, generated documentation text, and PR descriptions should be written in English.
 - When editing existing Chinese comments in source files, translate them to English instead of adding new Chinese comments nearby. Do not translate user-facing Chinese documentation unless the file is meant to be English.
 
 ## Testing Guidelines
 
 Tests use JUnit Jupiter, Spring Boot test support where needed, and ArchUnit for architecture rules. Add focused tests near the module being changed, especially for outbox state transitions, auto-configuration conditions, persistence behavior, and architecture constraints. Some modules configure Surefire with `--add-opens=java.base/java.lang.invoke=ALL-UNNAMED`; keep that requirement in mind when moving specification or reflection-based tests.
+
+## Documentation Sync
+
+When changing framework behavior, public APIs, module boundaries, starter dependencies, auto-configuration, configuration properties, SQL templates, architecture rules, compatibility baselines, or user-facing workflows, check whether README, `docs/en/`, `docs/zh/`, and `skills/maintain-jfoundry-framework` need matching updates. Documentation updates should describe the current behavior, not historical implementation details. If an English user-facing doc is updated and a corresponding Chinese doc exists, update both or state why only one language is affected.
 
 ## SQL Templates
 
@@ -61,6 +65,6 @@ Javadocs and documentation comments in source code must follow the Language Poli
 
 - This repository owns a local framework-maintenance skill at `skills/maintain-jfoundry-framework`. When modifying jfoundry framework internals, use `$maintain-jfoundry-framework` if the agent runtime exposes it. If it is not auto-loaded, read `skills/maintain-jfoundry-framework/SKILL.md` and the relevant files under `skills/maintain-jfoundry-framework/references/` directly before editing.
 - Use `maintain-jfoundry-framework` for changes to module boundaries, public APIs, jMolecules architecture annotations, ArchUnit rules, Maven BOMs, starters, Spring Boot auto-configuration, runtime adapters, persistence adapters, messaging adapters, Outbox/Inbox internals, release compatibility, and framework documentation.
-- Treat this file, the local maintenance skill, and repository documentation as the project contract. For framework-internal changes, cross-check the relevant local docs before editing: `docs/framework-boundaries.md` for module placement, `docs/architecture-styles.md` and `docs/archunit-rules.md` for architecture semantics, `docs/transactional-outbox.md` for Outbox behavior, and `docs/release/compatibility.md` for platform baselines.
+- Treat this file, the local maintenance skill, and repository documentation as the project contract. For framework-internal changes, cross-check the relevant local docs before editing: `docs/en/framework/framework-boundaries.md` for module placement, `docs/en/framework/architecture-styles.md` and `docs/en/framework/archunit-rules.md` for architecture semantics, `docs/en/integration/transactional-outbox.md` for Outbox behavior, and `docs/en/release/compatibility.md` for platform baselines.
 - Keep framework maintenance guidance separate from downstream business-project guidance. Do not apply `maintain-jfoundry-framework` rules to downstream business projects that merely consume jfoundry, and do not use downstream business-project guidance as authority for changing jfoundry internals.
 - Do not add instructions that depend on unavailable private repositories or local-only skill names outside this repository. If a useful external tool or plugin is unavailable, continue from this repository's docs and state the assumption explicitly.

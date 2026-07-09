@@ -54,7 +54,7 @@ When changing public types:
 
 ## Documentation Placement
 
-- Business-facing feature docs go under `docs/`.
-- Release and compatibility docs go under `docs/release/`.
+- Business-facing feature docs go under the matching language path in `docs/en/` and `docs/zh/`.
+- Release and compatibility docs go under `docs/en/release/` unless a localized release document is intentionally added under `docs/zh/release/`.
 - Framework maintainer rules may be summarized in this skill and should reference the docs rather than duplicate long explanations.
 - Do not create scattered ad hoc notes when an existing doc has the same topic.

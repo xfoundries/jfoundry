@@ -27,8 +27,9 @@
 | RocketMQ client | 5.5.0 |
 | Javassist override | 3.30.2-GA |
 
-Business applications aligning to this matrix should also read
-[Platform Alignment Guide](../platform-alignment.md) before adding runtime starters.
+Business applications aligning to this matrix should prefer the Spring dependency BOM and add
+runtime starters explicitly by capability. Do not import every starter into a business application
+by default.
 
 `org.javassist:javassist` is managed explicitly because `rocketmq-client:5.5.0` brings
 `rocketmq-remoting -> reflections:0.9.11 -> javassist:3.21.0-GA`, whose POM emits a
@@ -66,7 +67,8 @@ up to Java 26. JDK 25 reached General Availability on 2025-09-16.
 | Maven release tool | Maven 3.9.x until Maven 4 GA |
 | Maven 4 | Compatibility matrix first, release tool only after GA evidence |
 
-See `docs/superpowers/plans/2026-06-27-spring-boot-4-java-25.md`.
+Treat the 2.x line as a separate compatibility track until the repository records full Spring Boot
+4.x, Spring Framework 7.x, Maven, and CI evidence.
 
 ## Release Gates
 
