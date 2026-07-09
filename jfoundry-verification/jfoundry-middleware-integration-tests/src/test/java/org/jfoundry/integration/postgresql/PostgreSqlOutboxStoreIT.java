@@ -33,7 +33,10 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
-@SpringBootTest(classes = PostgreSqlOutboxInboxDatabaseConfig.class)
+@SpringBootTest(
+        classes = PostgreSqlOutboxInboxDatabaseConfig.class,
+        properties = "jfoundry.outbox.dispatcher.mode=none"
+)
 class PostgreSqlOutboxStoreIT {
 
     @Container

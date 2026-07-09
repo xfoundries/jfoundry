@@ -29,7 +29,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
-@SpringBootTest(classes = PostgreSqlOutboxInboxDatabaseConfig.class)
+@SpringBootTest(
+        classes = PostgreSqlOutboxInboxDatabaseConfig.class,
+        properties = "jfoundry.outbox.dispatcher.mode=none"
+)
 class PostgreSqlInboxStoreIT {
 
     @Container

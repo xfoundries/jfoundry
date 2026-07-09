@@ -40,7 +40,10 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
-@SpringBootTest(classes = OutboxInboxDatabaseConfig.class)
+@SpringBootTest(
+        classes = OutboxInboxDatabaseConfig.class,
+        properties = "jfoundry.outbox.dispatcher.mode=none"
+)
 class RocketMqOutboxDispatchIT {
 
     private static final String TOPIC = "jfoundry_integration_outbox";
