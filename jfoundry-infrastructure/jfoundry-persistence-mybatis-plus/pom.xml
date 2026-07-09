@@ -16,6 +16,10 @@
         Outbox MP implementation lives in jfoundry-outbox-mybatis-plus.
     </description>
 
+    <properties>
+        <mockito.javaagent.argLine>-javaagent:${org.mockito:mockito-core:jar}</mockito.javaagent.argLine>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.github.xfoundries</groupId>

@@ -17,6 +17,10 @@
         jfoundry-persistence-core / business Repository infrastructure.
     </description>
 
+    <properties>
+        <mockito.javaagent.argLine>-javaagent:${org.mockito:mockito-core:jar}</mockito.javaagent.argLine>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.github.xfoundries</groupId>

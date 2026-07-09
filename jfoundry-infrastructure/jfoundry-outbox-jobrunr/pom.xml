@@ -19,6 +19,10 @@
         Framework-specific auto-configuration lives in jfoundry-autoconfigure.
     </description>
 
+    <properties>
+        <mockito.javaagent.argLine>-javaagent:${org.mockito:mockito-core:jar}</mockito.javaagent.argLine>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.github.xfoundries</groupId>

@@ -12,6 +12,10 @@
     <name>jfoundry-messaging-rabbitmq</name>
     <description>RabbitMQ MessageSender adapter for jfoundry messaging.</description>
 
+    <properties>
+        <mockito.javaagent.argLine>-javaagent:${org.mockito:mockito-core:jar}</mockito.javaagent.argLine>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.github.xfoundries</groupId>
