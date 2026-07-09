@@ -18,6 +18,7 @@
         <module>jfoundry-messaging-spring</module>
         <module>jfoundry-outbox-spring</module>
         <module>jfoundry-transaction-spring</module>
+        <module>jfoundry-lock-spring</module>
         <module>jfoundry-webmvc-spring</module>
     </modules>
 </project>

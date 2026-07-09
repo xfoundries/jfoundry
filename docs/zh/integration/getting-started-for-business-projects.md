@@ -206,6 +206,7 @@ transactionRunner.run(TransactionOptions.builder()
 - Kafka adapter：`jfoundry-messaging-kafka-spring-boot-starter`
 - RabbitMQ adapter：`jfoundry-messaging-rabbitmq-spring-boot-starter`
 - RocketMQ adapter：`jfoundry-messaging-rocketmq-spring-boot-starter`
+- Redisson 分布式锁：`jfoundry-lock-redisson-spring-boot-starter`
 - 架构测试：`jfoundry-architecture-test`，`test` scope
 
 单应用模块可以作为小项目的折中做法，但不要因此把职责混在一起：仍应保留 domain、application、adapter、infrastructure 包边界，并让 ArchUnit 测试覆盖这些包。

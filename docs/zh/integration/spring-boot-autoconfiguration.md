@@ -7,6 +7,7 @@
 | Starter | 引入能力 | 不会引入 |
 |---------|----------|----------|
 | `jfoundry-spring-boot-starter` | Spring Boot 自动配置、Spring `TransactionRunner` 集成 | Outbox、Inbox、MyBatis-Plus store、broker client、JobRunr |
+| `jfoundry-lock-redisson-spring-boot-starter` | 分布式锁 core、Spring `@DistributedLock` 拦截、Redisson adapter、Redisson Spring Boot starter | Outbox、Inbox、broker 投递 |
 | `jfoundry-event-spring-boot-starter` | 领域事件派发、Spring application event 发布 | Outbox 持久化或 broker 投递 |
 | `jfoundry-messaging-spring-boot-starter` | Messaging SPI、Jackson payload serializer、Spring messaging runtime、默认 logging `MessageSender` | Kafka、RabbitMQ、RocketMQ client |
 | `jfoundry-messaging-kafka-spring-boot-starter` | Kafka `MessageSender` adapter | Outbox store |
@@ -24,6 +25,8 @@
 
 | 配置项 | 默认值 | 作用 |
 |--------|--------|------|
+| `jfoundry.application.transaction.annotation.enabled` | `true` | 当存在 `TransactionRunner` Bean 时，开启 `@ApplicationTransactional` advisor。 |
+| `jfoundry.lock.annotation.enabled` | `true` | 当存在 `DistributedLockClient` Bean 时，开启 `@DistributedLock` advisor。 |
 | `jfoundry.domain.event.dispatch.enabled` | `true` | 开启应用服务边界上的领域事件自动派发。 |
 | `jfoundry.domain.event.dispatch.spring.enabled` | `true` | 当 Spring 事件 adapter 存在时，开启 Spring `ApplicationEventPublisher` 派发。 |
 | `jfoundry.domain.event.dispatch.outbox.enabled` | `false` | 当存在 `DomainEventOutboxRecorder` Bean 时，开启 Outbox 领域事件派发。 |
@@ -48,7 +51,8 @@
 
 | 自动配置 | 注册 Bean | 主要条件 |
 |----------|-----------|----------|
-| `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner` | 存在 `TransactionRunner`、`TransactionTemplate` 和 `PlatformTransactionManager`；没有已有 `TransactionRunner`。 |
+| `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner`、可选 `@ApplicationTransactional` advisor | 存在 `TransactionRunner`、`TransactionTemplate` 和 `PlatformTransactionManager`；没有已有 `TransactionRunner`。注解 advisor 需要存在 `TransactionRunner` Bean 且开启注解支持。 |
+| `DistributedLockAutoConfiguration` | `LockTemplate`、可选 Redisson `DistributedLockClient`、可选 `@DistributedLock` advisor | 存在 `jfoundry-lock-core`。Redisson adapter 需要 `RedissonClient`；注解 advisor 需要 `DistributedLockClient` 且开启注解支持。 |
 | `DomainEventPersistenceAutoConfiguration` | Repository `DomainEventContext` 注入器 | classpath 中存在 `DomainEventContext` 和 `AbstractPersistenceRepository`。 |
 | `DomainEventDispatchAutoConfiguration` | `DomainEventScope`、`DomainEventContext`、派发拦截器、Spring event dispatcher、可选 Outbox dispatcher | 应用服务和 dispatcher 类型存在；配置项允许对应路径。 |
 | `DomainEventOutboxRecorderAutoConfiguration` | `PayloadSerializer`、外部化 resolver、`DomainEventOutboxRecorder` | Outbox store 和 serializer 依赖可用；没有用户自定义替代 Bean。 |
@@ -67,4 +71,5 @@
 
 - SQL 文件只是可复制模板。jfoundry jar 不会自动创建 Outbox 或 Inbox 表。
 - broker-specific `MessageSender` 的自动配置先于 logging fallback，因此会优先生效。
+- 分布式锁是显式能力。默认 Spring Boot starter 不会引入 Redisson。
 - `mode=none` 表示不注册 dispatcher、recovery job 或 cleanup job，即使显式开启 recovery 或 cleanup 也不会注册。

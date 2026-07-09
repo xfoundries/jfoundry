@@ -35,6 +35,7 @@
     <spring-amqp.version>3.2.12</spring-amqp.version>
     <mybatis-spring.version>3.0.3</mybatis-spring.version>
     <spring-cloud-alibaba.version>2025.0.0.0</spring-cloud-alibaba.version>
+    <redisson.version>4.6.1</redisson.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -74,6 +75,11 @@
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis-spring</artifactId>
         <version>${mybatis-spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.redisson</groupId>
+        <artifactId>redisson-spring-boot-starter</artifactId>
+        <version>${redisson.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

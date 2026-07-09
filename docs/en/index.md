@@ -19,6 +19,7 @@ maintainer work.
 
 - [Getting Started for Business Projects](integration/getting-started-for-business-projects.md)
 - [Spring Boot Auto-configuration](integration/spring-boot-autoconfiguration.md)
+- [Application Transactions and Distributed Locks](integration/application-transactions-and-locks.md)
 - [Persistence DataConverter and MapStruct](integration/persistence-data-converters.md)
 - [Transactional Outbox and Inbox](integration/transactional-outbox.md)
 

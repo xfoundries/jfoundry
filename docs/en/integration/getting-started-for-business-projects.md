@@ -37,6 +37,7 @@ Start with the smallest useful skeleton:
 - Local Spring domain event publishing: `jfoundry-event-spring-boot-starter`
 - Messaging contracts and default logging sender: `jfoundry-messaging-spring-boot-starter`
 - Kafka/RabbitMQ/RocketMQ sender adapters: dedicated messaging starters
+- Redisson-backed distributed locks: `jfoundry-lock-redisson-spring-boot-starter`
 - Outbox core runtime: `jfoundry-outbox-spring-boot-starter`
 - Outbox MyBatis-Plus store: `jfoundry-outbox-mybatis-plus-spring-boot-starter`
 - JobRunr dispatch trigger: `jfoundry-outbox-jobrunr-spring-boot-starter`
@@ -69,5 +70,6 @@ wires the application.
 - [Architecture Styles](../framework/architecture-styles.md)
 - [ArchUnit Architecture Rules](../framework/archunit-rules.md)
 - [Repository and Read-side Ports](../modeling/repository-vs-read-ports.md)
+- [Application Transactions and Distributed Locks](application-transactions-and-locks.md)
 - [Persistence DataConverter and MapStruct](persistence-data-converters.md)
 - [Transactional Outbox and Inbox](transactional-outbox.md)

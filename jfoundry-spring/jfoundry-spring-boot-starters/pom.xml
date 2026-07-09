@@ -21,6 +21,7 @@
         <module>jfoundry-messaging-kafka-spring-boot-starter</module>
         <module>jfoundry-messaging-rocketmq-spring-boot-starter</module>
         <module>jfoundry-messaging-rabbitmq-spring-boot-starter</module>
+        <module>jfoundry-lock-redisson-spring-boot-starter</module>
         <module>jfoundry-outbox-spring-boot-starter</module>
         <module>jfoundry-outbox-mybatis-plus-spring-boot-starter</module>
         <module>jfoundry-outbox-jobrunr-spring-boot-starter</module>

@@ -8,6 +8,7 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 | Starter | Adds | Does not add |
 |---------|------|--------------|
 | `jfoundry-spring-boot-starter` | Spring Boot auto-configuration and Spring `TransactionRunner` integration | Outbox, Inbox, MyBatis-Plus stores, broker clients, JobRunr |
+| `jfoundry-lock-redisson-spring-boot-starter` | Distributed lock core, Spring `@DistributedLock` interception, Redisson adapter, Redisson Spring Boot starter | Outbox, Inbox, broker delivery |
 | `jfoundry-event-spring-boot-starter` | Domain event dispatch and Spring application event publishing | Outbox persistence or broker delivery |
 | `jfoundry-messaging-spring-boot-starter` | Messaging SPI, Jackson payload serializer, Spring messaging runtime, default logging `MessageSender` | Kafka, RabbitMQ, RocketMQ clients |
 | `jfoundry-messaging-kafka-spring-boot-starter` | Kafka `MessageSender` adapter | Outbox store |
@@ -25,6 +26,8 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 
 | Property | Default | Effect |
 |----------|---------|--------|
+| `jfoundry.application.transaction.annotation.enabled` | `true` | Enables `@ApplicationTransactional` advisor when a `TransactionRunner` bean exists. |
+| `jfoundry.lock.annotation.enabled` | `true` | Enables `@DistributedLock` advisor when a `DistributedLockClient` bean exists. |
 | `jfoundry.domain.event.dispatch.enabled` | `true` | Enables application-service boundary domain event dispatch. |
 | `jfoundry.domain.event.dispatch.spring.enabled` | `true` | Enables Spring `ApplicationEventPublisher` dispatch when the Spring event adapter is present. |
 | `jfoundry.domain.event.dispatch.outbox.enabled` | `false` | Enables Outbox-backed domain event dispatch when a `DomainEventOutboxRecorder` bean exists. |
@@ -49,7 +52,8 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 
 | Auto-configuration | Registers | Main conditions |
 |--------------------|-----------|-----------------|
-| `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner` | `TransactionRunner`, `TransactionTemplate`, and `PlatformTransactionManager` are available; no existing `TransactionRunner`. |
+| `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner`, optional `@ApplicationTransactional` advisor | `TransactionRunner`, `TransactionTemplate`, and `PlatformTransactionManager` are available; no existing `TransactionRunner`. The annotation advisor requires a `TransactionRunner` bean and annotation support enabled. |
+| `DistributedLockAutoConfiguration` | `LockTemplate`, optional Redisson `DistributedLockClient`, optional `@DistributedLock` advisor | `jfoundry-lock-core` is present. Redisson adapter requires `RedissonClient`; annotation advisor requires `DistributedLockClient` and annotation support enabled. |
 | `DomainEventPersistenceAutoConfiguration` | Repository `DomainEventContext` injector | `DomainEventContext` and `AbstractPersistenceRepository` are on the classpath. |
 | `DomainEventDispatchAutoConfiguration` | `DomainEventScope`, `DomainEventContext`, dispatch interceptor, Spring event dispatcher, optional Outbox dispatcher | Application service and dispatcher types are present; dispatch properties allow the selected path. |
 | `DomainEventOutboxRecorderAutoConfiguration` | `PayloadSerializer`, externalization resolvers, `DomainEventOutboxRecorder` | Outbox store and serializer dependencies are available; no user-defined replacement. |
@@ -69,5 +73,6 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 - SQL templates are copyable templates. jfoundry jars do not create Outbox or Inbox tables.
 - Broker-specific `MessageSender` beans take precedence over the logging fallback because their
   auto-configurations run before `MessageSenderAutoConfiguration`.
+- Distributed lock support is explicit. The default Spring Boot starter does not pull Redisson.
 - `mode=none` means no dispatcher, recovery job, or cleanup job is registered, even when recovery
   or cleanup is explicitly enabled.

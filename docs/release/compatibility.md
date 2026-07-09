@@ -24,6 +24,7 @@
 | Spring Kafka | 3.3.16 |
 | Spring AMQP | 3.2.12 |
 | JobRunr | 8.7.1 |
+| Redisson | 4.6.1 |
 | RocketMQ client | 5.5.0 |
 | Javassist override | 3.30.2-GA |
 
