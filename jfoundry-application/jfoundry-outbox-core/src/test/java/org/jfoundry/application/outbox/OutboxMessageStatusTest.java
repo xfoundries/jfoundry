@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// P2-1: OutboxMessageStatus must include DISPATCHING for atomic claim semantics.
+/// OutboxMessageStatus must include DISPATCHING for atomic claim semantics.
 class OutboxMessageStatusTest {
 
     @Test

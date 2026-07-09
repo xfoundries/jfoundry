@@ -42,7 +42,7 @@
     <postgresql.version>42.6.2</postgresql.version>
 
     <!-- Serialization and data binding -->
-    <jackson.version>2.19.4</jackson.version>
+    <jackson.version>2.21.4</jackson.version>
 
     <!-- Mapping and code generation -->
     <mapstruct.version>1.5.5.Final</mapstruct.version>

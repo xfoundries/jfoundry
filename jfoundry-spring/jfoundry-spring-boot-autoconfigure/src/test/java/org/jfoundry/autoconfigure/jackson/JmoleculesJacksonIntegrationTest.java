@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// P2-3 regression: {@code jmolecules-jackson} already ships {@code JMoleculesJacksonAutoConfiguration}
+/// {@code jmolecules-jackson} already ships {@code JMoleculesJacksonAutoConfiguration}
 /// registered through its {@code META-INF/spring/...AutoConfiguration.imports}. A previously copied
 /// {@code JfoundryJacksonAutoConfiguration} caused duplicate same-name beans.
 /// <p>

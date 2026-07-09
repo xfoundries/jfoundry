@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// P1-1 regression: two ScheduledOutboxDispatcher instances with different podIds share the same
+/// Two ScheduledOutboxDispatcher instances with different podIds share the same
 /// OutboxMessageStore and real H2 database, concurrently dispatch a batch of PENDING records, and
 /// assert that each record is passed to MessageSender.send only once. Multi-instance mutual
 /// exclusion is guaranteed by claimDispatchable atomicity, not by application-side idempotency.

@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Bean;
 ///   <li>Provides a default MybatisPlusInterceptor containing only PaginationInnerInterceptor when
 ///       no MybatisPlusInterceptor has been registered.</li>
 ///   <li>Registers MybatisPlusOutboxMessageStore as the default OutboxMessageStore implementation.</li>
-///   <li>P2-2: appends an Outbox dynamic table-name inner interceptor to MybatisPlusInterceptor,
+///   <li>Appends an Outbox dynamic table-name inner interceptor to MybatisPlusInterceptor,
 ///       rewriting the OutboxData logical table name {@code jfoundry_outbox_event} to the configured
 ///       {@code jfoundry.outbox.table-name}.</li>
 ///   <li>Leaves pagination dialect detection to MyBatis-Plus to avoid duplicating database-type
@@ -53,8 +53,8 @@ public class OutboxMybatisPlusAutoConfiguration {
     public MybatisPlusInterceptor mybatisPlusInterceptor(
             OutboxTableNameCustomizer outboxTableNameCustomizer) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        // P2-2: table-name rewriting must run before pagination because pagination adds LIMIT to
-        // the rewritten SQL.
+        // Table-name rewriting must run before pagination because pagination adds LIMIT to the
+        // rewritten SQL.
         outboxTableNameCustomizer.customize(interceptor);
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor());
         return interceptor;

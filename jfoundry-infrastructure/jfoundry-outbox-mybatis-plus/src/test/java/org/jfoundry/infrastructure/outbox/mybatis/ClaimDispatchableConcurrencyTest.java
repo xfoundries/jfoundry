@@ -22,8 +22,7 @@ import java.util.concurrent.Executors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/// P2-1: claimDispatchable must be atomic across threads — no two claimers
-/// receive the same record.
+/// claimDispatchable must be atomic across threads: no two claimers receive the same record.
 @SpringBootTest(classes = ClaimDispatchableConcurrencyTest.TestApp.class)
 class ClaimDispatchableConcurrencyTest {
 
@@ -106,7 +105,7 @@ class ClaimDispatchableConcurrencyTest {
                 .containsExactlyInAnyOrder("pending-1", "pending-2", "pending-3");
     }
 
-    /// P1-2 regression: claim must include retry-due FAILED rows, matching {@code findDispatchable}
+    /// Claim must include retry-due FAILED rows, matching {@code findDispatchable}
     /// candidate semantics. Otherwise, failed retries starve after switching to claim mode.
     @Test
     void claimDispatchableAlsoTakesRetryDueFailed() {
@@ -189,7 +188,7 @@ class ClaimDispatchableConcurrencyTest {
                 eventId, "topic", null, "com.example.Foo", "{}", Instant.now());
     }
 
-    /// P3-2 regression: when the same pod re-enters dispatch, readback must match the claimToken
+    /// When the same pod re-enters dispatch, readback must match the claimToken
     /// generated for the current call. It must not include DISPATCHING stragglers from a previous
     /// batch caused by {@code markAsPublished}/{@code markAsFailed} status update failures or pod
     /// re-entry during the send loop, because that would send them twice.
@@ -223,7 +222,7 @@ class ClaimDispatchableConcurrencyTest {
         Set<String> intersection = new HashSet<>(batch1Ids);
         intersection.retainAll(batch2Ids);
         assertThat(intersection)
-                .as("same-pod reentrant dispatch must not read back prior DISPATCHING stragglers (P3-2 fix)")
+                .as("same-pod reentrant dispatch must not read back prior DISPATCHING stragglers")
                 .isEmpty();
     }
 }

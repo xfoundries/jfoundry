@@ -20,7 +20,7 @@
 | Spring Framework | 6.2.19 |
 | MyBatis-Plus | 3.5.16 |
 | MyBatis-Plus Spring Boot 3 starter | 3.5.16 |
-| Jackson | 2.19.4 |
+| Jackson | 2.21.4 |
 | Spring Kafka | 3.3.16 |
 | Spring AMQP | 3.2.12 |
 | JobRunr | 8.7.1 |

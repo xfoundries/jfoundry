@@ -18,10 +18,11 @@ maintainer work.
 ## Technical Integration
 
 - [Getting Started for Business Projects](integration/getting-started-for-business-projects.md)
+- [Spring Boot Auto-configuration](integration/spring-boot-autoconfiguration.md)
 - [Persistence DataConverter and MapStruct](integration/persistence-data-converters.md)
 - [Transactional Outbox and Inbox](integration/transactional-outbox.md)
 
 ## Release and Compatibility
 
-- [Compatibility Matrix](release/compatibility.md)
-- [Maven Central Publishing](release/maven-central.md)
+- [Compatibility Matrix](../release/compatibility.md)
+- [Maven Central Publishing](../release/maven-central.md)

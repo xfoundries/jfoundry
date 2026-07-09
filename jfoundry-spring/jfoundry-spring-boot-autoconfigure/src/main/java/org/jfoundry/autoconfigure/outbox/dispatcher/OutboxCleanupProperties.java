@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.time.Duration;
 
-/// P2-5: Outbox cleanup job configuration.
+/// Outbox cleanup job configuration.
 /// <p>
 /// Prefix: {@code jfoundry.outbox.cleanup}
 /// <p>

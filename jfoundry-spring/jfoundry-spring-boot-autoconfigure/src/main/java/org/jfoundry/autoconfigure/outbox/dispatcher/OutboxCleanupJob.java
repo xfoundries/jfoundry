@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.time.Duration;
 import java.time.Instant;
 
-/// P2-5: Periodically cleans Outbox records that are in terminal states (PUBLISHED / DEAD_LETTERED)
+/// Periodically cleans Outbox records that are in terminal states (PUBLISHED / DEAD_LETTERED)
 /// and exceed their retention period.
 /// <p>
 /// Scenario: accumulated PUBLISHED / DEAD_LETTERED records in the Outbox table can slow down

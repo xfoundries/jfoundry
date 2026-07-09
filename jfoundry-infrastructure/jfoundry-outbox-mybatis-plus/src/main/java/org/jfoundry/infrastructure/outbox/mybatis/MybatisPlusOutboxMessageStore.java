@@ -38,8 +38,8 @@ import java.util.UUID;
 /// </ol>
 /// Under H2 READ_COMMITTED, selected rows naturally do not overlap and CAS failures are rare; under
 /// REPEATABLE_READ or higher isolation levels, CAS provides the defensive fallback. The
-/// {@code claimToken} field is kept and generated per call for operational observability and P3-2
-/// semantic alignment, but the CAS mode no longer relies on token-based readback deduplication.
+/// {@code claimToken} field is kept and generated per call for operational observability and claim
+/// correlation, but the CAS mode no longer relies on token-based readback deduplication.
 /// <p>
 /// Construction fails fast when the supplied MybatisPlusInterceptor does not contain a
 /// PaginationInnerInterceptor.
@@ -186,8 +186,8 @@ public class MybatisPlusOutboxMessageStore implements OutboxMessageStore {
         if (claimerId == null || claimerId.isBlank()) {
             throw new IllegalArgumentException("claimerId must not be blank");
         }
-        // claimToken is kept for P3-2 semantic alignment and operational correlation of this SQL
-        // batch, but CAS mode no longer relies on token-based readback deduplication. CAS-failed rows
+        // claimToken is kept for operational correlation of this SQL batch, but CAS mode no longer
+        // relies on token-based readback deduplication. CAS-failed rows
         // naturally do not appear in the return value.
         String claimToken = UUID.randomUUID().toString();
         Instant now = Instant.now();

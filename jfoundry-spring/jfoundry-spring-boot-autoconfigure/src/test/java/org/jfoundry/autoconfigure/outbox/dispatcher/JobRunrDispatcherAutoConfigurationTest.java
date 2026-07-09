@@ -21,10 +21,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/// P2-1 regression: {@link JobRunrDispatcherAutoConfiguration} must be registered through
-/// jfoundry-spring-boot-autoconfigure's {@code META-INF/spring/...AutoConfiguration.imports}, and
-/// must register {@link JobRunrOutboxDispatcher} as the {@link OutboxDispatcher} bean when
-/// {@code mode=jobrunr}.
+/// {@link JobRunrDispatcherAutoConfiguration} must be registered through jfoundry-spring-boot-
+/// autoconfigure's {@code META-INF/spring/...AutoConfiguration.imports}, and must register
+/// {@link JobRunrOutboxDispatcher} as the {@link OutboxDispatcher} bean when {@code mode=jobrunr}.
 /// <p>
 /// Uses {@link ApplicationContextRunner} + {@link AutoConfigurations#of} instead of
 /// {@code @SpringBootTest} to avoid triggering JobRunr's own auto-configuration

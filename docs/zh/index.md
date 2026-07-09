@@ -16,12 +16,13 @@
 ## 技术集成
 
 - [业务项目接入指南](integration/getting-started-for-business-projects.md)
+- [Spring Boot 自动配置总览](integration/spring-boot-autoconfiguration.md)
 - [持久化 DataConverter 与 MapStruct 使用指南](integration/persistence-data-converters.md)
 - [Transactional Outbox 事务性发件箱](integration/transactional-outbox.md)
 
 ## 发布与兼容
 
-发布、兼容矩阵和 Maven Central 说明当前维护英文版本：
+发布、兼容矩阵和 Maven Central 说明是维护者文档，当前只维护一份：
 
-- [Compatibility Matrix](../en/release/compatibility.md)
-- [Maven Central Publishing](../en/release/maven-central.md)
+- [Compatibility Matrix](../release/compatibility.md)
+- [Maven Central Publishing](../release/maven-central.md)

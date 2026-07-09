@@ -23,8 +23,8 @@ public final class PersistenceRules {
 
     /// Persistence implementation packages must not use {@code @Transactional} at class or method level.
     /// <p>
-    /// Guardrail for the P1-3 fix: prevents future accidental {@code @Transactional} annotations on
-    /// repository implementations after the Javadoc contract was corrected.
+    /// Prevents future accidental {@code @Transactional} annotations on repository implementations
+    /// after the transaction-boundary contract was clarified.
     /// <p>
     /// ArchUnit 1.4.2 has no {@code haveMethodsAnnotatedWith} API, so this rule uses a custom
     /// {@link ArchCondition} to check both class-level and method-level {@code @Transactional}
@@ -40,7 +40,7 @@ public final class PersistenceRules {
                     .should(haveTransactionalAtClassOrMethodLevel())
                     .allowEmptyShould(true)
                     .because("Transaction boundaries belong to the application layer; "
-                            + "persistence-layer @Transactional usage indicates contract drift from the P1-3 fix");
+                            + "persistence-layer @Transactional usage indicates transaction-boundary contract drift");
 
     /// Auto-configuration modules must not use {@code @Component}.
     /// <p>
@@ -56,7 +56,7 @@ public final class PersistenceRules {
                     .should(beAnnotatedWithOrMetaAnnotatedWith(COMPONENT_ANNOTATION, "Component"))
                     .allowEmptyShould(true)
                     .because("Auto-configuration modules should use @AutoConfiguration and @Bean; "
-                            + "@Component/@ComponentScan usage is forbidden (P1-1)");
+                            + "@Component/@ComponentScan usage is forbidden");
 
     private static ArchCondition<JavaClass> haveTransactionalAtClassOrMethodLevel() {
         return new ArchCondition<JavaClass>("be annotated with @Transactional at class or method level") {

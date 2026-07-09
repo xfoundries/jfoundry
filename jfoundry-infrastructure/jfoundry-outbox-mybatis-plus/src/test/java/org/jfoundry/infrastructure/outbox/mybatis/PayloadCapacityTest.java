@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// P2-4: payload_json column must accept 1MB+ payloads.
+/// payload_json column must accept 1MB+ payloads.
 /// <p>
 /// MySQL's TEXT (64KB) was too small for production integration events carrying
 /// large domain payloads. The migration script now declares the column as

@@ -21,19 +21,19 @@ import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// P2-5: cleanup job must delete PUBLISHED records older than the retention threshold,
-/// and leave recent PUBLISHED records alone. Same applies to DEAD_LETTERED.
+/// Cleanup job must delete PUBLISHED records older than the retention threshold and leave recent
+/// PUBLISHED records alone. Same applies to DEAD_LETTERED.
 /// <p>
 /// Test isolation: the dedicated H2 DB name {@code jfoundry-cleanup-test} avoids sharing
 /// state with other autoconfigure tests that use {@code jfoundry-outbox-test} or
 /// {@code jfoundry-starter-test}. The dispatcher mode is set to {@code none} so this test
 /// only exercises cleanup behavior.
 /// <p>
-/// Caveat 1 (brief): {@code OutboxMessageStore.findById(...)} does not exist on the SPI —
+/// Note: {@code OutboxMessageStore.findById(...)} does not exist on the SPI —
 /// we verify deletion through {@link OutboxMapper#selectById(String)} instead (same
 /// pattern as {@code RecoverStuckDispatchingTest}).
 /// <p>
-/// Caveat 5 (brief): {@code OutboxMessage.newBuilder()} does not exist; the real factory is
+/// Note: {@code OutboxMessage.newBuilder()} does not exist; the real factory is
 /// {@link OutboxMessage#newPending}. After {@code append}, the row is in PENDING, so we
 /// flip it to the target terminal state via standard {@code lambdaUpdate}. Custom SQL helpers on the
 /// mapper were removed; all UPDATE operations are performed through BaseMapper + Wrapper.

@@ -10,9 +10,8 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-/// P2-4 regression: {@code payloadSerializer} must use
-/// {@code @ConditionalOnBean(ObjectMapper.class)}, so applications without Jackson do not fail
-/// startup because an ObjectMapper bean is missing.
+/// {@code payloadSerializer} must use {@code @ConditionalOnBean(ObjectMapper.class)}, so
+/// applications without Jackson do not fail startup because an ObjectMapper bean is missing.
 /// <p>
 /// Also verifies the transitive guard: the new
 /// {@code @ConditionalOnBean(PayloadSerializer.class)} on {@code domainEventOutboxRecorder} takes

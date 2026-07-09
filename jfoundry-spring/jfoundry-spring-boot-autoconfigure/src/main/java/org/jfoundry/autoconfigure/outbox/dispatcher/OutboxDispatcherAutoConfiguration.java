@@ -67,7 +67,7 @@ public class OutboxDispatcherAutoConfiguration {
                 properties.getMaxRetries(), backoffStrategy, properties.getBatchSize());
     }
 
-    /// P2-1 stuck-DISPATCHING recovery job.
+    /// Stuck-DISPATCHING recovery job.
     /// <p>
     /// Registered only when {@link OutboxMessageStore} exists and recovery is enabled. Recovery is
     /// enabled by default for {@code scheduled} and {@code jobrunr} dispatching, and is disabled
@@ -81,7 +81,7 @@ public class OutboxDispatcherAutoConfiguration {
         return new OutboxRecoveryJob(outboxRepository, recoveryProperties);
     }
 
-    /// P2-5 terminal-state cleanup job.
+    /// Terminal-state cleanup job.
     /// <p>
     /// Registered only when {@link OutboxMessageStore} exists and cleanup is enabled. Cleanup is
     /// enabled by default for {@code scheduled} and {@code jobrunr} dispatching, and is disabled

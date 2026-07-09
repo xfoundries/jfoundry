@@ -35,11 +35,11 @@ public class OutboxData {
     private Instant nextRetryAt;
     private Instant createdAt;
     private Instant updatedAt;
-    /// P2-1: atomic claim column aligned with OutboxMessage.claimedAt, added by the Task 2.1 schema.
+    /// Atomic claim timestamp aligned with OutboxMessage.claimedAt.
     private Instant claimedAt;
-    /// P2-1: pod identifier that claimed this entry, aligned with OutboxMessage.claimedBy.
+    /// Pod identifier that claimed this entry, aligned with OutboxMessage.claimedBy.
     private String claimedBy;
-    /// P3-2: unique token generated for this claimDispatchable call, aligned with OutboxMessage.claimToken.
+    /// Unique token generated for this claimDispatchable call, aligned with OutboxMessage.claimToken.
     private String claimToken;
 
     public String getEventId() { return eventId; }

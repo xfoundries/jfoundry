@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/// P3-3: JFoundryRules must expose explicit primary-style entrypoints, not a catch-all all().
+/// JFoundryRules must expose explicit primary-style entrypoints, not a catch-all all().
 class JFoundryRulesTest {
 
     private static final ClassFileImporter IMPORTER = new ClassFileImporter();

@@ -19,8 +19,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// P1-2 regression: business-side custom DomainEventOutboxRecorder replaces
-/// the framework default outbox recorder explicitly.
+/// Business-side custom DomainEventOutboxRecorder replaces the framework default outbox recorder
+/// explicitly.
 /// <p>
 /// TestApp provides an ObjectMapper bean so DomainEventOutboxRecorderAutoConfiguration's
 /// payloadSerializer can be registered normally through @ConditionalOnBean(ObjectMapper.class),

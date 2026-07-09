@@ -47,8 +47,4 @@ mvn test
 - Add concurrency tests for claim, retry, idempotency, or state transition changes.
 - Add middleware integration tests only when the behavior requires real database or broker verification.
 
-## Special Notes
-
-Some modules use Surefire `--add-opens=java.base/java.lang.invoke=ALL-UNNAMED` for reflection/specification tests. Preserve this when moving related tests.
-
 When changing public API, starter dependencies, configuration properties, table schemas, or release baselines, include compatibility impact in the final report even if tests pass.

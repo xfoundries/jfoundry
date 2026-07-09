@@ -58,7 +58,7 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <classesDirectory>${maven.multiModuleProjectDirectory}/docs/release/javadoc-placeholder</classesDirectory>
+                            <classesDirectory>${maven.multiModuleProjectDirectory}/.mvn/javadoc-placeholder</classesDirectory>
                             <classifier>javadoc</classifier>
                             <includes>
                                 <include>README.md</include>

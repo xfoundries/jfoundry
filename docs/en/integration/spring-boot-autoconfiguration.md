@@ -1,0 +1,73 @@
+# Spring Boot Auto-configuration
+
+This page summarizes the Spring Boot entry points, configuration properties, and bean conditions
+provided by jfoundry. Use it to choose starters and to diagnose why a bean is or is not registered.
+
+## Starter Entry Points
+
+| Starter | Adds | Does not add |
+|---------|------|--------------|
+| `jfoundry-spring-boot-starter` | Spring Boot auto-configuration and Spring `TransactionRunner` integration | Outbox, Inbox, MyBatis-Plus stores, broker clients, JobRunr |
+| `jfoundry-event-spring-boot-starter` | Domain event dispatch and Spring application event publishing | Outbox persistence or broker delivery |
+| `jfoundry-messaging-spring-boot-starter` | Messaging SPI, Jackson payload serializer, Spring messaging runtime, default logging `MessageSender` | Kafka, RabbitMQ, RocketMQ clients |
+| `jfoundry-messaging-kafka-spring-boot-starter` | Kafka `MessageSender` adapter | Outbox store |
+| `jfoundry-messaging-rabbitmq-spring-boot-starter` | RabbitMQ `MessageSender` adapter | Outbox store |
+| `jfoundry-messaging-rocketmq-spring-boot-starter` | RocketMQ `MessageSender` adapter | Outbox store |
+| `jfoundry-outbox-spring-boot-starter` | Outbox core, domain-event externalization, scheduled dispatch integration | Outbox table store, JobRunr |
+| `jfoundry-outbox-mybatis-plus-spring-boot-starter` | MyBatis-Plus `OutboxMessageStore` adapter | Database migration execution |
+| `jfoundry-outbox-jobrunr-spring-boot-starter` | JobRunr Outbox dispatcher | Outbox table store |
+| `jfoundry-inbox-spring-boot-starter` | Inbox core and `InboxTemplate` | Inbox table store |
+| `jfoundry-inbox-mybatis-plus-spring-boot-starter` | MyBatis-Plus `InboxMessageStore` adapter | Database migration execution |
+| `jfoundry-mybatis-plus-spring-boot-starter` | Spring Boot MyBatis-Plus runtime assembly | Business persistence starter, Outbox/Inbox stores |
+| `jfoundry-webmvc-spring-boot-starter` | Web MVC `ProblemDetail` exception handling | Messaging, Outbox, Inbox |
+
+## Configuration Properties
+
+| Property | Default | Effect |
+|----------|---------|--------|
+| `jfoundry.domain.event.dispatch.enabled` | `true` | Enables application-service boundary domain event dispatch. |
+| `jfoundry.domain.event.dispatch.spring.enabled` | `true` | Enables Spring `ApplicationEventPublisher` dispatch when the Spring event adapter is present. |
+| `jfoundry.domain.event.dispatch.outbox.enabled` | `false` | Enables Outbox-backed domain event dispatch when a `DomainEventOutboxRecorder` bean exists. |
+| `jfoundry.outbox.table-name` | `jfoundry_outbox_event` | Rewrites the MyBatis-Plus Outbox physical table name. Applications must create the table. |
+| `jfoundry.outbox.dispatcher.mode` | `scheduled` | Selects `scheduled`, `jobrunr`, or `none`. |
+| `jfoundry.outbox.dispatcher.interval-ms` | `5000` | Fixed-delay interval for scheduled dispatch. |
+| `jfoundry.outbox.dispatcher.cron` | `*/10 * * * * *` | JobRunr recurring dispatch cron expression. |
+| `jfoundry.outbox.dispatcher.batch-size` | `50` | Maximum records claimed per dispatch run. |
+| `jfoundry.outbox.dispatcher.max-retries` | `5` | Maximum dispatch attempts before dead-lettering. |
+| `jfoundry.outbox.dispatcher.backoff-base-ms` | `1000` | Base retry backoff. |
+| `jfoundry.outbox.dispatcher.backoff-max-ms` | `300000` | Maximum retry backoff. |
+| `jfoundry.outbox.recovery.enabled` | follows dispatcher mode | Enables stuck `DISPATCHING` recovery for `scheduled` and `jobrunr`; always disabled for `none`. |
+| `jfoundry.outbox.recovery.interval` | `60s` | Recovery job interval. |
+| `jfoundry.outbox.recovery.stuck-timeout` | `5m` | Age after which `DISPATCHING` rows are considered stuck. |
+| `jfoundry.outbox.cleanup.enabled` | follows dispatcher mode | Enables terminal-row cleanup for `scheduled` and `jobrunr`; always disabled for `none`. |
+| `jfoundry.outbox.cleanup.interval` | `24h` | Cleanup job interval. |
+| `jfoundry.outbox.cleanup.published-retention-days` | `7` | Retention for `PUBLISHED` rows. |
+| `jfoundry.outbox.cleanup.dead-lettered-retention-days` | `30` | Retention for `DEAD_LETTERED` rows. |
+| `jfoundry.outbox.cleanup.batch-size` | `1000` | Maximum rows deleted per cleanup batch. |
+
+## Auto-configuration Conditions
+
+| Auto-configuration | Registers | Main conditions |
+|--------------------|-----------|-----------------|
+| `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner` | `TransactionRunner`, `TransactionTemplate`, and `PlatformTransactionManager` are available; no existing `TransactionRunner`. |
+| `DomainEventPersistenceAutoConfiguration` | Repository `DomainEventContext` injector | `DomainEventContext` and `AbstractPersistenceRepository` are on the classpath. |
+| `DomainEventDispatchAutoConfiguration` | `DomainEventScope`, `DomainEventContext`, dispatch interceptor, Spring event dispatcher, optional Outbox dispatcher | Application service and dispatcher types are present; dispatch properties allow the selected path. |
+| `DomainEventOutboxRecorderAutoConfiguration` | `PayloadSerializer`, externalization resolvers, `DomainEventOutboxRecorder` | Outbox store and serializer dependencies are available; no user-defined replacement. |
+| `MessageSenderAutoConfiguration` | `LoggingMessageSender` fallback | No user-defined or broker-specific `MessageSender` exists. The fallback returns failed send results. |
+| `KafkaMessageSenderAutoConfiguration` | `KafkaMessageSender` | `KafkaOperations` class and bean exist; no existing `MessageSender`. |
+| `RabbitMqMessageSenderAutoConfiguration` | `RabbitMqMessageSender` | `RabbitTemplate` class and `RabbitOperations` bean exist; no existing `MessageSender`. |
+| `RocketMqMessageSenderAutoConfiguration` | `RocketMqMessageSender` | RocketMQ producer class and `MQProducer` bean exist; no existing `MessageSender`. |
+| `OutboxMybatisPlusAutoConfiguration` | Outbox table-name customizer, `MybatisPlusInterceptor`, `OutboxMessageStore` | MyBatis-Plus and Outbox store adapter classes are present. SQL templates are not run automatically. |
+| `OutboxDispatcherAutoConfiguration` | `BackoffStrategy`, scheduled dispatcher, recovery job, cleanup job | Outbox store, message sender, and scheduled dispatcher classes are present; mode is `scheduled` or maintenance is enabled by managed modes. |
+| `JobRunrDispatcherAutoConfiguration` | `JobRunrOutboxDispatcher` | JobRunr and jfoundry JobRunr adapter classes are present; `mode=jobrunr`; store, sender, and backoff beans exist. |
+| `InboxMybatisPlusAutoConfiguration` | MyBatis-Plus `InboxMessageStore` | `SqlSessionFactory`, mapper scanning, and Inbox store adapter are present; no existing store. |
+| `InboxAutoConfiguration` | `InboxTemplate` | `InboxTemplate` is on the classpath and an `InboxMessageStore` bean exists. |
+| `WebMvcProblemDetailAutoConfiguration` | `ProblemDetailExceptionHandler` | Servlet Web MVC application and handler class are present; no existing handler. |
+
+## Notes
+
+- SQL templates are copyable templates. jfoundry jars do not create Outbox or Inbox tables.
+- Broker-specific `MessageSender` beans take precedence over the logging fallback because their
+  auto-configurations run before `MessageSenderAutoConfiguration`.
+- `mode=none` means no dispatcher, recovery job, or cleanup job is registered, even when recovery
+  or cleanup is explicitly enabled.

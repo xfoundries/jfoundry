@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/// P3-1: jfoundry ValueObject must extend jMolecules ValueObject so business code
+/// jfoundry ValueObject must extend jMolecules ValueObject so business code
 /// imports only the wrapper and gets jMolecules ecosystem compatibility for free.
 class ValueObjectTest {
 

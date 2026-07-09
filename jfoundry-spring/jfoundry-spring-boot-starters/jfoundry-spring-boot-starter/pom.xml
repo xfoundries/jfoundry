@@ -41,6 +41,43 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-lightweight-default-starter</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <searchTransitive>true</searchTransitive>
+                                    <message>
+                                        jfoundry-spring-boot-starter must stay lightweight. Use dedicated capability starters for Outbox, Inbox, MyBatis-Plus, brokers, or JobRunr.
+                                    </message>
+                                    <excludes>
+                                        <exclude>io.github.xfoundries:jfoundry-outbox-*</exclude>
+                                        <exclude>io.github.xfoundries:jfoundry-inbox-*</exclude>
+                                        <exclude>io.github.xfoundries:jfoundry-messaging-kafka</exclude>
+                                        <exclude>io.github.xfoundries:jfoundry-messaging-rabbitmq</exclude>
+                                        <exclude>io.github.xfoundries:jfoundry-messaging-rocketmq</exclude>
+                                        <exclude>io.github.xfoundries:jfoundry-persistence-mybatis-plus</exclude>
+                                        <exclude>io.github.xfoundries:jfoundry-outbox-jobrunr</exclude>
+                                        <exclude>com.baomidou:*</exclude>
+                                        <exclude>org.mybatis:*</exclude>
+                                        <exclude>org.springframework.kafka:*</exclude>
+                                        <exclude>org.springframework.amqp:*</exclude>
+                                        <exclude>org.apache.rocketmq:*</exclude>
+                                        <exclude>org.jobrunr:*</exclude>
+                                    </excludes>
+                                </bannedDependencies>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <skip>true</skip>
@@ -57,7 +94,7 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <classesDirectory>${maven.multiModuleProjectDirectory}/docs/release/javadoc-placeholder</classesDirectory>
+                            <classesDirectory>${maven.multiModuleProjectDirectory}/.mvn/javadoc-placeholder</classesDirectory>
                             <classifier>javadoc</classifier>
                             <includes>
                                 <include>README.md</include>

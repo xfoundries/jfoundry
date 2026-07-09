@@ -21,25 +21,23 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// P2-2: {@code jfoundry.outbox.table-name} must redirect OutboxData persistence to a
-/// custom-named physical table. The {@link OutboxMybatisPlusAutoConfiguration} registers
-/// a {@code DynamicTableNameInnerInterceptor} that rewrites the logical name
+/// {@code jfoundry.outbox.table-name} must redirect OutboxData persistence to a custom-named
+/// physical table. The {@link OutboxMybatisPlusAutoConfiguration} registers a
+/// {@code DynamicTableNameInnerInterceptor} that rewrites the logical name
 /// {@code jfoundry_outbox_event} to whatever business configures.
 /// <p>
 /// Side assertion: the default {@code jfoundry_outbox_event} table (also created by the test
 /// fixture) must stay empty — proving the rewrite happened, not that we widened the write.
 /// <p>
-/// P3-3: coverage previously included only append; this test now also covers the operational paths
-/// claimDispatchable, recoverStuckDispatching, and deleteByStatusAndOccurredAtBefore. It ensures
-/// {@code TableNameHandler} rewriting also applies to custom mapper SQL
-/// ({@code @Update}/{@code @Select}/{@code @Delete}), not only standard BaseMapper CRUD.
+/// Coverage includes append and the operational paths claimDispatchable, recoverStuckDispatching,
+/// and deleteByStatusAndOccurredAtBefore. It ensures {@code TableNameHandler} rewriting also
+/// applies to custom mapper SQL ({@code @Update}/{@code @Select}/{@code @Delete}), not only
+/// standard BaseMapper CRUD.
 /// <p>
-/// Isolation: this test brings up the full autoconfig chain, so we (1) set dispatcher
-/// mode to none to avoid polling interacting with downstream tests, and (2) use
-/// a dedicated in-memory H2 name. Same cross-test flakiness pattern as Task 2.3 (see
-/// {@code task-2.3-report.md}) — Task 2.3 moved its test to messaging-mybatis-plus; we
-/// keep this one in autoconfigure because it specifically exercises the
-/// autoconfig-layer {@code TableNameHandler} wiring.
+/// Isolation: this test brings up the full autoconfig chain, so it sets dispatcher mode to none to
+/// avoid polling interacting with downstream tests and uses a dedicated in-memory H2 name. This test
+/// stays in autoconfigure because it specifically exercises the autoconfig-layer
+/// {@code TableNameHandler} wiring.
 @SpringBootTest(
         classes = OutboxTableNameOverrideTest.TestApp.class,
         properties = {
@@ -104,8 +102,8 @@ class OutboxTableNameOverrideTest {
                 .isEqualTo(0);
     }
 
-    /// P3-3 regression: claimDispatchable custom SQL ({@code UPDATE...LIMIT} plus the following
-    /// SELECT) must also be rewritten to custom_outbox by {@code DynamicTableNameInnerInterceptor};
+    /// claimDispatchable custom SQL ({@code UPDATE...LIMIT} plus the following SELECT) must also be
+    /// rewritten to custom_outbox by {@code DynamicTableNameInnerInterceptor};
     /// otherwise traffic goes to the default table and silently claims no records.
     @Test
     void claimDispatchableReadsFromCustomTable() {
@@ -131,8 +129,8 @@ class OutboxTableNameOverrideTest {
                 .isEqualTo(0);
     }
 
-    /// P3-3 regression: recoverStuckDispatching's
-    /// {@code UPDATE...WHERE status='DISPATCHING' AND claimed_at < cutoff} must be rewritten to
+    /// recoverStuckDispatching's {@code UPDATE...WHERE status='DISPATCHING' AND claimed_at < cutoff}
+    /// must be rewritten to
     /// custom_outbox; otherwise the recovery job silently does nothing.
     @Test
     void recoverStuckDispatchingOperatesOnCustomTable() {
@@ -160,9 +158,9 @@ class OutboxTableNameOverrideTest {
         assertThat(anyInDefault).isEqualTo(0);
     }
 
-    /// P3-3 regression: deleteByStatusAndOccurredAtBefore's subquery + LIMIT DELETE form must be
-    /// rewritten to custom_outbox; otherwise the cleanup job silently does nothing. The default table
-    /// is already empty, so DELETE returns 0 without an error, which is hard to notice.
+    /// deleteByStatusAndOccurredAtBefore's subquery + LIMIT DELETE form must be rewritten to
+    /// custom_outbox; otherwise the cleanup job silently does nothing. The default table is already
+    /// empty, so DELETE returns 0 without an error, which is hard to notice.
     @Test
     void deleteByStatusAndOccurredAtBeforeOperatesOnCustomTable() {
         // Build one record that is PUBLISHED and whose occurred_at is older than cutoff.

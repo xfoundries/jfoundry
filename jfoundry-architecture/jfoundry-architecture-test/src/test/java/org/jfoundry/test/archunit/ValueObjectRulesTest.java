@@ -7,9 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/// P3-1 guard: ValueObjectRules must be declared and must pass against jfoundry's own
-/// source (no non-final ValueObject, no mutable ValueObject fields, all have
-/// equals/hashCode via records).
+/// ValueObjectRules must be declared and must pass against jfoundry's own source
+/// (no non-final ValueObject, no mutable ValueObject fields, all have equals/hashCode via records).
 class ValueObjectRulesTest {
 
     private final JavaClasses classes = new ClassFileImporter()

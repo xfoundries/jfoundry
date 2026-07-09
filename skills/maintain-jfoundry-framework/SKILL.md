@@ -48,7 +48,7 @@ Prefer current repository documents and code over memory:
 - `docs/en/framework/archunit-rules.md`
 - `docs/en/integration/transactional-outbox.md`
 - `docs/en/modeling/repository-vs-read-ports.md`
-- `docs/en/release/compatibility.md`
+- `docs/release/compatibility.md`
 - `AGENTS.md` for repository-wide language, SQL template, and project skill policy
 - top-level `pom.xml` and module POMs
 - nearby tests in the module being changed

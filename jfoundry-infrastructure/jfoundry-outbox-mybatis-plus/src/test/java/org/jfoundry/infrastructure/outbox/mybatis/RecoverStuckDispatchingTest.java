@@ -17,8 +17,8 @@ import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/// P2-1 Task 2.3: {@code recoverStuckDispatching} must reset DISPATCHING records
-/// whose {@code claimed_at} is older than the cutoff back to PENDING, clearing
+/// {@code recoverStuckDispatching} must reset DISPATCHING records whose
+/// {@code claimed_at} is older than the cutoff back to PENDING, clearing
 /// {@code claimed_at}/{@code claimed_by}. Fresh DISPATCHING records (claimedAt
 /// within the threshold) must remain untouched.
 /// <p>

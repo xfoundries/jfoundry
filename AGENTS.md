@@ -39,7 +39,7 @@ As an open-source framework, source-level artifacts must be friendly to the wide
 
 ## Testing Guidelines
 
-Tests use JUnit Jupiter, Spring Boot test support where needed, and ArchUnit for architecture rules. Add focused tests near the module being changed, especially for outbox state transitions, auto-configuration conditions, persistence behavior, and architecture constraints. Some modules configure Surefire with `--add-opens=java.base/java.lang.invoke=ALL-UNNAMED`; keep that requirement in mind when moving specification or reflection-based tests.
+Tests use JUnit Jupiter, Spring Boot test support where needed, and ArchUnit for architecture rules. Add focused tests near the module being changed, especially for outbox state transitions, auto-configuration conditions, persistence behavior, and architecture constraints.
 
 ## Documentation Sync
 
@@ -65,6 +65,6 @@ Javadocs and documentation comments in source code must follow the Language Poli
 
 - This repository owns a local framework-maintenance skill at `skills/maintain-jfoundry-framework`. When modifying jfoundry framework internals, use `$maintain-jfoundry-framework` if the agent runtime exposes it. If it is not auto-loaded, read `skills/maintain-jfoundry-framework/SKILL.md` and the relevant files under `skills/maintain-jfoundry-framework/references/` directly before editing.
 - Use `maintain-jfoundry-framework` for changes to module boundaries, public APIs, jMolecules architecture annotations, ArchUnit rules, Maven BOMs, starters, Spring Boot auto-configuration, runtime adapters, persistence adapters, messaging adapters, Outbox/Inbox internals, release compatibility, and framework documentation.
-- Treat this file, the local maintenance skill, and repository documentation as the project contract. For framework-internal changes, cross-check the relevant local docs before editing: `docs/en/framework/framework-boundaries.md` for module placement, `docs/en/framework/architecture-styles.md` and `docs/en/framework/archunit-rules.md` for architecture semantics, `docs/en/integration/transactional-outbox.md` for Outbox behavior, and `docs/en/release/compatibility.md` for platform baselines.
+- Treat this file, the local maintenance skill, and repository documentation as the project contract. For framework-internal changes, cross-check the relevant local docs before editing: `docs/en/framework/framework-boundaries.md` for module placement, `docs/en/framework/architecture-styles.md` and `docs/en/framework/archunit-rules.md` for architecture semantics, `docs/en/integration/transactional-outbox.md` for Outbox behavior, and `docs/release/compatibility.md` for platform baselines.
 - Keep framework maintenance guidance separate from downstream business-project guidance. Do not apply `maintain-jfoundry-framework` rules to downstream business projects that merely consume jfoundry, and do not use downstream business-project guidance as authority for changing jfoundry internals.
 - Do not add instructions that depend on unavailable private repositories or local-only skill names outside this repository. If a useful external tool or plugin is unavailable, continue from this repository's docs and state the assumption explicitly.
