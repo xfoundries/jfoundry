@@ -84,6 +84,7 @@ jfoundry:
       backoff-base-ms: 1000
       backoff-max-ms: 300000
     recovery:
+      enabled: true
       interval: 60s
       stuck-timeout: 5m
     cleanup:
@@ -94,7 +95,18 @@ jfoundry:
       batch-size: 1000
 ```
 
-`mode: jobrunr` 可切换到 JobRunr 派发器，需要额外引入 `jfoundry-outbox-jobrunr-spring-boot-starter`。
+`mode: jobrunr` 可将消息派发触发器切换为 JobRunr，需要额外引入
+`jfoundry-outbox-jobrunr-spring-boot-starter`。
+
+`jfoundry.outbox.dispatcher.mode` 只控制 Outbox 消息派发触发方式：
+
+- `scheduled`：使用 Spring `@Scheduled` 轮询派发，并默认启用 recovery 与 cleanup。
+- `jobrunr`：使用 JobRunr 触发派发，并默认启用 recovery 与 cleanup；recovery / cleanup
+  仍是轻量 Spring `@Scheduled` 维护任务，不依赖 JobRunr。
+- `none`：不注册自动派发器，也不注册 recovery / cleanup 后台任务。
+
+`jfoundry.outbox.recovery.enabled` 与 `jfoundry.outbox.cleanup.enabled` 只用于在 `scheduled` / `jobrunr`
+模式下关闭对应维护任务；`mode: none` 表示关闭自动派发及框架内置维护任务。
 
 ## Broker adapter
 

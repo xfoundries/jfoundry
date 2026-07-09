@@ -5,7 +5,6 @@ import org.jfoundry.application.outbox.BackoffStrategy;
 import org.jfoundry.application.outbox.OutboxDispatcher;
 import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.jobrunr.dispatcher.JobRunrOutboxDispatcher;
-import org.jfoundry.infrastructure.outbox.spring.dispatcher.OutboxDispatcherProperties;
 import org.jobrunr.scheduling.JobScheduler;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;

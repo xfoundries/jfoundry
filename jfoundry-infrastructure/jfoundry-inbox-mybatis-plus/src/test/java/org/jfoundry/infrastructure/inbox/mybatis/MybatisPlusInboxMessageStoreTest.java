@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -13,6 +14,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = InboxPersistenceTestConfig.class)
 class MybatisPlusInboxMessageStoreTest {
@@ -52,6 +58,19 @@ class MybatisPlusInboxMessageStoreTest {
         store.markProcessed("evt-1", "projection");
 
         assertThat(mapper.selectCount(null)).isEqualTo(1);
+    }
+
+    @Test
+    void duplicateInsertCanBeDetectedWithoutSpringExceptionTypes() {
+        InboxMessageMapper mapper = mock(InboxMessageMapper.class);
+        MybatisPlusInboxMessageStore store = new MybatisPlusInboxMessageStore(mapper);
+        when(mapper.insert(any(InboxMessageData.class)))
+                .thenThrow(new RuntimeException(new SQLIntegrityConstraintViolationException("duplicate key")));
+
+        boolean started = store.tryStartProcessing("evt-1", "projection");
+
+        assertThat(started).isFalse();
+        verify(mapper).update(isNull(), any());
     }
 
     @Test

@@ -43,12 +43,12 @@ public class OutboxCleanupJob {
     /// Executes one cleanup round and returns the total number of deleted records
     /// (PUBLISHED + DEAD_LETTERED), supporting tests and operational monitoring.
     /// <p>
-    /// When {@link OutboxCleanupProperties#isEnabled()} is {@code false}, returns 0 without touching
+    /// When {@link OutboxCleanupProperties#getEnabled()} is {@code false}, returns 0 without touching
     /// the repository. This allows applications to fully disable deletion through
     /// {@code jfoundry.outbox.cleanup.enabled=false}, for example on read-only replicas.
     @Scheduled(fixedDelayString = "${jfoundry.outbox.cleanup.interval:86400000}")
     public int runOnce() {
-        if (!properties.isEnabled()) {
+        if (Boolean.FALSE.equals(properties.getEnabled())) {
             return 0;
         }
 

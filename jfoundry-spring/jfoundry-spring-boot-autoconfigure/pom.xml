@@ -122,9 +122,10 @@
         </dependency>
 
         <!--
-          Jackson：本模块 DomainEventOutboxRecorderAutoConfiguration 注入 ObjectMapper 用以构造
-          默认 JacksonPayloadSerializer。Spring Boot 应用通常自带 ObjectMapper + jsr310；
-          optional 避免强制传递给业务侧，业务侧若不使用外部化链路也不需要 Jackson。
+          Jackson: DomainEventOutboxRecorderAutoConfiguration injects ObjectMapper to build
+          the default JacksonPayloadSerializer. Spring Boot applications usually provide
+          ObjectMapper + jsr310 already; optional avoids forcing Jackson onto applications that
+          do not use event externalization.
         -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -176,15 +177,13 @@
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis-spring</artifactId>
-            <version>3.0.3</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
-        <!-- configuration-processor: metadata for IDE auto-completion on OutboxDispatcherProperties -->
+        <!-- configuration-processor: metadata for IDE auto-completion on jfoundry configuration properties -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
-            <version>3.2.7</version>
             <optional>true</optional>
         </dependency>
 

@@ -6,7 +6,6 @@ import org.jfoundry.application.outbox.BackoffStrategy;
 import org.jfoundry.application.outbox.OutboxDispatcher;
 import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.spring.backoff.ExponentialBackoffStrategy;
-import org.jfoundry.infrastructure.outbox.spring.dispatcher.OutboxDispatcherProperties;
 import org.jfoundry.infrastructure.outbox.spring.dispatcher.ScheduledOutboxDispatcher;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -16,11 +15,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /// Auto-configuration for the Outbox Dispatcher.
 /// <p>
-/// Selects the Dispatcher implementation according to {@code jfoundry.outbox.dispatcher.mode}:
+/// Selects the Outbox dispatch trigger according to {@code jfoundry.outbox.dispatcher.mode}:
 /// <ul>
 ///   <li>{@code scheduled} (default): registers ScheduledOutboxDispatcher. This class enables
 ///       scheduling.</li>
@@ -28,7 +29,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 ///       registers {@code JobRunrDispatcherAutoConfiguration} through this auto-configuration module.
 ///       It is mutually exclusive with this class: both sides are guarded by
 ///       {@code @ConditionalOnMissingBean(OutboxDispatcher.class)}, and their modes match
-///       {@code scheduled} and {@code jobrunr} respectively, so they cannot both apply.</li>
+///       {@code scheduled} and {@code jobrunr} respectively, so they cannot both apply. Recovery and
+///       cleanup remain lightweight Spring scheduled maintenance jobs.</li>
+///   <li>{@code none}: registers no dispatcher, recovery job, or cleanup job.</li>
 /// </ul>
 @AutoConfiguration
 @AutoConfigureAfter(
@@ -37,8 +40,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 )
 @ConditionalOnClass({OutboxMessageStore.class, MessageSender.class, ScheduledOutboxDispatcher.class})
 @EnableConfigurationProperties({OutboxDispatcherProperties.class, OutboxRecoveryProperties.class, OutboxCleanupProperties.class})
-@EnableScheduling
 public class OutboxDispatcherAutoConfiguration {
+
+    @Configuration(proxyBeanMethods = false)
+    @Conditional(OutboxMaintenanceConditions.SchedulingEnabled.class)
+    @EnableScheduling
+    static class SchedulingConfiguration {
+    }
 
     @Bean
     @ConditionalOnMissingBean(BackoffStrategy.class)
@@ -61,11 +69,13 @@ public class OutboxDispatcherAutoConfiguration {
 
     /// P2-1 stuck-DISPATCHING recovery job.
     /// <p>
-    /// Registered only when {@link OutboxMessageStore} exists. It is decoupled from dispatcher mode,
-    /// so it can recover stuck records independently even when {@code mode=jobrunr}.
+    /// Registered only when {@link OutboxMessageStore} exists and recovery is enabled. Recovery is
+    /// enabled by default for {@code scheduled} and {@code jobrunr} dispatching, and is disabled
+    /// when {@code mode=none}.
     @Bean
     @ConditionalOnBean({OutboxMessageStore.class})
     @ConditionalOnMissingBean(OutboxRecoveryJob.class)
+    @Conditional(OutboxMaintenanceConditions.RecoveryEnabled.class)
     public OutboxRecoveryJob outboxRecoveryJob(OutboxMessageStore outboxRepository,
                                                OutboxRecoveryProperties recoveryProperties) {
         return new OutboxRecoveryJob(outboxRepository, recoveryProperties);
@@ -73,13 +83,13 @@ public class OutboxDispatcherAutoConfiguration {
 
     /// P2-5 terminal-state cleanup job.
     /// <p>
-    /// Registered only when {@link OutboxMessageStore} exists. It is decoupled from dispatcher mode,
-    /// so it can clean PUBLISHED / DEAD_LETTERED records independently even when {@code mode=jobrunr}.
-    /// Enablement is controlled by {@link OutboxCleanupProperties#isEnabled()} (default
-    /// {@code true}) without restarting the ApplicationContext.
+    /// Registered only when {@link OutboxMessageStore} exists and cleanup is enabled. Cleanup is
+    /// enabled by default for {@code scheduled} and {@code jobrunr} dispatching, and is disabled
+    /// when {@code mode=none}.
     @Bean
     @ConditionalOnBean({OutboxMessageStore.class})
     @ConditionalOnMissingBean(OutboxCleanupJob.class)
+    @Conditional(OutboxMaintenanceConditions.CleanupEnabled.class)
     public OutboxCleanupJob outboxCleanupJob(OutboxMessageStore outboxRepository,
                                              OutboxCleanupProperties cleanupProperties) {
         return new OutboxCleanupJob(outboxRepository, cleanupProperties);

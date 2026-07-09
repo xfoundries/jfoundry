@@ -12,18 +12,6 @@
     <name>jfoundry-architecture-test</name>
     <description>Reusable architecture test rules and fixtures for JFoundry-based applications.</description>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.github.xfoundries</groupId>
-                <artifactId>jfoundry-spring-dependencies</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>io.github.xfoundries</groupId>
@@ -58,16 +46,6 @@
         <dependency>
             <groupId>org.jmolecules.integrations</groupId>
             <artifactId>jmolecules-archunit</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>

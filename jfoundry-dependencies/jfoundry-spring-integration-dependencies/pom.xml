@@ -33,6 +33,7 @@
     <jobrunr.version>8.7.1</jobrunr.version>
     <spring-kafka.version>3.3.16</spring-kafka.version>
     <spring-amqp.version>3.2.12</spring-amqp.version>
+    <mybatis-spring.version>3.0.3</mybatis-spring.version>
     <spring-cloud-alibaba.version>2025.0.0.0</spring-cloud-alibaba.version>
   </properties>
   <dependencyManagement>
@@ -68,6 +69,11 @@
         <groupId>org.springframework.amqp</groupId>
         <artifactId>spring-rabbit</artifactId>
         <version>${spring-amqp.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis-spring</artifactId>
+        <version>${mybatis-spring.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

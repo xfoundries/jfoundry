@@ -51,13 +51,12 @@ public class OutboxCleanupProperties {
     /// main claim/dispatch path.
     private int batchSize = 1000;
 
-    /// Whether the cleanup job is enabled. Defaults to {@code true}.
+    /// Whether the cleanup job is enabled.
     /// <p>
-    /// This is decoupled from dispatcher mode: cleanup can run independently as long as an
-    /// OutboxMessageStore bean exists, even when automatic dispatch is disabled. This switch only
-    /// controls whether {@link OutboxCleanupJob#runOnce()} performs deletion; Spring scheduling still
-    /// triggers according to {@link #interval}, but {@code runOnce} returns 0 immediately.
-    private boolean enabled = true;
+    /// When unset, cleanup follows dispatcher mode: enabled for {@code scheduled} and
+    /// {@code jobrunr}, disabled for {@code none}. Set this property to {@code false} to disable
+    /// cleanup in {@code scheduled} or {@code jobrunr} mode.
+    private Boolean enabled;
 
     public Duration getInterval() { return interval; }
     public void setInterval(Duration interval) { this.interval = interval; }
@@ -67,6 +66,6 @@ public class OutboxCleanupProperties {
     public void setDeadLetteredRetentionDays(int deadLetteredRetentionDays) { this.deadLetteredRetentionDays = deadLetteredRetentionDays; }
     public int getBatchSize() { return batchSize; }
     public void setBatchSize(int batchSize) { this.batchSize = batchSize; }
-    public boolean isEnabled() { return enabled; }
-    public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    public Boolean getEnabled() { return enabled; }
+    public void setEnabled(Boolean enabled) { this.enabled = enabled; }
 }

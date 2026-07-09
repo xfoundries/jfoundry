@@ -14,6 +14,13 @@ import java.time.Duration;
 @ConfigurationProperties(prefix = "jfoundry.outbox.recovery")
 public class OutboxRecoveryProperties {
 
+    /// Whether the recovery job is enabled.
+    /// <p>
+    /// When unset, recovery follows dispatcher mode: enabled for {@code scheduled} and
+    /// {@code jobrunr}, disabled for {@code none}. Set this property to {@code false} to disable
+    /// recovery in {@code scheduled} or {@code jobrunr} mode.
+    private Boolean enabled;
+
     /// Recovery job interval. Defaults to 60s.
     /// <p>
     /// Binds {@code jfoundry.outbox.recovery.interval}, which is read by {@code @Scheduled}.
@@ -24,6 +31,8 @@ public class OutboxRecoveryProperties {
     /// Records with claimedAt earlier than {@code now - stuckTimeout} are rolled back to PENDING.
     private Duration stuckTimeout = Duration.ofMinutes(5);
 
+    public Boolean getEnabled() { return enabled; }
+    public void setEnabled(Boolean enabled) { this.enabled = enabled; }
     public Duration getInterval() { return interval; }
     public void setInterval(Duration interval) { this.interval = interval; }
     public Duration getStuckTimeout() { return stuckTimeout; }

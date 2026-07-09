@@ -3,8 +3,8 @@ package org.jfoundry.infrastructure.inbox.mybatis;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.jfoundry.application.inbox.InboxMessageStatus;
 import org.jfoundry.application.inbox.InboxMessageStore;
-import org.springframework.dao.DuplicateKeyException;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.Instant;
 
 public class MybatisPlusInboxMessageStore implements InboxMessageStore {
@@ -29,7 +29,10 @@ public class MybatisPlusInboxMessageStore implements InboxMessageStore {
         try {
             mapper.insert(InboxMessageData.processing(messageId, consumerName));
             return true;
-        } catch (DuplicateKeyException ignored) {
+        } catch (RuntimeException ex) {
+            if (shouldPropagateInsertFailure(ex)) {
+                throw ex;
+            }
             return retryFailed(messageId, consumerName);
         }
     }
@@ -64,7 +67,10 @@ public class MybatisPlusInboxMessageStore implements InboxMessageStore {
         if (!isProcessed(messageId, consumerName)) {
             try {
                 mapper.insert(InboxMessageData.processed(messageId, consumerName));
-            } catch (DuplicateKeyException ignored) {
+            } catch (RuntimeException ex) {
+                if (shouldPropagateInsertFailure(ex)) {
+                    throw ex;
+                }
                 // Already processed or currently owned by another consumer thread.
             }
         }
@@ -81,5 +87,25 @@ public class MybatisPlusInboxMessageStore implements InboxMessageStore {
                         .eq(InboxMessageData::getMessageId, messageId)
                         .eq(InboxMessageData::getConsumerName, consumerName)
                         .eq(InboxMessageData::getStatus, InboxMessageStatus.PROCESSING.name()));
+    }
+
+    private boolean shouldPropagateInsertFailure(Throwable ex) {
+        Throwable current = ex;
+        while (current != null) {
+            if (current instanceof SQLIntegrityConstraintViolationException) {
+                return false;
+            }
+            String className = current.getClass().getName();
+            if (className.endsWith(".DuplicateKeyException")
+                    || className.endsWith(".DuplicateKeyExceptionTranslator")) {
+                return false;
+            }
+            String message = current.getMessage();
+            if (message != null && message.toLowerCase().contains("duplicate")) {
+                return false;
+            }
+            current = current.getCause();
+        }
+        return true;
     }
 }

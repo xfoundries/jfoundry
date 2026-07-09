@@ -6,8 +6,6 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
@@ -16,6 +14,9 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 /// Enforces the spec Section 6.3 constraint that transaction boundaries belong to the application
 /// layer and persistence adapters must not use {@code @Transactional}.
 public final class PersistenceRules {
+
+    private static final String COMPONENT_ANNOTATION = "org.springframework.stereotype.Component";
+    private static final String TRANSACTIONAL_ANNOTATION = "org.springframework.transaction.annotation.Transactional";
 
     private PersistenceRules() {
     }
@@ -52,7 +53,7 @@ public final class PersistenceRules {
     public static final ArchRule autoconfig_must_not_use_component =
             noClasses()
                     .that().resideInAPackage("..autoconfigure..")
-                    .should(beAnnotatedWithOrMetaAnnotatedWith(Component.class))
+                    .should(beAnnotatedWithOrMetaAnnotatedWith(COMPONENT_ANNOTATION, "Component"))
                     .allowEmptyShould(true)
                     .because("Auto-configuration modules should use @AutoConfiguration and @Bean; "
                             + "@Component/@ComponentScan usage is forbidden (P1-1)");
@@ -61,13 +62,13 @@ public final class PersistenceRules {
         return new ArchCondition<JavaClass>("be annotated with @Transactional at class or method level") {
             @Override
             public void check(JavaClass item, ConditionEvents events) {
-                if (item.isAnnotatedWith(Transactional.class) || item.isMetaAnnotatedWith(Transactional.class)) {
+                if (item.isAnnotatedWith(TRANSACTIONAL_ANNOTATION) || item.isMetaAnnotatedWith(TRANSACTIONAL_ANNOTATION)) {
                     events.add(SimpleConditionEvent.violated(item,
                             item.getSimpleName() + " is annotated with @Transactional at class level"));
                     return;
                 }
                 for (JavaMethod method : item.getMethods()) {
-                    if (method.isAnnotatedWith(Transactional.class) || method.isMetaAnnotatedWith(Transactional.class)) {
+                    if (method.isAnnotatedWith(TRANSACTIONAL_ANNOTATION) || method.isMetaAnnotatedWith(TRANSACTIONAL_ANNOTATION)) {
                         events.add(SimpleConditionEvent.violated(item,
                                 item.getSimpleName() + "#" + method.getName()
                                         + " is annotated with @Transactional at method level"));
@@ -77,14 +78,15 @@ public final class PersistenceRules {
         };
     }
 
-    private static ArchCondition<JavaClass> beAnnotatedWithOrMetaAnnotatedWith(Class<? extends java.lang.annotation.Annotation> annotationType) {
-        String desc = "be annotated with @" + annotationType.getSimpleName() + " (directly or meta)";
+    private static ArchCondition<JavaClass> beAnnotatedWithOrMetaAnnotatedWith(String annotationTypeName,
+                                                                              String simpleName) {
+        String desc = "be annotated with @" + simpleName + " (directly or meta)";
         return new ArchCondition<JavaClass>(desc) {
             @Override
             public void check(JavaClass item, ConditionEvents events) {
-                if (item.isAnnotatedWith(annotationType) || item.isMetaAnnotatedWith(annotationType)) {
+                if (item.isAnnotatedWith(annotationTypeName) || item.isMetaAnnotatedWith(annotationTypeName)) {
                     events.add(SimpleConditionEvent.violated(item,
-                            item.getSimpleName() + " is annotated with @" + annotationType.getSimpleName()));
+                            item.getSimpleName() + " is annotated with @" + simpleName));
                 }
             }
         };

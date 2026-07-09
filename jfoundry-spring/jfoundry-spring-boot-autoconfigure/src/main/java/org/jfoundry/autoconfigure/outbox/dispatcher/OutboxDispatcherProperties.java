@@ -1,17 +1,16 @@
-package org.jfoundry.infrastructure.outbox.spring.dispatcher;
+package org.jfoundry.autoconfigure.outbox.dispatcher;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/// Outbox Dispatcher configuration properties.
+/// Outbox dispatch trigger configuration.
 /// <p>
 /// Binds the {@code jfoundry.outbox.dispatcher.*} prefix. This class lives in
-/// jfoundry-outbox-spring so jfoundry-autoconfigure and jfoundry-outbox-jobrunr can reference the
-/// same configuration without creating a cycle: jobrunr already depends on outbox-spring, but
-/// outbox-spring must not depend back on autoconfigure.
+/// jfoundry-spring-boot-autoconfigure because it is a Spring Boot property binding model, not a
+/// Spring runtime adapter contract.
 @ConfigurationProperties(prefix = "jfoundry.outbox.dispatcher")
 public class OutboxDispatcherProperties {
 
-    private String mode = "scheduled";
+    private Mode mode = Mode.SCHEDULED;
     private long intervalMs = 5000;
     private String cron = "*/10 * * * * *";
     private int batchSize = 50;
@@ -19,8 +18,8 @@ public class OutboxDispatcherProperties {
     private long backoffBaseMs = 1000;
     private long backoffMaxMs = 300_000;
 
-    public String getMode() { return mode; }
-    public void setMode(String mode) { this.mode = mode; }
+    public Mode getMode() { return mode; }
+    public void setMode(Mode mode) { this.mode = mode; }
     public long getIntervalMs() { return intervalMs; }
     public void setIntervalMs(long intervalMs) { this.intervalMs = intervalMs; }
     public String getCron() { return cron; }
@@ -33,4 +32,10 @@ public class OutboxDispatcherProperties {
     public void setBackoffBaseMs(long backoffBaseMs) { this.backoffBaseMs = backoffBaseMs; }
     public long getBackoffMaxMs() { return backoffMaxMs; }
     public void setBackoffMaxMs(long backoffMaxMs) { this.backoffMaxMs = backoffMaxMs; }
+
+    public enum Mode {
+        SCHEDULED,
+        JOBRUNR,
+        NONE
+    }
 }
