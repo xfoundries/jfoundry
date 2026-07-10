@@ -357,5 +357,7 @@ Add architecture tests before implementation.
 - [架构风格指南](../framework/architecture-styles.md)
 - [ArchUnit 架构规则](../framework/archunit-rules.md)
 - [Repository 与读侧端口迁移指南](../modeling/repository-vs-read-ports.md)
+- [应用事务](application-transactions.md)
+- [分布式锁](distributed-locks.md)
 - [Transactional Outbox](transactional-outbox.md)
 - [值对象规范](../modeling/value-object.md)

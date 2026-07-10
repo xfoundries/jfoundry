@@ -17,7 +17,8 @@
 
 - [业务项目接入指南](integration/getting-started-for-business-projects.md)
 - [Spring Boot 自动配置总览](integration/spring-boot-autoconfiguration.md)
-- [应用事务与分布式锁](integration/application-transactions-and-locks.md)
+- [应用事务](integration/application-transactions.md)
+- [分布式锁](integration/distributed-locks.md)
 - [持久化 DataConverter 与 MapStruct 使用指南](integration/persistence-data-converters.md)
 - [Transactional Outbox 事务性发件箱](integration/transactional-outbox.md)
 

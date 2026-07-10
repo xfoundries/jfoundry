@@ -70,6 +70,7 @@ wires the application.
 - [Architecture Styles](../framework/architecture-styles.md)
 - [ArchUnit Architecture Rules](../framework/archunit-rules.md)
 - [Repository and Read-side Ports](../modeling/repository-vs-read-ports.md)
-- [Application Transactions and Distributed Locks](application-transactions-and-locks.md)
+- [Application Transactions](application-transactions.md)
+- [Distributed Locks](distributed-locks.md)
 - [Persistence DataConverter and MapStruct](persistence-data-converters.md)
 - [Transactional Outbox and Inbox](transactional-outbox.md)

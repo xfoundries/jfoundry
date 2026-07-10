@@ -1,39 +1,4 @@
-# 应用事务与分布式锁
-
-本文说明两个应用层边界工具：`@ApplicationTransactional` 和分布式锁。二者都是基于框架无关契约的可选入口。注解是面向 Spring 应用的便利用法，核心 API 仍然不依赖 Spring 和 Redisson。
-
-## 应用事务
-
-`TransactionRunner` 是主要契约。当应用编排需要显式事务代码块，但不希望依赖 Spring `TransactionTemplate` 时，可以直接使用：
-
-```java
-transactionRunner.run(TransactionOptions.builder()
-        .name("confirm-order")
-        .timeout(Duration.ofSeconds(10))
-        .build(), () -> {
-    orderRepository.save(order);
-    outboxRecorder.record(events);
-});
-```
-
-Spring 项目也可以在应用服务上使用 `@ApplicationTransactional`：
-
-```java
-@ApplicationTransactional(name = "confirm-order", timeoutSeconds = 10)
-public void confirm(ConfirmOrderCommand command) {
-    // application orchestration
-}
-```
-
-该注解由 Spring AOP 实现，并委托给 `TransactionRunner`。它不是基础设施代码中 Spring `@Transactional` 的替代品。建议在 Use Case 或 Application Service 边界使用，让应用层通过 jfoundry 契约表达事务边界。
-
-如需关闭注解 advisor：
-
-```properties
-jfoundry.application.transaction.annotation.enabled=false
-```
-
-## 分布式锁
+# 分布式锁
 
 分布式锁由框架无关 core 和显式 Redisson 集成组成：
 
@@ -87,6 +52,6 @@ Spring Boot 依赖：
 jfoundry.lock.annotation.enabled=false
 ```
 
-## 执行顺序
+## 与事务的执行顺序
 
 当同一方法同时使用 `@DistributedLock` 和 `@ApplicationTransactional` 时，锁 advisor 先执行，事务 advisor 在锁内执行。这样可以避免在等待分布式锁期间提前打开数据库事务。
