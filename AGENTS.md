@@ -10,6 +10,7 @@ This is a Java 21 multi-module Maven project for a jMolecules-based, runtime-neu
 - `mvn test` compiles and runs all unit, integration, and ArchUnit tests.
 - `mvn clean install` performs a full local build and installs artifacts into the local Maven repository.
 - `mvn -pl jfoundry-domain test` runs tests for one module; add `-am` when dependencies must also be built.
+- `scripts/verify-ci-matrix.sh` runs the local CI Java test matrix using `JAVA_21_HOME` and `JAVA_25_HOME`.
 - `mvn clean install -DskipTests` builds artifacts without executing tests; use only for local iteration.
 
 ## Coding Style & Naming Conventions
@@ -40,6 +41,8 @@ As an open-source framework, source-level artifacts must be friendly to the wide
 ## Testing Guidelines
 
 Tests use JUnit Jupiter, Spring Boot test support where needed, and ArchUnit for architecture rules. Add focused tests near the module being changed, especially for outbox state transitions, auto-configuration conditions, persistence behavior, and architecture constraints.
+
+For changes involving build logic, dependency management, test infrastructure, CI workflows, Maven plugin configuration, Java baseline compatibility, or runtime compatibility, run `scripts/verify-ci-matrix.sh` before committing or pushing when both local JDKs are available. If only one JDK is available, run the available local verification and state the missing matrix coverage.
 
 ## Documentation Sync
 
