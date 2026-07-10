@@ -73,6 +73,7 @@
     <!-- Testing -->
     <awaitility.version>4.2.1</awaitility.version>
     <assertj.version>3.26.0</assertj.version>
+    <byte-buddy.version>1.17.8</byte-buddy.version>
     <mockito.version>5.17.0</mockito.version>
     <junit-platform.version>1.12.2</junit-platform.version>
     <testcontainers.version>1.21.4</testcontainers.version>
@@ -266,6 +267,16 @@
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
         <version>${mockito.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>${byte-buddy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy-agent</artifactId>
+        <version>${byte-buddy.version}</version>
       </dependency>
       <dependency>
         <groupId>org.junit.jupiter</groupId>
