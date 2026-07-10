@@ -46,5 +46,6 @@ mvn test
 - Add persistence tests for store or repository behavior.
 - Add concurrency tests for claim, retry, idempotency, or state transition changes.
 - Add middleware integration tests only when the behavior requires real database or broker verification.
+- Mockito's Java agent is opt-in per module. When adding Mockito usage to test sources, or when a test framework loads Mockito during test startup, ensure the module has a test dependency that resolves `mockito-core` and override `mockito.javaagent.argLine` with `-javaagent:${org.mockito:mockito-core:jar}`. Do not enable the Mockito Java agent in modules that do not load Mockito during tests.
 
 When changing public API, starter dependencies, configuration properties, table schemas, or release baselines, include compatibility impact in the final report even if tests pass.

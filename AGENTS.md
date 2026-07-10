@@ -42,6 +42,8 @@ As an open-source framework, source-level artifacts must be friendly to the wide
 
 Tests use JUnit Jupiter, Spring Boot test support where needed, and ArchUnit for architecture rules. Add focused tests near the module being changed, especially for outbox state transitions, auto-configuration conditions, persistence behavior, and architecture constraints.
 
+Mockito's Java agent is opt-in per module. The root POM keeps the common Surefire/Failsafe `argLine` template with an empty `mockito.javaagent.argLine`; only modules whose tests directly use Mockito or whose test framework loads Mockito should override it with `-javaagent:${org.mockito:mockito-core:jar}` and have a test dependency that resolves `mockito-core`.
+
 For changes involving build logic, dependency management, test infrastructure, CI workflows, Maven plugin configuration, Java baseline compatibility, or runtime compatibility, run `scripts/verify-ci-matrix.sh` before committing or pushing when both local JDKs are available. If only one JDK is available, run the available local verification and state the missing matrix coverage.
 
 ## Documentation Sync

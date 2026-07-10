@@ -12,10 +12,6 @@
     <name>jfoundry-event-spring</name>
     <description>Spring runtime adapter for publishing jfoundry domain events as Spring application events.</description>
 
-    <properties>
-        <mockito.javaagent.argLine>-javaagent:${org.mockito:mockito-core:jar}</mockito.javaagent.argLine>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>io.github.xfoundries</groupId>
