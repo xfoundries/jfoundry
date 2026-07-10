@@ -23,9 +23,9 @@ such as jMolecules and `slf4j-api` may appear in core modules when they express 
 ## Placement Rules
 
 - Spring Framework lifecycle, transaction synchronization, scheduling, event publishing, MVC APIs,
-  and Spring-side client wrappers belong under `jfoundry-spring/jfoundry-spring-runtime`.
+  and Spring-side client wrappers belong under `../../../../jfoundry-spring/jfoundry-spring-runtime`.
 - Spring Boot conditions, `@ConfigurationProperties`, bean wiring, metadata, and
-  `AutoConfiguration.imports` belong under `jfoundry-spring/jfoundry-spring-boot-autoconfigure`.
+  `AutoConfiguration.imports` belong under `../../../../jfoundry-spring/jfoundry-spring-boot-autoconfigure`.
 - Starters are dependency entry points only; they must not contain runtime behavior.
 - Framework-neutral database, broker, serializer, and scheduler adapters belong under
   `jfoundry-infrastructure`.

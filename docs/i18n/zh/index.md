@@ -25,5 +25,5 @@
 
 发布、兼容矩阵和 Maven Central 说明是维护者文档，当前只维护一份：
 
-- [Compatibility Matrix](../release/compatibility.md)
-- [Maven Central Publishing](../release/maven-central.md)
+- [Compatibility Matrix](../../release/compatibility.md)
+- [Maven Central Publishing](../../release/maven-central.md)

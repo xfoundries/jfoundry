@@ -25,5 +25,5 @@ maintainer work.
 
 ## Release and Compatibility
 
-- [Compatibility Matrix](../release/compatibility.md)
-- [Maven Central Publishing](../release/maven-central.md)
+- [Compatibility Matrix](../../release/compatibility.md)
+- [Maven Central Publishing](../../release/maven-central.md)

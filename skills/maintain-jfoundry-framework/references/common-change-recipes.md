@@ -41,7 +41,7 @@
 2. Decide whether the rule belongs in a primary entrypoint such as `JFoundryRules.hexagonalStrict()` or should remain opt-in.
 3. Add positive and negative fixtures.
 4. Add self-tests proving the rule fails for invalid fixtures and passes for valid fixtures.
-5. Update `docs/en/framework/archunit-rules.md` and the matching localized page when the public rule behavior changes.
+5. Update `../../../docs/i18n/en/framework/archunit-rules.md` and the matching localized page when the public rule behavior changes.
 
 ## Change A Starter
 

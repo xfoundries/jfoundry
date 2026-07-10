@@ -136,7 +136,7 @@ Typical module dependencies:
 </dependency>
 ```
 
-Persistence, Outbox, Inbox, and broker starters should be added explicitly based on business needs. Avoid adding every starter by default. See [Getting Started for Business Projects](docs/en/integration/getting-started-for-business-projects.md) for module-level dependency guidance.
+Persistence, Outbox, Inbox, and broker starters should be added explicitly based on business needs. Avoid adding every starter by default. See [Getting Started for Business Projects](docs/i18n/en/integration/getting-started-for-business-projects.md) for module-level dependency guidance.
 
 ## Domain Model Example
 
@@ -197,7 +197,7 @@ aggregate records domain event
   -> consumer side uses InboxTemplate for message/consumer idempotency
 ```
 
-Outbox is optional. Enable it only when events need cross-process delivery, retry, or reliable externalization. See [Transactional Outbox](docs/en/integration/transactional-outbox.md) for details.
+Outbox is optional. Enable it only when events need cross-process delivery, retry, or reliable externalization. See [Transactional Outbox](docs/i18n/en/integration/transactional-outbox.md) for details.
 
 ## Modules
 
@@ -213,10 +213,10 @@ Outbox is optional. Enable it only when events need cross-process delivery, retr
 
 ## Documentation
 
-- [Documentation Index](docs/en/index.md)
-- Framework semantics: [Architecture Styles](docs/en/framework/architecture-styles.md), [ArchUnit Rules](docs/en/framework/archunit-rules.md), [Framework Boundaries](docs/en/framework/framework-boundaries.md)
-- Modeling conventions: [Value Objects](docs/en/modeling/value-object.md), [Repository and Read-side Ports](docs/en/modeling/repository-vs-read-ports.md)
-- Technical integration: [Getting Started](docs/en/integration/getting-started-for-business-projects.md), [Persistence DataConverter](docs/en/integration/persistence-data-converters.md), [Transactional Outbox and Inbox](docs/en/integration/transactional-outbox.md)
+- [Documentation Index](docs/i18n/en/index.md)
+- Framework semantics: [Architecture Styles](docs/i18n/en/framework/architecture-styles.md), [ArchUnit Rules](docs/i18n/en/framework/archunit-rules.md), [Framework Boundaries](docs/i18n/en/framework/framework-boundaries.md)
+- Modeling conventions: [Value Objects](docs/i18n/en/modeling/value-object.md), [Repository and Read-side Ports](docs/i18n/en/modeling/repository-vs-read-ports.md)
+- Technical integration: [Getting Started](docs/i18n/en/integration/getting-started-for-business-projects.md), [Persistence DataConverter](docs/i18n/en/integration/persistence-data-converters.md), [Transactional Outbox and Inbox](docs/i18n/en/integration/transactional-outbox.md)
 
 ## Build
 
