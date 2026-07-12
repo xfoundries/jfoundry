@@ -5,22 +5,24 @@
 ```java
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
-import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.junit.ArchTests;
 import org.jfoundry.test.archunit.JFoundryRules;
 
 @AnalyzeClasses(packages = "com.mysoft.ci")
 class CiArchitectureTest {
 
     @ArchTest
-    ArchRule[] jfoundryRules = JFoundryRules.hexagonalStrict();
+    ArchTests jfoundryRules = JFoundryRules.hexagonalStrict();
 
     @ArchTest
-    ArchRule[] jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
+    ArchTests jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
 }
 ```
 
 `JFoundryRules.hexagonalStrict()` 启用 JFoundry 基础守护规则 + jMolecules Hexagonal 主架构规则 + JFoundry Hexagonal 推荐落地约定。
 `JFoundryRules.jmoleculesDdd()` 引入 jMolecules 官方 DDD 规则。
+
+所有规则组入口都返回 ArchUnit 原生 `ArchTests`，JUnit 5 引擎会逐条发现嵌套规则，不会再把 `ArchRule[]` 数组误当成单条规则。
 
 ## jfoundry 自有规则
 
@@ -56,7 +58,7 @@ class CiArchitectureTest {
 
 ### AggregateRepositoryConventionRules
 
-这组规则是可选约定，不会进入 `JFoundryRules.hexagonal()`、`onionSimple()` 等主架构入口。它只守护明确的技术类型泄漏，不通过类名猜测某个返回值是不是读模型。
+这组规则是可选约定，不会进入 `JFoundryRules.hexagonal()`、`onionSimple()` 等主架构入口。它同时识别直接继承 jMolecules `Repository` 和继承 jfoundry `AggregateRepository` 的接口，只守护明确的技术类型泄漏，不通过类名猜测某个返回值是不是读模型。
 
 | 规则 | 作用 |
 |------|------|
@@ -68,7 +70,7 @@ class CiArchitectureTest {
 
 ```java
 @ArchTest
-ArchRule[] aggregateRepositoryRules = JFoundryRules.aggregateRepositoryConventions();
+ArchTests aggregateRepositoryRules = JFoundryRules.aggregateRepositoryConventions();
 ```
 
 说明：
@@ -83,13 +85,13 @@ ArchRule[] aggregateRepositoryRules = JFoundryRules.aggregateRepositoryConventio
 
 ```java
 @ArchTest
-ArchRule[] onionRules = JFoundryRules.onionSimple();
+ArchTests onionRules = JFoundryRules.onionSimple();
 
 @ArchTest
-ArchRule[] onionClassicalRules = JFoundryRules.onionClassical();
+ArchTests onionClassicalRules = JFoundryRules.onionClassical();
 
 @ArchTest
-ArchRule[] hexagonalRules = JFoundryRules.hexagonalStrict();
+ArchTests hexagonalRules = JFoundryRules.hexagonalStrict();
 ```
 
 - `JFoundryRules.onionSimple()`：基础守护规则 + Onion Simple 主风格入口。
@@ -104,7 +106,7 @@ ArchRule[] hexagonalRules = JFoundryRules.hexagonalStrict();
 
 ## jMolecules 官方 DDD 规则
 
-`JFoundryRules.jmoleculesDdd()` 返回 `jmolecules-archunit` `0.33.0` 提供的 DDD 原生规则：
+`JFoundryRules.jmoleculesDdd()` 聚合 `jmolecules-archunit` `0.33.0` 提供的 DDD 原生规则：
 
 - `JMoleculesDddRules.aggregateReferencesShouldBeViaIdOrAssociation()` —— 聚合之间只能通过 Id 或 Association 引用，避免直接对象引用导致的边界穿透
 - `JMoleculesDddRules.valueObjectsMustNotReferToIdentifiables()` —— 值对象不得引用具备身份的实体或聚合
@@ -123,14 +125,10 @@ jMolecules 原生架构规则不再通过一个混合入口暴露，而是随 `J
 ArchRule noTransactionalInPersistence = PersistenceRules.persistence_repository_must_not_use_transactional;
 
 @ArchTest
-ArchRule[] valueObjectRules = {
-    ValueObjectRules.value_objects_must_be_final,
-    ValueObjectRules.value_object_fields_must_be_final,
-    ValueObjectRules.value_objects_must_implement_equals_and_hashCode
-};
+ArchTests valueObjectRules = ArchTests.in(ValueObjectRules.class);
 
 @ArchTest
-ArchRule[] aggregateRepositoryRules = JFoundryRules.aggregateRepositoryConventions();
+ArchTests aggregateRepositoryRules = JFoundryRules.aggregateRepositoryConventions();
 ```
 
 ## Maven 依赖

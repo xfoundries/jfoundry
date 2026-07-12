@@ -167,21 +167,23 @@ public class Order {
 ```java
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
-import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.junit.ArchTests;
 import org.jfoundry.test.archunit.JFoundryRules;
 
 @AnalyzeClasses(packages = "com.mycompany.myapp")
 class MyAppArchitectureTest {
 
     @ArchTest
-    static final ArchRule[] onion = JFoundryRules.onionSimple();
+    static final ArchTests onion = JFoundryRules.onionSimple();
 
     @ArchTest
-    static final ArchRule[] ddd = JFoundryRules.jmoleculesDdd();
+    static final ArchTests ddd = JFoundryRules.jmoleculesDdd();
 }
 ```
 
 项目选择六边形架构时使用 `JFoundryRules.hexagonalStrict()`；选择洋葱架构时使用 `JFoundryRules.onionSimple()` 或 `JFoundryRules.onionClassical()`。
+
+聚合 Repository 在不同架构风格下都保持独立的 DDD 身份。Hexagonal 项目可以同时将它标记为 `@SecondaryPort`，而无需移出 `domain.repository`；Onion 项目则把契约放在内环、实现放在基础设施环。
 
 ## 可靠事件外部化
 

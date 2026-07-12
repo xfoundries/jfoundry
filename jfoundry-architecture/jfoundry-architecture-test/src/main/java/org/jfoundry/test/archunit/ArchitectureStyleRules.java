@@ -2,6 +2,7 @@ package org.jfoundry.test.archunit;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaPackage;
+import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -23,6 +24,7 @@ public final class ArchitectureStyleRules {
     }
 
     /// Hexagonal and Onion style annotations should not appear in the same ArchUnit analysis scope.
+    @ArchTest
     public static final ArchRule hexagonal_and_onion_must_not_be_mixed =
             classes()
                     .should(new HexagonalAndOnionMustNotBeMixedCondition())

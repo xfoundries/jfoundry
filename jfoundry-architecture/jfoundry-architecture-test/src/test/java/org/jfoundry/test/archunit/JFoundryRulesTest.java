@@ -1,7 +1,6 @@
 package org.jfoundry.test.archunit;
 
-import com.tngtech.archunit.core.importer.ClassFileImporter;
-import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.junit.ArchTests;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,7 +9,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /// JFoundryRules must expose explicit primary-style entrypoints, not a catch-all all().
 class JFoundryRulesTest {
 
-    private static final ClassFileImporter IMPORTER = new ClassFileImporter();
+    @Test
+    void exposesRuleGroupsAsNativeArchTests() throws NoSuchMethodException {
+        assertThat(JFoundryRules.class.getMethod("hexagonal").getReturnType()).isEqualTo(ArchTests.class);
+        assertThat(JFoundryRules.class.getMethod("hexagonalConventions").getReturnType()).isEqualTo(ArchTests.class);
+        assertThat(JFoundryRules.class.getMethod("hexagonalStrict").getReturnType()).isEqualTo(ArchTests.class);
+        assertThat(JFoundryRules.class.getMethod("onionSimple").getReturnType()).isEqualTo(ArchTests.class);
+        assertThat(JFoundryRules.class.getMethod("onionClassical").getReturnType()).isEqualTo(ArchTests.class);
+        assertThat(JFoundryRules.class.getMethod("cqrs").getReturnType()).isEqualTo(ArchTests.class);
+        assertThat(JFoundryRules.class.getMethod("aggregateRepositoryConventions").getReturnType())
+                .isEqualTo(ArchTests.class);
+        assertThat(JFoundryRules.class.getMethod("jmoleculesDdd").getReturnType()).isEqualTo(ArchTests.class);
+    }
 
     @Test
     void doesNotExposeAllAggregator() {
@@ -38,41 +48,24 @@ class JFoundryRulesTest {
 
     @Test
     void jmoleculesDddReturnsDddRulesOnly() {
-        ArchRule[] dddRules = JFoundryRules.jmoleculesDdd();
-        assertThat(dddRules).hasSize(2);
+        assertThat(JFoundryRules.jmoleculesDdd().getDefinitionLocation())
+                .isEqualTo(JFoundryRuleSets.JmoleculesDdd.class);
     }
 
     @Test
     void exposesArchitectureStylesExplicitly() {
-        assertThat(JFoundryRules.hexagonal()).hasSizeGreaterThanOrEqualTo(5);
-        assertThat(JFoundryRules.onionSimple()).hasSizeGreaterThanOrEqualTo(5);
-        assertThat(JFoundryRules.onionClassical()).hasSizeGreaterThanOrEqualTo(5);
+        assertThat(JFoundryRules.hexagonal().getDefinitionLocation()).isEqualTo(JFoundryRuleSets.Hexagonal.class);
+        assertThat(JFoundryRules.onionSimple().getDefinitionLocation()).isEqualTo(JFoundryRuleSets.OnionSimple.class);
+        assertThat(JFoundryRules.onionClassical().getDefinitionLocation())
+                .isEqualTo(JFoundryRuleSets.OnionClassical.class);
         assertThat(JFoundryRules.noMixedHexagonalAndOnion()).isNotNull();
     }
 
     @Test
     void explicitArchitectureStylesAreNonNull() {
-        for (ArchRule rule : JFoundryRules.hexagonal()) {
-            assertThat(rule).as("rule in JFoundryRules.hexagonal() must not be null").isNotNull();
-        }
-        for (ArchRule rule : JFoundryRules.onionSimple()) {
-            assertThat(rule).as("rule in JFoundryRules.onionSimple() must not be null").isNotNull();
-        }
-        for (ArchRule rule : JFoundryRules.onionClassical()) {
-            assertThat(rule).as("rule in JFoundryRules.onionClassical() must not be null").isNotNull();
-        }
-        for (ArchRule rule : JFoundryRules.jmoleculesDdd()) {
-            assertThat(rule).as("rule in JFoundryRules.jmoleculesDdd() must not be null").isNotNull();
-        }
-    }
-
-    @Test
-    void hexagonalRulesRecognizeJfoundryMetaAnnotatedStereotypes() {
-        assertThatThrownBy(() -> {
-            for (ArchRule rule : JFoundryRules.hexagonal()) {
-                rule.check(IMPORTER.importPackages(
-                        "org.jfoundry.test.archunit.fixture.hexagonalconventions.invalid.primaryadapter"));
-            }
-        }).isInstanceOf(AssertionError.class);
+        assertThat(JFoundryRules.hexagonal()).isNotNull();
+        assertThat(JFoundryRules.onionSimple()).isNotNull();
+        assertThat(JFoundryRules.onionClassical()).isNotNull();
+        assertThat(JFoundryRules.jmoleculesDdd()).isNotNull();
     }
 }

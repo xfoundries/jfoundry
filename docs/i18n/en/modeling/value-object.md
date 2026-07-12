@@ -32,7 +32,7 @@ Value object rules are included in the primary jfoundry architecture entries:
 
 ```java
 @ArchTest
-ArchRule[] rules = JFoundryRules.hexagonalStrict();
+ArchTests rules = JFoundryRules.hexagonalStrict();
 ```
 
 The value object marker extends `org.jmolecules.ddd.types.ValueObject`, so jMolecules integrations

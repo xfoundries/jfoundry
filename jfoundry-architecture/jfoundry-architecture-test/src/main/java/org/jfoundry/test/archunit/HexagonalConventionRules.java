@@ -3,6 +3,8 @@ package org.jfoundry.test.archunit;
 import com.tngtech.archunit.core.domain.Dependency;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaPackage;
+import com.tngtech.archunit.core.domain.PackageMatchers;
+import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -32,6 +34,12 @@ public final class HexagonalConventionRules {
             "..port.outbound..",
             "..ports.outbound.."
     };
+
+    private static final PackageMatchers OUTBOUND_PORT_PACKAGE_MATCHERS =
+            PackageMatchers.of(OUTBOUND_PORT_PACKAGES);
+
+    private static final PackageMatchers DOMAIN_REPOSITORY_PACKAGE_MATCHERS =
+            PackageMatchers.of("..domain.repository..", "..domain.repositories..");
 
     private static final String[] APPLICATION_FORBIDDEN_PACKAGES = {
             "..adapter..",
@@ -86,6 +94,7 @@ public final class HexagonalConventionRules {
     }
 
     /// Primary ports are inbound API contracts and should be interfaces.
+    @ArchTest
     public static final ArchRule primary_ports_must_be_interfaces =
             classes()
                     .that(areHexagonalPrimaryPorts())
@@ -94,6 +103,7 @@ public final class HexagonalConventionRules {
                     .because("primary ports expose inbound application contracts and should be interfaces");
 
     /// Primary ports should live in inbound port packages.
+    @ArchTest
     public static final ArchRule primary_ports_must_reside_in_inbound_port_packages =
             classes()
                     .that(areHexagonalPrimaryPorts())
@@ -102,6 +112,7 @@ public final class HexagonalConventionRules {
                     .because("primary ports should be easy to locate under port.in / ports.in / usecase packages");
 
     /// Secondary ports are outbound API contracts and should be interfaces.
+    @ArchTest
     public static final ArchRule secondary_ports_must_be_interfaces =
             classes()
                     .that(areHexagonalSecondaryPorts())
@@ -109,15 +120,19 @@ public final class HexagonalConventionRules {
                     .allowEmptyShould(true)
                     .because("secondary ports describe outbound needs and should be interfaces");
 
-    /// Secondary ports should live in outbound port packages.
+    /// Secondary ports should live in outbound port packages; DDD repositories may remain in
+    /// domain repository packages.
+    @ArchTest
     public static final ArchRule secondary_ports_must_reside_in_outbound_port_packages =
             classes()
                     .that(areHexagonalSecondaryPorts())
-                    .should().resideInAnyPackage(OUTBOUND_PORT_PACKAGES)
+                    .should(resideInOutboundPortOrDomainRepositoryPackage())
                     .allowEmptyShould(true)
-                    .because("secondary ports should be easy to locate under port.out / ports.out packages");
+                    .because("secondary ports should be easy to locate under port.out / ports.out packages, "
+                            + "while DDD repositories retain their domain repository location");
 
     /// Application core code should not be placed in adapter or infrastructure packages.
+    @ArchTest
     public static final ArchRule applications_must_not_reside_in_adapter_packages =
             noClasses()
                     .that(areHexagonalApplications())
@@ -125,7 +140,9 @@ public final class HexagonalConventionRules {
                     .allowEmptyShould(true)
                     .because("application core code should not be packaged as delivery, infrastructure, or persistence adapters");
 
-    /// Primary adapters should drive the application through primary ports, not through the outbound side.
+    /// Primary adapters should drive the application through primary ports, not through outbound
+    /// ports, repositories, or adapters.
+    @ArchTest
     public static final ArchRule primary_adapters_must_not_depend_on_secondary_ports_or_adapters =
             noClasses()
                     .that(areHexagonalPrimaryAdapters())
@@ -133,15 +150,17 @@ public final class HexagonalConventionRules {
                     .allowEmptyShould(true)
                     .because("primary adapters should call primary ports/use cases and must not bypass the application core");
 
-    /// Secondary adapters should implement at least one secondary port.
+    /// Secondary adapters should implement at least one secondary port or DDD repository contract.
+    @ArchTest
     public static final ArchRule secondary_adapters_should_implement_secondary_ports =
             classes()
                     .that(areHexagonalSecondaryAdapters())
                     .should(implementSecondaryPort())
                     .allowEmptyShould(true)
-                    .because("secondary adapters should fulfill outbound port contracts");
+                    .because("secondary adapters should fulfill secondary-port or DDD-repository contracts");
 
     /// Application and domain code must not depend on persistence implementation details.
+    @ArchTest
     public static final ArchRule application_and_domain_must_not_depend_on_persistence_details =
             noClasses()
                     .that().resideInAnyPackage("..application..", "..app..", "..domain..", "..service..")
@@ -205,7 +224,8 @@ public final class HexagonalConventionRules {
                     JavaClass target = dependency.getTargetClass();
                     if (hasAnnotationInClassOrPackage(target, JMOLECULES_SECONDARY_PORT, JFOUNDRY_SECONDARY_PORT)
                             || hasAnnotationInClassOrPackage(target, JMOLECULES_SECONDARY_ADAPTER,
-                            JFOUNDRY_SECONDARY_ADAPTER)) {
+                            JFOUNDRY_SECONDARY_ADAPTER)
+                            || DddRepositoryTypes.isRepositoryInterface(target)) {
                         events.add(SimpleConditionEvent.satisfied(item, dependency.getDescription()));
                     }
                 }
@@ -218,12 +238,29 @@ public final class HexagonalConventionRules {
             @Override
             public void check(JavaClass item, ConditionEvents events) {
                 for (JavaClass rawInterface : item.getAllRawInterfaces()) {
-                    if (hasAnnotationInClassOrPackage(rawInterface, JMOLECULES_SECONDARY_PORT, JFOUNDRY_SECONDARY_PORT)) {
+                    if (hasAnnotationInClassOrPackage(rawInterface, JMOLECULES_SECONDARY_PORT, JFOUNDRY_SECONDARY_PORT)
+                            || DddRepositoryTypes.isRepositoryInterface(rawInterface)) {
                         return;
                     }
                 }
                 events.add(SimpleConditionEvent.violated(item,
-                        item.getName() + " does not implement a @SecondaryPort interface"));
+                        item.getName() + " does not implement a @SecondaryPort or DDD Repository interface"));
+            }
+        };
+    }
+
+    private static ArchCondition<JavaClass> resideInOutboundPortOrDomainRepositoryPackage() {
+        return new ArchCondition<>("reside in an outbound port package or a domain repository package") {
+            @Override
+            public void check(JavaClass item, ConditionEvents events) {
+                String packageName = item.getPackageName();
+                if (OUTBOUND_PORT_PACKAGE_MATCHERS.test(packageName)
+                        || (DddRepositoryTypes.isRepositoryInterface(item)
+                        && DOMAIN_REPOSITORY_PACKAGE_MATCHERS.test(packageName))) {
+                    return;
+                }
+                events.add(SimpleConditionEvent.violated(item,
+                        item.getName() + " is outside outbound port and domain repository packages"));
             }
         };
     }

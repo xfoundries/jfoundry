@@ -267,20 +267,20 @@ com.example.order
 ```java
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
-import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.junit.ArchTests;
 import org.jfoundry.test.archunit.JFoundryRules;
 
 @AnalyzeClasses(packages = "com.example.order")
 class OrderArchitectureTest {
 
     @ArchTest
-    ArchRule[] jfoundryRules = JFoundryRules.hexagonalStrict();
+    ArchTests jfoundryRules = JFoundryRules.hexagonalStrict();
 
     @ArchTest
-    ArchRule[] jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
+    ArchTests jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
 
     @ArchTest
-    ArchRule[] aggregateRepositoryRules = JFoundryRules.aggregateRepositoryConventions();
+    ArchTests aggregateRepositoryRules = JFoundryRules.aggregateRepositoryConventions();
 }
 ```
 
@@ -290,7 +290,7 @@ class OrderArchitectureTest {
 
 ```java
 @ArchTest
-ArchRule[] jfoundryRules = JFoundryRules.onionSimple();
+ArchTests jfoundryRules = JFoundryRules.onionSimple();
 ```
 
 ## Repository 与读侧端口

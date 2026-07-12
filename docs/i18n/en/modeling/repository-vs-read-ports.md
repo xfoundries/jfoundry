@@ -14,6 +14,11 @@ Use an aggregate repository when the caller needs to load or save an aggregate f
 Do not put paging, dashboards, reports, query wrappers, or persistence service APIs into aggregate
 repositories.
 
+A repository has a DDD role independent of the selected architecture. In Hexagonal projects it may
+also be a `@SecondaryPort` while remaining under `domain.repository`; in Onion projects it is an
+inner-ring contract implemented by infrastructure. Do not duplicate the contract merely to satisfy
+an architecture package convention.
+
 ## LookupPort
 
 Use a `LookupPort` for lightweight context required by an application service. It supports command
@@ -31,6 +36,7 @@ usually returns IDs, windows, or lightweight candidates instead of aggregates.
 
 ## ArchUnit Relationship
 
-`JFoundryRules.aggregateRepositoryConventions()` can prevent aggregate repository interfaces from
+`JFoundryRules.aggregateRepositoryConventions()` recognizes both jMolecules `Repository` and
+jfoundry `AggregateRepository` interfaces and can prevent them from
 exposing common persistence and paging types. It is optional because read-side naming conventions
 remain project-specific.

@@ -1,6 +1,7 @@
 package org.jfoundry.test.archunit;
 
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -68,6 +69,7 @@ public final class CqrsRules {
     }
 
     /// Command types should be transport- and persistence-neutral.
+    @ArchTest
     public static final ArchRule commands_must_not_depend_on_infrastructure =
             noClasses()
                     .that().areAnnotatedWith(Command.class)
@@ -83,6 +85,7 @@ public final class CqrsRules {
                     .because("commands describe write intent and should not depend on adapters or infrastructure");
 
     /// Command types describe primary/application entry intent.
+    @ArchTest
     public static final ArchRule commands_must_reside_in_primary_or_application_packages =
             classes()
                     .that().areAnnotatedWith(Command.class)
@@ -92,6 +95,7 @@ public final class CqrsRules {
                     .because("commands describe use-case intent and should stay in primary or application entry packages");
 
     /// Query models describe primary/application query outputs.
+    @ArchTest
     public static final ArchRule query_models_must_reside_in_primary_or_application_packages =
             classes()
                     .that().areAnnotatedWith(QueryModel.class)
@@ -101,6 +105,7 @@ public final class CqrsRules {
                     .because("query models describe query use-case outputs and should stay in primary or application entry packages");
 
     /// Secondary ports and adapters should not expose CQRS command/query stereotypes.
+    @ArchTest
     public static final ArchRule secondary_side_must_not_depend_on_cqrs_stereotypes =
             noClasses()
                     .that().areAnnotatedWith(SecondaryPort.class)
@@ -117,6 +122,7 @@ public final class CqrsRules {
                     .because("secondary ports/adapters describe outbound capabilities and should not expose CQRS entry models");
 
     /// Command handlers orchestrate write use cases from the application layer.
+    @ArchTest
     public static final ArchRule command_handlers_must_reside_in_application_packages =
             members()
                     .that().areAnnotatedWith(CommandHandler.class)
@@ -126,6 +132,7 @@ public final class CqrsRules {
                     .because("command handlers, including composed handler annotations, orchestrate application write use cases");
 
     /// Command dispatchers route commands from the application layer.
+    @ArchTest
     public static final ArchRule command_dispatchers_must_reside_in_application_packages =
             members()
                     .that().areAnnotatedWith(CommandDispatcher.class)

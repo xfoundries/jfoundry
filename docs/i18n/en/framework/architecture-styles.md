@@ -26,11 +26,16 @@ Hexagonal Architecture is useful when external inputs and outputs are first-clas
 | `@Application` | `domain`, `application` | Application core protected from external technologies. |
 | `@PrimaryPort` | `application.port.in` | Use case entrypoint exposed to driving adapters. |
 | `@PrimaryAdapter` | `adapter.in.web`, `adapter.in.messaging` | Technology that drives the application. |
-| `@SecondaryPort` | `application.port.out` | Capability the application requires from the outside. |
+| `@SecondaryPort` | `application.port.out`; `domain.repository` for aggregate repositories | Capability the application requires from the outside. |
 | `@SecondaryAdapter` | `adapter.out.persistence`, `adapter.out.messaging` | Technology implementation of an outgoing port. |
 
 jfoundry intentionally does not wrap generic `@Port` or `@Adapter`; use the primary/secondary
 specializations when direction is known.
+
+An aggregate repository remains a DDD repository contract. In a Hexagonal project it may also be
+annotated as a `@SecondaryPort`, while remaining under `domain.repository`; do not duplicate it as
+an application `port.out` interface. A `@SecondaryAdapter` may implement either a regular secondary
+port or such a DDD repository.
 
 ![hexagonal-architecture.png](../../assets/hexagonal-architecture.png)
 
@@ -52,6 +57,10 @@ direction explicit.
 For new projects that choose Onion, prefer Onion Simple unless the team already has a clear reason
 to separate domain model, domain service, and application service rings.
 
+In Onion, the same aggregate repository is an inner-ring DDD contract implemented by an
+`@InfrastructureRing` type. This is the Onion expression of dependency inversion; do not add
+Hexagonal annotations to an Onion analysis scope.
+
 ![onion-architecture.png](../../assets/onion-architecture.png)
 
 ## Rule Entry Points
@@ -61,7 +70,7 @@ to separate domain model, domain service, and application service rings.
 class ArchitectureTest {
 
     @ArchTest
-    ArchRule[] rules = JFoundryRules.hexagonalStrict();
+    ArchTests rules = JFoundryRules.hexagonalStrict();
 }
 ```
 

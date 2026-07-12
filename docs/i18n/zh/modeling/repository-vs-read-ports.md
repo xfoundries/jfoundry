@@ -102,6 +102,8 @@ Repository 方法应优先表达领域意图，而不是复制 SQL 条件。`fin
 
 ## 推荐落地形态
 
+聚合 Repository 的 DDD 身份独立于所选架构。在 Hexagonal 项目中，它可以同时是 `@SecondaryPort` 并保留在 `domain.repository`；在 Onion 项目中，它是内环定义、由基础设施环实现的契约。不要为了满足某个架构包名约定而复制 Repository 接口。
+
 Hexagonal 项目中推荐的依赖方向示例：
 
 ```text
@@ -121,6 +123,6 @@ Infrastructure Adapter
 
 jfoundry 的架构测试不会强制业务项目使用 `LookupPort`、`ReadModelPort` 或 `MaintenancePort` 这些后缀。
 
-`JFoundryRules.aggregateRepositoryConventions()` 只守护聚合 Repository 不泄漏通用查询条件、分页 API、持久化 service 或 mapper 类型。它不会根据方法名或返回值后缀判断某个查询是否必须迁移到某类读侧端口。
+`JFoundryRules.aggregateRepositoryConventions()` 同时识别直接继承 jMolecules `Repository` 和继承 jfoundry `AggregateRepository` 的接口，只守护聚合 Repository 不泄漏通用查询条件、分页 API、持久化 service 或 mapper 类型。它不会根据方法名或返回值后缀判断某个查询是否必须迁移到某类读侧端口。
 
 Hexagonal 和 CQRS 相关规则关注的是端口/适配器依赖方向、CQRS 入口语义位置，以及应用核心不依赖持久化细节。读侧端口如何命名和是否进一步细分，应由业务项目按复杂度渐进决定。

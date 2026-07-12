@@ -1,14 +1,7 @@
 package org.jfoundry.test.archunit;
 
+import com.tngtech.archunit.junit.ArchTests;
 import com.tngtech.archunit.lang.ArchRule;
-import org.jmolecules.archunit.JMoleculesArchitectureRules;
-import org.jmolecules.archunit.JMoleculesDddRules;
-
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Stream;
 
 /// Aggregated entrypoint for jfoundry architecture rules.
 /// <p>
@@ -16,18 +9,19 @@ import java.util.stream.Stream;
 /// <pre>
 /// import com.tngtech.archunit.junit.AnalyzeClasses;
 /// import com.tngtech.archunit.junit.ArchTest;
+/// import com.tngtech.archunit.junit.ArchTests;
 /// import org.jfoundry.test.archunit.JFoundryRules;
 ///
 /// &#64;AnalyzeClasses(packages = "com.mysoft.ci")
 /// class CiArchitectureTest {
 ///     &#64;ArchTest
-///     ArchRule[] hexagonalRules = JFoundryRules.hexagonal();
+///     ArchTests hexagonalRules = JFoundryRules.hexagonal();
 ///
 ///     &#64;ArchTest
-///     ArchRule[] jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
+///     ArchTests jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
 ///
 ///     &#64;ArchTest
-///     ArchRule[] cqrsRules = JFoundryRules.cqrs();
+///     ArchTests cqrsRules = JFoundryRules.cqrs();
 /// }
 /// </pre>
 /// <p>
@@ -45,49 +39,40 @@ public final class JFoundryRules {
     /// <p>
     /// Includes JFoundry baseline guard rules, native jMolecules Hexagonal rules, and the
     /// Hexagonal/Onion mutual-exclusion rule.
-    public static ArchRule[] hexagonal() {
-        return concat(base(), new ArchRule[]{
-                JMoleculesArchitectureRules.ensureHexagonal(),
-                ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed
-        });
+    public static ArchTests hexagonal() {
+        return ArchTests.in(JFoundryRuleSets.Hexagonal.class);
     }
 
     /// Recommended implementation conventions for Hexagonal Architecture / Ports and Adapters.
     /// <p>
     /// This entrypoint adds type-shape, package-name, and adapter-isolation conventions that are
     /// outside the native jMolecules role dependency rules.
-    public static ArchRule[] hexagonalConventions() {
-        return publicStaticArchRules(HexagonalConventionRules.class).toArray(new ArchRule[0]);
+    public static ArchTests hexagonalConventions() {
+        return ArchTests.in(HexagonalConventionRules.class);
     }
 
     /// Strict Hexagonal Architecture rules.
     /// <p>
     /// Includes the dependency rules from {@link #hexagonal()} and the JFoundry recommended
     /// implementation conventions from {@link #hexagonalConventions()}.
-    public static ArchRule[] hexagonalStrict() {
-        return concat(hexagonal(), hexagonalConventions());
+    public static ArchTests hexagonalStrict() {
+        return ArchTests.in(JFoundryRuleSets.HexagonalStrict.class);
     }
 
     /// Simplified Onion Architecture rules.
     /// <p>
     /// Includes JFoundry baseline guard rules, native jMolecules Onion Simple rules, and the
     /// Hexagonal/Onion mutual-exclusion rule.
-    public static ArchRule[] onionSimple() {
-        return concat(base(), new ArchRule[]{
-                JMoleculesArchitectureRules.ensureOnionSimple(),
-                ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed
-        });
+    public static ArchTests onionSimple() {
+        return ArchTests.in(JFoundryRuleSets.OnionSimple.class);
     }
 
     /// Classical Onion Architecture rules.
     /// <p>
     /// Includes JFoundry baseline guard rules, native jMolecules Onion Classical rules, and the
     /// Hexagonal/Onion mutual-exclusion rule.
-    public static ArchRule[] onionClassical() {
-        return concat(base(), new ArchRule[]{
-                JMoleculesArchitectureRules.ensureOnionClassical(),
-                ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed
-        });
+    public static ArchTests onionClassical() {
+        return ArchTests.in(JFoundryRuleSets.OnionClassical.class);
     }
 
     /// Mutual-exclusion rule for Hexagonal and Onion as primary architecture styles.
@@ -100,8 +85,8 @@ public final class JFoundryRules {
     /// jMolecules currently does not provide an independent CQRS ArchUnit rule set, so JFoundry
     /// provides this lightweight constraint entrypoint. These rules are not included in the primary
     /// architecture style rules by default; applications must opt in explicitly.
-    public static ArchRule[] cqrs() {
-        return publicStaticArchRules(CqrsRules.class).toArray(new ArchRule[0]);
+    public static ArchTests cqrs() {
+        return ArchTests.in(CqrsRules.class);
     }
 
     /// Aggregate Repository convention rules.
@@ -109,8 +94,8 @@ public final class JFoundryRules {
     /// This rule group is not included in the primary architecture style entrypoints by default.
     /// Applications should opt in explicitly when they are ready to guard aggregate repositories
     /// against generic query conditions, paging APIs, and persistence service or mapper APIs.
-    public static ArchRule[] aggregateRepositoryConventions() {
-        return publicStaticArchRules(AggregateRepositoryConventionRules.class).toArray(new ArchRule[0]);
+    public static ArchTests aggregateRepositoryConventions() {
+        return ArchTests.in(AggregateRepositoryConventionRules.class);
     }
 
     /// Selected official jMolecules DDD rules.
@@ -119,54 +104,13 @@ public final class JFoundryRules {
     /// <p>
     /// Selected stable native jMolecules rules:
     /// <ul>
-    ///   <li>{@link JMoleculesDddRules#aggregateReferencesShouldBeViaIdOrAssociation()} —
+    ///   <li>{@code JMoleculesDddRules.aggregateReferencesShouldBeViaIdOrAssociation()} —
     ///       aggregates may reference each other only through IDs or associations, avoiding boundary
     ///       leaks caused by direct object references.</li>
-    ///   <li>{@link JMoleculesDddRules#valueObjectsMustNotReferToIdentifiables()} —
+    ///   <li>{@code JMoleculesDddRules.valueObjectsMustNotReferToIdentifiables()} —
     ///       value objects must not refer to identifiable entities or aggregates.</li>
     /// </ul>
-    public static ArchRule[] jmoleculesDdd() {
-        return new ArchRule[]{
-                JMoleculesDddRules.aggregateReferencesShouldBeViaIdOrAssociation(),
-                JMoleculesDddRules.valueObjectsMustNotReferToIdentifiables()
-        };
-    }
-
-    private static ArchRule[] base() {
-        List<ArchRule> collected = new ArrayList<>();
-        collected.addAll(publicStaticArchRules(PersistenceRules.class));
-        collected.addAll(publicStaticArchRules(ValueObjectRules.class));
-        collected.addAll(publicStaticArchRules(FrameworkModuleRules.class));
-        return collected.toArray(new ArchRule[0]);
-    }
-
-    private static ArchRule[] concat(ArchRule[]... groups) {
-        int length = 0;
-        for (ArchRule[] group : groups) {
-            length += group.length;
-        }
-        ArchRule[] merged = new ArchRule[length];
-        int offset = 0;
-        for (ArchRule[] group : groups) {
-            System.arraycopy(group, 0, merged, offset, group.length);
-            offset += group.length;
-        }
-        return merged;
-    }
-
-    private static List<ArchRule> publicStaticArchRules(Class<?> rulesClass) {
-        return Arrays.stream(rulesClass.getDeclaredFields())
-                .filter(f -> (f.getModifiers() & Modifier.STATIC) != 0)
-                .filter(f -> ArchRule.class.isAssignableFrom(f.getType()))
-                .flatMap(f -> {
-                    try {
-                        f.setAccessible(true);
-                        return Stream.of((ArchRule) f.get(null));
-                    } catch (IllegalAccessException e) {
-                        throw new IllegalStateException(
-                                "Failed to access ArchRule field " + rulesClass.getName() + "#" + f.getName(), e);
-                    }
-                })
-                .toList();
+    public static ArchTests jmoleculesDdd() {
+        return ArchTests.in(JFoundryRuleSets.JmoleculesDdd.class);
     }
 }

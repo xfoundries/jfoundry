@@ -1,7 +1,6 @@
 package org.jfoundry.test.archunit;
 
 import com.tngtech.archunit.core.importer.ClassFileImporter;
-import com.tngtech.archunit.lang.ArchRule;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,11 +12,7 @@ class CqrsRulesTest {
 
     @Test
     void exposesCqrsRules() {
-        ArchRule[] rules = JFoundryRules.cqrs();
-        assertThat(rules).hasSizeGreaterThanOrEqualTo(3);
-        for (ArchRule rule : rules) {
-            assertThat(rule).as("rule in JFoundryRules.cqrs() must not be null").isNotNull();
-        }
+        assertThat(JFoundryRules.cqrs().getDefinitionLocation()).isEqualTo(CqrsRules.class);
     }
 
     @Test

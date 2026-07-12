@@ -1,7 +1,6 @@
 package org.jfoundry.test.archunit;
 
 import com.tngtech.archunit.core.importer.ClassFileImporter;
-import com.tngtech.archunit.lang.ArchRule;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,11 +12,8 @@ class AggregateRepositoryConventionRulesTest {
 
     @Test
     void exposesAggregateRepositoryConventionRules() {
-        ArchRule[] rules = JFoundryRules.aggregateRepositoryConventions();
-        assertThat(rules).hasSize(3);
-        for (ArchRule rule : rules) {
-            assertThat(rule).as("rule in JFoundryRules.aggregateRepositoryConventions() must not be null").isNotNull();
-        }
+        assertThat(JFoundryRules.aggregateRepositoryConventions().getDefinitionLocation())
+                .isEqualTo(AggregateRepositoryConventionRules.class);
     }
 
     @Test
@@ -34,6 +30,11 @@ class AggregateRepositoryConventionRulesTest {
     void aggregateRepositoriesMustNotExposePagingTypes() {
         assertThatThrownBy(() -> AggregateRepositoryConventionRules.aggregate_repositories_must_not_expose_paging_types
                 .check(IMPORTER.importPackages("org.jfoundry.test.archunit.fixture.repositoryconventions.invalid.paging")))
+                .isInstanceOf(AssertionError.class);
+
+        assertThatThrownBy(() -> AggregateRepositoryConventionRules.aggregate_repositories_must_not_expose_paging_types
+                .check(IMPORTER.importPackages(
+                        "org.jfoundry.test.archunit.fixture.repositoryconventions.invalid.jmoleculespaging")))
                 .isInstanceOf(AssertionError.class);
 
         AggregateRepositoryConventionRules.aggregate_repositories_must_not_expose_paging_types

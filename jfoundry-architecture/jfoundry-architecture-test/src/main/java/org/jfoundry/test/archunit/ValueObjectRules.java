@@ -3,6 +3,7 @@ package org.jfoundry.test.archunit;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaModifier;
+import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -21,7 +22,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 /// &#64;AnalyzeClasses(packages = "com.mysoft.ci")
 /// class CiArchitectureTest {
 ///     &#64;ArchTest
-///     ArchRule[] valueObjectRules = JFoundryRules.hexagonal();
+///     ArchTests valueObjectRules = ArchTests.in(ValueObjectRules.class);
 /// }
 /// </pre>
 public final class ValueObjectRules {
@@ -40,6 +41,7 @@ public final class ValueObjectRules {
     /// the rule should pass vacuously instead of failing. ArchUnit's default empty-should failure
     /// helps catch local rule mistakes, but reusable library rules must support legitimate
     /// not-yet-applied scenarios.
+    @ArchTest
     public static final ArchRule value_objects_must_be_final =
             classes()
                     .that().implement(ValueObject.class)
@@ -52,6 +54,7 @@ public final class ValueObjectRules {
     /// All value object fields must be final.
     /// <p>
     /// Record fields are final by default; this rule mainly constrains class-based value objects.
+    @ArchTest
     public static final ArchRule value_object_fields_must_be_final =
             classes()
                     .that().implement(ValueObject.class)
@@ -63,6 +66,7 @@ public final class ValueObjectRules {
     /// <p>
     /// Records provide them by default; class-based implementations must override them explicitly.
     /// Equal value objects must produce the same hashCode.
+    @ArchTest
     public static final ArchRule value_objects_must_implement_equals_and_hashCode =
             classes()
                     .that().implement(ValueObject.class)

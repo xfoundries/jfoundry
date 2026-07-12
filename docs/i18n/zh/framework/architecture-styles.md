@@ -24,10 +24,12 @@ Hexagonal 角色语义：
 | `@Application` | 六边形内部的应用核心，不只表示 application service 包；领域模型和应用服务都属于这个核心 | `domain`、`application`，或更细的应用核心包 | 聚合、领域服务、应用服务、用例编排 |
 | `@PrimaryPort` | 应用核心暴露给外部驱动方的入口 | `application.port.in`、`application.usecase` | `CreateOrderUseCase`、`CancelOrderCommandHandler` |
 | `@PrimaryAdapter` | 驱动应用的技术入口 | `adapter.in.web`、`adapter.in.messaging`、`adapter.in.scheduler` | REST Controller、消息监听器、定时任务、CLI |
-| `@SecondaryPort` | 应用核心对外部能力的出站需求 | `application.port.out` | `OrderRepository`、`PaymentGatewayPort`、`OrderEventPublisherPort` |
+| `@SecondaryPort` | 应用核心对外部能力的出站需求 | 普通端口位于 `application.port.out`；聚合 Repository 可保留在 `domain.repository` | `OrderRepository`、`PaymentGatewayPort`、`OrderEventPublisherPort` |
 | `@SecondaryAdapter` | 外部能力的具体实现 | `adapter.out.persistence`、`adapter.out.messaging`、`adapter.out.client` | MyBatis adapter、Kafka sender、支付 SDK adapter |
 
 JFoundry 不提供裸 `@Port` / `@Adapter` 包装注解；如果方向明确，就使用 Primary 或 Secondary 特化注解。如果项目确实需要模糊角色，请直接使用 jMolecules 原生 `@Port` / `@Adapter`。Spring Boot auto-configuration 只负责装配 adapter，不标注为 adapter。
+
+聚合 Repository 首先是 DDD Repository 契约。在 Hexagonal 项目中，它可以同时标注为 `@SecondaryPort`，但仍保留在 `domain.repository`，不需要在应用层 `port.out` 再复制一份接口。`@SecondaryAdapter` 可以实现普通 Secondary Port，也可以实现这种 DDD Repository。
 
 ![hexagonal-architecture.png](../../assets/hexagonal-architecture.png)
 
@@ -44,6 +46,8 @@ Onion 角色语义：
 | Onion Classical | `@InfrastructureRing` | 基础设施环 | `infrastructure` | 数据库、消息、外部系统、框架配置 |
 
 普通新项目如果选择 Onion，优先使用 Onion Simple；只有团队明确需要区分 domain model、domain service、application service 等更细 ring 语义时，再使用 Onion Classical。无论 Simple 还是 Classical，依赖方向都应指向领域核心，Spring Boot auto-configuration 仍只负责装配，不作为 Onion ring 参与建模。
+
+在 Onion 中，同一个聚合 Repository 是内环定义的 DDD 契约，由 `@InfrastructureRing` 类型实现。这是 Onion 对依赖倒置的表达；不要为了表达同一关系而在 Onion 分析范围内混入 Hexagonal 注解。
 
 ![onion-architecture.png](../../assets/onion-architecture.png)
 
@@ -78,7 +82,7 @@ JFoundry 框架内部直接使用 jMolecules 原生架构注解，`jfoundry-hexa
 class ArchitectureTest {
 
     @ArchTest
-    ArchRule[] rules = JFoundryRules.hexagonalStrict();
+    ArchTests rules = JFoundryRules.hexagonalStrict();
 }
 ```
 
@@ -89,7 +93,7 @@ class ArchitectureTest {
 class ArchitectureTest {
 
     @ArchTest
-    ArchRule[] rules = JFoundryRules.onionSimple();
+    ArchTests rules = JFoundryRules.onionSimple();
 }
 ```
 

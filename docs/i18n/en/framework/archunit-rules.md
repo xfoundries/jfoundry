@@ -10,16 +10,19 @@ rules early, then tighten optional conventions as the model stabilizes.
 class MyAppArchitectureTest {
 
     @ArchTest
-    ArchRule[] architecture = JFoundryRules.hexagonalStrict();
+    ArchTests architecture = JFoundryRules.hexagonalStrict();
 
     @ArchTest
-    ArchRule[] ddd = JFoundryRules.jmoleculesDdd();
+    ArchTests ddd = JFoundryRules.jmoleculesDdd();
 }
 ```
 
 `hexagonalStrict()` combines jfoundry baseline guards, native jMolecules Hexagonal rules, and
 jfoundry implementation conventions. `jmoleculesDdd()` exposes selected official jMolecules DDD
 rules.
+
+All grouped entrypoints return ArchUnit `ArchTests`, so the JUnit 5 engine discovers every nested
+rule without treating an `ArchRule[]` array as a single rule.
 
 ## Rule Groups
 
@@ -29,7 +32,7 @@ rules.
 | `ValueObjectRules` | Require value objects to be immutable and to provide value semantics. |
 | `ArchitectureStyleRules` | Prevent Hexagonal and Onion primary styles from being mixed in the same analysis scope. |
 | `FrameworkModuleRules` | Guard jfoundry's own module ring annotations and wrapper annotation usage. |
-| `AggregateRepositoryConventionRules` | Optional guardrails that keep aggregate repositories from exposing query wrappers, paging APIs, and persistence service/mapper APIs. |
+| `AggregateRepositoryConventionRules` | Optional guardrails for jMolecules `Repository` and jfoundry `AggregateRepository` interfaces that expose query wrappers, paging APIs, or persistence service/mapper APIs. |
 
 ## Entry Points
 

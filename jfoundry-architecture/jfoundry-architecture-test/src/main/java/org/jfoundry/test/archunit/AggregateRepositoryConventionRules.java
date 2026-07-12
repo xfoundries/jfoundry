@@ -1,14 +1,13 @@
 package org.jfoundry.test.archunit;
 
-import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaCodeUnit;
 import com.tngtech.archunit.core.domain.JavaField;
+import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
-import org.jfoundry.domain.repository.AggregateRepository;
 
 import java.util.Set;
 import java.util.function.Predicate;
@@ -22,34 +21,35 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 /// methods can still be valid when they load aggregates for immediate business behavior.
 public final class AggregateRepositoryConventionRules {
 
-    private static final String AGGREGATE_REPOSITORY = AggregateRepository.class.getName();
-
     private AggregateRepositoryConventionRules() {
     }
 
     /// Aggregate repository interfaces must not expose generic query condition APIs such as MyBatis-Plus Wrapper
     /// or Spring Data JPA Specification types in method signatures or superinterfaces.
+    @ArchTest
     public static final ArchRule aggregate_repositories_must_not_expose_query_condition_types =
             classes()
-                    .that(areAggregateRepositoryInterfaces())
+                    .that(DddRepositoryTypes.areRepositoryInterfaces())
                     .should(exposeTypesMatching(AggregateRepositoryConventionRules::isQueryConditionType,
                             "expose generic query condition types"))
                     .allowEmptyShould(true)
                     .because("aggregate repositories should expose business-named boundaries instead of generic query conditions");
 
     /// Aggregate repository interfaces must not expose paging APIs. Paging belongs to read/lookup ports.
+    @ArchTest
     public static final ArchRule aggregate_repositories_must_not_expose_paging_types =
             classes()
-                    .that(areAggregateRepositoryInterfaces())
+                    .that(DddRepositoryTypes.areRepositoryInterfaces())
                     .should(exposeTypesMatching(AggregateRepositoryConventionRules::isPagingType,
                             "expose paging types"))
                     .allowEmptyShould(true)
                     .because("paging and listing use cases should go through read/lookup ports, not aggregate repositories");
 
     /// Aggregate repository interfaces must not expose persistence service or mapper APIs.
+    @ArchTest
     public static final ArchRule aggregate_repositories_must_not_expose_persistence_service_types =
             classes()
-                    .that(areAggregateRepositoryInterfaces())
+                    .that(DddRepositoryTypes.areRepositoryInterfaces())
                     .should(exposeTypesMatching(AggregateRepositoryConventionRules::isPersistenceServiceType,
                             "expose persistence service or mapper types"))
                     .allowEmptyShould(true)
@@ -66,27 +66,6 @@ public final class AggregateRepositoryConventionRules {
                 for (JavaField field : item.getFields()) {
                     checkTypeSet(item, field.getAllInvolvedRawTypes(), predicate, events, field.getDescription());
                 }
-            }
-        };
-    }
-
-    private static DescribedPredicate<JavaClass> areAggregateRepositoryInterfaces() {
-        return new DescribedPredicate<>("aggregate repository interfaces") {
-            @Override
-            public boolean test(JavaClass input) {
-                if (!input.isInterface()) {
-                    return false;
-                }
-                if (input.isAssignableTo(AGGREGATE_REPOSITORY)) {
-                    return true;
-                }
-                for (JavaClass rawInterface : input.getAllRawInterfaces()) {
-                    if (rawInterface.getName().equals(AGGREGATE_REPOSITORY)
-                            || rawInterface.isAssignableTo(AGGREGATE_REPOSITORY)) {
-                        return true;
-                    }
-                }
-                return false;
             }
         };
     }

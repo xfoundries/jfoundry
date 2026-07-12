@@ -2,6 +2,7 @@ package org.jfoundry.test.archunit;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaPackage;
+import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -19,6 +20,7 @@ public final class FrameworkModuleRules {
     private FrameworkModuleRules() {
     }
 
+    @ArchTest
     public static final ArchRule domain_must_not_depend_on_outer_layers =
             noClasses()
                     .that().resideInAPackage("org.jfoundry.domain..")
@@ -29,6 +31,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("domain code must not depend on application, infrastructure, or autoconfigure modules");
 
+    @ArchTest
     public static final ArchRule application_must_not_depend_on_outer_layers =
             noClasses()
                     .that().resideInAPackage("org.jfoundry.application..")
@@ -38,6 +41,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("application code must not depend on infrastructure adapters or autoconfiguration");
 
+    @ArchTest
     public static final ArchRule framework_should_use_jmolecules_architecture_annotations_internally =
             noClasses()
                     .that().resideInAPackage("org.jfoundry..")
@@ -47,6 +51,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("JFoundry architecture annotations are public API wrappers; framework internals use jMolecules directly");
 
+    @ArchTest
     public static final ArchRule domain_packages_should_be_onion_domain_ring =
             classes()
                     .that().resideInAPackage("org.jfoundry.domain..")
@@ -54,6 +59,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("domain packages are part of the Onion domain ring");
 
+    @ArchTest
     public static final ArchRule application_packages_should_be_onion_application_ring =
             classes()
                     .that().resideInAPackage("org.jfoundry.application..")
@@ -61,6 +67,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("application packages are part of the Onion application ring");
 
+    @ArchTest
     public static final ArchRule infrastructure_packages_should_be_onion_infrastructure_ring =
             classes()
                     .that().resideInAPackage("org.jfoundry.infrastructure..")
@@ -68,6 +75,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("infrastructure packages are part of the Onion infrastructure ring");
 
+    @ArchTest
     public static final ArchRule spring_autoconfigure_packages_should_not_be_onion_rings =
             classes()
                     .that().resideInAPackage("org.jfoundry.autoconfigure..")
@@ -78,6 +86,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("Spring Boot autoconfiguration assembles framework modules but is not itself an Onion ring");
 
+    @ArchTest
     public static final ArchRule infrastructure_must_not_depend_on_spring_autoconfigure =
             noClasses()
                     .that().resideInAPackage("org.jfoundry.infrastructure..")
@@ -85,6 +94,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("infrastructure adapters must stay independent from Spring Boot autoconfiguration");
 
+    @ArchTest
     public static final ArchRule application_store_ports_should_be_in_application_ring =
             classes()
                     .that().resideInAPackage("org.jfoundry.application..")
@@ -93,6 +103,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("application store abstractions belong to the Onion application ring");
 
+    @ArchTest
     public static final ArchRule domain_event_dispatcher_should_be_in_application_ring =
             classes()
                     .that().haveFullyQualifiedName("org.jfoundry.application.event.DomainEventDispatcher")
@@ -100,6 +111,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("DomainEventDispatcher belongs to the Onion application ring");
 
+    @ArchTest
     public static final ArchRule domain_event_context_should_be_in_application_ring =
             classes()
                     .that().haveFullyQualifiedName("org.jfoundry.application.event.DomainEventContext")
@@ -107,6 +119,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("DomainEventContext belongs to the Onion application ring");
 
+    @ArchTest
     public static final ArchRule domain_event_outbox_recorder_should_be_in_application_ring =
             classes()
                     .that().haveFullyQualifiedName("org.jfoundry.application.outbox.DomainEventOutboxRecorder")
@@ -114,6 +127,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("DomainEventOutboxRecorder belongs to the Onion application ring");
 
+    @ArchTest
     public static final ArchRule message_sender_should_be_in_application_ring =
             classes()
                     .that().haveFullyQualifiedName("org.jfoundry.application.messaging.MessageSender")
@@ -121,6 +135,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("MessageSender belongs to the Onion application ring");
 
+    @ArchTest
     public static final ArchRule payload_serializer_should_be_in_application_ring =
             classes()
                     .that().haveFullyQualifiedName("org.jfoundry.application.messaging.PayloadSerializer")
@@ -128,6 +143,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("PayloadSerializer belongs to the Onion application ring");
 
+    @ArchTest
     public static final ArchRule externalization_rules_should_not_be_in_messaging_package =
             noClasses()
                     .that().resideInAPackage("org.jfoundry.application.event.externalization..")
@@ -135,6 +151,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("domain event externalization metadata is not the messaging transport SPI");
 
+    @ArchTest
     public static final ArchRule event_externalization_rules_should_be_in_application_ring =
             classes()
                     .that().resideInAPackage("org.jfoundry.application.event.externalization..")
@@ -142,6 +159,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("domain event externalization rules belong to the Onion application ring");
 
+    @ArchTest
     public static final ArchRule outbox_dispatcher_should_be_in_application_ring =
             classes()
                     .that().haveFullyQualifiedName("org.jfoundry.application.outbox.OutboxDispatcher")
@@ -149,6 +167,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("OutboxDispatcher belongs to the Onion application ring");
 
+    @ArchTest
     public static final ArchRule infrastructure_message_stores_should_be_in_infrastructure_ring =
             classes()
                     .that().resideInAPackage("org.jfoundry.infrastructure..mybatis..")
@@ -157,6 +176,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("MyBatis message stores belong to the Onion infrastructure ring");
 
+    @ArchTest
     public static final ArchRule spring_application_event_dispatcher_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName(
@@ -165,6 +185,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("SpringApplicationEventDispatcher is a Spring adapter for domain event dispatch");
 
+    @ArchTest
     public static final ArchRule spring_event_dispatcher_should_not_be_in_messaging_package =
             noClasses()
                     .that().haveSimpleName("SpringApplicationEventDispatcher")
@@ -172,6 +193,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("Spring ApplicationEvent publishing is a domain event adapter, not a messaging transport adapter");
 
+    @ArchTest
     public static final ArchRule logging_message_sender_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName(
@@ -180,6 +202,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("LoggingMessageSender belongs to the Onion infrastructure ring");
 
+    @ArchTest
     public static final ArchRule default_domain_event_outbox_recorder_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName(
@@ -188,6 +211,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("DefaultDomainEventOutboxRecorder belongs to the Onion infrastructure ring");
 
+    @ArchTest
     public static final ArchRule outbox_domain_event_dispatcher_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName(
@@ -196,6 +220,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("OutboxDomainEventDispatcher belongs to the Onion infrastructure ring");
 
+    @ArchTest
     public static final ArchRule kafka_message_sender_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName("org.jfoundry.infrastructure.messaging.kafka.KafkaMessageSender")
@@ -203,6 +228,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("KafkaMessageSender belongs to the Onion infrastructure ring");
 
+    @ArchTest
     public static final ArchRule jackson_payload_serializer_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName("org.jfoundry.infrastructure.messaging.jackson.JacksonPayloadSerializer")
@@ -210,6 +236,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("JacksonPayloadSerializer belongs to the Onion infrastructure ring");
 
+    @ArchTest
     public static final ArchRule scheduled_outbox_dispatcher_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName(
@@ -218,6 +245,7 @@ public final class FrameworkModuleRules {
                     .allowEmptyShould(true)
                     .because("ScheduledOutboxDispatcher belongs to the Onion infrastructure ring");
 
+    @ArchTest
     public static final ArchRule jobrunr_outbox_dispatcher_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName(

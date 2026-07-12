@@ -168,21 +168,25 @@ Architecture rules should run in business project tests, not remain only in fram
 ```java
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
-import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.junit.ArchTests;
 import org.jfoundry.test.archunit.JFoundryRules;
 
 @AnalyzeClasses(packages = "com.mycompany.myapp")
 class MyAppArchitectureTest {
 
     @ArchTest
-    static final ArchRule[] onion = JFoundryRules.onionSimple();
+    static final ArchTests onion = JFoundryRules.onionSimple();
 
     @ArchTest
-    static final ArchRule[] ddd = JFoundryRules.jmoleculesDdd();
+    static final ArchTests ddd = JFoundryRules.jmoleculesDdd();
 }
 ```
 
 Use `JFoundryRules.hexagonalStrict()` when the project chooses Hexagonal Architecture. Use `JFoundryRules.onionSimple()` or `JFoundryRules.onionClassical()` when it chooses Onion Architecture.
+
+Aggregate repositories keep their DDD identity across styles. A Hexagonal project may additionally
+mark one as a `@SecondaryPort` without moving it out of `domain.repository`; an Onion project keeps
+the contract in an inner ring and its implementation in the infrastructure ring.
 
 ## Reliable Event Externalization
 

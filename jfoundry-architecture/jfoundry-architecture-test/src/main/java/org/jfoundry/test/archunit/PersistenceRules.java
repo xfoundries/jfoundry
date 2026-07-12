@@ -2,6 +2,7 @@ package org.jfoundry.test.archunit;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
+import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -34,6 +35,7 @@ public final class PersistenceRules {
     /// and applications may reference it before adding persistence implementations or
     /// auto-configuration modules. Empty matches should pass vacuously for reusable library rules,
     /// matching {@link ValueObjectRules}.
+    @ArchTest
     public static final ArchRule persistence_repository_must_not_use_transactional =
             noClasses()
                     .that().resideInAPackage("..infrastructure.persistence..")
@@ -50,6 +52,7 @@ public final class PersistenceRules {
     /// {@code allowEmptyShould(true)} is required because this rule is distributed by the framework
     /// and applications may reference it before adding auto-configuration modules. Empty matches
     /// should pass vacuously, matching {@link ValueObjectRules}.
+    @ArchTest
     public static final ArchRule autoconfig_must_not_use_component =
             noClasses()
                     .that().resideInAPackage("..autoconfigure..")

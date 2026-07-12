@@ -1,7 +1,6 @@
 package org.jfoundry.test.archunit;
 
 import com.tngtech.archunit.core.importer.ClassFileImporter;
-import com.tngtech.archunit.lang.ArchRule;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,17 +12,14 @@ class HexagonalConventionRulesTest {
 
     @Test
     void exposesHexagonalConventionRules() {
-        ArchRule[] rules = JFoundryRules.hexagonalConventions();
-        assertThat(rules).hasSizeGreaterThanOrEqualTo(6);
-        for (ArchRule rule : rules) {
-            assertThat(rule).as("rule in JFoundryRules.hexagonalConventions() must not be null").isNotNull();
-        }
+        assertThat(JFoundryRules.hexagonalConventions().getDefinitionLocation())
+                .isEqualTo(HexagonalConventionRules.class);
     }
 
     @Test
     void exposesStrictHexagonalRules() {
-        ArchRule[] rules = JFoundryRules.hexagonalStrict();
-        assertThat(rules.length).isGreaterThan(JFoundryRules.hexagonal().length);
+        assertThat(JFoundryRules.hexagonalStrict().getDefinitionLocation())
+                .isEqualTo(JFoundryRuleSets.HexagonalStrict.class);
     }
 
     @Test
@@ -54,6 +50,9 @@ class HexagonalConventionRulesTest {
                 .check(IMPORTER.importPackages("org.jfoundry.test.archunit.fixture.hexagonalconventions.valid"));
         HexagonalConventionRules.secondary_ports_must_reside_in_outbound_port_packages
                 .check(IMPORTER.importPackages("org.jfoundry.test.archunit.fixture.hexagonalconventions.valid"));
+
+        HexagonalConventionRules.secondary_ports_must_reside_in_outbound_port_packages
+                .check(IMPORTER.importPackages("org.jfoundry.test.archunit.fixture.hexagonalrepositories.valid"));
     }
 
     @Test
@@ -74,6 +73,11 @@ class HexagonalConventionRulesTest {
 
         HexagonalConventionRules.primary_adapters_must_not_depend_on_secondary_ports_or_adapters
                 .check(IMPORTER.importPackages("org.jfoundry.test.archunit.fixture.hexagonalconventions.valid"));
+
+        assertThatThrownBy(() -> HexagonalConventionRules.primary_adapters_must_not_depend_on_secondary_ports_or_adapters
+                .check(IMPORTER.importPackages(
+                        "org.jfoundry.test.archunit.fixture.hexagonalrepositories.invalid.primaryadapter")))
+                .isInstanceOf(AssertionError.class);
     }
 
     @Test
@@ -84,6 +88,9 @@ class HexagonalConventionRulesTest {
 
         HexagonalConventionRules.secondary_adapters_should_implement_secondary_ports
                 .check(IMPORTER.importPackages("org.jfoundry.test.archunit.fixture.hexagonalconventions.valid"));
+
+        HexagonalConventionRules.secondary_adapters_should_implement_secondary_ports
+                .check(IMPORTER.importPackages("org.jfoundry.test.archunit.fixture.hexagonalrepositories.valid"));
     }
 
     @Test
