@@ -10,15 +10,15 @@ import org.jfoundry.autoconfigure.event.DomainEventDispatchAutoConfiguration;
 import org.jfoundry.autoconfigure.event.DomainEventDispatchInterceptor;
 import org.jfoundry.autoconfigure.event.DomainEventPersistenceAutoConfiguration;
 import org.jfoundry.autoconfigure.event.DomainEventScope;
-import org.jfoundry.infrastructure.persistence.AbstractPersistenceRepository;
-import org.jfoundry.infrastructure.persistence.AggregateData;
-import org.jfoundry.infrastructure.persistence.DataConverter;
+import org.jfoundry.infrastructure.persistence.AbstractAggregateRepository;
 import org.jmolecules.ddd.types.Identifier;
 import org.jfoundry.infrastructure.event.spring.dispatcher.SpringApplicationEventDispatcher;
 import org.jfoundry.infrastructure.outbox.spring.externalization.OutboxDomainEventDispatcher;
 import org.jmolecules.event.types.DomainEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.Advisor;
+import org.springframework.aop.MethodBeforeAdvice;
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.context.FilteredClassLoader;
@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -152,6 +153,23 @@ class DomainEventDispatchAutoConfigurationTest {
                 });
     }
 
+    @Test
+    void aggregateRepositoryLifecycleMethodsRemainAdvisableWithClassBasedProxies() {
+        AtomicInteger interceptedCalls = new AtomicInteger();
+        ProxyFactory proxyFactory = new ProxyFactory(new TestPersistenceRepository());
+        proxyFactory.setProxyTargetClass(true);
+        proxyFactory.addAdvice((MethodBeforeAdvice) (method, args, target) -> {
+            if (method.getName().equals("add")) {
+                interceptedCalls.incrementAndGet();
+            }
+        });
+        TestPersistenceRepository repository = (TestPersistenceRepository) proxyFactory.getProxy();
+
+        repository.add(TestAggregate.create("order-1"));
+
+        assertThat(interceptedCalls).hasValue(1);
+    }
+
     @Configuration
     static class OutboxRecorderConfiguration {
 
@@ -200,30 +218,24 @@ class DomainEventDispatchAutoConfigurationTest {
         }
     }
 
-    static final class TestPersistenceRepository
-            extends AbstractPersistenceRepository<TestAggregate, TestAggregateId, TestAggregateData, String> {
-
-        TestPersistenceRepository() {
-            super(new TestDataConverter());
-        }
+    static class TestPersistenceRepository
+            extends AbstractAggregateRepository<TestAggregate, TestAggregateId> {
 
         @Override
-        protected void insertData(TestAggregateData data) {
-        }
-
-        @Override
-        protected long updateData(TestAggregateData data) {
-            return 1;
-        }
-
-        @Override
-        protected long deleteDataById(String id) {
-            return 1;
-        }
-
-        @Override
-        protected TestAggregateData selectDataById(String id) {
+        protected TestAggregate doFindById(TestAggregateId id) {
             return null;
+        }
+
+        @Override
+        protected void doAdd(TestAggregate aggregate) {
+        }
+
+        @Override
+        protected void doModify(TestAggregate aggregate) {
+        }
+
+        @Override
+        protected void doRemove(TestAggregate aggregate) {
         }
     }
 
@@ -241,27 +253,4 @@ class DomainEventDispatchAutoConfigurationTest {
     record TestAggregateId(String value) implements Identifier, Serializable {
     }
 
-    static final class TestAggregateData extends AggregateData<String> {
-    }
-
-    static final class TestDataConverter
-            implements DataConverter<TestAggregate, TestAggregateId, TestAggregateData, String> {
-
-        @Override
-        public TestAggregateData toData(TestAggregate entity) {
-            TestAggregateData data = new TestAggregateData();
-            data.setId(entity.getId().value());
-            return data;
-        }
-
-        @Override
-        public TestAggregate toEntity(TestAggregateData data) {
-            return TestAggregate.create(data.getId());
-        }
-
-        @Override
-        public String toDataId(TestAggregateId id) {
-            return id.value();
-        }
-    }
 }

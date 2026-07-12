@@ -54,7 +54,8 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 |--------------------|-----------|-----------------|
 | `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner`, optional `@ApplicationTransactional` advisor | `TransactionRunner`, `TransactionTemplate`, and `PlatformTransactionManager` are available; no existing `TransactionRunner`. The annotation advisor requires a `TransactionRunner` bean and annotation support enabled. |
 | `DistributedLockAutoConfiguration` | `LockTemplate`, optional Redisson `DistributedLockClient`, optional `@DistributedLock` advisor | `jfoundry-lock-core` is present. Redisson adapter requires `RedissonClient`; annotation advisor requires `DistributedLockClient` and annotation support enabled. |
-| `DomainEventPersistenceAutoConfiguration` | Repository `DomainEventContext` injector | `DomainEventContext` and `AbstractPersistenceRepository` are on the classpath. |
+| `DomainEventPersistenceAutoConfiguration` | Repository `DomainEventContext` injector | `DomainEventContext` and `AbstractAggregateRepository` are on the classpath. |
+| `PersistenceFailureAutoConfiguration` | Default Spring `PersistenceFailureTranslator` and repository injector | `AbstractAggregateRepository`, Spring data-access exceptions, and `jfoundry-persistence-spring` are present; no user-defined translator. |
 | `DomainEventDispatchAutoConfiguration` | `DomainEventScope`, `DomainEventContext`, dispatch interceptor, Spring event dispatcher, optional Outbox dispatcher | Application service and dispatcher types are present; dispatch properties allow the selected path. |
 | `DomainEventOutboxRecorderAutoConfiguration` | `PayloadSerializer`, externalization resolvers, `DomainEventOutboxRecorder` | Outbox store and serializer dependencies are available; no user-defined replacement. |
 | `MessageSenderAutoConfiguration` | `LoggingMessageSender` fallback | No user-defined or broker-specific `MessageSender` exists. The fallback returns failed send results. |
@@ -74,5 +75,8 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 - Broker-specific `MessageSender` beans take precedence over the logging fallback because their
   auto-configurations run before `MessageSenderAutoConfiguration`.
 - Distributed lock support is explicit. The default Spring Boot starter does not pull Redisson.
+- The MyBatis-Plus starter includes the optional `jfoundry-persistence-spring` runtime adapter. Its
+  default translator handles only known availability failures; a user-defined
+  `PersistenceFailureTranslator` bean takes precedence.
 - `mode=none` means no dispatcher, recovery job, or cleanup job is registered, even when recovery
   or cleanup is explicitly enabled.

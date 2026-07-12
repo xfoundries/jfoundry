@@ -14,8 +14,8 @@ import java.util.Optional;
 /// In-memory repository for application tests.
 /// <p>
 /// Uses a {@link HashMap} to simulate an aggregate collection and provides the {@link #add},
-/// {@link #modify}, and {@link #remove} collection operations. Event handoff semantics match
-/// {@code MybatisPlusRepository}: events are cleared immediately after handoff.
+/// {@link #modify}, and {@link #remove} collection operations. It leaves recorded events on the
+/// aggregate so application-boundary test infrastructure can inspect or dispatch them.
 /// <p>
 /// Defensive contracts match the persistence implementation:
 /// - {@link #add}: adding the same ID twice throws {@link IllegalStateException}, simulating a

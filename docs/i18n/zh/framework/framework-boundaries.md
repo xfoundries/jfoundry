@@ -103,7 +103,7 @@ starter 是业务项目优先依赖的聚合入口。新项目应按能力显式
 
 `jfoundry-inbox-core` 属于 `jfoundry-application`，提供消费端幂等的 `InboxMessageStore` message store 契约与 `InboxTemplate`。
 
-Outbox/Inbox data object 不继承 `AggregateData`；对应 MyBatis store 直接使用 `BaseMapper`，不复用 `MybatisPlusRepository`。
+Outbox/Inbox data object 不继承 `AggregateData`；对应 MyBatis store 直接使用 `BaseMapper`，不复用 `MybatisPlusAggregateRepository`。
 
 `jfoundry-event-spring` 只放 Spring-specific domain event adapter，例如 `SpringApplicationEventDispatcher`。它负责“如何在 Spring 运行时发布本地领域事件”，不负责事件外部化规则，也不负责 broker 投递。
 

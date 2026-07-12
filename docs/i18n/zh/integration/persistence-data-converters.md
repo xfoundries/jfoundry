@@ -66,7 +66,7 @@ Repository 实现中推荐使用静态 converter：
 ```java
 @Repository
 public class HelpDocumentRepositoryImpl
-        extends MybatisPlusRepository<HelpDocument, HelpDocumentId, HelpDocumentData, String>
+        extends MybatisPlusAggregateRepository<HelpDocument, HelpDocumentId, HelpDocumentData, String>
         implements HelpDocumentRepository {
 
     private static final HelpDocumentDataConverter CONVERTER = HelpDocumentDataConverter.INSTANCE;
@@ -77,7 +77,27 @@ public class HelpDocumentRepositoryImpl
 }
 ```
 
-在 Spring Boot 应用中，`DomainEventContext` 由 jfoundry 自动配置注入到 `AbstractPersistenceRepository`，业务仓储构造器不需要暴露这个框架内部参数。非 Spring 或手动装配场景可在仓储构造完成后调用 `setDomainEventContext(...)` 显式设置。
+在 Spring Boot 应用中，`DomainEventContext` 由 jfoundry 自动配置注入到 `AbstractAggregateRepository`，业务仓储构造器不需要暴露这个框架内部参数。非 Spring 或手动装配场景可在仓储构造完成后调用 `setDomainEventContext(...)` 显式设置。
+
+## 单 Data 与复合持久化
+
+`MybatisPlusAggregateRepository` 是可选便利实现，只适用于一个聚合可由一个 `AggregateData` 和一个 `BaseMapper` 完整保存与还原的情况。它自动提供 `add`、`modify`、`remove` 的单记录操作和 affected-row 防御。
+
+当一个聚合需要协调多张表、多个 Mapper 或其他存储时，业务基础设施 Adapter 应直接继承 `AbstractAggregateRepository`，实现完整聚合的 `doFindById(...)`、`doAdd(...)`、`doModify(...)` 和 `doRemove(...)`。例如，根记录更新为零行时，Adapter 必须在修改从属记录之前报告聚合不存在或并发冲突。
+
+不要创建一个通用的“多表 Repository”来预设从属集合的同步算法。全量替换、差异更新、追加写入和数据库级联应由业务语义、引用关系、审计要求、数据规模与并发要求决定。
+
+## 持久化异常翻译
+
+`jfoundry-persistence-core` 定义了与运行时无关的 `PersistenceFailureTranslator` SPI。`AbstractAggregateRepository` 只在受保护的 `do*` 持久化调用外围应用它，默认 translator 原样透传异常，因此 core 不依赖 Spring 或其他运行时框架。
+
+`jfoundry-persistence-spring` 是可选的 Spring 运行时 Adapter。其 `SpringDataAccessFailureTranslator` 只把已知的资源不可用、瞬时资源故障和查询超时转换为 `ExternalAccessException`，并保留 cause。重复键、完整性约束、锁冲突、SQL 或 Mapper 缺陷以及未知异常保持原样。只有当业务 Adapter 能确定被违反的约束确实表示业务冲突时，才可将重复键转换为 `ConflictException`，例如聚合根标识已经存在。
+
+MyBatis-Plus Spring Boot starter 会引入该运行时 Adapter，自动配置会把默认 translator 注入 `AbstractAggregateRepository`。业务应用声明自己的 `PersistenceFailureTranslator` Bean 后会替代默认实现。未继承仓储基类的查询 Adapter 可以显式注入 translator，并以 `PersistenceOperation.QUERY` 调用。
+
+## MyBatis-Plus Wrapper 与显式 SQL
+
+普通单表条件、排序、更新和删除在 MyBatis-Plus Java API 能清晰表达时，优先使用 Lambda Wrapper。若正确性依赖一个原子数据库语句或数据库特有行为，例如 compare-and-set 形式的乐观锁更新，则保留显式 SQL。该选择属于业务持久化 Adapter；jfoundry 不预设集合同步算法，也不禁止显式 SQL。
 
 ## 审计字段与逻辑删除
 

@@ -53,7 +53,8 @@
 |----------|-----------|----------|
 | `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner`、可选 `@ApplicationTransactional` advisor | 存在 `TransactionRunner`、`TransactionTemplate` 和 `PlatformTransactionManager`；没有已有 `TransactionRunner`。注解 advisor 需要存在 `TransactionRunner` Bean 且开启注解支持。 |
 | `DistributedLockAutoConfiguration` | `LockTemplate`、可选 Redisson `DistributedLockClient`、可选 `@DistributedLock` advisor | 存在 `jfoundry-lock-core`。Redisson adapter 需要 `RedissonClient`；注解 advisor 需要 `DistributedLockClient` 且开启注解支持。 |
-| `DomainEventPersistenceAutoConfiguration` | Repository `DomainEventContext` 注入器 | classpath 中存在 `DomainEventContext` 和 `AbstractPersistenceRepository`。 |
+| `DomainEventPersistenceAutoConfiguration` | Repository `DomainEventContext` 注入器 | classpath 中存在 `DomainEventContext` 和 `AbstractAggregateRepository`。 |
+| `PersistenceFailureAutoConfiguration` | 默认 Spring `PersistenceFailureTranslator` 与 Repository 注入器 | 存在 `AbstractAggregateRepository`、Spring 数据访问异常和 `jfoundry-persistence-spring`；没有用户自定义 translator。 |
 | `DomainEventDispatchAutoConfiguration` | `DomainEventScope`、`DomainEventContext`、派发拦截器、Spring event dispatcher、可选 Outbox dispatcher | 应用服务和 dispatcher 类型存在；配置项允许对应路径。 |
 | `DomainEventOutboxRecorderAutoConfiguration` | `PayloadSerializer`、外部化 resolver、`DomainEventOutboxRecorder` | Outbox store 和 serializer 依赖可用；没有用户自定义替代 Bean。 |
 | `MessageSenderAutoConfiguration` | `LoggingMessageSender` fallback | 没有用户自定义或 broker-specific `MessageSender`。fallback 返回发送失败结果。 |
@@ -72,4 +73,5 @@
 - SQL 文件只是可复制模板。jfoundry jar 不会自动创建 Outbox 或 Inbox 表。
 - broker-specific `MessageSender` 的自动配置先于 logging fallback，因此会优先生效。
 - 分布式锁是显式能力。默认 Spring Boot starter 不会引入 Redisson。
+- MyBatis-Plus starter 会引入可选的 `jfoundry-persistence-spring` 运行时 Adapter。其默认 translator 只处理已知的可用性故障；用户自定义的 `PersistenceFailureTranslator` Bean 优先。
 - `mode=none` 表示不注册 dispatcher、recovery job 或 cleanup job，即使显式开启 recovery 或 cleanup 也不会注册。

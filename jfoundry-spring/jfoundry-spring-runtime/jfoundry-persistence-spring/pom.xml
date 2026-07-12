@@ -3,33 +3,33 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-infrastructure</artifactId>
+        <artifactId>jfoundry-spring</artifactId>
         <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-persistence-core</artifactId>
-    <name>jfoundry-persistence-core</name>
-    <description>
-        DDD aggregate persistence support: storage-neutral repository lifecycle,
-        AggregateData, and DataConverter contracts. Concrete adapters extend this
-        module without pulling in runtime or messaging concerns.
-    </description>
+    <artifactId>jfoundry-persistence-spring</artifactId>
+    <name>jfoundry-persistence-spring</name>
+    <description>Spring data-access failure translation for jfoundry persistence boundaries.</description>
 
     <dependencies>
         <dependency>
             <groupId>io.github.xfoundries</groupId>
-            <artifactId>jfoundry-domain</artifactId>
+            <artifactId>jfoundry-application-core</artifactId>
         </dependency>
         <dependency>
             <groupId>io.github.xfoundries</groupId>
-            <artifactId>jfoundry-event-core</artifactId>
+            <artifactId>jfoundry-persistence-core</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>org.jmolecules</groupId>
+            <artifactId>jmolecules-onion-architecture</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
             <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -40,6 +40,11 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -44,8 +44,8 @@ public interface AggregateRepository<T extends AggregateRoot<T, ID>, ID extends 
     /// <p>
     /// This goes directly through the insert path. Primary-key conflicts are
     /// reported by the underlying database; the repository does not pre-check
-    /// existence, keeping the path free of extra reads. After success, recorded
-    /// domain events are handed off and cleared immediately.
+    /// existence, keeping the path free of extra reads. Infrastructure support may register the
+    /// successfully persisted aggregate for event dispatch at the application boundary.
     ///
     /// @param entity aggregate root
     void add(T entity);
@@ -54,9 +54,9 @@ public interface AggregateRepository<T extends AggregateRoot<T, ID>, ID extends 
     /// <p>
     /// This goes directly through the update path. When zero rows are affected
     /// because the aggregate is missing or an optimistic-lock version conflicts,
-    /// implementations throw {@link IllegalStateException} to avoid silent
-    /// updates of missing objects. After success, recorded domain events are
-    /// handed off and cleared immediately.
+    /// implementations throw {@link IllegalStateException} to avoid silent updates of missing
+    /// objects. Infrastructure support may register the successfully persisted aggregate for event
+    /// dispatch at the application boundary.
     ///
     /// @param entity aggregate root
     void modify(T entity);
@@ -93,8 +93,8 @@ public interface AggregateRepository<T extends AggregateRoot<T, ID>, ID extends 
     /// caller should load the aggregate first and express deletion semantics,
     /// invariant checks, and domain event recording through aggregate behavior.
     /// The repository only persists removal. Zero affected rows should cause
-    /// {@link IllegalStateException}. After success, recorded domain events are
-    /// handed off and cleared immediately.
+    /// {@link IllegalStateException}. Infrastructure support may register the successfully removed
+    /// aggregate for event dispatch at the application boundary.
     ///
     /// @param entity aggregate root
     void remove(T entity);

@@ -1,4 +1,5 @@
 org.jfoundry.autoconfigure.event.DomainEventPersistenceAutoConfiguration
+org.jfoundry.autoconfigure.persistence.PersistenceFailureAutoConfiguration
 org.jfoundry.autoconfigure.event.DomainEventDispatchAutoConfiguration
 org.jfoundry.autoconfigure.transaction.TransactionRunnerAutoConfiguration
 org.jfoundry.autoconfigure.lock.DistributedLockAutoConfiguration

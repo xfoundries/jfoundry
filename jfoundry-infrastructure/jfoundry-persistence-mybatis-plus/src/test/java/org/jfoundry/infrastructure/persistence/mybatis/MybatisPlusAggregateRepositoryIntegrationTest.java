@@ -19,7 +19,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/// Integration tests for MybatisPlusRepository.
+/// Integration tests for MybatisPlusAggregateRepository.
 /// <p>
 /// Runs the full path with embedded H2 and covers:
 /// - add / addAll creation path plus primary-key conflict defense.
@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /// - context registration path, registering aggregates with DomainEventContext after successful
 ///   add/modify/remove.
 @SpringBootTest(classes = PersistenceTestConfig.class)
-class MybatisPlusRepositoryIntegrationTest {
+class MybatisPlusAggregateRepositoryIntegrationTest {
 
     @Autowired
     private TestOrderRepository repository;
@@ -42,7 +42,8 @@ class MybatisPlusRepositoryIntegrationTest {
 
     @Test
     void mybatisPlusRepositoryShouldUseJavaStyleTypeParameterNames() {
-        assertThat(typeParameterNames(MybatisPlusRepository.class)).containsExactly("T", "ID", "D", "K");
+        assertThat(typeParameterNames(MybatisPlusAggregateRepository.class))
+                .containsExactly("T", "ID", "D", "K");
     }
 
     @BeforeEach
@@ -199,7 +200,7 @@ class MybatisPlusRepositoryIntegrationTest {
 
         assertThatThrownBy(() -> repository.modifyAll(List.of(loaded1, ghost)))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("modifyAll affected 0 rows");
+                .hasMessageContaining("modify affected 0 rows");
 
         assertThat(domainEventContext.drainRegistered()).isEmpty();
         assertThat(loaded1.drainEvents()).hasSize(1);

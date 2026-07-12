@@ -74,12 +74,12 @@ class DataConverterTest {
     @Test
     void publicPersistenceAbstractionsShouldUseJavaStyleTypeParameterNames() {
         assertThat(typeParameterNames(DataConverter.class)).containsExactly("T", "ID", "D", "K");
-        assertThat(typeParameterNames(AbstractPersistenceRepository.class)).containsExactly("T", "ID", "D", "K");
+        assertThat(typeParameterNames(AbstractAggregateRepository.class)).containsExactly("T", "ID");
     }
 
     @Test
     void persistenceRepositoryConstructorShouldNotExposeDomainEventContext() {
-        assertThat(constructorParameterTypes(AbstractPersistenceRepository.class))
+        assertThat(constructorParameterTypes(AbstractAggregateRepository.class))
                 .noneMatch(parameterTypes -> parameterTypes.contains(DomainEventContext.class));
     }
 
