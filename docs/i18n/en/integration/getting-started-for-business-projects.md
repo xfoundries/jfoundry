@@ -27,13 +27,14 @@ Start with the smallest useful skeleton:
 |--------|-----|-------|
 | `domain` | `jfoundry-domain-starter` | Spring, ORM annotations, HTTP, MQ clients, Boot starters |
 | `application` | `jfoundry-application-starter` | mapper/service APIs, broker adapters, Boot starters |
-| `infrastructure` | `jfoundry-infrastructure-mybatis-plus-starter` when using the runtime-neutral MyBatis-Plus adapter | application entrypoints and Boot auto-configuration |
+| `infrastructure` | `jfoundry-infrastructure-mybatis-plus-starter` or `jfoundry-infrastructure-jpa-starter` for the selected persistence adapter | application entrypoints and Boot auto-configuration |
 | `boot` / runtime assembly | `jfoundry-spring-boot-starter` plus explicit capability starters | domain logic |
 | architecture tests | `jfoundry-architecture-test` with `test` scope | production scope |
 
 ## Common Spring Boot Additions
 
 - Business MyBatis-Plus runtime assembly: `jfoundry-mybatis-plus-spring-boot-starter`
+- Business JPA runtime assembly: `jfoundry-jpa-spring-boot-starter`
 - Local Spring domain event publishing: `jfoundry-event-spring-boot-starter`
 - Messaging contracts and default logging sender: `jfoundry-messaging-spring-boot-starter`
 - Kafka/RabbitMQ/RocketMQ sender adapters: dedicated messaging starters

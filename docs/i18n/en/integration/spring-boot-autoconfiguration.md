@@ -20,6 +20,7 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 | `jfoundry-inbox-spring-boot-starter` | Inbox core and `InboxTemplate` | Inbox table store |
 | `jfoundry-inbox-mybatis-plus-spring-boot-starter` | MyBatis-Plus `InboxMessageStore` adapter | Database migration execution |
 | `jfoundry-mybatis-plus-spring-boot-starter` | Spring Boot MyBatis-Plus runtime assembly | Business persistence starter, Outbox/Inbox stores |
+| `jfoundry-jpa-spring-boot-starter` | jfoundry JPA adapter, Spring transaction persistence context, Spring Boot JPA runtime | Detached aggregate merge, composite synchronization algorithms |
 | `jfoundry-webmvc-spring-boot-starter` | Web MVC `ProblemDetail` exception handling | Messaging, Outbox, Inbox |
 
 ## Configuration Properties
@@ -52,10 +53,12 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 
 | Auto-configuration | Registers | Main conditions |
 |--------------------|-----------|-----------------|
-| `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner`, optional `@ApplicationTransactional` advisor | `TransactionRunner`, `TransactionTemplate`, and `PlatformTransactionManager` are available; no existing `TransactionRunner`. The annotation advisor requires a `TransactionRunner` bean and annotation support enabled. |
+| `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner` | `TransactionRunner` and `TransactionTemplate` are available, Spring Boot has configured a `PlatformTransactionManager`, and no existing `TransactionRunner` exists. |
+| `ApplicationTransactionalAutoConfiguration` | `@ApplicationTransactional` interceptor and advisor | A `TransactionRunner` bean exists and annotation support is enabled. It runs after `TransactionRunnerAutoConfiguration`, so either an auto-configured or user-defined runner can be used. |
 | `DistributedLockAutoConfiguration` | `LockTemplate`, optional Redisson `DistributedLockClient`, optional `@DistributedLock` advisor | `jfoundry-lock-core` is present. Redisson adapter requires `RedissonClient`; annotation advisor requires `DistributedLockClient` and annotation support enabled. |
 | `DomainEventPersistenceAutoConfiguration` | Repository `DomainEventContext` injector | `DomainEventContext` and `AbstractAggregateRepository` are on the classpath. |
 | `PersistenceFailureAutoConfiguration` | Default Spring `PersistenceFailureTranslator` and repository injector | `AbstractAggregateRepository`, Spring data-access exceptions, and `jfoundry-persistence-spring` are present; no user-defined translator. |
+| `AggregatePersistenceContextAutoConfiguration` | Transaction-bound `AggregatePersistenceContext` | Persistence context SPI, Spring transaction support, and `jfoundry-persistence-spring` are present; no user-defined context. |
 | `DomainEventDispatchAutoConfiguration` | `DomainEventScope`, `DomainEventContext`, dispatch interceptor, Spring event dispatcher, optional Outbox dispatcher | Application service and dispatcher types are present; dispatch properties allow the selected path. |
 | `DomainEventOutboxRecorderAutoConfiguration` | `PayloadSerializer`, externalization resolvers, `DomainEventOutboxRecorder` | Outbox store and serializer dependencies are available; no user-defined replacement. |
 | `MessageSenderAutoConfiguration` | `LoggingMessageSender` fallback | No user-defined or broker-specific `MessageSender` exists. The fallback returns failed send results. |
@@ -74,9 +77,14 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 - SQL templates are copyable templates. jfoundry jars do not create Outbox or Inbox tables.
 - Broker-specific `MessageSender` beans take precedence over the logging fallback because their
   auto-configurations run before `MessageSenderAutoConfiguration`.
+- `TransactionRunnerAutoConfiguration` runs after Spring Boot transaction auto-configuration so
+  JDBC, JPA, or JTA transaction managers are visible before its bean conditions are evaluated.
 - Distributed lock support is explicit. The default Spring Boot starter does not pull Redisson.
 - The MyBatis-Plus starter includes the optional `jfoundry-persistence-spring` runtime adapter. Its
   default translator handles only known availability failures; a user-defined
   `PersistenceFailureTranslator` bean takes precedence.
 - `mode=none` means no dispatcher, recovery job, or cleanup job is registered, even when recovery
   or cleanup is explicitly enabled.
+- The MyBatis-Plus and JPA runtime starters make the Spring transaction-bound persistence context
+  available, but version tracking remains opt-in. Configure ORM/plugin optimistic locking and keep
+  each tracked load-modify operation in one transaction.

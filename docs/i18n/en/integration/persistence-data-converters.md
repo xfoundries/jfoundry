@@ -61,6 +61,28 @@ In Spring Boot applications, jfoundry injects `DomainEventContext` into
 operation succeeds. Non-Spring or manually assembled applications may call
 `setDomainEventContext(...)` after constructing the repository.
 
+## Persistence-owned Optimistic Concurrency
+
+Do not add a database version to a domain aggregate merely because the persistence technology
+uses optimistic locking. `AggregatePersistenceContext` tracks persistence-owned state by aggregate
+object identity for one runtime-managed transaction. Spring Boot supplies a transaction-bound
+implementation when `jfoundry-persistence-spring` is present; applications do not open or close a
+scope manually. Tracked operations fail fast outside an active transaction or when an aggregate
+was not loaded in that transaction. Detached aggregate merge is not supported.
+
+For a single MyBatis-Plus Data object, annotate its version field with `@Version`, configure
+`OptimisticLockerInnerInterceptor`, and optionally extend
+`MybatisPlusVersionedAggregateRepository`. `VersionedDataAccessor` keeps version access in the
+infrastructure adapter. Composite adapters use the same context and accessor directly, preserve the
+loaded root version for `updateById`, and advance the tracked version only after the complete
+aggregate operation succeeds. Versioned removal must include both ID and the loaded version.
+
+For one JPA entity graph, `JpaAggregateRepository` tracks the managed entity returned by
+`EntityManager.find`, applies aggregate changes to that same entity, and flushes before repository
+success is reported. It never calls `merge`. `JpaAggregateMapper` owns new-entity creation,
+restoration, ID conversion, and applying state to a managed entity. Multi-entity or composite
+storage remains a business adapter responsibility.
+
 ## Persistence Failure Translation
 
 `jfoundry-persistence-core` defines the runtime-neutral `PersistenceFailureTranslator` SPI.

@@ -38,6 +38,8 @@
 
     <!-- Persistence and database integration -->
     <mybatis-plus.version>3.5.16</mybatis-plus.version>
+    <jakarta-persistence.version>3.1.0</jakarta-persistence.version>
+    <hibernate.version>6.6.53.Final</hibernate.version>
     <mysql-connector-j.version>9.7.0</mysql-connector-j.version>
     <postgresql.version>42.6.2</postgresql.version>
 
@@ -138,6 +140,16 @@
         <groupId>com.baomidou</groupId>
         <artifactId>mybatis-plus-jsqlparser</artifactId>
         <version>${mybatis-plus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.persistence</groupId>
+        <artifactId>jakarta.persistence-api</artifactId>
+        <version>${jakarta-persistence.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate.orm</groupId>
+        <artifactId>hibernate-core</artifactId>
+        <version>${hibernate.version}</version>
       </dependency>
       <dependency>
         <groupId>com.mysql</groupId>
@@ -249,6 +261,11 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
         <version>${slf4j.version}</version>
       </dependency>
       <dependency>

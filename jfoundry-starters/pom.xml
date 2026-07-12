@@ -16,5 +16,6 @@
         <module>jfoundry-domain-starter</module>
         <module>jfoundry-application-starter</module>
         <module>jfoundry-infrastructure-mybatis-plus-starter</module>
+        <module>jfoundry-infrastructure-jpa-starter</module>
     </modules>
 </project>

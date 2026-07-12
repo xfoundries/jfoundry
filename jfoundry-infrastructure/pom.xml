@@ -19,6 +19,7 @@
 
     <modules>
         <module>jfoundry-persistence-core</module>
+        <module>jfoundry-persistence-jpa</module>
         <module>jfoundry-messaging-jackson</module>
         <module>jfoundry-messaging-kafka</module>
         <module>jfoundry-messaging-rocketmq</module>

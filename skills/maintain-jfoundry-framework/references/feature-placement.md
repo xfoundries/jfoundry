@@ -18,6 +18,7 @@ Use this file before adding modules, classes, annotations, rules, adapters, star
 | Outbox state, store contract, dispatcher service, retry/backoff core | `jfoundry-application/jfoundry-outbox-core` |
 | Inbox state, store contract, `InboxTemplate` | `jfoundry-application/jfoundry-inbox-core` |
 | MyBatis-Plus business persistence adapter | `jfoundry-infrastructure/jfoundry-persistence-mybatis-plus` |
+| Jakarta Persistence business persistence adapter | `jfoundry-infrastructure/jfoundry-persistence-jpa` |
 | MyBatis-Plus Outbox/Inbox store adapter | `jfoundry-infrastructure/jfoundry-outbox-mybatis-plus` or `jfoundry-infrastructure/jfoundry-inbox-mybatis-plus` |
 | Broker `MessageSender` adapter | `jfoundry-infrastructure/jfoundry-messaging-<broker>` |
 | Payload serializer adapter | `jfoundry-infrastructure/jfoundry-messaging-jackson` |
@@ -36,6 +37,7 @@ Use this file before adding modules, classes, annotations, rules, adapters, star
 - If the code defines an abstraction used by multiple runtimes, keep it framework-neutral.
 - If the code uses Spring transaction synchronization, `ApplicationEventPublisher`, scheduling, MVC APIs, or bean lifecycle, put it under `jfoundry-spring/jfoundry-spring-runtime`.
 - If the code registers Spring Boot beans conditionally or binds `@ConfigurationProperties`, put it in `jfoundry-spring/jfoundry-spring-boot-autoconfigure`.
+- If an auto-configuration condition depends on a bean created by another auto-configuration, declare the ordering explicitly and test the real upstream auto-configuration chain instead of only pre-registering the bean in a context runner.
 - If the code only selects dependencies for users, put it in a starter POM.
 - If the code talks to a concrete database, ORM, broker, serializer, or scheduler but does not require Spring Boot wiring, put it in `jfoundry-infrastructure`.
 - If a change helps only jfoundry's own middleware verification, put it in `jfoundry-verification`, not in public modules.

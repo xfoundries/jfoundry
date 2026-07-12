@@ -28,5 +28,6 @@
         <module>jfoundry-inbox-spring-boot-starter</module>
         <module>jfoundry-inbox-mybatis-plus-spring-boot-starter</module>
         <module>jfoundry-mybatis-plus-spring-boot-starter</module>
+        <module>jfoundry-jpa-spring-boot-starter</module>
     </modules>
 </project>

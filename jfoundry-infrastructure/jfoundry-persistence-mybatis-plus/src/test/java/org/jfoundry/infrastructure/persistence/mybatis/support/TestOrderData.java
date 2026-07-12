@@ -22,6 +22,7 @@ public class TestOrderData extends AggregateData<String> {
 
     private Instant updatedAt;
 
+
     @Override
     public String getId() {
         return id;
@@ -63,4 +64,5 @@ public class TestOrderData extends AggregateData<String> {
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
+
 }

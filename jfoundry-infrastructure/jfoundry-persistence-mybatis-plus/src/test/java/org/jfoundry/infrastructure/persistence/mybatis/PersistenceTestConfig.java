@@ -2,9 +2,15 @@ package org.jfoundry.infrastructure.persistence.mybatis;
 
 import org.jfoundry.application.event.DomainEventContext;
 import org.jfoundry.domain.event.EventRecordable;
+import org.jfoundry.infrastructure.persistence.AggregatePersistenceContext;
+import org.jfoundry.infrastructure.persistence.spring.SpringTransactionAggregatePersistenceContext;
 import org.jfoundry.infrastructure.persistence.mybatis.support.TestOrderDataConverter;
 import org.jfoundry.infrastructure.persistence.mybatis.support.TestOrderMapper;
 import org.jfoundry.infrastructure.persistence.mybatis.support.TestOrderRepository;
+import org.jfoundry.infrastructure.persistence.mybatis.support.TestOrderVersionAccessor;
+import org.jfoundry.infrastructure.persistence.mybatis.support.TestVersionedOrderRepository;
+import org.jfoundry.infrastructure.persistence.mybatis.support.VersionedOrderDataConverter;
+import org.jfoundry.infrastructure.persistence.mybatis.support.VersionedOrderMapper;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -38,6 +44,11 @@ class PersistenceTestConfig {
     }
 
     @Bean
+    AggregatePersistenceContext aggregatePersistenceContext() {
+        return new SpringTransactionAggregatePersistenceContext();
+    }
+
+    @Bean
     DataSource dataSource() {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
@@ -58,6 +69,17 @@ class PersistenceTestConfig {
     @Bean
     TestOrderDataConverter testOrderDataConverter() {
         return new TestOrderDataConverter();
+    }
+
+    @Bean
+    TestVersionedOrderRepository testVersionedOrderRepository(
+            VersionedOrderMapper mapper,
+            AggregatePersistenceContext persistenceContext) {
+        return new TestVersionedOrderRepository(
+                mapper,
+                new VersionedOrderDataConverter(),
+                new TestOrderVersionAccessor(),
+                persistenceContext);
     }
 
     static final class TestDomainEventContext implements DomainEventContext {

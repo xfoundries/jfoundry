@@ -124,8 +124,8 @@ Spring / Spring Boot 项目：
 |-----------|----------|--------|
 | `domain` | `jfoundry-domain-starter` | Spring、MyBatis-Plus、JPA、MQ client、HTTP client、Spring Boot starter |
 | `application` | `jfoundry-application-starter` | Spring Boot starter、MyBatis mapper/service、broker adapter |
-| `infrastructure` | `jfoundry-infrastructure-mybatis-plus-starter`（仅使用框架无关 MyBatis-Plus adapter 时） | Controller、应用入口、Spring Boot 自动装配 starter |
-| `boot` / 运行时装配模块 | `jfoundry-spring-boot-starter`，以及按需加入 `jfoundry-mybatis-plus-spring-boot-starter`、Outbox、Inbox、broker starter | 领域模型和业务规则实现 |
+| `infrastructure` | 按所选持久化 Adapter 使用 `jfoundry-infrastructure-mybatis-plus-starter` 或 `jfoundry-infrastructure-jpa-starter` | Controller、应用入口、Spring Boot 自动装配 starter |
+| `boot` / 运行时装配模块 | `jfoundry-spring-boot-starter`，以及按需加入 MyBatis-Plus、JPA、Outbox、Inbox、broker starter | 领域模型和业务规则实现 |
 | 架构测试模块或测试源集 | `jfoundry-architecture-test`，`test` scope | production scope |
 
 domain 模块：
@@ -198,6 +198,7 @@ transactionRunner.run(TransactionOptions.builder()
 - 领域模块：`jfoundry-domain-starter`
 - 应用模块：`jfoundry-application-starter`
 - MyBatis-Plus 业务持久化：`jfoundry-infrastructure-mybatis-plus-starter` 或 `jfoundry-mybatis-plus-spring-boot-starter`
+- JPA 业务持久化：`jfoundry-infrastructure-jpa-starter` 或 `jfoundry-jpa-spring-boot-starter`
 - 本地 Spring 领域事件发布：`jfoundry-event-spring-boot-starter`
 - Outbox：`jfoundry-outbox-spring-boot-starter`
 - Outbox MyBatis-Plus 存储：`jfoundry-outbox-mybatis-plus-spring-boot-starter`

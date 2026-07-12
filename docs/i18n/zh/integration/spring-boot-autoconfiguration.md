@@ -19,6 +19,7 @@
 | `jfoundry-inbox-spring-boot-starter` | Inbox core、`InboxTemplate` | Inbox 表存储 |
 | `jfoundry-inbox-mybatis-plus-spring-boot-starter` | MyBatis-Plus `InboxMessageStore` adapter | 数据库 migration 执行 |
 | `jfoundry-mybatis-plus-spring-boot-starter` | Spring Boot MyBatis-Plus 运行时装配 | 业务持久化 starter、Outbox/Inbox store |
+| `jfoundry-jpa-spring-boot-starter` | jfoundry JPA adapter、Spring 事务持久化 context、Spring Boot JPA 运行时 | detached aggregate merge、复合同步算法 |
 | `jfoundry-webmvc-spring-boot-starter` | Web MVC `ProblemDetail` 异常响应 | Messaging、Outbox、Inbox |
 
 ## 配置项
@@ -51,10 +52,12 @@
 
 | 自动配置 | 注册 Bean | 主要条件 |
 |----------|-----------|----------|
-| `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner`、可选 `@ApplicationTransactional` advisor | 存在 `TransactionRunner`、`TransactionTemplate` 和 `PlatformTransactionManager`；没有已有 `TransactionRunner`。注解 advisor 需要存在 `TransactionRunner` Bean 且开启注解支持。 |
+| `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner` | 存在 `TransactionRunner` 与 `TransactionTemplate`，Spring Boot 已配置 `PlatformTransactionManager`，且没有已有 `TransactionRunner`。 |
+| `ApplicationTransactionalAutoConfiguration` | `@ApplicationTransactional` interceptor 与 advisor | 存在 `TransactionRunner` Bean 且开启注解支持。该配置在 `TransactionRunnerAutoConfiguration` 之后运行，因此自动配置或用户自定义的 runner 均可使用。 |
 | `DistributedLockAutoConfiguration` | `LockTemplate`、可选 Redisson `DistributedLockClient`、可选 `@DistributedLock` advisor | 存在 `jfoundry-lock-core`。Redisson adapter 需要 `RedissonClient`；注解 advisor 需要 `DistributedLockClient` 且开启注解支持。 |
 | `DomainEventPersistenceAutoConfiguration` | Repository `DomainEventContext` 注入器 | classpath 中存在 `DomainEventContext` 和 `AbstractAggregateRepository`。 |
 | `PersistenceFailureAutoConfiguration` | 默认 Spring `PersistenceFailureTranslator` 与 Repository 注入器 | 存在 `AbstractAggregateRepository`、Spring 数据访问异常和 `jfoundry-persistence-spring`；没有用户自定义 translator。 |
+| `AggregatePersistenceContextAutoConfiguration` | 事务绑定的 `AggregatePersistenceContext` | 存在 persistence context SPI、Spring 事务支持和 `jfoundry-persistence-spring`；没有用户自定义 context。 |
 | `DomainEventDispatchAutoConfiguration` | `DomainEventScope`、`DomainEventContext`、派发拦截器、Spring event dispatcher、可选 Outbox dispatcher | 应用服务和 dispatcher 类型存在；配置项允许对应路径。 |
 | `DomainEventOutboxRecorderAutoConfiguration` | `PayloadSerializer`、外部化 resolver、`DomainEventOutboxRecorder` | Outbox store 和 serializer 依赖可用；没有用户自定义替代 Bean。 |
 | `MessageSenderAutoConfiguration` | `LoggingMessageSender` fallback | 没有用户自定义或 broker-specific `MessageSender`。fallback 返回发送失败结果。 |
@@ -72,6 +75,8 @@
 
 - SQL 文件只是可复制模板。jfoundry jar 不会自动创建 Outbox 或 Inbox 表。
 - broker-specific `MessageSender` 的自动配置先于 logging fallback，因此会优先生效。
+- `TransactionRunnerAutoConfiguration` 在 Spring Boot 事务自动配置之后运行，确保其 Bean 条件评估前已经可以看到 JDBC、JPA 或 JTA 事务管理器。
 - 分布式锁是显式能力。默认 Spring Boot starter 不会引入 Redisson。
 - MyBatis-Plus starter 会引入可选的 `jfoundry-persistence-spring` 运行时 Adapter。其默认 translator 只处理已知的可用性故障；用户自定义的 `PersistenceFailureTranslator` Bean 优先。
 - `mode=none` 表示不注册 dispatcher、recovery job 或 cleanup job，即使显式开启 recovery 或 cleanup 也不会注册。
+- MyBatis-Plus 与 JPA 运行时 starter 会提供 Spring 事务绑定 persistence context，但 version 跟踪仍是可选能力。业务应用必须配置 ORM/plugin 的乐观锁支持，并在同一事务内完成 tracked load-modify。

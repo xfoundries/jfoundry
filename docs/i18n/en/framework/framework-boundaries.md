@@ -15,7 +15,7 @@ such as jMolecules and `slf4j-api` may appear in core modules when they express 
 |------|---------|
 | Domain and architecture | `jfoundry-domain`, `jfoundry-architecture`, `jfoundry-hexagonal`, `jfoundry-onion`, `jfoundry-cqrs` |
 | Application contracts | `jfoundry-application-core`, `jfoundry-transaction-core`, `jfoundry-event-core`, `jfoundry-event-externalization-core`, `jfoundry-messaging-core`, `jfoundry-outbox-core`, `jfoundry-inbox-core` |
-| Framework-neutral adapters | `jfoundry-persistence-core`, `jfoundry-persistence-mybatis-plus`, `jfoundry-messaging-jackson`, broker adapters, Outbox/Inbox MyBatis-Plus stores, JobRunr dispatch adapter |
+| Framework-neutral adapters | `jfoundry-persistence-core`, `jfoundry-persistence-mybatis-plus`, `jfoundry-persistence-jpa`, `jfoundry-messaging-jackson`, broker adapters, Outbox/Inbox MyBatis-Plus stores, JobRunr dispatch adapter |
 | Spring runtime integration | `jfoundry-spring-runtime/*` |
 | Spring Boot integration | `jfoundry-spring-boot-autoconfigure`, `jfoundry-spring-boot-starters/*` |
 | Verification | `jfoundry-verification/*` |

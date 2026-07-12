@@ -87,6 +87,23 @@ public class HelpDocumentRepositoryImpl
 
 不要创建一个通用的“多表 Repository”来预设从属集合的同步算法。全量替换、差异更新、追加写入和数据库级联应由业务语义、引用关系、审计要求、数据规模与并发要求决定。
 
+## 持久化所有的乐观并发状态
+
+不要仅仅因为持久化技术使用乐观锁，就把数据库 version 放入领域聚合。
+`AggregatePersistenceContext` 按聚合对象身份跟踪一个运行时事务内的持久化状态。
+存在 `jfoundry-persistence-spring` 时，Spring Boot 会提供事务绑定实现，业务代码不需要手动开启或关闭 scope。
+在活动事务之外使用跟踪状态，或者修改并非在当前事务加载的聚合，都会立即失败；当前不支持 detached aggregate merge。
+
+单个 MyBatis-Plus Data 对象可在 version 字段上使用 `@Version`，显式配置
+`OptimisticLockerInnerInterceptor`，并按需继承 `MybatisPlusVersionedAggregateRepository`。
+`VersionedDataAccessor` 把 version 读写留在基础设施 Adapter。复合聚合 Adapter 可直接使用同一个 context 与 accessor：
+根记录 `updateById` 必须带上加载时的 version，完整聚合操作成功后才能推进跟踪 version；删除必须同时包含 ID 与加载时 version。
+
+单个 JPA entity graph 可使用 `JpaAggregateRepository`。它跟踪 `EntityManager.find` 返回的 managed entity，
+把聚合状态应用到同一实体并在仓储成功返回前 `flush`，不会调用 `merge`。
+`JpaAggregateMapper` 负责新实体创建、聚合还原、ID 转换与 managed entity 更新。
+多实体或复合存储仍由业务 Adapter 实现完整操作。
+
 ## 持久化异常翻译
 
 `jfoundry-persistence-core` 定义了与运行时无关的 `PersistenceFailureTranslator` SPI。`AbstractAggregateRepository` 只在受保护的 `do*` 持久化调用外围应用它，默认 translator 原样透传异常，因此 core 不依赖 Spring 或其他运行时框架。

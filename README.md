@@ -37,7 +37,7 @@ Core modules only express business modeling, application orchestration, and exte
 
 ### Production Reliability
 
-The framework includes Transactional Outbox, consumer-side Inbox idempotency, application transaction boundaries, messaging SPI, payload serialization SPI, MyBatis-Plus persistence adapters, and reusable architecture test rules.
+The framework includes Transactional Outbox, consumer-side Inbox idempotency, application transaction boundaries, messaging SPI, payload serialization SPI, optional MyBatis-Plus and Jakarta Persistence adapters, and reusable architecture test rules.
 
 ## Capabilities
 
@@ -48,7 +48,7 @@ The framework includes Transactional Outbox, consumer-side Inbox idempotency, ap
 | Application layer | `ApplicationService`, application exceptions, `TransactionRunner`, CQRS semantics |
 | Domain events | Event recording, scoped event context, dispatch contracts, Spring ApplicationEvent adapter |
 | Reliable messaging | Transactional Outbox, Inbox idempotency, broker-neutral `MessageSender`, payload serialization SPI |
-| Persistence | Runtime-neutral persistence contracts and MyBatis-Plus adapters |
+| Persistence | Runtime-neutral persistence contracts plus optional MyBatis-Plus and Jakarta Persistence adapters |
 | Runtime integration | Optional Spring Framework / Spring Boot starters, auto-configuration, Web MVC ProblemDetail support |
 | Verification | Reusable ArchUnit rules for business projects and internal framework module boundaries |
 

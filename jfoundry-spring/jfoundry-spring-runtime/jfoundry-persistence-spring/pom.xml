@@ -10,7 +10,7 @@
 
     <artifactId>jfoundry-persistence-spring</artifactId>
     <name>jfoundry-persistence-spring</name>
-    <description>Spring data-access failure translation for jfoundry persistence boundaries.</description>
+    <description>Spring failure translation and transaction-bound state for jfoundry persistence.</description>
 
     <dependencies>
         <dependency>
@@ -45,6 +45,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.220</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
