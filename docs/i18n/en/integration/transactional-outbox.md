@@ -56,7 +56,10 @@ remains available and unchanged.
 Add `jfoundry-outbox-spring-boot-starter` when reliable externalization is needed. It auto-configures
 `OutboxTemplate` when an `OutboxMessageStore` and `PayloadSerializer` are available. Add
 `jfoundry-outbox-mybatis-plus-spring-boot-starter` when the application uses the built-in
-MyBatis-Plus Outbox store.
+MyBatis-Plus Outbox store. The messaging starter transitively supplies Spring Boot's JSON starter,
+so batch consumers and other non-web applications receive the default Jackson `ObjectMapper` and
+`PayloadSerializer` without adding a WebMVC or WebFlux starter. A user-defined `ObjectMapper` or
+`PayloadSerializer` still takes precedence.
 
 ```yaml
 jfoundry:

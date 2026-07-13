@@ -29,7 +29,9 @@ Default Spring Boot starter:
 Capability starters:
 
 - `jfoundry-event-spring-boot-starter`: local domain event publication.
-- `jfoundry-messaging-spring-boot-starter`: messaging contracts, serializer, and default logging sender.
+- `jfoundry-messaging-spring-boot-starter`: messaging contracts, Spring Boot JSON support, Jackson
+  serializer, and default logging sender; it must support non-web applications without requiring a
+  WebMVC or WebFlux starter.
 - `jfoundry-messaging-<broker>-spring-boot-starter`: concrete broker sender adapter.
 - `jfoundry-messaging-kafka-spring-boot-starter`: Kafka sender adapter.
 - `jfoundry-messaging-rabbitmq-spring-boot-starter`: RabbitMQ sender adapter.

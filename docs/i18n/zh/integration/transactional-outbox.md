@@ -98,6 +98,10 @@ outboxTemplate.append(new OutboxAppendRequest(
 
 Outbox 是可选能力。业务侧需要可靠外部化时引入 `jfoundry-outbox-spring-boot-starter`；存在 `OutboxMessageStore` 和 `PayloadSerializer` 时，该 starter 会自动装配 `OutboxTemplate`。如果需要 MyBatis-Plus 的 Outbox 存储，再引入 `jfoundry-outbox-mybatis-plus-spring-boot-starter`。后者会通过 MyBatis-Plus 适配器提供 `OutboxMessageStore`，表名默认为 `jfoundry_outbox_event`。如需自定义表名，设置 `jfoundry.outbox.table-name`，并由业务侧创建同结构表。
 
+Outbox 间接使用的 messaging starter 已包含 Spring Boot 官方 JSON starter。因此批处理消费者等
+非 Web 应用也会获得默认 Jackson `ObjectMapper` 和 `PayloadSerializer`，无需为了 Outbox 额外
+引入 WebMVC 或 WebFlux starter。业务侧自定义的 `ObjectMapper` 或 `PayloadSerializer` 仍然优先。
+
 ```yaml
 jfoundry:
   outbox:
