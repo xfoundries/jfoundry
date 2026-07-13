@@ -46,6 +46,16 @@ class InboxAutoConfigurationTest {
                 });
     }
 
+    @Test
+    void createsTemplateFromAutoConfiguredMybatisPlusStore() {
+        runner.withBean(InboxMessageMapper.class, () -> mock(InboxMessageMapper.class))
+                .withBean(SqlSessionFactory.class, () -> mock(SqlSessionFactory.class))
+                .run(context -> {
+                    assertThat(context).hasSingleBean(InboxMessageStore.class);
+                    assertThat(context).hasSingleBean(InboxTemplate.class);
+                });
+    }
+
     static class StubInboxMessageStore implements InboxMessageStore {
 
         @Override

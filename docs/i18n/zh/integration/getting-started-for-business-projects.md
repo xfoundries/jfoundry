@@ -23,7 +23,7 @@ claude plugin install domain-architecture@xfoundries
 jfoundry 适合这类业务系统：
 
 - 有明确领域模型、聚合、值对象、领域事件或业务不变量。
-- 希望用 Hexagonal 或 Onion Architecture 保护领域层和应用层边界。
+- 希望用 Hexagonal 或 Onion 架构保护领域层和应用层边界。
 - 希望用 ArchUnit 把架构约束变成自动化测试。
 - 需要可靠领域事件外部化，例如 Transactional Outbox、消息重试、死信状态。
 - 需要消费端幂等，例如 Inbox。
@@ -37,7 +37,7 @@ jfoundry 适合这类业务系统：
 
 - Java 21
 - Maven
-- Hexagonal Architecture
+- 根据领域与项目约束确认 Hexagonal、Onion 或其他架构风格
 - 先选择 `jfoundry-dependencies` 或 `jfoundry-spring-dependencies` BOM
 - 只引入当前需要的 starter
 - 先添加 ArchUnit 架构测试
@@ -54,7 +54,7 @@ jfoundry 适合这类业务系统：
 |------|------------|
 | 基础包名 | 业务自己的包名，例如 `com.example.order` |
 | 项目形态 | 正常 DDD 项目推荐多模块 Maven；小项目可先单应用模块 |
-| 架构风格 | 默认 Hexagonal；团队明确偏好 Onion 时再选 Onion |
+| 架构风格 | 使用已确认的架构决策；jfoundry 不替业务项目默认选择 Hexagonal 或 Onion |
 | 运行时框架 | 未确定时先不绑定；使用 Spring Boot 时显式选择 Spring Boot starter |
 | 持久化 | 未确定时先不绑定；使用 MyBatis-Plus 时显式加入对应 starter |
 | 外部消息 | 未确定时先不启用 Outbox/Inbox/MQ |
@@ -68,10 +68,10 @@ Project shape: multi-module Maven
 Runtime: undecided
 Persistence: MyBatis-Plus
 Messaging: Kafka later, not in the initial skeleton
-Architecture: default
+Architecture: confirmed Hexagonal
 ```
 
-这里的 `Architecture: default` 会让 Agent 使用 jfoundry 推荐的新项目默认值：Hexagonal Architecture。
+如果架构风格尚未确认，应先完成领域建模和架构决策，再生成受该选择影响的包结构与架构测试；不要把 jfoundry 脚手架值当成架构决策。
 
 ## 依赖选择原则
 

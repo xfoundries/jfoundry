@@ -14,12 +14,16 @@ domain complexity, a plain runtime framework and ORM may be simpler.
 Start with the smallest useful skeleton:
 
 - Java 21 and Maven;
-- Hexagonal Architecture by default, or Onion when the team already uses that language;
+- a confirmed architecture style, such as Hexagonal or Onion, selected from domain and project
+  constraints rather than a jfoundry scaffold default;
 - `jfoundry-dependencies` for runtime-neutral projects, or `jfoundry-spring-dependencies` for
   Spring/Spring Boot projects;
 - only the starters needed by each module;
 - ArchUnit tests early;
 - no Outbox, Inbox, broker adapter, or JobRunr until the workflow needs them.
+
+When the architecture style is still undecided, complete domain modeling and architecture guidance
+before generating package structures or architecture tests that depend on that choice.
 
 ## Dependency Placement
 

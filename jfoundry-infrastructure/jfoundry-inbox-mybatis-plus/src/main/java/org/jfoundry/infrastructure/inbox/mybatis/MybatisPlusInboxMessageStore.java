@@ -26,6 +26,13 @@ public class MybatisPlusInboxMessageStore implements InboxMessageStore {
 
     @Override
     public boolean tryStartProcessing(String messageId, String consumerName) {
+        InboxMessageData existing = mapper.selectOne(Wrappers.lambdaQuery(InboxMessageData.class)
+                .eq(InboxMessageData::getMessageId, messageId)
+                .eq(InboxMessageData::getConsumerName, consumerName));
+        if (existing != null) {
+            return InboxMessageStatus.FAILED.name().equals(existing.getStatus())
+                    && retryFailed(messageId, consumerName);
+        }
         try {
             mapper.insert(InboxMessageData.processing(messageId, consumerName));
             return true;
@@ -33,7 +40,9 @@ public class MybatisPlusInboxMessageStore implements InboxMessageStore {
             if (shouldPropagateInsertFailure(ex)) {
                 throw ex;
             }
-            return retryFailed(messageId, consumerName);
+            // A concurrent claimant inserted the same logical Inbox row. Do not issue more SQL:
+            // PostgreSQL marks the current transaction as aborted after a constraint violation.
+            return false;
         }
     }
 
