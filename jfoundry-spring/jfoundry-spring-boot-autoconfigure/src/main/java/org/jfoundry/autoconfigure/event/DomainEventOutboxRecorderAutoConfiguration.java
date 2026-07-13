@@ -6,6 +6,7 @@ import org.jfoundry.application.event.externalization.AggregateRoutingResolver;
 import org.jfoundry.application.event.externalization.ExternalizationRuleResolver;
 import org.jfoundry.application.outbox.DomainEventOutboxRecorder;
 import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.application.outbox.OutboxTemplate;
 import org.jfoundry.infrastructure.messaging.jackson.JacksonPayloadSerializer;
 import org.jfoundry.infrastructure.outbox.spring.externalization.DefaultDomainEventOutboxRecorder;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -15,7 +16,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 
-/// Auto-configuration for DomainEventOutboxRecorder.
+/// Auto-configuration for automatic domain-event and explicit Outbox recording.
 /// <p>
 /// Enables the default DomainEventOutboxRecorder when the application provides an OutboxMessageStore
 /// bean. The default PayloadSerializer uses Jackson; applications can override it by registering
@@ -31,6 +32,10 @@ import org.springframework.context.annotation.Bean;
 /// <p>
 /// {@code domainEventOutboxRecorder} is registered only when the application has not provided its own
 /// {@link DomainEventOutboxRecorder}.
+/// <p>
+/// {@link OutboxTemplate} is registered from the same store and serializer dependencies. It lets
+/// applications record an explicitly translated integration event without exposing the internal
+/// domain event as the broker contract.
 @AutoConfiguration
 @AutoConfigureAfter(name = "org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration")
 @ConditionalOnClass({PayloadSerializer.class, JacksonPayloadSerializer.class, OutboxMessageStore.class, DefaultDomainEventOutboxRecorder.class})
@@ -57,6 +62,14 @@ public class DomainEventOutboxRecorderAutoConfiguration {
     @ConditionalOnMissingBean(AggregateRoutingResolver.class)
     public AggregateRoutingResolver aggregateRoutingResolver() {
         return new AggregateRoutingResolver();
+    }
+
+    @Bean
+    @ConditionalOnBean({OutboxMessageStore.class, PayloadSerializer.class})
+    @ConditionalOnMissingBean(OutboxTemplate.class)
+    public OutboxTemplate outboxTemplate(
+            OutboxMessageStore store, PayloadSerializer serializer) {
+        return new OutboxTemplate(store, serializer);
     }
 
     @Bean

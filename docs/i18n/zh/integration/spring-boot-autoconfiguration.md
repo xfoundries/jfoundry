@@ -13,7 +13,7 @@
 | `jfoundry-messaging-kafka-spring-boot-starter` | Kafka `MessageSender` adapter | Outbox store |
 | `jfoundry-messaging-rabbitmq-spring-boot-starter` | RabbitMQ `MessageSender` adapter | Outbox store |
 | `jfoundry-messaging-rocketmq-spring-boot-starter` | RocketMQ `MessageSender` adapter | Outbox store |
-| `jfoundry-outbox-spring-boot-starter` | Outbox core、领域事件外部化、scheduled 派发集成 | Outbox 表存储、JobRunr |
+| `jfoundry-outbox-spring-boot-starter` | Outbox core、`OutboxTemplate`、领域事件外部化、scheduled 派发集成 | Outbox 表存储、JobRunr |
 | `jfoundry-outbox-mybatis-plus-spring-boot-starter` | MyBatis-Plus `OutboxMessageStore` adapter | 数据库 migration 执行 |
 | `jfoundry-outbox-jobrunr-spring-boot-starter` | JobRunr Outbox dispatcher | Outbox 表存储 |
 | `jfoundry-inbox-spring-boot-starter` | Inbox core、`InboxTemplate` | Inbox 表存储 |
@@ -59,7 +59,7 @@
 | `PersistenceFailureAutoConfiguration` | 默认 Spring `PersistenceFailureTranslator` 与 Repository 注入器 | 存在 `AbstractAggregateRepository`、Spring 数据访问异常和 `jfoundry-persistence-spring`；没有用户自定义 translator。 |
 | `AggregatePersistenceContextAutoConfiguration` | 事务绑定的 `AggregatePersistenceContext` 与 aware Repository 注入器 | 存在 persistence context SPI、Spring 事务支持和 `jfoundry-persistence-spring`；没有用户自定义 context。 |
 | `DomainEventDispatchAutoConfiguration` | `DomainEventScope`、`DomainEventContext`、派发拦截器、Spring event dispatcher、可选 Outbox dispatcher | 应用服务和 dispatcher 类型存在；配置项允许对应路径。 |
-| `DomainEventOutboxRecorderAutoConfiguration` | `PayloadSerializer`、外部化 resolver、`DomainEventOutboxRecorder` | Outbox store 和 serializer 依赖可用；没有用户自定义替代 Bean。 |
+| `DomainEventOutboxRecorderAutoConfiguration` | `PayloadSerializer`、`OutboxTemplate`、外部化 resolver、`DomainEventOutboxRecorder` | Outbox store 和 serializer 依赖可用；每种 Bean 均没有用户自定义替代。 |
 | `MessageSenderAutoConfiguration` | `LoggingMessageSender` fallback | 没有用户自定义或 broker-specific `MessageSender`。fallback 返回发送失败结果。 |
 | `KafkaMessageSenderAutoConfiguration` | `KafkaMessageSender` | 存在 `KafkaOperations` class 和 Bean；没有已有 `MessageSender`。 |
 | `RabbitMqMessageSenderAutoConfiguration` | `RabbitMqMessageSender` | 存在 `RabbitTemplate` class 和 `RabbitOperations` Bean；没有已有 `MessageSender`。 |

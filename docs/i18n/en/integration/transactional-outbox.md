@@ -19,9 +19,42 @@ aggregate records domain event
 `DefaultDomainEventOutboxRecorder` records only events marked with `@Externalized`. `@MessageRouting`
 can provide a topic and routing key, but it does not make an event externalized by itself.
 
+## Direct And Contract-Isolated Externalization
+
+Use automatic externalization when the domain event is deliberately designed as a stable public
+contract:
+
+```text
+@Externalized domain event -> DomainEventOutboxRecorder -> Outbox
+```
+
+Do not expose an internal domain event only to avoid writing a translation. When consumers need a
+separate, versioned integration contract, translate at the application boundary and record the
+result explicitly:
+
+```java
+ExpenseClaimApprovedV1 integrationEvent = translator.translate(domainEvent);
+outboxTemplate.append(new OutboxAppendRequest(
+        eventId,
+        "expense-approval.events.v1",
+        claimId,
+        "ExpenseClaimApprovedV1",
+        integrationEvent,
+        occurredAt,
+        "ExpenseClaim",
+        claimId,
+        aggregateVersion));
+```
+
+`OutboxTemplate` serializes the supplied payload and appends a pending message through the existing
+`OutboxMessageStore`. It participates in the caller's transaction; it does not translate domain
+events, start a transaction, or publish synchronously. The existing automatic externalization path
+remains available and unchanged.
+
 ## Configuration Semantics
 
-Add `jfoundry-outbox-spring-boot-starter` when reliable externalization is needed. Add
+Add `jfoundry-outbox-spring-boot-starter` when reliable externalization is needed. It auto-configures
+`OutboxTemplate` when an `OutboxMessageStore` and `PayloadSerializer` are available. Add
 `jfoundry-outbox-mybatis-plus-spring-boot-starter` when the application uses the built-in
 MyBatis-Plus Outbox store.
 

@@ -14,7 +14,7 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 | `jfoundry-messaging-kafka-spring-boot-starter` | Kafka `MessageSender` adapter | Outbox store |
 | `jfoundry-messaging-rabbitmq-spring-boot-starter` | RabbitMQ `MessageSender` adapter | Outbox store |
 | `jfoundry-messaging-rocketmq-spring-boot-starter` | RocketMQ `MessageSender` adapter | Outbox store |
-| `jfoundry-outbox-spring-boot-starter` | Outbox core, domain-event externalization, scheduled dispatch integration | Outbox table store, JobRunr |
+| `jfoundry-outbox-spring-boot-starter` | Outbox core, `OutboxTemplate`, domain-event externalization, scheduled dispatch integration | Outbox table store, JobRunr |
 | `jfoundry-outbox-mybatis-plus-spring-boot-starter` | MyBatis-Plus `OutboxMessageStore` adapter | Database migration execution |
 | `jfoundry-outbox-jobrunr-spring-boot-starter` | JobRunr Outbox dispatcher | Outbox table store |
 | `jfoundry-inbox-spring-boot-starter` | Inbox core and `InboxTemplate` | Inbox table store |
@@ -60,7 +60,7 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 | `PersistenceFailureAutoConfiguration` | Default Spring `PersistenceFailureTranslator` and repository injector | `AbstractAggregateRepository`, Spring data-access exceptions, and `jfoundry-persistence-spring` are present; no user-defined translator. |
 | `AggregatePersistenceContextAutoConfiguration` | Transaction-bound `AggregatePersistenceContext` and aware-repository injector | Persistence context SPI, Spring transaction support, and `jfoundry-persistence-spring` are present; no user-defined context. |
 | `DomainEventDispatchAutoConfiguration` | `DomainEventScope`, `DomainEventContext`, dispatch interceptor, Spring event dispatcher, optional Outbox dispatcher | Application service and dispatcher types are present; dispatch properties allow the selected path. |
-| `DomainEventOutboxRecorderAutoConfiguration` | `PayloadSerializer`, externalization resolvers, `DomainEventOutboxRecorder` | Outbox store and serializer dependencies are available; no user-defined replacement. |
+| `DomainEventOutboxRecorderAutoConfiguration` | `PayloadSerializer`, `OutboxTemplate`, externalization resolvers, `DomainEventOutboxRecorder` | Outbox store and serializer dependencies are available; no user-defined replacement for each bean. |
 | `MessageSenderAutoConfiguration` | `LoggingMessageSender` fallback | No user-defined or broker-specific `MessageSender` exists. The fallback returns failed send results. |
 | `KafkaMessageSenderAutoConfiguration` | `KafkaMessageSender` | `KafkaOperations` class and bean exist; no existing `MessageSender`. |
 | `RabbitMqMessageSenderAutoConfiguration` | `RabbitMqMessageSender` | `RabbitTemplate` class and `RabbitOperations` bean exist; no existing `MessageSender`. |

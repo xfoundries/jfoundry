@@ -68,9 +68,35 @@ public final class OrderCreatedEvent extends AbstractDomainEvent {
 
 如果只标记 `@MessageRouting` 而没有 `@Externalized`，事件不会写入 Outbox。
 
+## 直接外部化与契约隔离
+
+当领域事件本身就是经过明确设计、能够稳定演进的公共契约时，可以使用自动外部化：
+
+```text
+@Externalized 领域事件 -> DomainEventOutboxRecorder -> Outbox
+```
+
+不要仅为了少写一层转换，就把内部领域事件暴露给外部消费者。当消费者需要独立、版本化的集成事件契约时，应在应用边界完成转换，再显式记录：
+
+```java
+ExpenseClaimApprovedV1 integrationEvent = translator.translate(domainEvent);
+outboxTemplate.append(new OutboxAppendRequest(
+        eventId,
+        "expense-approval.events.v1",
+        claimId,
+        "ExpenseClaimApprovedV1",
+        integrationEvent,
+        occurredAt,
+        "ExpenseClaim",
+        claimId,
+        aggregateVersion));
+```
+
+`OutboxTemplate` 使用已有的 `PayloadSerializer` 序列化 payload，并通过 `OutboxMessageStore` 追加 `PENDING` 消息。它参与调用方已经开启的事务；它不负责把领域事件转换成集成事件、不主动开启事务，也不做同步消息投递。原有的自动领域事件外部化路径保持不变。
+
 ## 配置
 
-Outbox 是可选能力。业务侧需要可靠外部化时引入 `jfoundry-outbox-spring-boot-starter`；如果需要 MyBatis-Plus 的 Outbox 存储，再引入 `jfoundry-outbox-mybatis-plus-spring-boot-starter`。后者会通过 MyBatis-Plus 适配器提供 `OutboxMessageStore`，表名默认为 `jfoundry_outbox_event`。如需自定义表名，设置 `jfoundry.outbox.table-name`，并由业务侧创建同结构表。
+Outbox 是可选能力。业务侧需要可靠外部化时引入 `jfoundry-outbox-spring-boot-starter`；存在 `OutboxMessageStore` 和 `PayloadSerializer` 时，该 starter 会自动装配 `OutboxTemplate`。如果需要 MyBatis-Plus 的 Outbox 存储，再引入 `jfoundry-outbox-mybatis-plus-spring-boot-starter`。后者会通过 MyBatis-Plus 适配器提供 `OutboxMessageStore`，表名默认为 `jfoundry_outbox_event`。如需自定义表名，设置 `jfoundry.outbox.table-name`，并由业务侧创建同结构表。
 
 ```yaml
 jfoundry:
