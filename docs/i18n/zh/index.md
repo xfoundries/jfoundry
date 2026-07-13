@@ -19,7 +19,7 @@
 - [Spring Boot 自动配置总览](integration/spring-boot-autoconfiguration.md)
 - [应用事务](integration/application-transactions.md)
 - [分布式锁](integration/distributed-locks.md)
-- [持久化 DataConverter 与 MapStruct 使用指南](integration/persistence-data-converters.md)
+- [持久化 DataMapper 与 MapStruct 使用指南](integration/persistence-data-mappers.md)
 - [Transactional Outbox 事务性发件箱](integration/transactional-outbox.md)
 
 ## 发布与兼容

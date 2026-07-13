@@ -4,12 +4,10 @@ import org.jfoundry.application.event.DomainEventContext;
 import org.jfoundry.domain.event.EventRecordable;
 import org.jfoundry.infrastructure.persistence.AggregatePersistenceContext;
 import org.jfoundry.infrastructure.persistence.spring.SpringTransactionAggregatePersistenceContext;
-import org.jfoundry.infrastructure.persistence.mybatis.support.TestOrderDataConverter;
+import org.jfoundry.infrastructure.persistence.mybatis.support.TestOrderDataMapper;
 import org.jfoundry.infrastructure.persistence.mybatis.support.TestOrderMapper;
 import org.jfoundry.infrastructure.persistence.mybatis.support.TestOrderRepository;
-import org.jfoundry.infrastructure.persistence.mybatis.support.TestOrderVersionAccessor;
 import org.jfoundry.infrastructure.persistence.mybatis.support.TestVersionedOrderRepository;
-import org.jfoundry.infrastructure.persistence.mybatis.support.VersionedOrderDataConverter;
 import org.jfoundry.infrastructure.persistence.mybatis.support.VersionedOrderMapper;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringBootConfiguration;
@@ -60,26 +58,24 @@ class PersistenceTestConfig {
     @Bean
     TestOrderRepository testOrderRepository(TestOrderMapper mapper,
                                              DomainEventContext domainEventContext,
-                                             TestOrderDataConverter converter) {
-        TestOrderRepository repository = new TestOrderRepository(mapper, converter);
+                                             TestOrderDataMapper dataMapper) {
+        TestOrderRepository repository = new TestOrderRepository(mapper, dataMapper);
         repository.setDomainEventContext(domainEventContext);
         return repository;
     }
 
     @Bean
-    TestOrderDataConverter testOrderDataConverter() {
-        return new TestOrderDataConverter();
+    TestOrderDataMapper testOrderDataMapper() {
+        return new TestOrderDataMapper();
     }
 
     @Bean
     TestVersionedOrderRepository testVersionedOrderRepository(
             VersionedOrderMapper mapper,
             AggregatePersistenceContext persistenceContext) {
-        return new TestVersionedOrderRepository(
-                mapper,
-                new VersionedOrderDataConverter(),
-                new TestOrderVersionAccessor(),
-                persistenceContext);
+        TestVersionedOrderRepository repository = new TestVersionedOrderRepository(mapper);
+        repository.setAggregatePersistenceContext(persistenceContext);
+        return repository;
     }
 
     static final class TestDomainEventContext implements DomainEventContext {

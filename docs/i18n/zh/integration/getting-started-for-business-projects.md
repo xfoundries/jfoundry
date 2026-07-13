@@ -255,11 +255,11 @@ com.example.order
 
 - 领域聚合根不放 MyBatis-Plus 注解、TypeHandler、逻辑删除字段或自动填充字段。
 - Data 对象继承 `AggregateData<K>`，`K` 使用数据库天然支持的主键类型。
-- `DataConverter` 负责领域强类型 ID 与持久化主键类型之间的转换。
-- converter 默认不作为 Spring Bean 注入；MapStruct converter 推荐使用 `@Mapper` + `Mappers.getMapper(...)` 暴露 `INSTANCE`。
+- `DataMapper` 负责领域强类型 ID 与持久化主键类型之间的转换。
+- mapper 默认不作为 Spring Bean 注入；MapStruct mapper 推荐使用 `@Mapper` + `Mappers.getMapper(...)` 暴露 `INSTANCE`。
 - `toData(...)` 可以由 MapStruct 生成，`toEntity(...)` 推荐手写并调用聚合 `restore(...)`，保留清晰的持久化还原语义。
 
-详细规则和示例见 [持久化 DataConverter 与 MapStruct 使用指南](persistence-data-converters.md)。
+详细规则和示例见 [持久化 DataMapper 与 MapStruct 使用指南](persistence-data-mappers.md)。
 
 ## 架构测试先行
 

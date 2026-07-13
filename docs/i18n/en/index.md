@@ -21,7 +21,7 @@ maintainer work.
 - [Spring Boot Auto-configuration](integration/spring-boot-autoconfiguration.md)
 - [Application Transactions](integration/application-transactions.md)
 - [Distributed Locks](integration/distributed-locks.md)
-- [Persistence DataConverter and MapStruct](integration/persistence-data-converters.md)
+- [Persistence DataMapper and MapStruct](integration/persistence-data-mappers.md)
 - [Transactional Outbox and Inbox](integration/transactional-outbox.md)
 
 ## Release and Compatibility

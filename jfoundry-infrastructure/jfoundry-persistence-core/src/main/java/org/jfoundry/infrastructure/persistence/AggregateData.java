@@ -9,7 +9,7 @@ import java.util.Objects;
 /// The ID generic parameter is the persistence-layer primary-key type, typically a type natively
 /// supported by databases and persistence frameworks such as {@link String}, {@link Long}, or
 /// {@link java.util.UUID}. Domain aggregate roots may still use strongly typed jMolecules
-/// identifiers; {@link DataConverter} performs the conversion at the repository boundary.
+/// identifiers; {@link DataMapper} performs the conversion at the repository boundary.
 ///
 /// @param <ID> persistence identifier type, which must be serializable
 public abstract class AggregateData<ID extends Serializable> {

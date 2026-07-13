@@ -6,6 +6,7 @@ import org.jfoundry.application.exception.ConflictException;
 import org.jfoundry.domain.event.EventRecordable;
 import org.jfoundry.infrastructure.persistence.AbstractAggregateRepository;
 import org.jfoundry.infrastructure.persistence.AggregatePersistenceContext;
+import org.jfoundry.infrastructure.persistence.AggregatePersistenceContextAware;
 import org.jfoundry.infrastructure.persistence.PersistenceStateKey;
 import org.jmolecules.ddd.types.AggregateRoot;
 import org.jmolecules.ddd.types.Identifier;
@@ -22,26 +23,31 @@ public abstract class JpaAggregateRepository<
         ID extends Identifier,
         E,
         K>
-        extends AbstractAggregateRepository<A, ID> {
+        extends AbstractAggregateRepository<A, ID>
+        implements AggregatePersistenceContextAware {
 
     protected final EntityManager entityManager;
     private final Class<E> entityType;
     private final JpaAggregateMapper<A, ID, E, K> mapper;
-    private final AggregatePersistenceContext persistenceContext;
+    private AggregatePersistenceContext persistenceContext;
     private final PersistenceStateKey<E> managedEntityKey;
 
     protected JpaAggregateRepository(
             EntityManager entityManager,
             Class<E> entityType,
-            JpaAggregateMapper<A, ID, E, K> mapper,
-            AggregatePersistenceContext persistenceContext) {
+            JpaAggregateMapper<A, ID, E, K> mapper) {
         this.entityManager = Objects.requireNonNull(entityManager, "EntityManager must not be null.");
         this.entityType = Objects.requireNonNull(entityType, "Entity type must not be null.");
         this.mapper = Objects.requireNonNull(mapper, "JpaAggregateMapper must not be null.");
-        this.persistenceContext = Objects.requireNonNull(
-                persistenceContext, "AggregatePersistenceContext must not be null.");
         this.managedEntityKey = PersistenceStateKey.of(
                 entityType.getName() + ".managed-entity", entityType);
+    }
+
+    @Override
+    public void setAggregatePersistenceContext(
+            AggregatePersistenceContext persistenceContext) {
+        this.persistenceContext = Objects.requireNonNull(
+                persistenceContext, "AggregatePersistenceContext must not be null.");
     }
 
     protected final JpaAggregateMapper<A, ID, E, K> mapper() {
@@ -49,38 +55,40 @@ public abstract class JpaAggregateRepository<
     }
 
     protected final AggregatePersistenceContext persistenceContext() {
-        return persistenceContext;
+        return requirePersistenceContext();
     }
 
     @Override
     protected final A doFindById(ID id) {
+        AggregatePersistenceContext context = requirePersistenceContext();
         E entity = entityManager.find(entityType, mapper.toEntityId(id));
         if (entity == null) {
             return null;
         }
         A aggregate = mapper.toAggregate(entity);
-        persistenceContext.attach(aggregate, managedEntityKey, entity);
+        context.attach(aggregate, managedEntityKey, entity);
         return aggregate;
     }
 
     @Override
     protected final void doAdd(A aggregate) {
+        AggregatePersistenceContext context = requirePersistenceContext();
         E entity = mapper.newEntity(aggregate);
         entityManager.persist(entity);
         flush("add", aggregate);
-        persistenceContext.attach(aggregate, managedEntityKey, entity);
+        context.attach(aggregate, managedEntityKey, entity);
     }
 
     @Override
     protected final void doModify(A aggregate) {
-        E managedEntity = persistenceContext.require(aggregate, managedEntityKey);
+        E managedEntity = requirePersistenceContext().require(aggregate, managedEntityKey);
         mapper.apply(aggregate, managedEntity);
         flush("modify", aggregate);
     }
 
     @Override
     protected final void doRemove(A aggregate) {
-        E managedEntity = persistenceContext.require(aggregate, managedEntityKey);
+        E managedEntity = requirePersistenceContext().require(aggregate, managedEntityKey);
         entityManager.remove(managedEntity);
         flush("remove", aggregate);
     }
@@ -93,5 +101,13 @@ public abstract class JpaAggregateRepository<
                     operation + " optimistic lock conflict for aggregate: " + aggregate.getId(),
                     failure);
         }
+    }
+
+    private AggregatePersistenceContext requirePersistenceContext() {
+        if (persistenceContext == null) {
+            throw new IllegalStateException(
+                    "JPA aggregate persistence requires an AggregatePersistenceContext.");
+        }
+        return persistenceContext;
     }
 }

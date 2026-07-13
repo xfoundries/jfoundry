@@ -220,7 +220,7 @@ Outbox is optional. Enable it only when events need cross-process delivery, retr
 - [Documentation Index](docs/i18n/en/index.md)
 - Framework semantics: [Architecture Styles](docs/i18n/en/framework/architecture-styles.md), [ArchUnit Rules](docs/i18n/en/framework/archunit-rules.md), [Framework Boundaries](docs/i18n/en/framework/framework-boundaries.md)
 - Modeling conventions: [Value Objects](docs/i18n/en/modeling/value-object.md), [Repository and Read-side Ports](docs/i18n/en/modeling/repository-vs-read-ports.md)
-- Technical integration: [Getting Started](docs/i18n/en/integration/getting-started-for-business-projects.md), [Persistence DataConverter](docs/i18n/en/integration/persistence-data-converters.md), [Transactional Outbox and Inbox](docs/i18n/en/integration/transactional-outbox.md)
+- Technical integration: [Getting Started](docs/i18n/en/integration/getting-started-for-business-projects.md), [Persistence DataMapper](docs/i18n/en/integration/persistence-data-mappers.md), [Transactional Outbox and Inbox](docs/i18n/en/integration/transactional-outbox.md)
 
 ## Build
 

@@ -1,9 +1,9 @@
 package org.jfoundry.infrastructure.persistence.mybatis.support;
 
-import org.jfoundry.infrastructure.persistence.DataConverter;
+import org.jfoundry.infrastructure.persistence.DataMapper;
 
-/// Test converter between aggregate roots and Data objects.
-public class TestOrderDataConverter implements DataConverter<TestOrder, TestOrderId, TestOrderData, String> {
+/// Test mapper between aggregate roots and Data objects.
+public class TestOrderDataMapper implements DataMapper<TestOrder, TestOrderId, TestOrderData, String> {
 
     @Override
     public TestOrderData toData(TestOrder entity) {

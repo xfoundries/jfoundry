@@ -2,6 +2,7 @@ package org.jfoundry.autoconfigure;
 
 import org.jfoundry.autoconfigure.persistence.AggregatePersistenceContextAutoConfiguration;
 import org.jfoundry.infrastructure.persistence.AggregatePersistenceContext;
+import org.jfoundry.infrastructure.persistence.AggregatePersistenceContextAware;
 import org.jfoundry.infrastructure.persistence.PersistenceStateKey;
 import org.jfoundry.infrastructure.persistence.spring.SpringTransactionAggregatePersistenceContext;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,16 @@ class AggregatePersistenceContextAutoConfigurationTest {
     }
 
     @Test
+    void injectsSelectedContextIntoAwareBeans() {
+        AggregatePersistenceContext custom = new NoOpContext();
+
+        contextRunner.withBean(AggregatePersistenceContext.class, () -> custom)
+                .withBean(ContextAwareBean.class, ContextAwareBean::new)
+                .run(context -> assertThat(context.getBean(ContextAwareBean.class).context)
+                        .isSameAs(custom));
+    }
+
+    @Test
     void backsOffWithoutSpringTransactionSupport() {
         contextRunner.withClassLoader(new FilteredClassLoader(TransactionSynchronizationManager.class))
                 .run(context -> assertThat(context)
@@ -55,6 +66,16 @@ class AggregatePersistenceContextAutoConfigurationTest {
 
         @Override
         public <S> void replace(Object aggregate, PersistenceStateKey<S> key, S state) {
+        }
+    }
+
+    private static final class ContextAwareBean implements AggregatePersistenceContextAware {
+
+        private AggregatePersistenceContext context;
+
+        @Override
+        public void setAggregatePersistenceContext(AggregatePersistenceContext context) {
+            this.context = context;
         }
     }
 }

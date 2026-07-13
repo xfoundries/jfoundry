@@ -22,10 +22,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest(classes = {
         PersistenceTestConfig.class,
-        MybatisPlusVersionedAggregateRepositoryIntegrationTest.VersionedPluginConfiguration.class
+        MybatisPlusAggregateRepositoryOptimisticLockIntegrationTest.VersionedPluginConfiguration.class
 })
 @Transactional
-class MybatisPlusVersionedAggregateRepositoryIntegrationTest {
+class MybatisPlusAggregateRepositoryOptimisticLockIntegrationTest {
 
     @Autowired
     private TestVersionedOrderRepository repository;
@@ -54,6 +54,7 @@ class MybatisPlusVersionedAggregateRepositoryIntegrationTest {
 
         assertThat(repository.findById(id).getStatus()).isEqualTo(TestOrderStatus.CANCELLED);
         assertThat(version(id)).isEqualTo(2L);
+        assertThat(repository.completedUpdates()).isEqualTo(2);
     }
 
     @Test
@@ -65,12 +66,33 @@ class MybatisPlusVersionedAggregateRepositoryIntegrationTest {
 
         first.markPaid();
         repository.modify(first);
+        repository.resetCompletedUpdates();
         stale.cancel();
 
         assertThatThrownBy(() -> repository.modify(stale))
                 .isInstanceOf(ConflictException.class)
                 .hasMessageContaining("optimistic lock conflict");
+        assertThat(repository.completedUpdates()).isZero();
         assertThat(repository.findById(id).getStatus()).isEqualTo(TestOrderStatus.PAID);
+    }
+
+    @Test
+    void failedAdditionalUpdateDoesNotAdvanceTrackedVersion() {
+        TestOrderId id = new TestOrderId("VERSIONED-ADDITIONAL-FAILURE");
+        repository.add(TestOrder.create(id, 100));
+        TestOrder loaded = repository.findById(id);
+        loaded.markPaid();
+        repository.failNextUpdate();
+
+        assertThatThrownBy(() -> repository.modify(loaded))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Additional update failed.");
+
+        loaded.cancel();
+        assertThatThrownBy(() -> repository.modify(loaded))
+                .isInstanceOf(ConflictException.class)
+                .hasMessageContaining("optimistic lock conflict");
+        assertThat(repository.completedUpdates()).isZero();
     }
 
     @Test
@@ -83,6 +105,7 @@ class MybatisPlusVersionedAggregateRepositoryIntegrationTest {
         assertThatThrownBy(() -> repository.remove(loaded))
                 .isInstanceOf(ConflictException.class)
                 .hasMessageContaining("optimistic lock conflict");
+        assertThat(repository.completedRemovals()).isZero();
         assertThat(repository.findById(id)).isNotNull();
     }
 

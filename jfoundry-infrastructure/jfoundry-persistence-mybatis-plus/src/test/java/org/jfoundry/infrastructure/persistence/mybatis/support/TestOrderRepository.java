@@ -7,7 +7,7 @@ public class TestOrderRepository
         extends MybatisPlusAggregateRepository<TestOrder, TestOrderId, TestOrderData, String> {
 
     public TestOrderRepository(TestOrderMapper mapper,
-                                TestOrderDataConverter converter) {
-        super(mapper, converter);
+                                TestOrderDataMapper dataMapper) {
+        super(mapper, dataMapper);
     }
 }

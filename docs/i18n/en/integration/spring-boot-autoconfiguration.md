@@ -58,7 +58,7 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 | `DistributedLockAutoConfiguration` | `LockTemplate`, optional Redisson `DistributedLockClient`, optional `@DistributedLock` advisor | `jfoundry-lock-core` is present. Redisson adapter requires `RedissonClient`; annotation advisor requires `DistributedLockClient` and annotation support enabled. |
 | `DomainEventPersistenceAutoConfiguration` | Repository `DomainEventContext` injector | `DomainEventContext` and `AbstractAggregateRepository` are on the classpath. |
 | `PersistenceFailureAutoConfiguration` | Default Spring `PersistenceFailureTranslator` and repository injector | `AbstractAggregateRepository`, Spring data-access exceptions, and `jfoundry-persistence-spring` are present; no user-defined translator. |
-| `AggregatePersistenceContextAutoConfiguration` | Transaction-bound `AggregatePersistenceContext` | Persistence context SPI, Spring transaction support, and `jfoundry-persistence-spring` are present; no user-defined context. |
+| `AggregatePersistenceContextAutoConfiguration` | Transaction-bound `AggregatePersistenceContext` and aware-repository injector | Persistence context SPI, Spring transaction support, and `jfoundry-persistence-spring` are present; no user-defined context. |
 | `DomainEventDispatchAutoConfiguration` | `DomainEventScope`, `DomainEventContext`, dispatch interceptor, Spring event dispatcher, optional Outbox dispatcher | Application service and dispatcher types are present; dispatch properties allow the selected path. |
 | `DomainEventOutboxRecorderAutoConfiguration` | `PayloadSerializer`, externalization resolvers, `DomainEventOutboxRecorder` | Outbox store and serializer dependencies are available; no user-defined replacement. |
 | `MessageSenderAutoConfiguration` | `LoggingMessageSender` fallback | No user-defined or broker-specific `MessageSender` exists. The fallback returns failed send results. |
@@ -86,5 +86,6 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 - `mode=none` means no dispatcher, recovery job, or cleanup job is registered, even when recovery
   or cleanup is explicitly enabled.
 - The MyBatis-Plus and JPA runtime starters make the Spring transaction-bound persistence context
-  available, but version tracking remains opt-in. Configure ORM/plugin optimistic locking and keep
-  each tracked load-modify operation in one transaction.
+  available and inject it into aware repositories, so business constructors do not receive it.
+  Version tracking remains opt-in. Configure ORM/plugin optimistic locking and keep each tracked
+  load-modify operation in one transaction.

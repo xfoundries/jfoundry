@@ -6,32 +6,32 @@ import org.jmolecules.ddd.types.Identifier;
 import java.io.Serializable;
 import java.util.List;
 
-/// Data converter.
+/// Persistence data mapper.
 ///
-/// Converts between domain aggregate roots (T) and persistence data objects (D).
-/// Implementations only need to provide single-object conversion; batch conversion is derived from
+/// Maps between domain aggregate roots (T) and persistence data objects (D).
+/// Implementations only need to provide single-object mapping; batch mapping is derived from
 /// those methods by default.
 ///
 /// @param <T>  aggregate root type
 /// @param <ID> domain identifier type
 /// @param <D>  data object type
 /// @param <K>  persistence primary-key type
-public interface DataConverter<
+public interface DataMapper<
         T extends AggregateRoot<T, ID>,
-        ID extends Identifier & Serializable,
+        ID extends Identifier,
         D extends AggregateData<K>,
         K extends Serializable> {
 
-    /// Converts an aggregate root to a data object.
-    D toData(T entity);
+    /// Maps an aggregate root to a data object.
+    D toData(T aggregate);
 
-    /// Converts a data object to an aggregate root.
-    T toEntity(D data);
-
-    /// Converts a domain identifier to a persistence identifier.
+    /// Maps a domain identifier to its persistence identifier.
     K toDataId(ID id);
 
-    /// Converts aggregate roots to data objects.
+    /// Maps a data object to an aggregate root.
+    T toEntity(D data);
+
+    /// Maps aggregate roots to data objects.
     default List<D> toDataList(List<T> entities) {
         if (entities == null || entities.isEmpty()) {
             return List.of();
@@ -39,7 +39,7 @@ public interface DataConverter<
         return entities.stream().map(this::toData).toList();
     }
 
-    /// Converts data objects to aggregate roots.
+    /// Maps data objects to aggregate roots.
     default List<T> toEntityList(List<D> dataList) {
         if (dataList == null || dataList.isEmpty()) {
             return List.of();

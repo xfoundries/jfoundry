@@ -1,8 +1,8 @@
-# 持久化 DataConverter 与 MapStruct 使用指南
+# 持久化 DataMapper 与 MapStruct 使用指南
 
 本文面向使用 `jfoundry-infrastructure-mybatis-plus-starter` 的业务项目，说明如何在领域聚合根与持久化 Data 对象之间实现转换。
 
-`DataConverter<T, ID, D, K>` 是聚合仓储边界的一部分。它负责把领域聚合根转换为持久化 Data 对象，并把持久化 Data 对象还原为领域聚合根。这个边界应保持基础设施语义，不应把 MyBatis、JPA、Spring Bean 生命周期或数据库字段泄漏到领域模型。
+`DataMapper<T, ID, D, K>` 是聚合仓储边界的一部分。它负责把领域聚合根映射为持久化 Data 对象，并把 Data 对象还原为领域聚合根。这个边界应保持基础设施语义，不应把 MyBatis、JPA、Spring Bean 生命周期或数据库字段泄漏到领域模型。
 
 ## 推荐原则
 
@@ -12,27 +12,27 @@
 - 领域 ID 继续使用强类型 `Identifier`，通过 `toDataId(...)` 在仓储边界转换为 Data 主键。
 - `toData(...)` 可以交给 MapStruct 生成。
 - `toEntity(...)` 推荐手写，并调用聚合的 `restore(...)` 工厂方法，显式表达“持久化还原”语义。
-- converter 默认不作为 Spring Bean 注入。优先使用 MapStruct 默认 component model，并通过 `Mappers.getMapper(...)` 暴露 `INSTANCE`。
+- mapper 默认不作为 Spring Bean 注入。优先使用 MapStruct 默认 component model，并通过 `Mappers.getMapper(...)` 暴露 `INSTANCE`。
 
 ## 为什么不默认做成 Spring Bean
 
-Data converter 是基础设施层的纯对象转换逻辑，通常不需要事务、配置、生命周期回调或运行时注入。把它注册为 Spring Bean 会让仓储构造器出现无业务价值的依赖，并让一个纯转换边界变成运行时装配问题。
+Data mapper 是基础设施层的纯映射逻辑，通常不需要事务、配置、生命周期回调或运行时注入。把它注册为 Spring Bean 会让仓储构造器出现无业务价值的依赖，并让一个纯映射边界变成运行时装配问题。
 
-如果某个 converter 确实依赖外部服务、配置或复杂组件，可以在业务项目中单独选择 Spring component model。但这应是例外，不是默认模板。
+如果某个 mapper 确实依赖外部服务、配置或复杂组件，可以在业务项目中单独选择 Spring component model。但这应是例外，不是默认模板。
 
 ## MapStruct 推荐写法
 
 ```java
-import org.jfoundry.infrastructure.persistence.DataConverter;
+import org.jfoundry.infrastructure.persistence.DataMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
-public interface HelpDocumentDataConverter
-        extends DataConverter<HelpDocument, HelpDocumentId, HelpDocumentData, String> {
+public interface HelpDocumentDataMapper
+        extends DataMapper<HelpDocument, HelpDocumentId, HelpDocumentData, String> {
 
-    HelpDocumentDataConverter INSTANCE = Mappers.getMapper(HelpDocumentDataConverter.class);
+    HelpDocumentDataMapper INSTANCE = Mappers.getMapper(HelpDocumentDataMapper.class);
 
     @Override
     @Mapping(target = "id", expression = "java(toDataId(entity.getId()))")
@@ -61,7 +61,7 @@ public interface HelpDocumentDataConverter
 }
 ```
 
-Repository 实现中推荐使用静态 converter：
+Repository 实现中推荐使用静态 mapper：
 
 ```java
 @Repository
@@ -69,10 +69,10 @@ public class HelpDocumentRepositoryImpl
         extends MybatisPlusAggregateRepository<HelpDocument, HelpDocumentId, HelpDocumentData, String>
         implements HelpDocumentRepository {
 
-    private static final HelpDocumentDataConverter CONVERTER = HelpDocumentDataConverter.INSTANCE;
+    private static final HelpDocumentDataMapper DATA_MAPPER = HelpDocumentDataMapper.INSTANCE;
 
     public HelpDocumentRepositoryImpl(HelpDocumentMapper mapper) {
-        super(mapper, CONVERTER);
+        super(mapper, DATA_MAPPER);
     }
 }
 ```
@@ -81,11 +81,13 @@ public class HelpDocumentRepositoryImpl
 
 ## 单 Data 与复合持久化
 
-`MybatisPlusAggregateRepository` 是可选便利实现，只适用于一个聚合可由一个 `AggregateData` 和一个 `BaseMapper` 完整保存与还原的情况。它自动提供 `add`、`modify`、`remove` 的单记录操作和 affected-row 防御。
+`MybatisPlusAggregateRepository` 为一个 `AggregateData`、一个 `DataMapper` 和一个 `BaseMapper` 可完整保存与还原的聚合提供默认实现。
 
-当一个聚合需要协调多张表、多个 Mapper 或其他存储时，业务基础设施 Adapter 应直接继承 `AbstractAggregateRepository`，实现完整聚合的 `doFindById(...)`、`doAdd(...)`、`doModify(...)` 和 `doRemove(...)`。例如，根记录更新为零行时，Adapter 必须在修改从属记录之前报告聚合不存在或并发冲突。
+对于以 MyBatis-Plus Data 表示根记录的多表聚合，同一个基类可接收根 Data 与 ID 的映射函数。业务 Adapter 覆盖完整 `do*` 操作，并使用 `loadAggregate`、`insertAggregate`、`updateAggregate` 和 `deleteAggregate` 保留根记录持久化、可选乐观锁与 context 跟踪；聚合还原和从属记录同步策略仍由业务 Adapter 决定。若根记录不是一个 MyBatis-Plus Data，或这些 helper 不适用，再直接继承 `AbstractAggregateRepository`。
 
 不要创建一个通用的“多表 Repository”来预设从属集合的同步算法。全量替换、差异更新、追加写入和数据库级联应由业务语义、引用关系、审计要求、数据规模与并发要求决定。
+
+默认删除路径和 `deleteAggregate` helper 会先删除根记录，确保回调执行前已经识别乐观锁冲突。不能脱离根记录存在的从属行应优先使用数据库级联；若外键要求显式先删子表，应采用项目自己的原子删除策略，而不是强行套用该 helper。
 
 ## 持久化所有的乐观并发状态
 
@@ -94,14 +96,13 @@ public class HelpDocumentRepositoryImpl
 存在 `jfoundry-persistence-spring` 时，Spring Boot 会提供事务绑定实现，业务代码不需要手动开启或关闭 scope。
 在活动事务之外使用跟踪状态，或者修改并非在当前事务加载的聚合，都会立即失败；当前不支持 detached aggregate merge。
 
-单个 MyBatis-Plus Data 对象可在 version 字段上使用 `@Version`，显式配置
-`OptimisticLockerInnerInterceptor`，并按需继承 `MybatisPlusVersionedAggregateRepository`。
-`VersionedDataAccessor` 把 version 读写留在基础设施 Adapter。复合聚合 Adapter 可直接使用同一个 context 与 accessor：
-根记录 `updateById` 必须带上加载时的 version，完整聚合操作成功后才能推进跟踪 version；删除必须同时包含 ID 与加载时 version。
+MyBatis-Plus 根 Data 可在 version 字段上使用 `@Version`，显式配置
+`OptimisticLockerInnerInterceptor`，并把 Data 类型传给 `MybatisPlusAggregateRepository`。
+仓储会从元数据自动识别版本字段，并在内部完成加载版本跟踪、`updateById` 前版本还原、零行冲突判断、成功后的跟踪版本推进以及 ID + version 删除。没有 `@Version` 的 Data 保持非跟踪行为；业务构造器不接收 `AggregatePersistenceContext`。
 
 单个 JPA entity graph 可使用 `JpaAggregateRepository`。它跟踪 `EntityManager.find` 返回的 managed entity，
 把聚合状态应用到同一实体并在仓储成功返回前 `flush`，不会调用 `merge`。
-`JpaAggregateMapper` 负责新实体创建、聚合还原、ID 转换与 managed entity 更新。
+`JpaAggregateMapper` 负责新实体创建、聚合还原、ID 转换与 managed entity 更新。运行时集成负责注入 persistence context，业务构造器不接收它。
 多实体或复合存储仍由业务 Adapter 实现完整操作。
 
 ## 持久化异常翻译
@@ -128,7 +129,7 @@ MyBatis-Plus Spring Boot starter 会引入该运行时 Adapter，自动配置会
 审计字段需要按建模语义区分：
 
 - 如果审计字段只是 MyBatis 自动填充技术字段，领域对象不承载这些信息，`toData(...)` 可以 ignore。
-- 如果业务需要读取或展示审计信息，领域对象可以使用 `AuditableAggregateRoot` 或 `AuditableEntity` 承载审计快照，此时 converter 应保留审计字段映射。
+- 如果业务需要读取或展示审计信息，领域对象可以使用 `AuditableAggregateRoot` 或 `AuditableEntity` 承载审计快照，此时 mapper 应保留审计字段映射。
 
 不要机械地把所有 `createdTime`、`lastModifiedTime` 字段都 ignore，也不要为了省映射代码把持久化审计基类带回领域对象。
 

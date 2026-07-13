@@ -15,9 +15,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class DataConverterTest {
+class DataMapperTest {
 
-    private final DataConverter<TestEntity, TestId, TestData, String> converter = new DataConverter<>() {
+    private final DataMapper<TestEntity, TestId, TestData, String> dataMapper = new DataMapper<>() {
         @Override
         public TestData toData(TestEntity entity) {
             TestData data = new TestData();
@@ -39,7 +39,7 @@ class DataConverterTest {
 
     @Test
     void shouldConvertEntityCollectionToDataListByDefault() {
-        List<TestData> dataList = converter.toDataList(List.of(
+        List<TestData> dataList = dataMapper.toDataList(List.of(
                 new TestEntity(new TestId("1"), "created"),
                 new TestEntity(new TestId("2"), "updated")
         ));
@@ -57,7 +57,7 @@ class DataConverterTest {
         second.setId("2");
         second.name = "updated";
 
-        List<TestEntity> entities = converter.toEntityList(List.of(first, second));
+        List<TestEntity> entities = dataMapper.toEntityList(List.of(first, second));
 
         assertEquals(List.of("1", "2"), entities.stream().map(e -> e.getId().value()).toList());
         assertEquals(List.of("created", "updated"), entities.stream().map(e -> e.name).toList());
@@ -65,15 +65,15 @@ class DataConverterTest {
 
     @Test
     void shouldTreatNullAndEmptyCollectionsAsEmptyLists() {
-        assertTrue(converter.toDataList(null).isEmpty());
-        assertTrue(converter.toDataList(List.of()).isEmpty());
-        assertTrue(converter.toEntityList(null).isEmpty());
-        assertTrue(converter.toEntityList(List.of()).isEmpty());
+        assertTrue(dataMapper.toDataList(null).isEmpty());
+        assertTrue(dataMapper.toDataList(List.of()).isEmpty());
+        assertTrue(dataMapper.toEntityList(null).isEmpty());
+        assertTrue(dataMapper.toEntityList(List.of()).isEmpty());
     }
 
     @Test
     void publicPersistenceAbstractionsShouldUseJavaStyleTypeParameterNames() {
-        assertThat(typeParameterNames(DataConverter.class)).containsExactly("T", "ID", "D", "K");
+        assertThat(typeParameterNames(DataMapper.class)).containsExactly("T", "ID", "D", "K");
         assertThat(typeParameterNames(AbstractAggregateRepository.class)).containsExactly("T", "ID");
     }
 

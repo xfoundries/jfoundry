@@ -15,6 +15,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -34,6 +35,13 @@ class JpaAggregateRepositoryIntegrationTest {
     @AfterAll
     static void closeEntityManagerFactory() {
         entityManagerFactory.close();
+    }
+
+    @Test
+    void persistenceContextAwarenessShouldRemainProxyable() throws NoSuchMethodException {
+        assertThat(Modifier.isFinal(JpaAggregateRepository.class
+                .getMethod("setAggregatePersistenceContext", AggregatePersistenceContext.class)
+                .getModifiers())).isFalse();
     }
 
     @Test
@@ -115,6 +123,20 @@ class JpaAggregateRepositoryIntegrationTest {
         entityManager.close();
     }
 
+    @Test
+    void failsClearlyWhenPersistenceContextWasNotInjected() {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        TestRepository repository = new TestRepository(entityManager, new TestOrderMapper());
+        entityManager.getTransaction().begin();
+
+        assertThatThrownBy(() -> repository.add(TestOrder.create("JPA-NO-CONTEXT")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("AggregatePersistenceContext");
+
+        entityManager.getTransaction().rollback();
+        entityManager.close();
+    }
+
     private static void seed(String id) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -124,7 +146,9 @@ class JpaAggregateRepositoryIntegrationTest {
     }
 
     private static TestRepository repository(EntityManager entityManager, TestOrderMapper mapper) {
-        return new TestRepository(entityManager, mapper, new TestPersistenceContext());
+        TestRepository repository = new TestRepository(entityManager, mapper);
+        repository.setAggregatePersistenceContext(new TestPersistenceContext());
+        return repository;
     }
 
     private static final class TestRepository extends
@@ -132,9 +156,8 @@ class JpaAggregateRepositoryIntegrationTest {
 
         private TestRepository(
                 EntityManager entityManager,
-                TestOrderMapper mapper,
-                AggregatePersistenceContext persistenceContext) {
-            super(entityManager, TestOrderEntity.class, mapper, persistenceContext);
+                TestOrderMapper mapper) {
+            super(entityManager, TestOrderEntity.class, mapper);
         }
     }
 

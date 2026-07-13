@@ -73,5 +73,5 @@ wires the application.
 - [Repository and Read-side Ports](../modeling/repository-vs-read-ports.md)
 - [Application Transactions](application-transactions.md)
 - [Distributed Locks](distributed-locks.md)
-- [Persistence DataConverter and MapStruct](persistence-data-converters.md)
+- [Persistence DataMapper and MapStruct](persistence-data-mappers.md)
 - [Transactional Outbox and Inbox](transactional-outbox.md)

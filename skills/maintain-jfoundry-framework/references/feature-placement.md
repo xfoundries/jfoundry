@@ -35,6 +35,9 @@ Use this file before adding modules, classes, annotations, rules, adapters, star
 ## Decision Rules
 
 - If the code defines an abstraction used by multiple runtimes, keep it framework-neutral.
+- Keep persistence-context state and awareness contracts in `jfoundry-persistence-core`; place
+  transaction-scoped implementations in runtime adapters and bean-lifecycle injection in Spring
+  Boot auto-configuration. Business repository constructors should not expose runtime context.
 - If the code uses Spring transaction synchronization, `ApplicationEventPublisher`, scheduling, MVC APIs, or bean lifecycle, put it under `jfoundry-spring/jfoundry-spring-runtime`.
 - If the code registers Spring Boot beans conditionally or binds `@ConfigurationProperties`, put it in `jfoundry-spring/jfoundry-spring-boot-autoconfigure`.
 - If an auto-configuration condition depends on a bean created by another auto-configuration, declare the ordering explicitly and test the real upstream auto-configuration chain instead of only pre-registering the bean in a context runner.

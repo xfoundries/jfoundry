@@ -5,6 +5,7 @@ import org.jfoundry.infrastructure.persistence.AbstractAggregateRepository;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,6 +18,14 @@ class MybatisPlusAggregateRepositoryApiTest {
                 .noneMatch(parameterTypes -> parameterTypes.contains(DomainEventContext.class));
         assertThat(MybatisPlusAggregateRepository.class.getSuperclass())
                 .isEqualTo(AbstractAggregateRepository.class);
+    }
+
+    @Test
+    void persistenceContextAwarenessShouldRemainProxyable() throws NoSuchMethodException {
+        assertThat(Modifier.isFinal(MybatisPlusAggregateRepository.class
+                .getMethod("setAggregatePersistenceContext",
+                        org.jfoundry.infrastructure.persistence.AggregatePersistenceContext.class)
+                .getModifiers())).isFalse();
     }
 
     private static List<List<Class<?>>> constructorParameterTypes(Class<?> type) {
