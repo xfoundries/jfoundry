@@ -11,6 +11,7 @@ import org.jfoundry.infrastructure.messaging.jackson.JacksonPayloadSerializer;
 import org.jfoundry.infrastructure.outbox.spring.externalization.DefaultDomainEventOutboxRecorder;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -37,7 +38,9 @@ import org.springframework.context.annotation.Bean;
 /// applications record an explicitly translated integration event without exposing the internal
 /// domain event as the broker contract.
 @AutoConfiguration
-@AutoConfigureAfter(name = "org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration")
+@AutoConfigureAfter(
+        value = JacksonAutoConfiguration.class,
+        name = "org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration")
 @ConditionalOnClass({PayloadSerializer.class, JacksonPayloadSerializer.class, OutboxMessageStore.class, DefaultDomainEventOutboxRecorder.class})
 public class DomainEventOutboxRecorderAutoConfiguration {
 

@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
 import org.springframework.aop.Advisor;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -49,5 +51,15 @@ class DistributedLockAutoConfigurationTest {
                     assertThat(context).doesNotHaveBean(DistributedLockInterceptor.class);
                     assertThat(context).doesNotHaveBean("distributedLockAdvisor");
                 });
+    }
+
+    @Test
+    void runsAfterRedissonCreatesItsClient() {
+        AutoConfigureAfter ordering = AnnotatedElementUtils.findMergedAnnotation(
+                DistributedLockAutoConfiguration.class, AutoConfigureAfter.class);
+
+        assertThat(ordering).isNotNull();
+        assertThat(ordering.name())
+                .contains("org.redisson.spring.starter.RedissonAutoConfigurationV2");
     }
 }

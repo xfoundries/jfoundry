@@ -13,6 +13,7 @@ import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -26,6 +27,7 @@ import org.springframework.core.Ordered;
  * Auto-configuration for distributed lock support.
  */
 @AutoConfiguration
+@AutoConfigureAfter(name = "org.redisson.spring.starter.RedissonAutoConfigurationV2")
 @ConditionalOnClass({DistributedLockClient.class, LockTemplate.class})
 public class DistributedLockAutoConfiguration {
 
