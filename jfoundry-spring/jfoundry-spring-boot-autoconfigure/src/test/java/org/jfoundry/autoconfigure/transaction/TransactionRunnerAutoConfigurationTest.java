@@ -1,6 +1,7 @@
 package org.jfoundry.autoconfigure.transaction;
 
 import org.jfoundry.application.transaction.TransactionRunner;
+import org.jfoundry.autoconfigure.aop.JFoundryAopAutoConfiguration;
 import org.jfoundry.infrastructure.transaction.spring.ApplicationTransactionalInterceptor;
 import org.jfoundry.infrastructure.transaction.spring.SpringTransactionRunner;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ class TransactionRunnerAutoConfigurationTest {
 
     private final ApplicationContextRunner runner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(
+                    JFoundryAopAutoConfiguration.class,
                     TransactionRunnerAutoConfiguration.class,
                     ApplicationTransactionalAutoConfiguration.class));
 
@@ -116,6 +118,7 @@ class TransactionRunnerAutoConfigurationTest {
     void createsRunnerAfterBootAutoConfiguresDataSourceTransactionManager() {
         new ApplicationContextRunner()
                 .withConfiguration(AutoConfigurations.of(
+                        JFoundryAopAutoConfiguration.class,
                         TransactionRunnerAutoConfiguration.class,
                         ApplicationTransactionalAutoConfiguration.class,
                         DataSourceAutoConfiguration.class,

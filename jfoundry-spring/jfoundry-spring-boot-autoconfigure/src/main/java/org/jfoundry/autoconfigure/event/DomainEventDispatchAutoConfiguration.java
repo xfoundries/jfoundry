@@ -8,9 +8,7 @@ import org.jfoundry.application.outbox.DomainEventOutboxRecorder;
 import org.jfoundry.infrastructure.event.spring.dispatcher.SpringApplicationEventDispatcher;
 import org.jfoundry.infrastructure.outbox.spring.externalization.OutboxDomainEventDispatcher;
 import org.springframework.aop.Advisor;
-import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
-import org.springframework.aop.framework.autoproxy.InfrastructureAdvisorAutoProxyCreator;
-import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -77,18 +75,11 @@ public class DomainEventDispatchAutoConfiguration {
         @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
         @ConditionalOnBean(DomainEventDispatchInterceptor.class)
         @ConditionalOnMissingBean(name = "domainEventDispatchAdvisor")
-        public Advisor domainEventDispatchAdvisor(DomainEventDispatchInterceptor interceptor) {
-            return new DefaultPointcutAdvisor(new AnnotationMatchingPointcut(ApplicationService.class, true), interceptor);
-        }
-
-        @Bean
-        @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-        @ConditionalOnBean(name = "domainEventDispatchAdvisor")
-        @ConditionalOnMissingBean(AbstractAutoProxyCreator.class)
-        public static InfrastructureAdvisorAutoProxyCreator domainEventDispatchAutoProxyCreator() {
-            InfrastructureAdvisorAutoProxyCreator creator = new InfrastructureAdvisorAutoProxyCreator();
-            creator.setProxyTargetClass(true);
-            return creator;
+        public static Advisor domainEventDispatchAdvisor() {
+            DefaultBeanFactoryPointcutAdvisor advisor = new DefaultBeanFactoryPointcutAdvisor();
+            advisor.setPointcut(new AnnotationMatchingPointcut(ApplicationService.class, true));
+            advisor.setAdviceBeanName("domainEventDispatchInterceptor");
+            return advisor;
         }
     }
 

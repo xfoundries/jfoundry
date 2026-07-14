@@ -1,3 +1,4 @@
+org.jfoundry.autoconfigure.aop.JFoundryAopAutoConfiguration
 org.jfoundry.autoconfigure.event.DomainEventPersistenceAutoConfiguration
 org.jfoundry.autoconfigure.persistence.PersistenceFailureAutoConfiguration
 org.jfoundry.autoconfigure.persistence.AggregatePersistenceContextAutoConfiguration

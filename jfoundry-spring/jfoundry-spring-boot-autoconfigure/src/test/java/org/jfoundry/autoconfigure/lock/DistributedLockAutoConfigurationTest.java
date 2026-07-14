@@ -3,6 +3,7 @@ package org.jfoundry.autoconfigure.lock;
 import org.jfoundry.application.lock.DistributedLockClient;
 import org.jfoundry.application.lock.LockHandle;
 import org.jfoundry.application.lock.LockTemplate;
+import org.jfoundry.autoconfigure.aop.JFoundryAopAutoConfiguration;
 import org.jfoundry.infrastructure.lock.redisson.RedissonDistributedLockClient;
 import org.jfoundry.infrastructure.lock.spring.DistributedLockInterceptor;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,9 @@ import static org.mockito.Mockito.mock;
 class DistributedLockAutoConfigurationTest {
 
     private final ApplicationContextRunner runner = new ApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(DistributedLockAutoConfiguration.class));
+            .withConfiguration(AutoConfigurations.of(
+                    JFoundryAopAutoConfiguration.class,
+                    DistributedLockAutoConfiguration.class));
 
     @Test
     void registersTemplateAndAdvisorWhenLockClientExists() {

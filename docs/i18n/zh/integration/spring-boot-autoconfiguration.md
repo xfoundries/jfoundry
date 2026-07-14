@@ -52,6 +52,7 @@
 
 | 自动配置 | 注册 Bean | 主要条件 |
 |----------|-----------|----------|
+| `JFoundryAopAutoConfiguration` | Spring 规范的内部 auto-proxy creator | Spring AOP 可用。事务、领域事件和分布式锁 advisor 共用一个 auto-proxy creator，并延迟解析各自的 interceptor。 |
 | `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner` | 存在 `TransactionRunner` 与 `TransactionTemplate`，Spring Boot 已配置 `PlatformTransactionManager`，且没有已有 `TransactionRunner`。 |
 | `ApplicationTransactionalAutoConfiguration` | `@ApplicationTransactional` interceptor 与 advisor | 存在 `TransactionRunner` Bean 且开启注解支持。该配置在 `TransactionRunnerAutoConfiguration` 之后运行，因此自动配置或用户自定义的 runner 均可使用。 |
 | `DistributedLockAutoConfiguration` | `LockTemplate`、可选 Redisson `DistributedLockClient`、可选 `@DistributedLock` advisor | 存在 `jfoundry-lock-core`。Redisson adapter 需要 `RedissonClient`；注解 advisor 需要 `DistributedLockClient` 且开启注解支持。 |
@@ -80,6 +81,8 @@
 - 默认 Jackson payload serializer 会输出 ISO-8601 时间和普通 JSON 值，不会开启 Jackson
   default typing，也不会在集成 payload 中暴露 Java 类名。
 - `TransactionRunnerAutoConfiguration` 在 Spring Boot 事务自动配置之后运行，确保其 Bean 条件评估前已经可以看到 JDBC、JPA 或 JTA 事务管理器。
+- jfoundry 通过 Spring 规范的 auto-proxy creator 注册各类 advisor。其他 Spring 集成已经注册更强的
+  creator 时，Spring 的标准升级协议会保留该 creator；业务应用无需注册 jfoundry 专用 proxy creator。
 - 分布式锁是显式能力。默认 Spring Boot starter 不会引入 Redisson。
 - MyBatis-Plus starter 会引入可选的 `jfoundry-persistence-spring` 运行时 Adapter。其默认 translator 只处理已知的可用性故障；用户自定义的 `PersistenceFailureTranslator` Bean 优先。
 - `mode=none` 表示不注册 dispatcher、recovery job 或 cleanup job，即使显式开启 recovery 或 cleanup 也不会注册。

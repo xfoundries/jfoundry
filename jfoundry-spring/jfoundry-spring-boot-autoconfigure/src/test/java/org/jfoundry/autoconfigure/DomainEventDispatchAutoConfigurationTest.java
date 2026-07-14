@@ -7,6 +7,7 @@ import org.jfoundry.application.outbox.DomainEventOutboxRecorder;
 import org.jfoundry.domain.entity.agg.BaseAggregateRoot;
 import org.jfoundry.domain.event.EventRecordable;
 import org.jfoundry.autoconfigure.event.DomainEventDispatchAutoConfiguration;
+import org.jfoundry.autoconfigure.aop.JFoundryAopAutoConfiguration;
 import org.jfoundry.autoconfigure.event.DomainEventDispatchInterceptor;
 import org.jfoundry.autoconfigure.event.DomainEventPersistenceAutoConfiguration;
 import org.jfoundry.autoconfigure.event.DomainEventScope;
@@ -37,6 +38,7 @@ class DomainEventDispatchAutoConfigurationTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(
+                    JFoundryAopAutoConfiguration.class,
                     DomainEventPersistenceAutoConfiguration.class,
                     DomainEventDispatchAutoConfiguration.class))
             .withBean(ApplicationEventPublisher.class, () -> event -> {

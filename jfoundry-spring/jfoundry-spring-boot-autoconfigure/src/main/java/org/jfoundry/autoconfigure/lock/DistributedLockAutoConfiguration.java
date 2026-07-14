@@ -7,9 +7,7 @@ import org.jfoundry.infrastructure.lock.redisson.RedissonDistributedLockClient;
 import org.jfoundry.infrastructure.lock.spring.DistributedLockInterceptor;
 import org.redisson.api.RedissonClient;
 import org.springframework.aop.Advisor;
-import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
-import org.springframework.aop.framework.autoproxy.InfrastructureAdvisorAutoProxyCreator;
-import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -67,21 +65,12 @@ public class DistributedLockAutoConfiguration {
         @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
         @ConditionalOnBean(DistributedLockInterceptor.class)
         @ConditionalOnMissingBean(name = "distributedLockAdvisor")
-        public Advisor distributedLockAdvisor(DistributedLockInterceptor interceptor) {
-            DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(
-                    AnnotationMatchingPointcut.forMethodAnnotation(DistributedLock.class), interceptor);
+        public static Advisor distributedLockAdvisor() {
+            DefaultBeanFactoryPointcutAdvisor advisor = new DefaultBeanFactoryPointcutAdvisor();
+            advisor.setPointcut(AnnotationMatchingPointcut.forMethodAnnotation(DistributedLock.class));
+            advisor.setAdviceBeanName("distributedLockInterceptor");
             advisor.setOrder(Ordered.LOWEST_PRECEDENCE - 200);
             return advisor;
-        }
-
-        @Bean
-        @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-        @ConditionalOnBean(name = "distributedLockAdvisor")
-        @ConditionalOnMissingBean(AbstractAutoProxyCreator.class)
-        public static InfrastructureAdvisorAutoProxyCreator distributedLockAutoProxyCreator() {
-            InfrastructureAdvisorAutoProxyCreator creator = new InfrastructureAdvisorAutoProxyCreator();
-            creator.setProxyTargetClass(true);
-            return creator;
         }
     }
 }

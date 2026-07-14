@@ -4,10 +4,8 @@ import org.jfoundry.application.transaction.ApplicationTransactional;
 import org.jfoundry.application.transaction.TransactionRunner;
 import org.jfoundry.infrastructure.transaction.spring.ApplicationTransactionalInterceptor;
 import org.springframework.aop.Advisor;
-import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
-import org.springframework.aop.framework.autoproxy.InfrastructureAdvisorAutoProxyCreator;
 import org.springframework.aop.support.ComposablePointcut;
-import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -38,21 +36,14 @@ public class ApplicationTransactionalAutoConfiguration {
     @Bean
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     @ConditionalOnMissingBean(name = "applicationTransactionalAdvisor")
-    Advisor applicationTransactionalAdvisor(ApplicationTransactionalInterceptor interceptor) {
+    static Advisor applicationTransactionalAdvisor() {
         ComposablePointcut pointcut = new ComposablePointcut(
                 new AnnotationMatchingPointcut(ApplicationTransactional.class, true));
         pointcut.union(AnnotationMatchingPointcut.forMethodAnnotation(ApplicationTransactional.class));
-        DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut, interceptor);
+        DefaultBeanFactoryPointcutAdvisor advisor = new DefaultBeanFactoryPointcutAdvisor();
+        advisor.setPointcut(pointcut);
+        advisor.setAdviceBeanName("applicationTransactionalInterceptor");
         advisor.setOrder(Ordered.LOWEST_PRECEDENCE - 100);
         return advisor;
-    }
-
-    @Bean
-    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    @ConditionalOnMissingBean(AbstractAutoProxyCreator.class)
-    static InfrastructureAdvisorAutoProxyCreator applicationTransactionalAutoProxyCreator() {
-        InfrastructureAdvisorAutoProxyCreator creator = new InfrastructureAdvisorAutoProxyCreator();
-        creator.setProxyTargetClass(true);
-        return creator;
     }
 }

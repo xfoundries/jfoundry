@@ -53,6 +53,7 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 
 | Auto-configuration | Registers | Main conditions |
 |--------------------|-----------|-----------------|
+| `JFoundryAopAutoConfiguration` | Spring's canonical internal auto-proxy creator | Spring AOP is available. It coordinates the transaction, domain-event, and distributed-lock advisors through one auto-proxy creator and lazily resolves their interceptors. |
 | `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner` | `TransactionRunner` and `TransactionTemplate` are available, Spring Boot has configured a `PlatformTransactionManager`, and no existing `TransactionRunner` exists. |
 | `ApplicationTransactionalAutoConfiguration` | `@ApplicationTransactional` interceptor and advisor | A `TransactionRunner` bean exists and annotation support is enabled. It runs after `TransactionRunnerAutoConfiguration`, so either an auto-configured or user-defined runner can be used. |
 | `DistributedLockAutoConfiguration` | `LockTemplate`, optional Redisson `DistributedLockClient`, optional `@DistributedLock` advisor | `jfoundry-lock-core` is present. Redisson adapter requires `RedissonClient`; annotation advisor requires `DistributedLockClient` and annotation support enabled. |
@@ -83,6 +84,9 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
   does not enable Jackson default typing or expose Java class names in integration payloads.
 - `TransactionRunnerAutoConfiguration` runs after Spring Boot transaction auto-configuration so
   JDBC, JPA, or JTA transaction managers are visible before its bean conditions are evaluated.
+- jfoundry registers its advisors through Spring's canonical auto-proxy creator. A more capable
+  creator already registered by another Spring integration is preserved through Spring's standard
+  escalation protocol; applications do not need a jfoundry-specific proxy creator.
 - Distributed lock support is explicit. The default Spring Boot starter does not pull Redisson.
 - The MyBatis-Plus starter includes the optional `jfoundry-persistence-spring` runtime adapter. Its
   default translator handles only known availability failures; a user-defined
