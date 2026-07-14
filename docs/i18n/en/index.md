@@ -18,6 +18,7 @@ maintainer work.
 ## Technical Integration
 
 - [Getting Started for Business Projects](integration/getting-started-for-business-projects.md)
+- [Adoption Readiness and Validated Scope](integration/adoption-readiness.md)
 - [Spring Boot Auto-configuration](integration/spring-boot-autoconfiguration.md)
 - [Application Transactions](integration/application-transactions.md)
 - [Distributed Locks](integration/distributed-locks.md)

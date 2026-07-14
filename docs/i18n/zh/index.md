@@ -16,6 +16,7 @@
 ## 技术集成
 
 - [业务项目接入指南](integration/getting-started-for-business-projects.md)
+- [采用就绪度与已验证范围](integration/adoption-readiness.md)
 - [Spring Boot 自动配置总览](integration/spring-boot-autoconfiguration.md)
 - [应用事务](integration/application-transactions.md)
 - [分布式锁](integration/distributed-locks.md)
