@@ -22,6 +22,21 @@ class ArchitectureStyleRulesTest {
     }
 
     @Test
+    void requiresHexagonalArchitectureToBeDeclared() {
+        assertStyleDeclarationRequired(ArchitectureStyleRules.hexagonal_must_be_declared);
+    }
+
+    @Test
+    void requiresOnionSimpleArchitectureToBeDeclared() {
+        assertStyleDeclarationRequired(ArchitectureStyleRules.onion_simple_must_be_declared);
+    }
+
+    @Test
+    void requiresOnionClassicalArchitectureToBeDeclared() {
+        assertStyleDeclarationRequired(ArchitectureStyleRules.onion_classical_must_be_declared);
+    }
+
+    @Test
     void allowsHexagonalWithoutOnion() {
         JavaClasses classes = importer.importPackages("org.jfoundry.test.archunit.fixture.hexagonal");
 
@@ -49,5 +64,12 @@ class ArchitectureStyleRulesTest {
 
         assertThatThrownBy(() -> rule.check(classes))
                 .hasMessageContaining("Hexagonal and Onion architecture styles must not be mixed");
+    }
+
+    private void assertStyleDeclarationRequired(ArchRule rule) {
+        JavaClasses classes = importer.importPackages("com.example.jfoundryfixture");
+
+        assertThatThrownBy(() -> rule.check(classes))
+                .hasMessageContaining("must be declared");
     }
 }

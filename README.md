@@ -188,6 +188,10 @@ Aggregate repositories keep their DDD identity across styles. A Hexagonal projec
 mark one as a `@SecondaryPort` without moving it out of `domain.repository`; an Onion project keeps
 the contract in an inner ring and its implementation in the infrastructure ring.
 
+Onion does not define Primary/Secondary Port or Adapter roles or class-name suffixes. Prefer DDD
+ubiquitous language and actual responsibilities. `Reader`, `Store`, `Finder`, and `Provider` can be
+useful Java project conventions, but they are not official DDD, Onion, or jfoundry patterns.
+
 ## Reliable Event Externalization
 
 Domain events can stay in-process, or they can be externalized reliably through Outbox:
@@ -219,7 +223,7 @@ Outbox is optional. Enable it only when events need cross-process delivery, retr
 
 - [Documentation Index](docs/i18n/en/index.md)
 - Framework semantics: [Architecture Styles](docs/i18n/en/framework/architecture-styles.md), [ArchUnit Rules](docs/i18n/en/framework/archunit-rules.md), [Framework Boundaries](docs/i18n/en/framework/framework-boundaries.md)
-- Modeling conventions: [Value Objects](docs/i18n/en/modeling/value-object.md), [Repository and Read-side Ports](docs/i18n/en/modeling/repository-vs-read-ports.md)
+- Modeling conventions: [Value Objects](docs/i18n/en/modeling/value-object.md), [Repository and Read-side Contracts](docs/i18n/en/modeling/repository-vs-read-contracts.md)
 - Technical integration: [Getting Started](docs/i18n/en/integration/getting-started-for-business-projects.md), [Adoption Readiness](docs/i18n/en/integration/adoption-readiness.md), [Persistence DataMapper](docs/i18n/en/integration/persistence-data-mappers.md), [Transactional Outbox and Inbox](docs/i18n/en/integration/transactional-outbox.md)
 
 ## Build

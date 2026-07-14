@@ -56,15 +56,6 @@ class CqrsRulesTest {
     }
 
     @Test
-    void secondarySideMustNotDependOnCqrsStereotypes() {
-        assertThatThrownBy(() -> CqrsRules.secondary_side_must_not_depend_on_cqrs_stereotypes
-                .check(IMPORTER.importPackages(
-                        "org.jfoundry.test.archunit.fixture.cqrs.invalid.secondary",
-                        "org.jfoundry.test.archunit.fixture.cqrs.valid.query")))
-                .isInstanceOf(AssertionError.class);
-    }
-
-    @Test
     void commandHandlersMustResideInApplicationPackages() {
         assertThatThrownBy(() -> CqrsRules.command_handlers_must_reside_in_application_packages
                 .check(IMPORTER.importPackages("org.jfoundry.test.archunit.fixture.cqrs.invalid.adapter")))

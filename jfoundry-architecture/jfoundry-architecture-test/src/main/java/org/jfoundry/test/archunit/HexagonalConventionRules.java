@@ -9,6 +9,8 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import org.jmolecules.architecture.cqrs.Command;
+import org.jmolecules.architecture.cqrs.QueryModel;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
@@ -159,6 +161,17 @@ public final class HexagonalConventionRules {
                     .allowEmptyShould(true)
                     .because("secondary adapters should fulfill secondary-port or DDD-repository contracts");
 
+    /// Secondary ports and adapters should not expose CQRS command/query entry models.
+    @ArchTest
+    public static final ArchRule secondary_side_must_not_depend_on_cqrs_stereotypes =
+            noClasses()
+                    .that(areHexagonalSecondaryPorts())
+                    .or(areHexagonalSecondaryAdapters())
+                    .or().resideInAnyPackage(OUTBOUND_PORT_PACKAGES)
+                    .should().dependOnClassesThat(areCqrsStereotypes())
+                    .allowEmptyShould(true)
+                    .because("secondary ports and adapters describe outbound capabilities and should not expose CQRS entry models");
+
     /// Application and domain code must not depend on persistence implementation details.
     @ArchTest
     public static final ArchRule application_and_domain_must_not_depend_on_persistence_details =
@@ -212,6 +225,18 @@ public final class HexagonalConventionRules {
             @Override
             public boolean test(JavaClass input) {
                 return hasAnnotationInClassOrPackage(input, JMOLECULES_SECONDARY_PORT, JFOUNDRY_SECONDARY_PORT);
+            }
+        };
+    }
+
+    private static com.tngtech.archunit.base.DescribedPredicate<JavaClass> areCqrsStereotypes() {
+        return new com.tngtech.archunit.base.DescribedPredicate<>("are CQRS command or query model stereotypes") {
+            @Override
+            public boolean test(JavaClass input) {
+                return input.isAnnotatedWith(Command.class)
+                        || input.isMetaAnnotatedWith(Command.class)
+                        || input.isAnnotatedWith(QueryModel.class)
+                        || input.isMetaAnnotatedWith(QueryModel.class);
             }
         };
     }

@@ -32,6 +32,10 @@ final class JFoundryRuleSets {
         static final ArchRule jmolecules = JMoleculesArchitectureRules.ensureHexagonal();
 
         @ArchTest
+        static final ArchRule architectureStyleDeclared =
+                ArchitectureStyleRules.hexagonal_must_be_declared;
+
+        @ArchTest
         static final ArchRule noMixedArchitectureStyles =
                 ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed;
     }
@@ -54,6 +58,10 @@ final class JFoundryRuleSets {
         static final ArchRule jmolecules = JMoleculesArchitectureRules.ensureOnionSimple();
 
         @ArchTest
+        static final ArchRule architectureStyleDeclared =
+                ArchitectureStyleRules.onion_simple_must_be_declared;
+
+        @ArchTest
         static final ArchRule noMixedArchitectureStyles =
                 ArchitectureStyleRules.hexagonal_and_onion_must_not_be_mixed;
     }
@@ -65,6 +73,10 @@ final class JFoundryRuleSets {
 
         @ArchTest
         static final ArchRule jmolecules = JMoleculesArchitectureRules.ensureOnionClassical();
+
+        @ArchTest
+        static final ArchRule architectureStyleDeclared =
+                ArchitectureStyleRules.onion_classical_must_be_declared;
 
         @ArchTest
         static final ArchRule noMixedArchitectureStyles =

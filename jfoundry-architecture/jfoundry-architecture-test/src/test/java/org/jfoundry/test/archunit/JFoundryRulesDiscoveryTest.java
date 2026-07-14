@@ -8,15 +8,6 @@ import com.tngtech.archunit.junit.ArchTests;
 class JFoundryRulesDiscoveryTest {
 
     @ArchTest
-    static final ArchTests architecture = JFoundryRules.hexagonalStrict();
-
-    @ArchTest
-    static final ArchTests onionSimple = JFoundryRules.onionSimple();
-
-    @ArchTest
-    static final ArchTests onionClassical = JFoundryRules.onionClassical();
-
-    @ArchTest
     static final ArchTests cqrs = JFoundryRules.cqrs();
 
     @ArchTest

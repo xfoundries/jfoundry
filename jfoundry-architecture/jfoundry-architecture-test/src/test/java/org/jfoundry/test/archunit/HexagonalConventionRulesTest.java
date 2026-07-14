@@ -94,6 +94,15 @@ class HexagonalConventionRulesTest {
     }
 
     @Test
+    void secondarySideMustNotDependOnCqrsStereotypes() {
+        assertThatThrownBy(() -> HexagonalConventionRules.secondary_side_must_not_depend_on_cqrs_stereotypes
+                .check(IMPORTER.importPackages(
+                        "org.jfoundry.test.archunit.fixture.cqrs.invalid.secondary",
+                        "org.jfoundry.test.archunit.fixture.cqrs.valid.query")))
+                .isInstanceOf(AssertionError.class);
+    }
+
+    @Test
     void applicationAndDomainMustNotDependOnPersistenceDetails() {
         assertThatThrownBy(() -> HexagonalConventionRules.application_and_domain_must_not_depend_on_persistence_details
                 .check(IMPORTER.importPackages("org.jfoundry.test.archunit.fixture.hexagonalconventions.invalid.persistenceleak")))

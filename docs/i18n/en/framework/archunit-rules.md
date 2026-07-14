@@ -30,9 +30,15 @@ rule without treating an `ArchRule[]` array as a single rule.
 |-------|---------|
 | `PersistenceRules` | Keep persistence implementations free of transaction boundary leakage and component scanning shortcuts. |
 | `ValueObjectRules` | Require value objects to be immutable and to provide value semantics. |
-| `ArchitectureStyleRules` | Prevent Hexagonal and Onion primary styles from being mixed in the same analysis scope. |
+| `ArchitectureStyleRules` | Require the selected primary style to be declared and prevent Hexagonal and Onion from being mixed in the same analysis scope. |
 | `FrameworkModuleRules` | Guard jfoundry's own module ring annotations and wrapper annotation usage. |
 | `AggregateRepositoryConventionRules` | Optional guardrails for jMolecules `Repository` and jfoundry `AggregateRepository` interfaces that expose query wrappers, paging APIs, or persistence service/mapper APIs. |
+| `CqrsRules` | Optional architecture-neutral placement and dependency rules for CQRS commands, query models, handlers, and dispatchers. |
+| `HexagonalConventionRules` | Hexagonal-only port, adapter, package, persistence-isolation, and secondary-side CQRS boundary conventions. |
+
+`CqrsRules` does not import Hexagonal Port or Adapter roles. The rule that prevents secondary ports
+and adapters from exposing CQRS entry models belongs to `HexagonalConventionRules`; Onion projects
+use their ring rules plus the architecture-neutral CQRS rules without inventing Hexagonal roles.
 
 ## Entry Points
 
@@ -45,6 +51,10 @@ rule without treating an `ArchRule[]` array as a single rule.
 | `JFoundryRules.onionClassical()` | Onion Classical project baseline. |
 | `JFoundryRules.aggregateRepositoryConventions()` | Optional repository API hardening. |
 | `JFoundryRules.jmoleculesDdd()` | Selected official jMolecules DDD rules. |
+
+The Hexagonal, Onion Simple, and Onion Classical primary entrypoints fail when the analyzed scope
+contains no matching architecture annotation. This is a fail-fast guard against a vacuous pass; it
+requires at least one selected-style marker, not every possible role or ring in a partial scope.
 
 ## Maven Dependency
 

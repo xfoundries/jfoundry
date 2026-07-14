@@ -38,7 +38,7 @@ Onion 角色语义：
 | 风格 | 注解 | 含义 | 常见位置 | 示例 |
 |------|------|------|----------|------|
 | Onion Simple | `@DomainRing` | 领域核心，承载业务概念和不变量 | `domain` | 聚合、实体、值对象、领域事件、领域服务、仓储契约 |
-| Onion Simple | `@ApplicationRing` | 应用层，编排用例并协调领域模型和出站端口 | `application` | 应用服务、命令处理、查询入口、事务边界附近的流程编排 |
+| Onion Simple | `@ApplicationRing` | 应用层，编排用例并协调领域模型和应用所需的依赖契约 | `application` | 应用服务、命令处理、查询入口、事务边界附近的流程编排 |
 | Onion Simple | `@InfrastructureRing` | 外圈基础设施，依赖内圈并实现技术细节 | `infrastructure`、`adapter` | 持久化实现、消息实现、外部 API client、运行时配置 |
 | Onion Classical | `@DomainModelRing` | 更细分的领域模型核心 | `domain.model` | 聚合、实体、值对象、领域事件 |
 | Onion Classical | `@DomainServiceRing` | 领域服务环 | `domain.service` | 跨聚合且属于领域语义的服务 |
@@ -48,6 +48,12 @@ Onion 角色语义：
 普通新项目如果选择 Onion，优先使用 Onion Simple；只有团队明确需要区分 domain model、domain service、application service 等更细 ring 语义时，再使用 Onion Classical。无论 Simple 还是 Classical，依赖方向都应指向领域核心，Spring Boot auto-configuration 仍只负责装配，不作为 Onion ring 参与建模。
 
 在 Onion 中，同一个聚合 Repository 是内环定义的 DDD 契约，由 `@InfrastructureRing` 类型实现。这是 Onion 对依赖倒置的表达；不要为了表达同一关系而在 Onion 分析范围内混入 Hexagonal 注解。
+
+Onion Architecture 没有 Primary/Secondary Port 或 Adapter 角色体系，也没有规定 `*Port`、
+`*Adapter`、`*UseCase` 类名后缀。领域类型应优先使用通用语言，应用层契约应按实际职责命名。
+`Reader`、`Store`、`Finder`、`Provider` 等名称可以是清晰的 Java 项目约定，但它们不是 DDD
+或 Onion 的官方模式，JFoundry 也不强制使用。基础设施实现可以在确有辨识价值时增加
+`Mybatis`、`Kafka` 等技术名称。
 
 ![onion-architecture.png](../../assets/onion-architecture.png)
 
@@ -97,7 +103,7 @@ class ArchitectureTest {
 }
 ```
 
-`JFoundryRules.onionSimple()` 和 `JFoundryRules.onionClassical()` 分别给出基础守护规则 + 单一主架构风格入口，并附带 Hexagonal/Onion 互斥规则。`JFoundryRules.hexagonalStrict()` 是 Hexagonal 项目的推荐入口：它包含 `JFoundryRules.hexagonal()` 的基础 Hexagonal 依赖规则，也包含 JFoundry 对端口、适配器、包名和持久化细节隔离的推荐落地约定。若只需要 jMolecules 原生 Hexagonal 规则，可单独使用 `JFoundryRules.hexagonal()`。
+`JFoundryRules.onionSimple()` 和 `JFoundryRules.onionClassical()` 分别给出基础守护规则 + 单一主架构风格入口，并附带 Hexagonal/Onion 互斥规则。`JFoundryRules.hexagonalStrict()` 是 Hexagonal 项目的推荐入口：它包含 `JFoundryRules.hexagonal()` 的基础 Hexagonal 依赖规则，也包含 JFoundry 对端口、适配器、包名和持久化细节隔离的推荐落地约定。每个主架构入口还会在分析范围内完全没有对应架构注解时直接失败，避免注解驱动规则以空集形式产生假通过；这个守卫只要求所选风格至少被声明一次，不要求局部分析范围必须同时出现所有角色或 Ring。若只需要 jMolecules 原生 Hexagonal 规则，可单独使用 `JFoundryRules.hexagonal()`。
 
 ## 权威参考
 

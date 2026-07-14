@@ -13,7 +13,7 @@ maintainer work.
 ## Modeling Conventions
 
 - [Value Object Guide](modeling/value-object.md)
-- [Repository and Read-side Ports](modeling/repository-vs-read-ports.md)
+- [Repository and Read-side Contracts](modeling/repository-vs-read-contracts.md)
 
 ## Technical Integration
 

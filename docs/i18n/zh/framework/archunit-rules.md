@@ -45,6 +45,9 @@ class CiArchitectureTest {
 
 | 规则 | 作用 |
 |------|------|
+| `hexagonal_must_be_declared` | Hexagonal 主架构入口要求分析范围内至少存在一个 Hexagonal 角色注解 |
+| `onion_simple_must_be_declared` | Onion Simple 主架构入口要求分析范围内至少存在一个 simplified Ring 注解 |
+| `onion_classical_must_be_declared` | Onion Classical 主架构入口要求分析范围内至少存在一个 classical Ring 注解 |
 | `hexagonal_and_onion_must_not_be_mixed` | 同一个 ArchUnit 分析范围内禁止同时使用 Hexagonal 与 Onion 主架构风格 |
 
 ### FrameworkModuleRules
@@ -55,6 +58,13 @@ class CiArchitectureTest {
 | `domain_packages_should_be_onion_domain_ring` | `org.jfoundry.domain..` 必须标注 Onion simplified `DomainRing` |
 | `application_packages_should_be_onion_application_ring` | `org.jfoundry.application..` 必须标注 Onion simplified `ApplicationRing` |
 | `infrastructure_packages_should_be_onion_infrastructure_ring` | `org.jfoundry.infrastructure..` 必须标注 Onion simplified `InfrastructureRing` |
+
+### CqrsRules 与 HexagonalConventionRules
+
+`CqrsRules` 只包含与具体主架构风格无关的 CQRS 命令、查询模型、Handler 和 Dispatcher
+位置及依赖规则，不再导入 Hexagonal 的 Port/Adapter 角色。Secondary Port 与 Secondary
+Adapter 不应暴露 CQRS 入口模型这一规则属于 `HexagonalConventionRules`。因此 Onion 项目
+可以组合 Ring 规则与通用 CQRS 规则，而不需要虚构 Hexagonal 角色。
 
 ### AggregateRepositoryConventionRules
 
@@ -100,6 +110,10 @@ ArchTests hexagonalRules = JFoundryRules.hexagonalStrict();
 - `JFoundryRules.hexagonal()`：基础守护规则 + jMolecules Hexagonal 主风格入口；适合只需要原生 Hexagonal 依赖规则、不需要 JFoundry 包名和类型形态约定的场景。
 - `JFoundryRules.hexagonalConventions()`：只启用 JFoundry Hexagonal 推荐落地约定，可与自定义主架构规则组合使用。
 - `JFoundryRules.noMixedHexagonalAndOnion()`：单独启用 Hexagonal/Onion 互斥规则。
+
+Hexagonal、Onion Simple 和 Onion Classical 主架构入口会在分析范围内完全没有对应架构注解时
+直接失败，避免规则因没有匹配对象而空集通过。该守卫只要求所选风格至少被声明一次，不要求局部
+分析范围必须同时包含所有角色或 Ring。
 
 若只想启用某一类底层规则，请直接使用 `PersistenceRules`、`ValueObjectRules` 或
 `ArchitectureStyleRules` 等具体规则类；`JFoundryRules` 只提供主架构风格入口。

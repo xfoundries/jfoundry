@@ -61,6 +61,13 @@ In Onion, the same aggregate repository is an inner-ring DDD contract implemente
 `@InfrastructureRing` type. This is the Onion expression of dependency inversion; do not add
 Hexagonal annotations to an Onion analysis scope.
 
+Onion Architecture does not define Primary/Secondary Port or Adapter roles and does not prescribe
+`*Port`, `*Adapter`, or `*UseCase` suffixes. Name domain types from the ubiquitous language and name
+application contracts by their actual responsibility. Names such as `Reader`, `Store`, `Finder`, or
+`Provider` are clear Java project conventions when they fit the responsibility; they are not DDD or
+Onion patterns and jfoundry does not require them. Infrastructure implementations may add technology
+names such as `Mybatis` or `Kafka` where that identifies the implementation.
+
 ![onion-architecture.png](../../assets/onion-architecture.png)
 
 ## Rule Entry Points
@@ -76,7 +83,10 @@ class ArchitectureTest {
 
 Use `JFoundryRules.hexagonalStrict()` for Hexagonal projects. Use `JFoundryRules.onionSimple()` or
 `JFoundryRules.onionClassical()` for Onion projects. These entries include baseline guard rules and
-the Hexagonal/Onion mutual-exclusion rule.
+the Hexagonal/Onion mutual-exclusion rule. Each primary-style entrypoint also fails when the
+analyzed scope contains no matching architecture annotation at all. This prevents an annotation-
+driven rule set from passing as an empty no-op. It does not require every possible role or ring to
+appear in a deliberately partial analysis scope.
 
 ## References
 

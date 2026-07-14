@@ -11,7 +11,7 @@
 ## 建模约定
 
 - [值对象规范](modeling/value-object.md)
-- [Repository 与读侧端口迁移指南](modeling/repository-vs-read-ports.md)
+- [Repository 与读侧契约迁移指南](modeling/repository-vs-read-contracts.md)
 
 ## 技术集成
 

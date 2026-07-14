@@ -47,7 +47,7 @@ Prefer current repository documents and code over memory:
 - `../../docs/i18n/en/framework/architecture-styles.md`
 - `../../docs/i18n/en/framework/archunit-rules.md`
 - `../../docs/i18n/en/integration/transactional-outbox.md`
-- `../../docs/i18n/en/modeling/repository-vs-read-ports.md`
+- `../../docs/i18n/en/modeling/repository-vs-read-contracts.md`
 - `docs/release/compatibility.md`
 - `AGENTS.md` for repository-wide language, SQL template, and project skill policy
 - top-level `pom.xml` and module POMs

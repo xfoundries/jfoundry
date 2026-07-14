@@ -1,18 +1,24 @@
-# Repository 与读侧端口迁移指南
+# Repository 与读侧契约迁移指南
 
 本文面向正在从 Active Record、MyBatis-Plus `IService`、通用 Wrapper 或规约模式迁移到 jfoundry 的业务项目，说明什么时候应保留聚合 Repository，什么时候可以考虑拆到读侧端口。
 
-这是一份建模和迁移指南，不要求业务项目为每个查询机械创建接口。`LookupPort`、`ReadModelPort`、`MaintenancePort` 是 jfoundry 推荐的读侧端口分类和命名后缀，不是 DDD、Hexagonal Architecture 或 CQRS 的强制术语。端口应表达真实的架构边界，而不是把一个 Mapper 或 Service 原样包一层。
+这是一份建模和迁移指南，不要求业务项目为每个查询机械创建接口。Lookup、Read Model、
+Maintenance 是职责分类，不是强制后缀。在 Hexagonal 项目中，这些契约可以作为 Secondary
+Port；Onion 没有 Port 角色体系。`Reader`、`Store`、`Finder`、`Provider` 等后缀只是按职责
+命名的 Java 项目约定，不是 DDD、Onion 或 JFoundry 的官方模式。命名应首先来自通用语言，
+不能把 Mapper 或 Service 原样包一层后只改一个后缀。
 
 ## 核心区分
 
 Repository 表示某类聚合的集合。它的核心职责是按标识或业务身份加载聚合、保存聚合、删除聚合，并配合聚合保护业务不变量。
 
-读侧端口表示应用核心对外部读能力的需求。它可以读取数据库、搜索引擎、缓存、远程服务或组合数据源，但这些技术细节由基础设施适配器隐藏。
+读侧契约表示应用核心所需的读取能力。它可以读取数据库、搜索引擎、缓存、远程服务或组合数据源，但这些技术细节由基础设施实现隐藏。
 
-维护端口表示后台扫描、清理、批处理候选选择等技术性或运维性能力。它通常不返回完整聚合，而是返回待处理 ID、时间窗口或轻量候选项。
+维护契约表示后台扫描、清理、批处理候选选择等技术性或运维性能力。它通常不返回完整聚合，而是返回待处理 ID、时间窗口或轻量候选项。
 
-命名不是重点。业务项目可以沿用团队已有的 `QueryPort`、`Finder`、`Gateway`、`Scanner` 等命名，只要职责边界清楚，并且不会让聚合 Repository 退化成通用查询服务。
+业务项目可以沿用团队已有的 `QueryPort`、`Reader`、`Finder`、`Gateway`、`Scanner` 等命名，但
+`QueryPort` 属于 Hexagonal 或项目本地词汇。无论采用哪个后缀，都必须先让业务对象和职责清楚，
+并避免聚合 Repository 退化成通用查询服务。
 
 ## Repository 适用场景
 
@@ -25,9 +31,9 @@ Repository 表示某类聚合的集合。它的核心职责是按标识或业务
 
 Repository 方法应优先表达领域意图，而不是复制 SQL 条件。`findCurrentOperation(...)`、`findRetryableTask(...)` 通常比 `findLatestByEnvIdAndStatusInOrderByCreatedTimeDesc(...)` 更合适。
 
-## LookupPort 适用场景
+## Lookup 契约适用场景
 
-`LookupPort` 适合应用服务为了执行业务流程而准备上下文，但读取结果不承担聚合行为。这是推荐命名；如果项目已有更稳定的 `Finder`、`Resolver` 或 `Gateway` 术语，也可以使用项目内一致的命名。
+Lookup 契约适合应用服务为了执行业务流程而准备上下文，但读取结果不承担聚合行为。优先按所提供的业务事实命名，例如 `AccountContextFinder`；`LookupPort` 只适合明确采用该命名约定的 Hexagonal 项目。
 
 典型场景：
 
@@ -36,11 +42,11 @@ Repository 方法应优先表达领域意图，而不是复制 SQL 条件。`fin
 - 应用服务需要按业务键读取轻量对象，用于权限裁剪、参数转换或流程分支。
 - 一个流程需要跨多个聚合读取数据，但读取结果只是输入资料，不是要被当前用例修改的聚合。
 
-如果采用 `LookupPort` 后缀，命名上可以使用对象名加 `LookupPort`，例如 `EnvLookupPort`、`EnvAppLookupPort`。方法返回值应尽量是轻量 DTO、record 或专门的 lookup 结果，而不是 MyBatis Data 对象。
+方法返回值应尽量是轻量 DTO、record 或专门的 lookup 结果，而不是 MyBatis Data 对象。
 
-## ReadModelPort 适用场景
+## Query 与 Read Model 契约适用场景
 
-`ReadModelPort` 适合查询用例、页面展示、报表、列表、统计和读投影。这类端口也常被项目命名为 `QueryPort`、`ReadPort`、`ReadRepository` 或 `ProjectionPort`。
+Query 或 Read Model 契约适合查询用例、页面展示、报表、列表、统计和读投影。优先按业务视图和职责命名，例如 `ExpenseClaimViewReader`。只有明确采用对应词汇的项目才需要 `QueryPort`、`ReadModelPort` 或 `ProjectionPort` 后缀。
 
 典型场景：
 
@@ -49,11 +55,13 @@ Repository 方法应优先表达领域意图，而不是复制 SQL 条件。`fin
 - 最近操作时间、最新采样值、按条件聚合后的展示数据。
 - 查询结果形状明显不同于写模型聚合。
 
-如果项目使用 CQRS，`@QueryModel` 应优先标记应用入口语义上的查询返回模型。Secondary Port 的返回值可以命名为 `ReadModel`、`Summary` 或 `Projection`，但不需要默认标记为 CQRS QueryModel，避免把入口驱动语义扩散到出口端口。
+如果项目使用 CQRS，`@QueryModel` 应优先标记应用入口语义上的查询返回模型。Hexagonal
+Secondary Port 或 Onion 内环读取契约的返回值可以命名为 `ReadModel`、`Summary` 或
+`Projection`，但不需要默认标记为 CQRS QueryModel，避免把入口语义扩散到出站依赖契约。
 
-## MaintenancePort 适用场景
+## Maintenance 契约适用场景
 
-后台维护类查询通常不应为了复用而塞入聚合 Repository。`MaintenancePort` 是 jfoundry 对这类后台扫描、清理和批处理候选选择能力的推荐命名，不是行业通用标准后缀。
+后台维护类查询通常不应为了复用而塞入聚合 Repository。优先使用 `RetryCandidates`、`ExpiredClaimScanner` 等实际职责名称，而不是统一套用 `MaintenancePort` 后缀。
 
 典型场景：
 
@@ -70,10 +78,10 @@ Repository 方法应优先表达领域意图，而不是复制 SQL 条件。`fin
 1. 这个查询是否为了修改某个聚合？
 2. 如果是，是否可以按聚合 ID 或稳定业务身份加载？
 3. 查询结果是否是完整聚合，且随后会调用聚合行为？
-4. 如果只是为流程准备上下文，优先考虑读侧 lookup 端口，例如 `LookupPort`。
-5. 如果服务页面、列表、报表或统计，优先考虑读模型端口，例如 `ReadModelPort`。
-6. 如果服务后台扫描、清理、批处理候选选择，优先考虑维护端口，例如 `MaintenancePort`。
-7. 如果同一个旧方法同时服务命令和查询，按使用场景拆成两个端口或一个 Repository 方法加一个读侧端口。
+4. 如果只是为流程准备上下文，创建按所提供事实命名的 lookup 契约。
+5. 如果服务页面、列表、报表或统计，创建按业务视图命名的 query/read-model 契约。
+6. 如果服务后台扫描、清理、批处理候选选择，创建按扫描或候选职责命名的维护契约。
+7. 如果同一个旧方法同时服务命令和查询，按使用场景拆成两个契约，或一个 Repository 方法加一个读侧契约。
 
 ## 反例
 
@@ -90,11 +98,13 @@ Repository 方法应优先表达领域意图，而不是复制 SQL 条件。`fin
 
 不是所有非 ID 查询都必须拆出 Repository。业务身份查询、命令流程中的聚合定位、生命周期维护都可以是合理的 Repository 方法。
 
-同样，不是所有只读方法都必须引入 CQRS。查询足够简单时，一个轻量 lookup/read 端口就可以表达应用核心对外部读能力的需求。只有当读模型形状、性能、查询复杂度或演进方向明显不同于写模型时，再引入更明确的 `ReadModelPort` 和查询模型。
+同样，不是所有只读方法都必须引入 CQRS。查询足够简单时，一个轻量 lookup/read 契约就可以表达应用所需的读能力。只有当读模型形状、性能、查询复杂度或演进方向明显不同于写模型时，再引入明确的读模型和查询模型。
 
 ## 渐进采用
 
-简单项目可以先只区分聚合 Repository 和一个通用读侧端口，例如 `OrderQueryPort` 或 `OrderReadPort`。当查询用途开始分化，再按需要拆出 lookup、read model 或 maintenance 端口。
+简单项目可以先只区分聚合 Repository 和一个通用读侧契约，例如 `OrderViews` 或
+`OrderViewReader`。当查询用途开始分化，再按需要拆出 lookup、read model 或 maintenance
+职责。
 
 中等复杂度项目通常值得区分流程上下文读取和页面查询读取。后台任务、补偿、清理、重试较多的项目，再引入维护端口会更清晰。
 
@@ -104,24 +114,24 @@ Repository 方法应优先表达领域意图，而不是复制 SQL 条件。`fin
 
 聚合 Repository 的 DDD 身份独立于所选架构。在 Hexagonal 项目中，它可以同时是 `@SecondaryPort` 并保留在 `domain.repository`；在 Onion 项目中，它是内环定义、由基础设施环实现的契约。不要为了满足某个架构包名约定而复制 Repository 接口。
 
-Hexagonal 项目中推荐的依赖方向示例：
+Hexagonal 项目中可以使用 Port/Adapter 词汇表达以下依赖方向：
 
 ```text
 Primary Adapter
   -> Primary Port / Application Service
       -> AggregateRepository        # 命令侧聚合加载与保存
-      -> LookupPort                 # 流程上下文读取
-      -> ReadModelPort              # 查询模型与展示读取
-      -> MaintenancePort            # 后台扫描与清理候选
+      -> AccountContextFinder       # 流程上下文读取，Secondary Port
+      -> OrderViewReader            # 查询模型与展示读取，Secondary Port
+      -> ExpiredOrderScanner        # 后台扫描与清理候选，Secondary Port
 Infrastructure Adapter
   -> implements Secondary Port
 ```
 
-基础设施适配器可以使用 MyBatis、JPA、SQL、远程 API 或缓存实现这些端口。应用层只依赖端口契约，不依赖具体查询技术。
+基础设施适配器可以使用 MyBatis、JPA、SQL、远程 API 或缓存实现这些端口。Onion 项目可以使用相同的职责名称，但通过内外 Ring 表达依赖方向，不需要 Port/Adapter 后缀。
 
 ## 与 ArchUnit 规则的关系
 
-jfoundry 的架构测试不会强制业务项目使用 `LookupPort`、`ReadModelPort` 或 `MaintenancePort` 这些后缀。
+jfoundry 的架构测试不会强制业务项目使用 `LookupPort`、`ReadModelPort`、`MaintenancePort`、`Reader` 或 `Store` 等后缀。
 
 `JFoundryRules.aggregateRepositoryConventions()` 同时识别直接继承 jMolecules `Repository` 和继承 jfoundry `AggregateRepository` 的接口，只守护聚合 Repository 不泄漏通用查询条件、分页 API、持久化 service 或 mapper 类型。它不会根据方法名或返回值后缀判断某个查询是否必须迁移到某类读侧端口。
 

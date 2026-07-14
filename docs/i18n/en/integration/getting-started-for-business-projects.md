@@ -74,7 +74,7 @@ wires the application.
 
 - [Architecture Styles](../framework/architecture-styles.md)
 - [ArchUnit Architecture Rules](../framework/archunit-rules.md)
-- [Repository and Read-side Ports](../modeling/repository-vs-read-ports.md)
+- [Repository and Read-side Contracts](../modeling/repository-vs-read-contracts.md)
 - [Application Transactions](application-transactions.md)
 - [Distributed Locks](distributed-locks.md)
 - [Persistence DataMapper and MapStruct](persistence-data-mappers.md)

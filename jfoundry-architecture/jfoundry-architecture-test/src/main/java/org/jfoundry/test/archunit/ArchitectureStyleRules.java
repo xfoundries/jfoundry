@@ -81,6 +81,44 @@ public final class ArchitectureStyleRules {
         }
     }
 
+    private static final class ArchitectureStyleMustBeDeclaredCondition extends ArchCondition<JavaClass> {
+
+        private final String architectureStyle;
+
+        private final Class<? extends Annotation>[] annotations;
+
+        private boolean declared;
+
+        ArchitectureStyleMustBeDeclaredCondition(
+                String architectureStyle,
+                Class<? extends Annotation>[] annotations) {
+            super("declare the " + architectureStyle + " architecture style");
+            this.architectureStyle = architectureStyle;
+            this.annotations = annotations;
+        }
+
+        @Override
+        public void init(Collection<JavaClass> allClasses) {
+            declared = false;
+        }
+
+        @Override
+        public void check(JavaClass item, ConditionEvents events) {
+            if (hasArchitectureStyleAnnotation(item, annotations)) {
+                declared = true;
+            }
+        }
+
+        @Override
+        public void finish(ConditionEvents events) {
+            if (!declared) {
+                events.add(SimpleConditionEvent.violated(
+                        this,
+                        architectureStyle + " architecture must be declared with at least one matching annotation"));
+            }
+        }
+    }
+
     private static boolean hasArchitectureStyleAnnotation(
             JavaClass javaClass, Class<? extends Annotation>[] annotations) {
         if (isAnnotatedWithAny(javaClass, annotations)) {
@@ -147,4 +185,50 @@ public final class ArchitectureStyleRules {
             org.jmolecules.architecture.onion.classical.ApplicationServiceRing.class,
             org.jmolecules.architecture.onion.classical.InfrastructureRing.class
     };
+
+    @SuppressWarnings("unchecked")
+    private static final Class<? extends Annotation>[] ONION_SIMPLE_ANNOTATIONS = new Class[]{
+            org.jfoundry.architecture.onion.simplified.DomainRing.class,
+            org.jfoundry.architecture.onion.simplified.ApplicationRing.class,
+            org.jfoundry.architecture.onion.simplified.InfrastructureRing.class,
+            org.jmolecules.architecture.onion.simplified.DomainRing.class,
+            org.jmolecules.architecture.onion.simplified.ApplicationRing.class,
+            org.jmolecules.architecture.onion.simplified.InfrastructureRing.class
+    };
+
+    @SuppressWarnings("unchecked")
+    private static final Class<? extends Annotation>[] ONION_CLASSICAL_ANNOTATIONS = new Class[]{
+            org.jfoundry.architecture.onion.classical.DomainModelRing.class,
+            org.jfoundry.architecture.onion.classical.DomainServiceRing.class,
+            org.jfoundry.architecture.onion.classical.ApplicationServiceRing.class,
+            org.jfoundry.architecture.onion.classical.InfrastructureRing.class,
+            org.jmolecules.architecture.onion.classical.DomainModelRing.class,
+            org.jmolecules.architecture.onion.classical.DomainServiceRing.class,
+            org.jmolecules.architecture.onion.classical.ApplicationServiceRing.class,
+            org.jmolecules.architecture.onion.classical.InfrastructureRing.class
+    };
+
+    /// A Hexagonal rule entrypoint should not pass when the analyzed scope declares no Hexagonal role.
+    @ArchTest
+    public static final ArchRule hexagonal_must_be_declared =
+            classes()
+                    .should(new ArchitectureStyleMustBeDeclaredCondition(
+                            "Hexagonal", HEXAGONAL_ANNOTATIONS))
+                    .allowEmptyShould(true);
+
+    /// An Onion Simple rule entrypoint should not pass when the analyzed scope declares no simplified ring.
+    @ArchTest
+    public static final ArchRule onion_simple_must_be_declared =
+            classes()
+                    .should(new ArchitectureStyleMustBeDeclaredCondition(
+                            "Onion Simple", ONION_SIMPLE_ANNOTATIONS))
+                    .allowEmptyShould(true);
+
+    /// An Onion Classical rule entrypoint should not pass when the analyzed scope declares no classical ring.
+    @ArchTest
+    public static final ArchRule onion_classical_must_be_declared =
+            classes()
+                    .should(new ArchitectureStyleMustBeDeclaredCondition(
+                            "Onion Classical", ONION_CLASSICAL_ANNOTATIONS))
+                    .allowEmptyShould(true);
 }

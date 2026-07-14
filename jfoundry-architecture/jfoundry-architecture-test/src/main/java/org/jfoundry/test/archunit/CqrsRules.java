@@ -10,8 +10,6 @@ import org.jmolecules.architecture.cqrs.Command;
 import org.jmolecules.architecture.cqrs.CommandDispatcher;
 import org.jmolecules.architecture.cqrs.CommandHandler;
 import org.jmolecules.architecture.cqrs.QueryModel;
-import org.jmolecules.architecture.hexagonal.SecondaryAdapter;
-import org.jmolecules.architecture.hexagonal.SecondaryPort;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.members;
@@ -104,23 +102,6 @@ public final class CqrsRules {
                     .allowEmptyShould(true)
                     .because("query models describe query use-case outputs and should stay in primary or application entry packages");
 
-    /// Secondary ports and adapters should not expose CQRS command/query stereotypes.
-    @ArchTest
-    public static final ArchRule secondary_side_must_not_depend_on_cqrs_stereotypes =
-            noClasses()
-                    .that().areAnnotatedWith(SecondaryPort.class)
-                    .or().areMetaAnnotatedWith(SecondaryPort.class)
-                    .or().areAnnotatedWith(SecondaryAdapter.class)
-                    .or().areMetaAnnotatedWith(SecondaryAdapter.class)
-                    .or().resideInAnyPackage(
-                            "..port.out..",
-                            "..ports.out..",
-                            "..port.outbound..",
-                            "..ports.outbound..")
-                    .should().dependOnClassesThat(areCqrsStereotypes())
-                    .allowEmptyShould(true)
-                    .because("secondary ports/adapters describe outbound capabilities and should not expose CQRS entry models");
-
     /// Command handlers orchestrate write use cases from the application layer.
     @ArchTest
     public static final ArchRule command_handlers_must_reside_in_application_packages =
@@ -156,18 +137,6 @@ public final class CqrsRules {
                 events.add(SimpleConditionEvent.violated(item,
                         item.getName() + " resides in " + packageName
                                 + ", but CQRS command/query stereotypes are reserved for primary or application entry semantics"));
-            }
-        };
-    }
-
-    private static com.tngtech.archunit.base.DescribedPredicate<JavaClass> areCqrsStereotypes() {
-        return new com.tngtech.archunit.base.DescribedPredicate<>("are CQRS command or query model stereotypes") {
-            @Override
-            public boolean test(JavaClass input) {
-                return input.isAnnotatedWith(Command.class)
-                        || input.isMetaAnnotatedWith(Command.class)
-                        || input.isAnnotatedWith(QueryModel.class)
-                        || input.isMetaAnnotatedWith(QueryModel.class);
             }
         };
     }
