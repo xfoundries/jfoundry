@@ -6,6 +6,7 @@ import org.jfoundry.application.messaging.SendResult;
 import org.jfoundry.infrastructure.messaging.spring.sender.KafkaMessageSender;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.kafka.core.KafkaOperations;
 
@@ -35,6 +36,21 @@ class KafkaMessageSenderAutoConfigurationTest {
                 .run(context -> {
                     assertThat(context).hasSingleBean(MessageSender.class);
                     assertThat(context).doesNotHaveBean(KafkaMessageSender.class);
+                });
+    }
+
+    @Test
+    void createsKafkaSenderAfterBootCreatesKafkaOperations() {
+        new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(
+                        KafkaAutoConfiguration.class,
+                        KafkaMessageSenderAutoConfiguration.class,
+                        MessageSenderAutoConfiguration.class))
+                .run(context -> {
+                    assertThat(context).hasSingleBean(KafkaOperations.class);
+                    assertThat(context).hasSingleBean(MessageSender.class);
+                    assertThat(context.getBean(MessageSender.class))
+                            .isInstanceOf(KafkaMessageSender.class);
                 });
     }
 

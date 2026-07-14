@@ -1,8 +1,10 @@
 package org.jfoundry.infrastructure.messaging.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,19 +14,20 @@ class JacksonPayloadSerializerTest {
     private final JacksonPayloadSerializer serializer = new JacksonPayloadSerializer(new ObjectMapper());
 
     @Test
-    void serializesInstantFieldsAsIso8601() {
-        SerializerTestEvent event = new SerializerTestEvent();
+    void serializesPortableJsonWithoutJavaTypeMetadata() throws Exception {
+        SerializerTestEvent event = new SerializerTestEvent(
+                Instant.parse("2026-06-18T10:00:00Z"), new BigDecimal("1000.00"));
 
         String json = serializer.serialize(event);
 
         assertThat(json).contains("\"occurredAt\":\"2026-06-18T10:00:00Z\"");
-        assertThat(json).contains("\"@class\":\"org.jfoundry.infrastructure.messaging.jackson.JacksonPayloadSerializerTest$SerializerTestEvent\"");
+        assertThat(json).contains("\"amount\":1000.00");
+        assertThat(json).doesNotContain("@class", "java.math.BigDecimal");
+
+        ObjectMapper consumerMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        assertThat(consumerMapper.readValue(json, SerializerTestEvent.class)).isEqualTo(event);
     }
 
-    static class SerializerTestEvent {
-
-        public Instant getOccurredAt() {
-            return Instant.parse("2026-06-18T10:00:00Z");
-        }
+    record SerializerTestEvent(Instant occurredAt, BigDecimal amount) {
     }
 }

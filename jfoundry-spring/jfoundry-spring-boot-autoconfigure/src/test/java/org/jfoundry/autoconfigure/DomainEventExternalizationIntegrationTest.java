@@ -60,7 +60,9 @@ class DomainEventExternalizationIntegrationTest {
                 .atMost(5, TimeUnit.SECONDS)
                 .pollInterval(100, TimeUnit.MILLISECONDS)
                 .untilAsserted(() -> assertThat(collectingSender.receivedPayloads).hasSize(1));
-        assertThat(collectingSender.receivedPayloads.get(0)).contains("EnvCreatedEvent");
+        assertThat(collectingSender.receivedPayloads.get(0))
+                .contains("\"eventId\":", "\"occurredAt\":")
+                .doesNotContain("@class", "EnvCreatedEvent");
     }
 
     @SpringBootConfiguration

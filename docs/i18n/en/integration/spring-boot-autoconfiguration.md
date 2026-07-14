@@ -11,7 +11,7 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 | `jfoundry-lock-redisson-spring-boot-starter` | Distributed lock core, Spring `@DistributedLock` interception, Redisson adapter, Redisson Spring Boot starter | Outbox, Inbox, broker delivery |
 | `jfoundry-event-spring-boot-starter` | Domain event dispatch and Spring application event publishing | Outbox persistence or broker delivery |
 | `jfoundry-messaging-spring-boot-starter` | Messaging SPI, Jackson payload serializer, Spring messaging runtime, default logging `MessageSender` | Kafka, RabbitMQ, RocketMQ clients |
-| `jfoundry-messaging-kafka-spring-boot-starter` | Kafka `MessageSender` adapter | Outbox store |
+| `jfoundry-messaging-kafka-spring-boot-starter` | Kafka `MessageSender` adapter, selected after Boot creates `KafkaOperations` | Outbox store |
 | `jfoundry-messaging-rabbitmq-spring-boot-starter` | RabbitMQ `MessageSender` adapter | Outbox store |
 | `jfoundry-messaging-rocketmq-spring-boot-starter` | RocketMQ `MessageSender` adapter | Outbox store |
 | `jfoundry-outbox-spring-boot-starter` | Outbox core, `OutboxTemplate`, domain-event externalization, scheduled dispatch integration | Outbox table store, JobRunr |
@@ -75,8 +75,12 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 ## Notes
 
 - SQL templates are copyable templates. jfoundry jars do not create Outbox or Inbox tables.
-- Broker-specific `MessageSender` beans take precedence over the logging fallback because their
-  auto-configurations run before `MessageSenderAutoConfiguration`.
+- Broker-specific `MessageSender` beans take precedence over the logging fallback. Kafka sender
+  auto-configuration runs after Spring Boot's `KafkaAutoConfiguration`, so a Boot-created
+  `KafkaOperations` bean is visible before jfoundry evaluates the sender condition, and before
+  `MessageSenderAutoConfiguration` selects the fallback.
+- The default Jackson payload serializer writes ISO-8601 time values and ordinary JSON values. It
+  does not enable Jackson default typing or expose Java class names in integration payloads.
 - `TransactionRunnerAutoConfiguration` runs after Spring Boot transaction auto-configuration so
   JDBC, JPA, or JTA transaction managers are visible before its bean conditions are evaluated.
 - Distributed lock support is explicit. The default Spring Boot starter does not pull Redisson.

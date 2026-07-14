@@ -94,6 +94,11 @@ outboxTemplate.append(new OutboxAppendRequest(
 
 `OutboxTemplate` 使用已有的 `PayloadSerializer` 序列化 payload，并通过 `OutboxMessageStore` 追加 `PENDING` 消息。它参与调用方已经开启的事务；它不负责把领域事件转换成集成事件、不主动开启事务，也不做同步消息投递。原有的自动领域事件外部化路径保持不变。
 
+默认 Jackson serializer 输出不含 Jackson default typing 元数据或 Java 类名的可移植 JSON。
+时间使用 ISO-8601，`BigDecimal` 等值保持为普通 JSON 数字。`payloadType` 应使用稳定的契约名，
+不能使用 Java 类名；每个消费者按自己持有的版本化契约类型反序列化 envelope。如果项目需要
+其他 wire format，仍可替换 `PayloadSerializer`。
+
 ## 配置
 
 Outbox 是可选能力。业务侧需要可靠外部化时引入 `jfoundry-outbox-spring-boot-starter`；存在 `OutboxMessageStore` 和 `PayloadSerializer` 时，该 starter 会自动装配 `OutboxTemplate`。如果需要 MyBatis-Plus 的 Outbox 存储，再引入 `jfoundry-outbox-mybatis-plus-spring-boot-starter`。后者会通过 MyBatis-Plus 适配器提供 `OutboxMessageStore`，表名默认为 `jfoundry_outbox_event`。如需自定义表名，设置 `jfoundry.outbox.table-name`，并由业务侧创建同结构表。
@@ -137,6 +142,11 @@ jfoundry:
 
 `jfoundry.outbox.recovery.enabled` 与 `jfoundry.outbox.cleanup.enabled` 只用于在 `scheduled` / `jobrunr`
 模式下关闭对应维护任务；`mode: none` 表示关闭自动派发及框架内置维护任务。
+
+Spring Boot 应用引入 `jfoundry-messaging-kafka-spring-boot-starter` 后，jfoundry 会等待 Boot 的
+Kafka 自动配置创建 `KafkaOperations`，然后在评估 logging fallback 前注册 Kafka sender。
+由于该 sender 以字符串发送 Outbox key 和 JSON body，业务侧需要配置 String key/value
+serializer。context 或 smoke test 应断言最终选择的是 broker sender，不能只验证 classpath 中存在 starter。
 
 ## Broker adapter
 

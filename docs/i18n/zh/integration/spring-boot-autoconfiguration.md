@@ -10,7 +10,7 @@
 | `jfoundry-lock-redisson-spring-boot-starter` | 分布式锁 core、Spring `@DistributedLock` 拦截、Redisson adapter、Redisson Spring Boot starter | Outbox、Inbox、broker 投递 |
 | `jfoundry-event-spring-boot-starter` | 领域事件派发、Spring application event 发布 | Outbox 持久化或 broker 投递 |
 | `jfoundry-messaging-spring-boot-starter` | Messaging SPI、Jackson payload serializer、Spring messaging runtime、默认 logging `MessageSender` | Kafka、RabbitMQ、RocketMQ client |
-| `jfoundry-messaging-kafka-spring-boot-starter` | Kafka `MessageSender` adapter | Outbox store |
+| `jfoundry-messaging-kafka-spring-boot-starter` | Kafka `MessageSender` adapter，在 Boot 创建 `KafkaOperations` 后选择 | Outbox store |
 | `jfoundry-messaging-rabbitmq-spring-boot-starter` | RabbitMQ `MessageSender` adapter | Outbox store |
 | `jfoundry-messaging-rocketmq-spring-boot-starter` | RocketMQ `MessageSender` adapter | Outbox store |
 | `jfoundry-outbox-spring-boot-starter` | Outbox core、`OutboxTemplate`、领域事件外部化、scheduled 派发集成 | Outbox 表存储、JobRunr |
@@ -74,7 +74,11 @@
 ## 说明
 
 - SQL 文件只是可复制模板。jfoundry jar 不会自动创建 Outbox 或 Inbox 表。
-- broker-specific `MessageSender` 的自动配置先于 logging fallback，因此会优先生效。
+- broker-specific `MessageSender` 会优先于 logging fallback。Kafka sender 自动配置在
+  Spring Boot 的 `KafkaAutoConfiguration` 之后执行，因此 jfoundry 评估 sender 条件时可以看到
+  Boot 创建的 `KafkaOperations` Bean；该评估又早于 `MessageSenderAutoConfiguration` 选择 fallback。
+- 默认 Jackson payload serializer 会输出 ISO-8601 时间和普通 JSON 值，不会开启 Jackson
+  default typing，也不会在集成 payload 中暴露 Java 类名。
 - `TransactionRunnerAutoConfiguration` 在 Spring Boot 事务自动配置之后运行，确保其 Bean 条件评估前已经可以看到 JDBC、JPA 或 JTA 事务管理器。
 - 分布式锁是显式能力。默认 Spring Boot starter 不会引入 Redisson。
 - MyBatis-Plus starter 会引入可选的 `jfoundry-persistence-spring` 运行时 Adapter。其默认 translator 只处理已知的可用性故障；用户自定义的 `PersistenceFailureTranslator` Bean 优先。

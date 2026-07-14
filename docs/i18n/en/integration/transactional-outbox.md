@@ -51,6 +51,12 @@ outboxTemplate.append(new OutboxAppendRequest(
 events, start a transaction, or publish synchronously. The existing automatic externalization path
 remains available and unchanged.
 
+The default Jackson serializer emits portable JSON without Jackson default-typing metadata or Java
+class names. Time values use ISO-8601 and values such as `BigDecimal` remain ordinary JSON numbers.
+Use `payloadType` as a stable contract name, not a Java class name, and let each consumer deserialize
+the envelope into its own versioned contract type. A custom `PayloadSerializer` remains available
+when a project needs another wire format.
+
 ## Configuration Semantics
 
 Add `jfoundry-outbox-spring-boot-starter` when reliable externalization is needed. It auto-configures
@@ -77,6 +83,12 @@ jfoundry:
 
 `jfoundry.outbox.recovery.enabled` and `jfoundry.outbox.cleanup.enabled` can disable the
 maintenance jobs only in managed dispatch modes (`scheduled` or `jobrunr`).
+
+When a Spring Boot application adds `jfoundry-messaging-kafka-spring-boot-starter`, jfoundry waits
+for Boot's Kafka auto-configuration to create `KafkaOperations`, then registers the Kafka sender
+before evaluating the logging fallback. Configure String key/value serializers because the sender
+publishes the Outbox key and JSON body as strings. In a context or smoke test, assert that the
+selected `MessageSender` is the broker sender rather than relying only on classpath presence.
 
 ## SQL Templates
 
