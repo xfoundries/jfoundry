@@ -22,8 +22,9 @@ an architecture package convention.
 ## Lookup Contracts
 
 Use a lookup contract for lightweight context required by an application service. It supports
-command execution but does not load a full aggregate. Name it for the supplied fact or responsibility,
-for example `AccountContextFinder`.
+command execution or a domain decision but does not load a full aggregate. It is command-side
+supporting input, not a query-side view merely because it is read-only. Name it for the supplied
+fact or responsibility, for example `AccountContextFinder`.
 
 ## Query and Read-model Contracts
 
@@ -60,10 +61,10 @@ the same contract is owned by an inner ring and implemented by infrastructure. `
 official DDD, Onion, or jfoundry patterns. Ubiquitous language remains the first source of the
 name.
 
-When technical grouping improves navigation, keep a read-only implementation in
-`query.<feature>` and an event/state-change materializer in `projection.<feature>`. This is an
-optional project convention, not an architecture rule: do not create a `projection` package merely
-because a project has queries.
+When technical grouping improves navigation, use `persistence.<aggregate>` for aggregate lifecycle
+storage, `lookup.<feature>` for command-side fact reads, `query.<feature>` for caller-facing
+read-only views, and `projection.<feature>` for event/state-change materialization. These are
+optional project conventions, not architecture rules: do not create a category merely for symmetry.
 
 ## ArchUnit Relationship
 

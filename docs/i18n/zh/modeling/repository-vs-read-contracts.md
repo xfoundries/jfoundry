@@ -33,7 +33,9 @@ Repository 方法应优先表达领域意图，而不是复制 SQL 条件。`fin
 
 ## Lookup 契约适用场景
 
-Lookup 契约适合应用服务为了执行业务流程而准备上下文，但读取结果不承担聚合行为。优先按所提供的业务事实命名，例如 `AccountContextFinder`；`LookupPort` 只适合明确采用该命名约定的 Hexagonal 项目。
+Lookup 契约适合应用服务为了执行命令流程或进行领域决策而准备业务事实，但读取结果不承担聚合行为。
+它是命令侧的支持输入，不会仅因为只读就成为 Query Side 的视图。优先按所提供的业务事实命名，例如
+`AccountContextFinder`；`LookupPort` 只适合明确采用该命名约定的 Hexagonal 项目。
 
 典型场景：
 
@@ -136,7 +138,9 @@ Infrastructure Adapter
 
 基础设施适配器可以使用 MyBatis、JPA、SQL、远程 API 或缓存实现这些端口。Onion 项目可以使用相同的职责名称，但通过内外 Ring 表达依赖方向，不需要 Port/Adapter 后缀。
 
-当按技术职责分包有助于定位时，只读实现可放在 `query.<feature>`，由事件或状态变化驱动的物化实现可放在 `projection.<feature>`。这只是可选项目约定，不是架构规则；项目仅有查询时，不应为了对称而创建 `projection` 包。
+当按技术职责分包有助于定位时，聚合生命周期存储放在 `persistence.<aggregate>`，命令侧事实读取放在
+`lookup.<feature>`，面向调用方的只读视图放在 `query.<feature>`，事件或状态变化驱动的读模型物化放在
+`projection.<feature>`。这只是可选项目约定，不是架构规则；不应为了对称而创建每一种目录。
 
 ## 与 ArchUnit 规则的关系
 

@@ -50,6 +50,13 @@ package: Primary Ports must not depend on `port.out` packages, and Secondary Por
 on `port.in` packages. Keep HTTP DTOs in the primary adapter and persistence/remote data models in
 the secondary adapter.
 
+For a CQRS command exposed to a driving adapter, use a business-named `*UseCase` as the
+`@PrimaryPort` and let its command handler implement that contract. The command is its input model;
+the handler is the application implementation. A fixed `*CommandDispatcher` with overloaded
+`dispatch(...)` methods that only delegates to statically known handlers adds neither routing nor
+business orchestration. Reserve a dispatcher or command bus for genuine runtime routing through a
+shared pipeline, such as pluggable handler registration or generic message transport.
+
 When CQRS builds or refreshes a derived read model from an event or state change, the contract for
 that projection materialization may be a Secondary Port and its technology implementation a
 Secondary Adapter. It is distinct from a read-only query contract: a `Reader` reads the model,
@@ -58,6 +65,10 @@ by a command or event. It does not re-decide business rules or modify an aggrega
 grouping helps, use `adapter.out.query.<feature>` for a
 Reader and `adapter.out.projection.<feature>` for the materializer. `projection` is optional
 terminology, not a universal package or suffix, and does not imply Event Sourcing.
+
+`adapter.out.lookup.<feature>` is for a read-only fact needed by command workflow or a domain
+decision. It differs from `adapter.out.query.<feature>`, which serves caller-facing pages, lists,
+reports, exports, or other query use cases, even though both may execute a database read.
 
 ![hexagonal-architecture.png](../../assets/hexagonal-architecture.png)
 
@@ -95,6 +106,11 @@ shared by application contracts belong to a neutral package inside that applicat
 not to the domain or infrastructure merely for reuse. This ownership rule does not introduce
 `port.in` / `port.out` semantics into Onion.
 
+For Onion CQRS commands, use a business-named application handler or service and let outer-ring
+web, messaging, or scheduler code call that application boundary. CQRS does not introduce
+Hexagonal `port.in`, `@PrimaryPort`, or `*UseCase` requirements into Onion. A dispatcher still
+needs a genuine runtime-routing reason; fixed forwarding is unhelpful here as well.
+
 When CQRS materializes or updates a derived read model from facts already decided by a command or
 event, the inner ring owns the needed contract and an `@InfrastructureRing` type implements it. It
 does not re-decide business rules or modify an aggregate. Onion does not thereby gain Hexagonal
@@ -102,6 +118,11 @@ port or adapter roles. Keep this materializer distinct from a read-only `Reader`
 grouping helps, infrastructure may use `query.<feature>` for the Reader and
 `projection.<feature>` for the materializer. This is optional project terminology and does not
 require Event Sourcing.
+
+Similarly, use `infrastructure.lookup.<feature>` for command-side fact reads and
+`infrastructure.query.<feature>` for caller-facing read use cases when this technical grouping
+improves navigation. The two roles are both read-only, but have different consumers and change
+reasons.
 
 ![onion-architecture.png](../../assets/onion-architecture.png)
 
