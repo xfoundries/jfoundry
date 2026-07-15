@@ -103,6 +103,25 @@ class HexagonalConventionRulesTest {
     }
 
     @Test
+    void primaryAndSecondaryPortsMustNotCrossDirectionalPackageBoundaries() {
+        assertThatThrownBy(() -> HexagonalConventionRules.primary_ports_must_not_depend_on_outbound_port_packages
+                .check(IMPORTER.importPackages(
+                        "org.jfoundry.test.archunit.fixture.hexagonalconventions.invalid.portdirection.primary")))
+                .isInstanceOf(AssertionError.class);
+        assertThatThrownBy(() -> HexagonalConventionRules.secondary_ports_must_not_depend_on_inbound_port_packages
+                .check(IMPORTER.importPackages(
+                        "org.jfoundry.test.archunit.fixture.hexagonalconventions.invalid.portdirection.secondary")))
+                .isInstanceOf(AssertionError.class);
+
+        HexagonalConventionRules.primary_ports_must_not_depend_on_outbound_port_packages
+                .check(IMPORTER.importPackages(
+                        "org.jfoundry.test.archunit.fixture.hexagonalconventions.valid.capability"));
+        HexagonalConventionRules.secondary_ports_must_not_depend_on_inbound_port_packages
+                .check(IMPORTER.importPackages(
+                        "org.jfoundry.test.archunit.fixture.hexagonalconventions.valid.capability"));
+    }
+
+    @Test
     void applicationAndDomainMustNotDependOnPersistenceDetails() {
         assertThatThrownBy(() -> HexagonalConventionRules.application_and_domain_must_not_depend_on_persistence_details
                 .check(IMPORTER.importPackages("org.jfoundry.test.archunit.fixture.hexagonalconventions.invalid.persistenceleak")))

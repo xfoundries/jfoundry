@@ -66,6 +66,11 @@ class CiArchitectureTest {
 Adapter 不应暴露 CQRS 入口模型这一规则属于 `HexagonalConventionRules`。因此 Onion 项目
 可以组合 Ring 规则与通用 CQRS 规则，而不需要虚构 Hexagonal 角色。
 
+`HexagonalConventionRules` 同时接受全局和能力内嵌的 `port.in` / `port.out` 包。它还禁止
+Primary Port 依赖出站 Port 包，并禁止 Secondary Port 依赖入站 Port 包；两个方向共享的
+模型应放在中立的 application capability 包。这两条方向检查由
+`hexagonalConventions()` 和 `hexagonalStrict()` 启用，Onion 入口不会导入。
+
 ### AggregateRepositoryConventionRules
 
 这组规则是可选约定，不会进入 `JFoundryRules.hexagonal()`、`onionSimple()` 等主架构入口。它同时识别直接继承 jMolecules `Repository` 和继承 jfoundry `AggregateRepository` 的接口，只守护明确的技术类型泄漏，不通过类名猜测某个返回值是不是读模型。

@@ -113,6 +113,15 @@ public final class HexagonalConventionRules {
                     .allowEmptyShould(true)
                     .because("primary ports should be easy to locate under port.in / ports.in / usecase packages");
 
+    /// Primary ports should use application-owned models rather than models owned by outbound ports.
+    @ArchTest
+    public static final ArchRule primary_ports_must_not_depend_on_outbound_port_packages =
+            noClasses()
+                    .that(areHexagonalPrimaryPorts())
+                    .should().dependOnClassesThat().resideInAnyPackage(OUTBOUND_PORT_PACKAGES)
+                    .allowEmptyShould(true)
+                    .because("primary ports should not expose models owned by outbound port packages");
+
     /// Secondary ports are outbound API contracts and should be interfaces.
     @ArchTest
     public static final ArchRule secondary_ports_must_be_interfaces =
@@ -132,6 +141,15 @@ public final class HexagonalConventionRules {
                     .allowEmptyShould(true)
                     .because("secondary ports should be easy to locate under port.out / ports.out packages, "
                             + "while DDD repositories retain their domain repository location");
+
+    /// Secondary ports should use application- or domain-owned models rather than inbound-port models.
+    @ArchTest
+    public static final ArchRule secondary_ports_must_not_depend_on_inbound_port_packages =
+            noClasses()
+                    .that(areHexagonalSecondaryPorts())
+                    .should().dependOnClassesThat().resideInAnyPackage(INBOUND_PORT_PACKAGES)
+                    .allowEmptyShould(true)
+                    .because("secondary ports should not expose models owned by inbound port packages");
 
     /// Application core code should not be placed in adapter or infrastructure packages.
     @ArchTest

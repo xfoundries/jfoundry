@@ -40,6 +40,12 @@ rule without treating an `ArchRule[]` array as a single rule.
 and adapters from exposing CQRS entry models belongs to `HexagonalConventionRules`; Onion projects
 use their ring rules plus the architecture-neutral CQRS rules without inventing Hexagonal roles.
 
+`HexagonalConventionRules` accepts both global and capability-nested `port.in` / `port.out`
+packages. It also prevents a Primary Port from depending on an outbound-port package and a
+Secondary Port from depending on an inbound-port package. Put models shared by both directions in
+a neutral application capability package. These direction checks are included by
+`hexagonalConventions()` and `hexagonalStrict()`; Onion entrypoints do not import them.
+
 ## Entry Points
 
 | Entry | Use when |

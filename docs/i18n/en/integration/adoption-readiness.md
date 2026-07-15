@@ -2,7 +2,7 @@
 
 This document records a point-in-time assessment of whether jfoundry and the related domain
 architecture plugin can support real business application development. It is an evidence-based
-adoption guide, not a general production certification. The assessment date is 2026-07-14.
+adoption guide, not a general production certification. The assessment date is 2026-07-15.
 
 ## Related Repositories
 
@@ -22,7 +22,22 @@ the domain, architecture, project shape, and runtime constraints are understood.
 |---------|--------------------|----------------------|
 | `domain-architecture-skills` | Ready for use in real projects as design-time guidance | Standard domain and architecture workflow for AI-assisted development, with human review of business meaning |
 | jfoundry | Suitable for controlled adoption in real projects within the validated stack | Optional business framework, pinned to an immutable version and subject to project production gates |
-| Combined workflow | Proven from requirements and modeling through implementation and end-to-end acceptance | Preferred first for Java 21, Spring Boot, MyBatis-Plus, PostgreSQL, Kafka, and Redis projects |
+| Domain Architecture plugin plus optional jfoundry landing | Proven as an end-to-end sequence from requirements and modeling through architecture selection, optional framework landing, implementation, and acceptance, with separately maintained Hexagonal and Onion Simple variants | Preferred first for Java 21, Spring Boot, MyBatis-Plus, PostgreSQL, Kafka, and Redis projects |
+
+The last row means this concrete sequence:
+
+```text
+business requirements
+  -> framework-neutral domain modeling by the Domain Architecture plugin
+  -> explicit architecture and project-shape decision by the plugin
+  -> optional using-jfoundry implementation guidance, only when jfoundry is selected
+  -> business implementation using the selected runtime and adapters
+  -> architecture, integration, and end-to-end acceptance tests
+```
+
+It is not a separate external workflow product, and it does not make jfoundry mandatory. The plugin
+owns the design-time decisions; jfoundry supplies optional implementation contracts and adapters
+after those decisions.
 
 This assessment supports real project use. It does not claim that either project is a universal
 architecture, that jfoundry should be mandatory, or that every supported-looking technology
@@ -70,22 +85,36 @@ invariants, or bounded contexts model the business correctly.
 
 The [expense approval demo](https://github.com/xfoundries/jfoundry-expense-approval-demo)
 was intentionally kept light in business complexity while exercising a complete architecture and
-integration path. At the assessment date, the recorded evidence includes:
+integration path. The same business rules, database model, integration contracts, and acceptance
+scenarios were validated with separately maintained Hexagonal and Onion Simple variants. At the
+assessment date, the recorded evidence includes:
 
 - jfoundry test matrices on Java 21 and Java 25 across the 67-module reactor.
 - Validation of every shipped plugin skill, the Codex plugin manifest, and the Claude marketplace
   metadata.
-- 133 automated demo tests, including five container-based end-to-end scenarios.
+- Both architecture variants passed the same complete automated demo suite, including five
+  container-based end-to-end scenarios.
 - Two independent PostgreSQL databases, Kafka, Redis, and two Spring Boot application contexts in
   the end-to-end environment.
 - Payment success and failure, duplicate message delivery through Inbox, concurrent monthly-limit
   enforcement, and transaction rollback without an approval Outbox record.
 - A separately executed local path from HTTP approval through Kafka to the final `PAID` projection.
+- Onion validation of explicit Domain, Application, and Infrastructure rings, inward dependency
+  rules, DDD repository placement, responsibility-first application contract names, and the same
+  targeted CQRS structure used by the Hexagonal variant.
+
+| Validation subject | Evidence | Does not imply |
+|--------------------|----------|----------------|
+| Hexagonal variant (`main`) | Explicit Primary/Secondary Port and Adapter roles, capability-nested direction packages, neutral application-owned shared views, strict ArchUnit rules | That Hexagonal is the default architecture or that every application needs all roles |
+| Onion Simple variant (`onion-architecture`) | Explicit Domain/Application/Infrastructure rings, inward dependencies, DDD-first and responsibility-first names, the same acceptance suite | That Onion defines Port/Adapter semantics or that package-level rings provide Maven module isolation |
+| Shared business baseline | The same aggregate behavior, database model, integration contracts, CQRS, Outbox/Inbox, locking, middleware topology, and acceptance scenarios | That the styles are interchangeable, should be mixed, or have equal organizational trade-offs in every project |
 
 The demo also exposed framework and guidance defects instead of merely confirming the initial
 design. The resulting fixes covered aggregate persistence tracking, optimistic concurrency,
 exception boundaries, Outbox integration contracts, PostgreSQL Inbox idempotency, portable JSON,
-broker selection, auto-configuration ordering, and Spring AOP proxy infrastructure.
+broker selection, auto-configuration ordering, Spring AOP proxy infrastructure, architecture-style
+semantics, capability-first package guidance, and separation of architecture-neutral CQRS rules
+from Hexagonal Port/Adapter conventions.
 
 ## Validated Scope
 
@@ -95,7 +124,8 @@ The strongest evidence currently applies to:
 - Spring Boot 3.5.x and Spring Framework 6.2.x.
 - MyBatis-Plus persistence with PostgreSQL.
 - Kafka integration, Redis/Redisson distributed locking, transactional Outbox, and consumer Inbox.
-- DDD modeling with Hexagonal Architecture and targeted CQRS without Event Sourcing.
+- DDD modeling with either separately validated Hexagonal Architecture or Onion Simple
+  Architecture, plus targeted CQRS without Event Sourcing.
 - Multi-module Maven applications with separate integration contracts and runtime assemblies.
 
 Lack of evidence for another runtime does not block adoption in this validated stack. It means that
@@ -105,7 +135,11 @@ the conclusion must not be generalized to that runtime without equivalent tests.
 
 The following areas are not established by the current evidence:
 
-- Onion Architecture in a complete downstream project.
+- Compile-time isolation when Onion rings are split into separate Maven modules. The validated
+  Onion variant uses package-level rings inside one application module and ArchUnit dependency
+  rules.
+- The migration cost or organizational outcome of changing architecture style in an established
+  production codebase. The demo validates two maintained variants, not a production migration.
 - Non-Spring runtimes such as Quarkus, Micronaut, or Helidon.
 - Other ORM, database, or broker combinations.
 - Application security, observability, deployment, capacity, performance, disaster recovery, and
@@ -119,8 +153,9 @@ released version or an immutable, internally governed build.
 
 The domain architecture plugin has structured workflows, references, templates, and format
 validation, but it does not yet have an automated scenario evaluation suite covering good and bad
-agent decisions. The expense approval demo supplies strong integration evidence for one path, not a
-complete behavioral benchmark for the plugin.
+agent decisions. The expense approval demo supplies strong integration evidence for two
+architecture variants over one business and runtime path, not a complete behavioral benchmark for
+the plugin.
 
 Spring Framework 7 also plans to remove convention-based composed-annotation attribute overrides.
 The upstream jMolecules discussion remains open in
@@ -149,12 +184,14 @@ For a real business project:
 ## Decision
 
 Within the validated stack, jfoundry and the domain architecture plugin are sufficient to support
-AI-assisted development of a complete DDD-oriented, Hexagonal business application with reliable
-messaging. The plugin is ready to act as a real-project architecture governance tool. jfoundry is
-ready for controlled real-project adoption, but a stable immutable release and project-specific
-non-functional verification are still required before treating it as an organization-wide default
-production framework.
+AI-assisted development of a complete DDD-oriented business application using either of the
+separately validated Hexagonal or Onion Simple architecture styles, with targeted CQRS and reliable
+messaging. This does not make the styles interchangeable or remove the need for an explicit
+architecture decision. The plugin is ready to act as a real-project architecture governance tool.
+jfoundry is ready for controlled real-project adoption, but a stable immutable release and
+project-specific non-functional verification are still required before treating it as an
+organization-wide default production framework.
 
-Update this assessment when a stable release is published, a downstream upgrade is proven, a new
-runtime or architecture style receives equivalent end-to-end evidence, or the production-readiness
-gates materially change.
+Update this assessment when a stable release is published, a downstream upgrade is proven, another
+runtime, infrastructure combination, or architecture style receives equivalent evidence, or the
+production-readiness gates materially change.

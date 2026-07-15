@@ -37,6 +37,19 @@ annotated as a `@SecondaryPort`, while remaining under `domain.repository`; do n
 an application `port.out` interface. A `@SecondaryAdapter` may implement either a regular secondary
 port or such a DDD repository.
 
+Hexagonal Architecture does not mandate a package tree. Small projects may use global
+`application.port.in` and `application.port.out` packages. For non-trivial business applications,
+jfoundry recommends organizing by business capability first and locating direction inside it, for
+example `application.claim.query.port.in`, `application.claim.query.port.out`, and
+`application.claim.query.view`. The strict convention rules recognize direction packages at any
+depth.
+
+Primary and Secondary Ports may share application-owned query or view models, but neither direction
+should own models exposed by the other. Put shared models in a neutral application capability
+package: Primary Ports must not depend on `port.out` packages, and Secondary Ports must not depend
+on `port.in` packages. Keep HTTP DTOs in the primary adapter and persistence/remote data models in
+the secondary adapter.
+
 ![hexagonal-architecture.png](../../assets/hexagonal-architecture.png)
 
 ## Onion
@@ -67,6 +80,11 @@ application contracts by their actual responsibility. Names such as `Reader`, `S
 `Provider` are clear Java project conventions when they fit the responsibility; they are not DDD or
 Onion patterns and jfoundry does not require them. Infrastructure implementations may add technology
 names such as `Mybatis` or `Kafka` where that identifies the implementation.
+
+Within an Onion ring, non-trivial code may still be organized by business capability first. Models
+shared by application contracts belong to a neutral package inside that application capability,
+not to the domain or infrastructure merely for reuse. This ownership rule does not introduce
+`port.in` / `port.out` semantics into Onion.
 
 ![onion-architecture.png](../../assets/onion-architecture.png)
 
