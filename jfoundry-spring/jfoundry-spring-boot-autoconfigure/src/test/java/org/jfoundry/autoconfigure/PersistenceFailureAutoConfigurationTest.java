@@ -4,6 +4,7 @@ import org.jfoundry.application.exception.ExternalAccessException;
 import org.jfoundry.autoconfigure.persistence.PersistenceFailureAutoConfiguration;
 import org.jfoundry.domain.entity.agg.BaseAggregateRoot;
 import org.jfoundry.infrastructure.persistence.AbstractAggregateRepository;
+import org.jfoundry.infrastructure.persistence.AbstractPersistenceAdapter;
 import org.jfoundry.infrastructure.persistence.PersistenceFailureTranslator;
 import org.jfoundry.infrastructure.persistence.spring.SpringDataAccessFailureTranslator;
 import org.jmolecules.ddd.types.Identifier;
@@ -36,6 +37,11 @@ class PersistenceFailureAutoConfigurationTest {
             assertThatThrownBy(() -> repository.add(TestAggregate.create("one")))
                     .isInstanceOf(ExternalAccessException.class)
                     .hasCauseInstanceOf(DataAccessResourceFailureException.class);
+
+            FailingQueryAdapter queryAdapter = context.getBean(FailingQueryAdapter.class);
+            assertThatThrownBy(queryAdapter::findTitle)
+                    .isInstanceOf(ExternalAccessException.class)
+                    .hasCauseInstanceOf(DataAccessResourceFailureException.class);
         });
     }
 
@@ -61,6 +67,11 @@ class PersistenceFailureAutoConfigurationTest {
         FailingRepository failingRepository() {
             return new FailingRepository();
         }
+
+        @Bean
+        FailingQueryAdapter failingQueryAdapter() {
+            return new FailingQueryAdapter();
+        }
     }
 
     static class FailingRepository extends AbstractAggregateRepository<TestAggregate, TestAggregateId> {
@@ -81,6 +92,15 @@ class PersistenceFailureAutoConfigurationTest {
 
         @Override
         protected void doRemove(TestAggregate aggregate) {
+        }
+    }
+
+    static class FailingQueryAdapter extends AbstractPersistenceAdapter {
+
+        String findTitle() {
+            return query(() -> {
+                throw new DataAccessResourceFailureException("database unavailable");
+            });
         }
     }
 

@@ -6,6 +6,8 @@
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.junit.ArchTests;
+import com.tngtech.archunit.lang.ArchRule;
+import org.jfoundry.test.archunit.HexagonalAdapterPackageConvention;
 import org.jfoundry.test.archunit.JFoundryRules;
 
 @AnalyzeClasses(packages = "com.mysoft.ci")
@@ -13,6 +15,10 @@ class CiArchitectureTest {
 
     @ArchTest
     ArchTests jfoundryRules = JFoundryRules.hexagonalStrict();
+
+    @ArchTest
+    ArchRule adapterPackages = JFoundryRules.hexagonalAdapterPackageConvention(
+            HexagonalAdapterPackageConvention.IN_OUT);
 
     @ArchTest
     ArchTests jmoleculesDddRules = JFoundryRules.jmoleculesDdd();
@@ -71,6 +77,12 @@ Primary Port 依赖出站 Port 包，并禁止 Secondary Port 依赖入站 Port 
 模型应放在中立的 application capability 包。这两条方向检查由
 `hexagonalConventions()` 和 `hexagonalStrict()` 启用，Onion 入口不会导入。
 
+Adapter 的方向包名是独立的项目约定。项目应在 `adapter.in` / `adapter.out` 与
+`adapter.primary` / `adapter.secondary` 中选择一套，并以对应枚举值启用
+`hexagonalAdapterPackageConvention(...)`。两套名称表达的是相同的 Primary/Secondary Adapter
+角色；选择其一可避免别名成为混杂的包组织轴。该规则刻意不纳入 `hexagonalStrict()`，因为
+Hexagonal Architecture 本身不强制任一包名；Onion 项目不使用该规则。
+
 ### AggregateRepositoryConventionRules
 
 这组规则是可选约定，不会进入 `JFoundryRules.hexagonal()`、`onionSimple()` 等主架构入口。它同时识别直接继承 jMolecules `Repository` 和继承 jfoundry `AggregateRepository` 的接口，只守护明确的技术类型泄漏，不通过类名猜测某个返回值是不是读模型。
@@ -114,6 +126,7 @@ ArchTests hexagonalRules = JFoundryRules.hexagonalStrict();
 - `JFoundryRules.hexagonalStrict()`：基础守护规则 + Hexagonal 主风格入口 + JFoundry Hexagonal 推荐落地约定；推荐业务项目使用。
 - `JFoundryRules.hexagonal()`：基础守护规则 + jMolecules Hexagonal 主风格入口；适合只需要原生 Hexagonal 依赖规则、不需要 JFoundry 包名和类型形态约定的场景。
 - `JFoundryRules.hexagonalConventions()`：只启用 JFoundry Hexagonal 推荐落地约定，可与自定义主架构规则组合使用。
+- `JFoundryRules.hexagonalAdapterPackageConvention(...)`：守护所选的一套 Hexagonal Adapter 方向包名。
 - `JFoundryRules.noMixedHexagonalAndOnion()`：单独启用 Hexagonal/Onion 互斥规则。
 
 Hexagonal、Onion Simple 和 Onion Classical 主架构入口会在分析范围内完全没有对应架构注解时

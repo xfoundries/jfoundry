@@ -7,6 +7,7 @@ import com.tngtech.archunit.core.domain.PackageMatchers;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.lang.CompositeArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import org.jmolecules.architecture.cqrs.Command;
@@ -201,6 +202,20 @@ public final class HexagonalConventionRules {
                     .should().dependOnClassesThat().resideInAnyPackage(PERSISTENCE_DETAIL_PACKAGES)
                     .allowEmptyShould(true)
                     .because("application and domain code should depend on ports, not MyBatis, mapper, data, or persistence details");
+
+    static ArchRule adapterPackageConvention(HexagonalAdapterPackageConvention convention) {
+        return CompositeArchRule.of(
+                        classes()
+                                .that(areHexagonalPrimaryAdapters())
+                                .should().resideInAnyPackage(convention.primaryAdapterPackage())
+                                .allowEmptyShould(true)
+                                .because("primary adapters should use the selected adapter package convention"))
+                .and(classes()
+                        .that(areHexagonalSecondaryAdapters())
+                        .should().resideInAnyPackage(convention.secondaryAdapterPackage())
+                        .allowEmptyShould(true)
+                        .because("secondary adapters should use the selected adapter package convention"));
+    }
 
     private static com.tngtech.archunit.base.DescribedPredicate<JavaClass> areHexagonalApplications() {
         return new com.tngtech.archunit.base.DescribedPredicate<>("are hexagonal applications") {

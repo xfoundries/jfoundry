@@ -9,7 +9,6 @@ import org.jmolecules.ddd.types.Identifier;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /// Storage-neutral lifecycle base for aggregate repository adapters.
 /// <p>
@@ -24,23 +23,15 @@ import java.util.function.Supplier;
 public abstract class AbstractAggregateRepository<
         T extends AggregateRoot<T, ID> & EventRecordable,
         ID extends Identifier>
+        extends AbstractPersistenceAdapter
         implements AggregateRepository<T, ID> {
 
     private DomainEventContext domainEventContext;
-    private PersistenceFailureTranslator persistenceFailureTranslator =
-            PersistenceFailureTranslator.passThrough();
 
     /// Injects the event context used to register successfully persisted aggregates.
     public final void setDomainEventContext(DomainEventContext domainEventContext) {
         this.domainEventContext = Objects.requireNonNull(
                 domainEventContext, "DomainEventContext must not be null.");
-    }
-
-    /// Injects an optional runtime-specific persistence failure translator.
-    public final void setPersistenceFailureTranslator(
-            PersistenceFailureTranslator persistenceFailureTranslator) {
-        this.persistenceFailureTranslator = Objects.requireNonNull(
-                persistenceFailureTranslator, "PersistenceFailureTranslator must not be null.");
     }
 
     /// Loads and restores one complete aggregate, returning null when it does not exist.
@@ -60,20 +51,20 @@ public abstract class AbstractAggregateRepository<
         if (id == null) {
             throw new IllegalArgumentException("Aggregate id must not be null.");
         }
-        return execute(PersistenceOperation.FIND, () -> doFindById(id));
+        return find(() -> doFindById(id));
     }
 
     @Override
     public void add(T aggregate) {
         T validatedAggregate = requireAggregate(aggregate);
-        execute(PersistenceOperation.ADD, () -> doAdd(validatedAggregate));
+        add(() -> doAdd(validatedAggregate));
         registerAggregate(validatedAggregate);
     }
 
     @Override
     public void modify(T aggregate) {
         T validatedAggregate = requireAggregate(aggregate);
-        execute(PersistenceOperation.MODIFY, () -> doModify(validatedAggregate));
+        modify(() -> doModify(validatedAggregate));
         registerAggregate(validatedAggregate);
     }
 
@@ -81,7 +72,7 @@ public abstract class AbstractAggregateRepository<
     public void addAll(Collection<T> aggregates) {
         List<T> aggregateList = requireAggregates(aggregates);
         aggregateList.forEach(aggregate ->
-                execute(PersistenceOperation.ADD, () -> doAdd(aggregate)));
+                add(() -> doAdd(aggregate)));
         aggregateList.forEach(this::registerAggregate);
     }
 
@@ -89,7 +80,7 @@ public abstract class AbstractAggregateRepository<
     public void modifyAll(Collection<T> aggregates) {
         List<T> aggregateList = requireAggregates(aggregates);
         aggregateList.forEach(aggregate ->
-                execute(PersistenceOperation.MODIFY, () -> doModify(aggregate)));
+                modify(() -> doModify(aggregate)));
         aggregateList.forEach(this::registerAggregate);
     }
 
@@ -99,7 +90,7 @@ public abstract class AbstractAggregateRepository<
         if (validatedAggregate.getId() == null) {
             throw new IllegalArgumentException("Aggregate id must not be null.");
         }
-        execute(PersistenceOperation.REMOVE, () -> doRemove(validatedAggregate));
+        remove(() -> doRemove(validatedAggregate));
         registerAggregate(validatedAggregate);
     }
 
@@ -129,23 +120,4 @@ public abstract class AbstractAggregateRepository<
         }
     }
 
-    private void execute(PersistenceOperation operation, Runnable persistenceCall) {
-        execute(operation, () -> {
-            persistenceCall.run();
-            return null;
-        });
-    }
-
-    private <R> R execute(PersistenceOperation operation, Supplier<R> persistenceCall) {
-        try {
-            return persistenceCall.get();
-        } catch (RuntimeException failure) {
-            RuntimeException translated = persistenceFailureTranslator.translate(operation, failure);
-            if (translated == null) {
-                throw new IllegalStateException(
-                        "PersistenceFailureTranslator must not return null.", failure);
-            }
-            throw translated;
-        }
-    }
 }

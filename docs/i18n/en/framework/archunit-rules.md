@@ -13,6 +13,10 @@ class MyAppArchitectureTest {
     ArchTests architecture = JFoundryRules.hexagonalStrict();
 
     @ArchTest
+    ArchRule adapterPackages = JFoundryRules.hexagonalAdapterPackageConvention(
+            HexagonalAdapterPackageConvention.IN_OUT);
+
+    @ArchTest
     ArchTests ddd = JFoundryRules.jmoleculesDdd();
 }
 ```
@@ -46,6 +50,13 @@ Secondary Port from depending on an inbound-port package. Put models shared by b
 a neutral application capability package. These direction checks are included by
 `hexagonalConventions()` and `hexagonalStrict()`; Onion entrypoints do not import them.
 
+Adapter package direction is a separate project convention. Select either `adapter.in` /
+`adapter.out` or `adapter.primary` / `adapter.secondary` and enable
+`hexagonalAdapterPackageConvention(...)` with the matching enum value. Both names express the same
+Primary/Secondary Adapter roles; selecting one prevents aliases from becoming mixed package axes.
+This rule is intentionally outside `hexagonalStrict()` because Hexagonal Architecture does not
+mandate either package vocabulary. Onion projects do not use it.
+
 ## Entry Points
 
 | Entry | Use when |
@@ -53,6 +64,7 @@ a neutral application capability package. These direction checks are included by
 | `JFoundryRules.hexagonalStrict()` | Recommended Hexagonal project baseline. |
 | `JFoundryRules.hexagonal()` | Native jMolecules Hexagonal rules plus jfoundry baseline guards. |
 | `JFoundryRules.hexagonalConventions()` | Only jfoundry Hexagonal implementation conventions. |
+| `JFoundryRules.hexagonalAdapterPackageConvention(...)` | Enforce one selected Hexagonal Adapter package vocabulary. |
 | `JFoundryRules.onionSimple()` | Onion Simple project baseline. |
 | `JFoundryRules.onionClassical()` | Onion Classical project baseline. |
 | `JFoundryRules.aggregateRepositoryConventions()` | Optional repository API hardening. |

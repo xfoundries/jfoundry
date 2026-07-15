@@ -107,11 +107,18 @@ MyBatis-Plus 根 Data 可在 version 字段上使用 `@Version`，显式配置
 
 ## 持久化异常翻译
 
-`jfoundry-persistence-core` 定义了与运行时无关的 `PersistenceFailureTranslator` SPI。`AbstractAggregateRepository` 只在受保护的 `do*` 持久化调用外围应用它，默认 translator 原样透传异常，因此 core 不依赖 Spring 或其他运行时框架。
+`jfoundry-persistence-core` 定义了与运行时无关的 `PersistenceFailureTranslator` SPI 和
+`AbstractPersistenceAdapter`。该基类默认使用原样透传的 translator，并在受保护的 `find`、`query`、
+`add`、`modify`、`remove` 调用外围应用它，因此 core 不依赖 Spring 或其他运行时框架。
+`AbstractAggregateRepository` 继承该基类，同时保留固定的聚合生命周期 `do*` 扩展点和领域事件登记。
 
 `jfoundry-persistence-spring` 是可选的 Spring 运行时 Adapter。其 `SpringDataAccessFailureTranslator` 只把已知的资源不可用、瞬时资源故障和查询超时转换为 `ExternalAccessException`，并保留 cause。重复键、完整性约束、锁冲突、SQL 或 Mapper 缺陷以及未知异常保持原样。只有当业务 Adapter 能确定被违反的约束确实表示业务冲突时，才可将重复键转换为 `ConflictException`，例如聚合根标识已经存在。
 
-MyBatis-Plus Spring Boot starter 会引入该运行时 Adapter，自动配置会把默认 translator 注入 `AbstractAggregateRepository`。业务应用声明自己的 `PersistenceFailureTranslator` Bean 后会替代默认实现。未继承仓储基类的查询 Adapter 可以显式注入 translator，并以 `PersistenceOperation.QUERY` 调用。
+MyBatis-Plus Spring Boot starter 会引入该运行时 Adapter，自动配置会把默认 translator 注入每个
+`AbstractPersistenceAdapter` 实例。业务应用声明自己的 `PersistenceFailureTranslator` Bean 后会替代默认实现。
+Reader、Projection Store 等非聚合持久化 Adapter 继承 `AbstractPersistenceAdapter`，并在其职责特定的
+持久化调用外围使用 `query`、`find`、`add`、`modify` 或 `remove`；不再注入 translator，也不再手写
+try/catch 翻译代码。
 
 ## MyBatis-Plus Wrapper 与显式 SQL
 

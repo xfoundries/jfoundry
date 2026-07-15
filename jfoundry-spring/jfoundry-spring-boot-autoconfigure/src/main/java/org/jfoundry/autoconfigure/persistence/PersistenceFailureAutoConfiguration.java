@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Role;
 
 @AutoConfiguration
-@ConditionalOnClass(name = "org.jfoundry.infrastructure.persistence.AbstractAggregateRepository")
+@ConditionalOnClass(name = "org.jfoundry.infrastructure.persistence.AbstractPersistenceAdapter")
 public class PersistenceFailureAutoConfiguration {
 
     @Bean

@@ -1,6 +1,6 @@
 package org.jfoundry.autoconfigure.persistence;
 
-import org.jfoundry.infrastructure.persistence.AbstractAggregateRepository;
+import org.jfoundry.infrastructure.persistence.AbstractPersistenceAdapter;
 import org.jfoundry.infrastructure.persistence.PersistenceFailureTranslator;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -18,12 +18,12 @@ final class PersistenceFailureTranslatorBeanPostProcessor implements BeanPostPro
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if (bean instanceof AbstractAggregateRepository<?, ?> repository) {
+        if (bean instanceof AbstractPersistenceAdapter adapter) {
             PersistenceFailureTranslator translator = beanFactory
                     .getBeanProvider(PersistenceFailureTranslator.class)
                     .getIfAvailable();
             if (translator != null) {
-                repository.setPersistenceFailureTranslator(translator);
+                adapter.setPersistenceFailureTranslator(translator);
             }
         }
         return bean;

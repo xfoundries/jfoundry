@@ -97,9 +97,11 @@ business adapter responsibility.
 
 ## Persistence Failure Translation
 
-`jfoundry-persistence-core` defines the runtime-neutral `PersistenceFailureTranslator` SPI.
-`AbstractAggregateRepository` applies it only around the protected `do*` persistence call and uses
-a pass-through translator by default, so core does not require Spring or another runtime.
+`jfoundry-persistence-core` defines the runtime-neutral `PersistenceFailureTranslator` SPI and
+`AbstractPersistenceAdapter`. The base applies a pass-through translator by default around protected
+`find`, `query`, `add`, `modify`, and `remove` calls, so core does not require Spring or another
+runtime. `AbstractAggregateRepository` extends that base and retains the fixed aggregate lifecycle
+`do*` hooks plus domain-event registration.
 
 `jfoundry-persistence-spring` is an optional runtime adapter. Its
 `SpringDataAccessFailureTranslator` converts only known resource, transient-resource, and query
@@ -109,9 +111,11 @@ adapter may translate a duplicate key to `ConflictException` only when it can id
 constraint as a business conflict, such as an aggregate root identifier already existing.
 
 The MyBatis-Plus Spring Boot starter includes this runtime adapter and auto-configuration injects
-the default translator into `AbstractAggregateRepository` instances. A user-defined
-`PersistenceFailureTranslator` bean replaces that default. Query adapters that do not extend the
-repository base may inject and invoke the translator explicitly with `PersistenceOperation.QUERY`.
+the default translator into every `AbstractPersistenceAdapter` instance. A user-defined
+`PersistenceFailureTranslator` bean replaces that default. Readers, projection stores, and other
+non-aggregate persistence adapters extend `AbstractPersistenceAdapter` and wrap their own
+responsibility-specific calls with `query`, `find`, `add`, `modify`, or `remove`; they do not inject
+the translator or write their own try/catch translation blocks.
 
 ## MyBatis-Plus Wrapper Or Explicit SQL
 

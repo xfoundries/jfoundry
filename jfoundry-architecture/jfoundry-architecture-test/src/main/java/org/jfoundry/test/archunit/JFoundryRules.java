@@ -3,6 +3,8 @@ package org.jfoundry.test.archunit;
 import com.tngtech.archunit.junit.ArchTests;
 import com.tngtech.archunit.lang.ArchRule;
 
+import java.util.Objects;
+
 /// Aggregated entrypoint for jfoundry architecture rules.
 /// <p>
 /// Recommended application-side usage:
@@ -57,6 +59,15 @@ public final class JFoundryRules {
     /// implementation conventions from {@link #hexagonalConventions()}.
     public static ArchTests hexagonalStrict() {
         return ArchTests.in(JFoundryRuleSets.HexagonalStrict.class);
+    }
+
+    /// Verifies that Hexagonal adapters use one selected primary/secondary package vocabulary.
+    /// <p>
+    /// This is an opt-in project convention, not a universal Hexagonal Architecture rule.
+    public static ArchRule hexagonalAdapterPackageConvention(
+            HexagonalAdapterPackageConvention convention) {
+        return HexagonalConventionRules.adapterPackageConvention(
+                Objects.requireNonNull(convention, "Hexagonal adapter package convention must not be null."));
     }
 
     /// Simplified Onion Architecture rules.

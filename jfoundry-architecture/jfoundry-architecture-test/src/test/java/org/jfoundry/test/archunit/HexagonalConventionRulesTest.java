@@ -1,6 +1,7 @@
 package org.jfoundry.test.archunit;
 
 import com.tngtech.archunit.core.importer.ClassFileImporter;
+import org.jfoundry.test.archunit.HexagonalAdapterPackageConvention;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -129,5 +130,24 @@ class HexagonalConventionRulesTest {
 
         HexagonalConventionRules.application_and_domain_must_not_depend_on_persistence_details
                 .check(IMPORTER.importPackages("org.jfoundry.test.archunit.fixture.hexagonalconventions.valid"));
+    }
+
+    @Test
+    void selectedAdapterPackageConventionAcceptsOnlyItsConfiguredDirectionVocabulary() {
+        JFoundryRules.hexagonalAdapterPackageConvention(HexagonalAdapterPackageConvention.IN_OUT)
+                .check(IMPORTER.importPackages("org.jfoundry.test.archunit.fixture.hexagonalconventions.valid.adapter"));
+        JFoundryRules.hexagonalAdapterPackageConvention(HexagonalAdapterPackageConvention.PRIMARY_SECONDARY)
+                .check(IMPORTER.importPackages(
+                        "org.jfoundry.test.archunit.fixture.hexagonaladapterpackages.primarysecondary"));
+
+        assertThatThrownBy(() -> JFoundryRules
+                .hexagonalAdapterPackageConvention(HexagonalAdapterPackageConvention.IN_OUT)
+                .check(IMPORTER.importPackages(
+                        "org.jfoundry.test.archunit.fixture.hexagonaladapterpackages.primarysecondary")))
+                .isInstanceOf(AssertionError.class);
+        assertThatThrownBy(() -> JFoundryRules
+                .hexagonalAdapterPackageConvention(HexagonalAdapterPackageConvention.PRIMARY_SECONDARY)
+                .check(IMPORTER.importPackages("org.jfoundry.test.archunit.fixture.hexagonalconventions.valid.adapter")))
+                .isInstanceOf(AssertionError.class);
     }
 }
