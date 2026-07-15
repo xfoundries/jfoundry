@@ -50,6 +50,15 @@ package: Primary Ports must not depend on `port.out` packages, and Secondary Por
 on `port.in` packages. Keep HTTP DTOs in the primary adapter and persistence/remote data models in
 the secondary adapter.
 
+When CQRS builds or refreshes a derived read model from an event or state change, the contract for
+that projection materialization may be a Secondary Port and its technology implementation a
+Secondary Adapter. It is distinct from a read-only query contract: a `Reader` reads the model,
+whereas a `ProjectionStore` materializes or updates a derived read model from facts already decided
+by a command or event. It does not re-decide business rules or modify an aggregate. When technical
+grouping helps, use `adapter.out.query.<feature>` for a
+Reader and `adapter.out.projection.<feature>` for the materializer. `projection` is optional
+terminology, not a universal package or suffix, and does not imply Event Sourcing.
+
 ![hexagonal-architecture.png](../../assets/hexagonal-architecture.png)
 
 ## Onion
@@ -85,6 +94,14 @@ Within an Onion ring, non-trivial code may still be organized by business capabi
 shared by application contracts belong to a neutral package inside that application capability,
 not to the domain or infrastructure merely for reuse. This ownership rule does not introduce
 `port.in` / `port.out` semantics into Onion.
+
+When CQRS materializes or updates a derived read model from facts already decided by a command or
+event, the inner ring owns the needed contract and an `@InfrastructureRing` type implements it. It
+does not re-decide business rules or modify an aggregate. Onion does not thereby gain Hexagonal
+port or adapter roles. Keep this materializer distinct from a read-only `Reader`; where technical
+grouping helps, infrastructure may use `query.<feature>` for the Reader and
+`projection.<feature>` for the materializer. This is optional project terminology and does not
+require Event Sourcing.
 
 ![onion-architecture.png](../../assets/onion-architecture.png)
 

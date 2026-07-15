@@ -112,10 +112,12 @@ constraint as a business conflict, such as an aggregate root identifier already 
 
 The MyBatis-Plus Spring Boot starter includes this runtime adapter and auto-configuration injects
 the default translator into every `AbstractPersistenceAdapter` instance. A user-defined
-`PersistenceFailureTranslator` bean replaces that default. Readers, projection stores, and other
-non-aggregate persistence adapters extend `AbstractPersistenceAdapter` and wrap their own
-responsibility-specific calls with `query`, `find`, `add`, `modify`, or `remove`; they do not inject
-the translator or write their own try/catch translation blocks.
+`PersistenceFailureTranslator` bean replaces that default. A read-only Reader wraps its retrieval
+with `query` or `find`. When CQRS materializes a derived read model after an event or state change,
+a ProjectionStore wraps the corresponding insert/upsert with `add` or `modify` as applicable.
+Readers, projection stores, and other non-aggregate persistence adapters do not inject the
+translator or write their own try/catch translation blocks. Projection materialization is optional;
+it does not require Event Sourcing.
 
 ## MyBatis-Plus Wrapper Or Explicit SQL
 

@@ -116,9 +116,10 @@ MyBatis-Plus 根 Data 可在 version 字段上使用 `@Version`，显式配置
 
 MyBatis-Plus Spring Boot starter 会引入该运行时 Adapter，自动配置会把默认 translator 注入每个
 `AbstractPersistenceAdapter` 实例。业务应用声明自己的 `PersistenceFailureTranslator` Bean 后会替代默认实现。
-Reader、Projection Store 等非聚合持久化 Adapter 继承 `AbstractPersistenceAdapter`，并在其职责特定的
-持久化调用外围使用 `query`、`find`、`add`、`modify` 或 `remove`；不再注入 translator，也不再手写
-try/catch 翻译代码。
+只读 Reader 在检索调用外围使用 `query` 或 `find`。当 CQRS 在事件或状态变化后物化派生读模型时，
+Projection Store 按需要在插入或 upsert 调用外围使用 `add` 或 `modify`。Reader、Projection Store 等
+非聚合持久化 Adapter 不再注入 translator，也不再手写 try/catch 翻译代码。投影物化是可选能力，
+不要求 Event Sourcing。
 
 ## MyBatis-Plus Wrapper 与显式 SQL
 
