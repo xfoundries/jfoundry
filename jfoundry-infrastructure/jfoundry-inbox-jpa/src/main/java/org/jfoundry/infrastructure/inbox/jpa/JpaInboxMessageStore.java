@@ -43,6 +43,7 @@ public final class JpaInboxMessageStore implements InboxMessageStore {
                 .setParameter("consumerName", consumerName)
                 .setParameter("failed", InboxMessageStatus.FAILED.name())
                 .executeUpdate();
+        entityManager.flush();
         entityManager.clear();
         if (retried == 1) {
             return true;
@@ -70,6 +71,7 @@ public final class JpaInboxMessageStore implements InboxMessageStore {
                 .setParameter("consumerName", consumerName)
                 .setParameter("processing", InboxMessageStatus.PROCESSING.name())
                 .executeUpdate();
+        entityManager.flush();
         entityManager.clear();
     }
 
@@ -87,6 +89,7 @@ public final class JpaInboxMessageStore implements InboxMessageStore {
                 .setParameter("consumerName", consumerName)
                 .setParameter("processing", InboxMessageStatus.PROCESSING.name())
                 .executeUpdate();
+        entityManager.flush();
         entityManager.clear();
     }
 

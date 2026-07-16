@@ -2,6 +2,7 @@ package org.jfoundry.infrastructure.inbox.jpa;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.FlushModeType;
 import jakarta.persistence.Persistence;
 import org.jfoundry.application.inbox.InboxMessage;
 import org.jfoundry.application.inbox.InboxMessageStatus;
@@ -43,7 +44,10 @@ class JpaInboxMessageStoreTest {
             manager.persist(JpaInboxMessageEntity.fromMessage(InboxMessage.processing(messageId, consumerName)));
             return true;
         });
-        inTransaction(() -> entityManager.createQuery("delete from JpaInboxMessageEntity").executeUpdate());
+        inTransaction(() -> {
+            entityManager.createQuery("delete from JpaInboxMessageEntity").executeUpdate();
+            entityManager.createQuery("delete from UnrelatedTestEntity").executeUpdate();
+        });
     }
 
     @AfterEach
@@ -119,8 +123,58 @@ class JpaInboxMessageStoreTest {
         assertThat(store.isProcessed("msg-1", "billing")).isTrue();
     }
 
+    @Test
+    void retryFlushesUnrelatedChangesBeforeClearingThePersistenceContext() {
+        persist(failed("msg-1", "billing", "temporary failure"));
+        persistUnrelatedEntity();
+
+        mutateUnrelatedEntityAndRun(() -> assertThat(store.tryStartProcessing("msg-1", "billing")).isTrue());
+
+        assertThat(loadUnrelatedEntity().getDescription()).isEqualTo("after");
+    }
+
+    @Test
+    void markProcessedFlushesUnrelatedChangesBeforeClearingThePersistenceContext() {
+        assertThat(inTransactionResult(() -> store.tryStartProcessing("msg-1", "billing"))).isTrue();
+        persistUnrelatedEntity();
+
+        mutateUnrelatedEntityAndRun(() -> store.markProcessed("msg-1", "billing"));
+
+        assertThat(loadUnrelatedEntity().getDescription()).isEqualTo("after");
+    }
+
+    @Test
+    void markFailedFlushesUnrelatedChangesBeforeClearingThePersistenceContext() {
+        assertThat(inTransactionResult(() -> store.tryStartProcessing("msg-1", "billing"))).isTrue();
+        persistUnrelatedEntity();
+
+        mutateUnrelatedEntityAndRun(() -> store.markFailed("msg-1", "billing", "temporary failure"));
+
+        assertThat(loadUnrelatedEntity().getDescription()).isEqualTo("after");
+    }
+
     private void persist(InboxMessage message) {
         inTransaction(() -> entityManager.persist(JpaInboxMessageEntity.fromMessage(message)));
+    }
+
+    private void persistUnrelatedEntity() {
+        inTransaction(() -> entityManager.persist(new UnrelatedTestEntity("unrelated-1", "before")));
+    }
+
+    private void mutateUnrelatedEntityAndRun(Runnable transition) {
+        inTransaction(() -> {
+            entityManager.setFlushMode(FlushModeType.COMMIT);
+            UnrelatedTestEntity unrelated = entityManager.find(UnrelatedTestEntity.class, "unrelated-1");
+            unrelated.setDescription("after");
+            transition.run();
+        });
+    }
+
+    private UnrelatedTestEntity loadUnrelatedEntity() {
+        return inTransactionResult(() -> {
+            entityManager.clear();
+            return entityManager.find(UnrelatedTestEntity.class, "unrelated-1");
+        });
     }
 
     private InboxMessage load(String messageId, String consumerName) {
