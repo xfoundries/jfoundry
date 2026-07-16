@@ -20,7 +20,7 @@ import org.springframework.orm.jpa.SharedEntityManagerCreator;
         "org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration"
 })
 @AutoConfigureBefore(name = "org.jfoundry.autoconfigure.outbox.dispatcher.OutboxDispatcherAutoConfiguration")
-@ConditionalOnClass({EntityManager.class, JpaOutboxMessageStore.class})
+@ConditionalOnClass({EntityManager.class, SharedEntityManagerCreator.class, JpaOutboxMessageStore.class})
 @ConditionalOnBean(EntityManagerFactory.class)
 public class OutboxJpaAutoConfiguration {
 

@@ -25,7 +25,7 @@ import java.sql.SQLException;
         "org.jfoundry.autoconfigure.inbox.InboxMybatisPlusAutoConfiguration"
 })
 @AutoConfigureBefore(InboxAutoConfiguration.class)
-@ConditionalOnClass({EntityManager.class, JpaInboxMessageStore.class})
+@ConditionalOnClass({EntityManager.class, SharedEntityManagerCreator.class, JpaInboxMessageStore.class})
 @ConditionalOnBean(EntityManagerFactory.class)
 public class InboxJpaAutoConfiguration {
 

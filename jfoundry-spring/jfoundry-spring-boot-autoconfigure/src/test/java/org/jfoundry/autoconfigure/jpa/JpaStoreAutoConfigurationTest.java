@@ -24,7 +24,9 @@ import org.jfoundry.infrastructure.outbox.mybatis.OutboxMapper;
 import org.junit.jupiter.api.Test;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.orm.jpa.SharedEntityManagerCreator;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -69,6 +71,28 @@ class JpaStoreAutoConfigurationTest {
                             .isInstanceOf(JpaOutboxMessageStore.class);
                     assertThat(context).doesNotHaveBean(OutboxDispatcher.class);
                 });
+    }
+
+    @Test
+    void backsOffWhenSharedEntityManagerCreatorIsMissing() {
+        JpaInboxClaimStrategy userStrategy = (entityManager, messageId, consumerName, now) -> false;
+
+        outboxRunner
+                .withClassLoader(new FilteredClassLoader(SharedEntityManagerCreator.class))
+                .withBean(EntityManagerFactory.class, () -> mock(EntityManagerFactory.class))
+                .run(context -> assertThat(context).doesNotHaveBean(OutboxMessageStore.class));
+
+        inboxRunner
+                .withBean(EntityManagerFactory.class, () -> mock(EntityManagerFactory.class))
+                .withBean(JpaInboxClaimStrategy.class, () -> userStrategy)
+                .run(context -> assertThat(context).hasSingleBean(InboxMessageStore.class)
+                        .getBean(InboxMessageStore.class).isInstanceOf(JpaInboxMessageStore.class));
+
+        inboxRunner
+                .withClassLoader(new FilteredClassLoader(SharedEntityManagerCreator.class))
+                .withBean(EntityManagerFactory.class, () -> mock(EntityManagerFactory.class))
+                .withBean(JpaInboxClaimStrategy.class, () -> userStrategy)
+                .run(context -> assertThat(context).doesNotHaveBean(InboxMessageStore.class));
     }
 
     @Test
