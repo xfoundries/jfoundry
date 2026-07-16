@@ -7,8 +7,8 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.nio.file.Path;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,28 +18,53 @@ class InboxJpaStarterDependencyTest {
 
     @Test
     void declaresTheExplicitJPAInboxCapabilityDependencies() throws Exception {
-        assertThat(dependencyArtifactIds(Path.of("pom.xml")))
-                .contains("jfoundry-inbox-spring-boot-starter", "jfoundry-inbox-jpa", "spring-boot-starter-data-jpa");
+        Map<String, DependencyDeclaration> dependencies = dependencyDeclarations(Path.of("pom.xml"));
+
+        assertCompileNonOptional(dependencies,
+                "jfoundry-inbox-spring-boot-starter",
+                "jfoundry-inbox-jpa",
+                "spring-boot-starter-data-jpa");
     }
 
     @Test
     void businessJpaStarterDoesNotIncludeReliableMessagingStores() throws Exception {
-        assertThat(dependencyArtifactIds(Path.of("..", "jfoundry-jpa-spring-boot-starter", "pom.xml")))
-                .doesNotContain("jfoundry-outbox-jpa", "jfoundry-inbox-jpa");
+        assertThat(dependencyDeclarations(Path.of("..", "jfoundry-jpa-spring-boot-starter", "pom.xml")))
+                .doesNotContainKeys("jfoundry-outbox-jpa", "jfoundry-inbox-jpa");
     }
 
-    private Set<String> dependencyArtifactIds(Path pom) throws Exception {
+    private void assertCompileNonOptional(Map<String, DependencyDeclaration> dependencies, String... artifactIds) {
+        for (String artifactId : artifactIds) {
+            assertThat(dependencies).containsEntry(artifactId,
+                    new DependencyDeclaration(artifactId, "compile", false));
+        }
+    }
+
+    private Map<String, DependencyDeclaration> dependencyDeclarations(Path pom) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         Document document = factory.newDocumentBuilder().parse(pom.toFile());
         NodeList dependencies = document.getElementsByTagNameNS(MAVEN_POM_NAMESPACE, "dependency");
-        Set<String> artifactIds = new LinkedHashSet<>();
+        Map<String, DependencyDeclaration> declarations = new LinkedHashMap<>();
         for (int index = 0; index < dependencies.getLength(); index++) {
             Element dependency = (Element) dependencies.item(index);
-            artifactIds.add(dependency.getElementsByTagNameNS(MAVEN_POM_NAMESPACE, "artifactId")
-                    .item(0)
-                    .getTextContent());
+            String artifactId = childText(dependency, "artifactId");
+            declarations.put(artifactId, new DependencyDeclaration(
+                    artifactId,
+                    childText(dependency, "scope", "compile"),
+                    Boolean.parseBoolean(childText(dependency, "optional", "false"))));
         }
-        return artifactIds;
+        return declarations;
+    }
+
+    private String childText(Element element, String name) {
+        return childText(element, name, null);
+    }
+
+    private String childText(Element element, String name, String defaultValue) {
+        NodeList children = element.getElementsByTagNameNS(MAVEN_POM_NAMESPACE, name);
+        return children.getLength() == 0 ? defaultValue : children.item(0).getTextContent();
+    }
+
+    private record DependencyDeclaration(String artifactId, String scope, boolean optional) {
     }
 }
