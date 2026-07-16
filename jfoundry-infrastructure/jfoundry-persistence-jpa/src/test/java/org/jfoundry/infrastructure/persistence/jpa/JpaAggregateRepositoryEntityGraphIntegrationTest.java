@@ -7,6 +7,7 @@ import jakarta.persistence.Persistence;
 import org.jfoundry.application.exception.ConflictException;
 import org.jfoundry.application.event.DomainEventContext;
 import org.jfoundry.domain.event.EventRecordable;
+import org.jfoundry.infrastructure.persistence.jpa.support.ChildGraphMutationMapper;
 import org.jfoundry.infrastructure.persistence.jpa.support.GraphOrder;
 import org.jfoundry.infrastructure.persistence.jpa.support.GraphOrderEntity;
 import org.jfoundry.infrastructure.persistence.jpa.support.GraphOrderId;
@@ -179,9 +180,67 @@ class JpaAggregateRepositoryEntityGraphIntegrationTest {
         }
     }
 
+    @Test
+    void staleChildGraphModifyReportsConflictAndKeepsWinnerGraph() {
+        GraphOrderId orderId = new GraphOrderId("GRAPH-MODIFY-CONFLICT");
+        repository.add(GraphOrder.create(orderId, List.of("A")));
+        entityManager.getTransaction().commit();
+
+        EntityManager staleManager = entityManagerFactory.createEntityManager();
+        EntityManager winnerManager = entityManagerFactory.createEntityManager();
+        JpaAggregateRepository<GraphOrder, GraphOrderId, GraphOrderEntity, String> staleRepository =
+                repository(staleManager, new ChildGraphMutationMapper());
+        JpaAggregateRepository<GraphOrder, GraphOrderId, GraphOrderEntity, String> winnerRepository =
+                repository(winnerManager, new ChildGraphMutationMapper());
+        staleManager.getTransaction().begin();
+        winnerManager.getTransaction().begin();
+
+        try {
+            GraphOrder stale = staleRepository.findById(orderId);
+            GraphOrder winner = winnerRepository.findById(orderId);
+            winner.replaceLines(List.of("B"));
+            winnerRepository.modify(winner);
+            winnerManager.getTransaction().commit();
+
+            stale.replaceLines(List.of("C"));
+
+            assertThatThrownBy(() -> staleRepository.modify(stale))
+                    .isInstanceOf(ConflictException.class)
+                    .hasMessageContaining("modify optimistic lock conflict")
+                    .hasCauseInstanceOf(OptimisticLockException.class);
+
+            staleManager.getTransaction().rollback();
+        } finally {
+            if (staleManager.getTransaction().isActive()) {
+                staleManager.getTransaction().rollback();
+            }
+            staleManager.close();
+            if (winnerManager.getTransaction().isActive()) {
+                winnerManager.getTransaction().rollback();
+            }
+            winnerManager.close();
+        }
+
+        EntityManager verificationManager = entityManagerFactory.createEntityManager();
+        try {
+            GraphOrderEntity winner = verificationManager.find(GraphOrderEntity.class, orderId.value());
+
+            assertThat(winner).isNotNull();
+            assertThat(winner.lineSkus()).containsExactly("B");
+        } finally {
+            verificationManager.close();
+        }
+    }
+
     private JpaAggregateRepository<GraphOrder, GraphOrderId, GraphOrderEntity, String> repository(
             EntityManager entityManager) {
-        GraphRepository repository = new GraphRepository(entityManager, new GraphOrderMapper());
+        return repository(entityManager, new GraphOrderMapper());
+    }
+
+    private JpaAggregateRepository<GraphOrder, GraphOrderId, GraphOrderEntity, String> repository(
+            EntityManager entityManager,
+            JpaAggregateMapper<GraphOrder, GraphOrderId, GraphOrderEntity, String> mapper) {
+        GraphRepository repository = new GraphRepository(entityManager, mapper);
         repository.setAggregatePersistenceContext(new TestPersistenceContext());
         return repository;
     }
@@ -205,7 +264,9 @@ class JpaAggregateRepositoryEntityGraphIntegrationTest {
     private static final class GraphRepository extends
             JpaAggregateRepository<GraphOrder, GraphOrderId, GraphOrderEntity, String> {
 
-        private GraphRepository(EntityManager entityManager, GraphOrderMapper mapper) {
+        private GraphRepository(
+                EntityManager entityManager,
+                JpaAggregateMapper<GraphOrder, GraphOrderId, GraphOrderEntity, String> mapper) {
             super(entityManager, GraphOrderEntity.class, mapper);
         }
     }

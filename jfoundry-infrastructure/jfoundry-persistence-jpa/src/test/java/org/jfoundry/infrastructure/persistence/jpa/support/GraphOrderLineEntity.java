@@ -42,4 +42,8 @@ public class GraphOrderLineEntity {
     public String sku() {
         return sku;
     }
+
+    public void replaceSku(String sku) {
+        this.sku = sku;
+    }
 }

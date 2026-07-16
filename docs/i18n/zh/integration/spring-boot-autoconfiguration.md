@@ -86,4 +86,4 @@
 - 分布式锁是显式能力。默认 Spring Boot starter 不会引入 Redisson。
 - MyBatis-Plus 与 JPA starter 会引入 `jfoundry-persistence-spring`。它是共享的 Spring 运行时适配器，负责提供事务绑定的聚合持久化上下文，并不专属于任一持久化技术。其默认 translator 只处理已知的可用性故障；用户自定义的 `PersistenceFailureTranslator` Bean 优先。
 - `mode=none` 表示不注册 dispatcher、recovery job 或 cleanup job，即使显式开启 recovery 或 cleanup 也不会注册。
-- MyBatis-Plus 与 JPA 运行时 starter 会把共享的 Spring 事务绑定持久化上下文自动注入感知仓储，因此业务构造器不接收它。版本跟踪仍是可选能力；业务应用必须配置 ORM 或插件的乐观锁支持，并在同一事务内完成加载与修改。对于 JPA，每个聚合使用一个由 JPA 管理的实体图，在其根实体上声明 `@Version`，并由仓储 `flush` 将并发更新报告为 `ConflictException`。`JpaAggregateMapper` 负责实体图创建、还原和同步；手动多表或多实体图同步仍是业务适配器代码。
+- MyBatis-Plus 与 JPA 运行时 starter 会把共享的 Spring 事务绑定持久化上下文自动注入感知仓储，因此业务构造器不接收它。版本跟踪仍是可选能力；业务应用必须配置 ORM 或插件的乐观锁支持，并在同一事务内完成加载与修改。对于 JPA，每个聚合使用一个由 JPA 管理的实体图，在其根实体上声明 `@Version`，并让每次实体图变更修改根实体的持久化属性；仅有 `@Version` 不能保护只修改子实体的更新。仓储 `flush` 会将根实体的并发更新报告为 `ConflictException`。`JpaAggregateMapper` 负责实体图创建、还原和同步；手动多表或多实体图同步仍是业务适配器代码。

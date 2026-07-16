@@ -98,6 +98,7 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
   into aware repositories, so business constructors do not receive it. Version tracking remains
   opt-in. Configure ORM/plugin optimistic locking and keep each tracked load-modify operation in
   one transaction. For JPA, use one managed entity graph per aggregate, declare `@Version` on its
-  root, and rely on repository `flush` to report a concurrent update as `ConflictException`.
-  `JpaAggregateMapper` owns graph creation, restoration, and synchronization; manual multi-table
-  or multi-graph synchronization remains business adapter code.
+  root, and make each graph mutation change a persistent root attribute; `@Version` alone does not
+  protect child-only updates. Repository `flush` reports a concurrent root update as
+  `ConflictException`. `JpaAggregateMapper` owns graph creation, restoration, and synchronization;
+  manual multi-table or multi-graph synchronization remains business adapter code.

@@ -96,11 +96,14 @@ persistence context; detached aggregate merge is not supported.
 
 `JpaAggregateMapper` owns JPA entity-graph creation, aggregate restoration, ID conversion, and
 synchronizing current aggregate state with the managed graph. For optimistic concurrency, declare
-`@Version` on the entity-graph root. JPA detects a concurrent root update at the repository flush,
-which is reported as `ConflictException` before the repository operation succeeds. Runtime
-integration injects the persistence context; business constructors do not. A representation that
-requires manual synchronization across multiple tables or entity graphs remains the business
-adapter's responsibility; jfoundry does not provide a generic composite synchronization algorithm.
+`@Version` on the entity-graph root and make every graph mutation change a persistent root
+attribute. A root `@Version` alone does not make child-only updates participate in optimistic
+concurrency. The mapper can call an explicit root touch method while applying a child change. JPA
+then detects a concurrent root update at the repository flush and reports it as `ConflictException`
+before the repository operation succeeds. Runtime integration injects the persistence context;
+business constructors do not. A representation that requires manual synchronization across
+multiple tables or entity graphs remains the business adapter's responsibility; jfoundry does not
+provide a generic composite synchronization algorithm.
 
 ## Persistence Failure Translation
 

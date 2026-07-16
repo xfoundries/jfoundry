@@ -23,7 +23,7 @@ public class GraphOrderEntity {
     private long version;
 
     @Column(nullable = false)
-    private long lineRevision;
+    private long graphRevision;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<GraphOrderLineEntity> lines = new ArrayList<>();
@@ -50,6 +50,13 @@ public class GraphOrderEntity {
     public void replaceLines(Collection<String> skus) {
         lines.clear();
         skus.forEach(sku -> lines.add(new GraphOrderLineEntity(this, sku)));
-        lineRevision++;
+    }
+
+    public void replaceFirstLineSku(String sku) {
+        lines.getFirst().replaceSku(sku);
+    }
+
+    public void touchForGraphMutation() {
+        graphRevision++;
     }
 }
