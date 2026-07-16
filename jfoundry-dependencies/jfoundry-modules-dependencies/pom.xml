@@ -171,12 +171,22 @@
       </dependency>
       <dependency>
         <groupId>io.github.xfoundries</groupId>
+        <artifactId>jfoundry-inbox-jpa</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-persistence-mybatis-plus</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-outbox-mybatis-plus</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.xfoundries</groupId>
+        <artifactId>jfoundry-outbox-jpa</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

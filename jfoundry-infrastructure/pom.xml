@@ -26,8 +26,10 @@
         <module>jfoundry-messaging-rabbitmq</module>
         <module>jfoundry-lock-redisson</module>
         <module>jfoundry-inbox-mybatis-plus</module>
+        <module>jfoundry-inbox-jpa</module>
         <module>jfoundry-persistence-mybatis-plus</module>
         <module>jfoundry-outbox-mybatis-plus</module>
+        <module>jfoundry-outbox-jpa</module>
         <module>jfoundry-outbox-jobrunr</module>
     </modules>
 </project>
