@@ -20,7 +20,7 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 | `jfoundry-inbox-spring-boot-starter` | Inbox core and `InboxTemplate` | Inbox table store |
 | `jfoundry-inbox-mybatis-plus-spring-boot-starter` | MyBatis-Plus `InboxMessageStore` adapter | Database migration execution |
 | `jfoundry-mybatis-plus-spring-boot-starter` | Spring Boot MyBatis-Plus runtime assembly | Business persistence starter, Outbox/Inbox stores |
-| `jfoundry-jpa-spring-boot-starter` | jfoundry JPA adapter, Spring transaction persistence context, Spring Boot JPA runtime | Detached aggregate merge, composite synchronization algorithms |
+| `jfoundry-jpa-spring-boot-starter` | jfoundry JPA adapter for one managed entity graph per aggregate, shared Spring transaction persistence context, Spring Boot JPA runtime | Detached aggregate merge, manual multi-table or multi-graph synchronization algorithms |
 | `jfoundry-webmvc-spring-boot-starter` | Web MVC `ProblemDetail` exception handling | Messaging, Outbox, Inbox |
 
 ## Configuration Properties
@@ -88,12 +88,16 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
   creator already registered by another Spring integration is preserved through Spring's standard
   escalation protocol; applications do not need a jfoundry-specific proxy creator.
 - Distributed lock support is explicit. The default Spring Boot starter does not pull Redisson.
-- The MyBatis-Plus starter includes the optional `jfoundry-persistence-spring` runtime adapter. Its
-  default translator handles only known availability failures; a user-defined
-  `PersistenceFailureTranslator` bean takes precedence.
+- The MyBatis-Plus and JPA starters include `jfoundry-persistence-spring`, the shared Spring
+  runtime adapter for the transaction-bound aggregate persistence context. It is not specific to
+  either persistence technology. Its default translator handles only known availability failures;
+  a user-defined `PersistenceFailureTranslator` bean takes precedence.
 - `mode=none` means no dispatcher, recovery job, or cleanup job is registered, even when recovery
   or cleanup is explicitly enabled.
-- The MyBatis-Plus and JPA runtime starters make the Spring transaction-bound persistence context
-  available and inject it into aware repositories, so business constructors do not receive it.
-  Version tracking remains opt-in. Configure ORM/plugin optimistic locking and keep each tracked
-  load-modify operation in one transaction.
+- The MyBatis-Plus and JPA runtime starters inject the shared transaction-bound persistence context
+  into aware repositories, so business constructors do not receive it. Version tracking remains
+  opt-in. Configure ORM/plugin optimistic locking and keep each tracked load-modify operation in
+  one transaction. For JPA, use one managed entity graph per aggregate, declare `@Version` on its
+  root, and rely on repository `flush` to report a concurrent update as `ConflictException`.
+  `JpaAggregateMapper` owns graph creation, restoration, and synchronization; manual multi-table
+  or multi-graph synchronization remains business adapter code.

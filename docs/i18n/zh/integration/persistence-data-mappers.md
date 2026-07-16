@@ -94,16 +94,21 @@ public class HelpDocumentRepositoryImpl
 不要仅仅因为持久化技术使用乐观锁，就把数据库 version 放入领域聚合。
 `AggregatePersistenceContext` 按聚合对象身份跟踪一个运行时事务内的持久化状态。
 存在 `jfoundry-persistence-spring` 时，Spring Boot 会提供事务绑定实现，业务代码不需要手动开启或关闭 scope。
-在活动事务之外使用跟踪状态，或者修改并非在当前事务加载的聚合，都会立即失败；当前不支持 detached aggregate merge。
+在活动事务之外使用跟踪状态，或者修改并非在当前事务加载的聚合，都会立即失败；当前不支持对分离聚合执行合并。
 
 MyBatis-Plus 根 Data 可在 version 字段上使用 `@Version`，显式配置
 `OptimisticLockerInnerInterceptor`，并把 Data 类型传给 `MybatisPlusAggregateRepository`。
 仓储会从元数据自动识别版本字段，并在内部完成加载版本跟踪、`updateById` 前版本还原、零行冲突判断、成功后的跟踪版本推进以及 ID + version 删除。没有 `@Version` 的 Data 保持非跟踪行为；业务构造器不接收 `AggregatePersistenceContext`。
 
-单个 JPA entity graph 可使用 `JpaAggregateRepository`。它跟踪 `EntityManager.find` 返回的 managed entity，
-把聚合状态应用到同一实体并在仓储成功返回前 `flush`，不会调用 `merge`。
-`JpaAggregateMapper` 负责新实体创建、聚合还原、ID 转换与 managed entity 更新。运行时集成负责注入 persistence context，业务构造器不接收它。
-多实体或复合存储仍由业务 Adapter 实现完整操作。
+JPA 支持的默认边界是一个聚合对应一个由 JPA 管理的实体图。`EntityManager.find` 加载该实体图后，
+`JpaAggregateRepository` 会跟踪其中受管理的根实体，把聚合状态应用到同一实体图，并在仓储成功返回前
+`flush`；它不会调用 `merge`。加载、执行业务行为和调用 `modify(...)` 必须处于同一个事务和持久化
+上下文中；不支持对分离聚合执行合并。
+
+`JpaAggregateMapper` 负责 JPA 实体图创建、聚合还原、ID 转换，以及把当前聚合状态同步到受管理的实体图。
+乐观并发控制应在实体图根实体上声明 `@Version`。JPA 会在仓储 `flush` 时检测根实体的并发更新，并在仓储
+操作成功前报告为 `ConflictException`。运行时集成负责注入持久化上下文，业务构造器不接收它。如果表示方式
+要求手动同步多个表或多个实体图，则完整同步逻辑仍由业务适配器负责；jfoundry 不提供通用的复合同步算法。
 
 ## 持久化异常翻译
 
@@ -112,7 +117,8 @@ MyBatis-Plus 根 Data 可在 version 字段上使用 `@Version`，显式配置
 `add`、`modify`、`remove` 调用外围应用它，因此 core 不依赖 Spring 或其他运行时框架。
 `AbstractAggregateRepository` 继承该基类，同时保留固定的聚合生命周期 `do*` 扩展点和领域事件登记。
 
-`jfoundry-persistence-spring` 是可选的 Spring 运行时 Adapter。其 `SpringDataAccessFailureTranslator` 只把已知的资源不可用、瞬时资源故障和查询超时转换为 `ExternalAccessException`，并保留 cause。重复键、完整性约束、锁冲突、SQL 或 Mapper 缺陷以及未知异常保持原样。只有当业务 Adapter 能确定被违反的约束确实表示业务冲突时，才可将重复键转换为 `ConflictException`，例如聚合根标识已经存在。
+`jfoundry-persistence-spring` 是可选的共享 Spring 运行时适配器，负责提供事务绑定的聚合持久化
+上下文，而不是 JPA 专属适配器。其 `SpringDataAccessFailureTranslator` 只把已知的资源不可用、瞬时资源故障和查询超时转换为 `ExternalAccessException`，并保留 cause。重复键、完整性约束、锁冲突、SQL 或 Mapper 缺陷以及未知异常保持原样。只有当业务适配器能确定被违反的约束确实表示业务冲突时，才可将重复键转换为 `ConflictException`，例如聚合根标识已经存在。
 
 MyBatis-Plus Spring Boot starter 会引入该运行时 Adapter，自动配置会把默认 translator 注入每个
 `AbstractPersistenceAdapter` 实例。业务应用声明自己的 `PersistenceFailureTranslator` Bean 后会替代默认实现。

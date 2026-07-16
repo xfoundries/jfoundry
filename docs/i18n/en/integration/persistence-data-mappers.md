@@ -88,12 +88,19 @@ The repository detects the version metadata and internally handles loaded-versio
 version removal. Data without `@Version` keeps the non-tracked behavior. Business constructors do
 not receive `AggregatePersistenceContext`.
 
-For one JPA entity graph, `JpaAggregateRepository` tracks the managed entity returned by
-`EntityManager.find`, applies aggregate changes to that same entity, and flushes before repository
-success is reported. It never calls `merge`. `JpaAggregateMapper` owns new-entity creation,
-restoration, ID conversion, and applying state to a managed entity. Runtime integration injects the
-persistence context; business constructors do not. Multi-entity or composite storage remains a
-business adapter responsibility.
+The supported JPA default is one JPA-managed entity graph for one aggregate. After
+`EntityManager.find` loads that graph, `JpaAggregateRepository` tracks the managed root, applies
+aggregate changes to that same graph, and flushes before repository success is reported. It never
+calls `merge`. Keep load, domain behavior, and `modify(...)` in the same transaction and
+persistence context; detached aggregate merge is not supported.
+
+`JpaAggregateMapper` owns JPA entity-graph creation, aggregate restoration, ID conversion, and
+synchronizing current aggregate state with the managed graph. For optimistic concurrency, declare
+`@Version` on the entity-graph root. JPA detects a concurrent root update at the repository flush,
+which is reported as `ConflictException` before the repository operation succeeds. Runtime
+integration injects the persistence context; business constructors do not. A representation that
+requires manual synchronization across multiple tables or entity graphs remains the business
+adapter's responsibility; jfoundry does not provide a generic composite synchronization algorithm.
 
 ## Persistence Failure Translation
 
@@ -103,7 +110,8 @@ business adapter responsibility.
 runtime. `AbstractAggregateRepository` extends that base and retains the fixed aggregate lifecycle
 `do*` hooks plus domain-event registration.
 
-`jfoundry-persistence-spring` is an optional runtime adapter. Its
+`jfoundry-persistence-spring` is the optional shared Spring runtime adapter for transaction-bound
+aggregate persistence context, rather than a JPA-specific adapter. Its
 `SpringDataAccessFailureTranslator` converts only known resource, transient-resource, and query
 timeout failures to `ExternalAccessException`, preserving the cause. Duplicate keys, integrity and
 locking failures, SQL or mapper defects, and unknown exceptions remain unchanged. A business
