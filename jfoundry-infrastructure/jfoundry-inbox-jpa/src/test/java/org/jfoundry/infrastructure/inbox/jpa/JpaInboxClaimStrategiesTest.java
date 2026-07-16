@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Proxy;
@@ -56,7 +57,7 @@ class JpaInboxClaimStrategiesTest {
 
     @Test
     void mysqlUsesNoOpDuplicateUpdateAndReturnsFalseWhenTheRowAlreadyExists() {
-        RecordedNativeQuery recorded = new RecordedNativeQuery(0);
+        RecordedNativeQuery recorded = new RecordedNativeQuery(0, false);
         Instant now = Instant.parse("2026-07-16T10:15:30Z");
 
         boolean claimed = new MySqlJpaInboxClaimStrategy()
@@ -73,6 +74,17 @@ class JpaInboxClaimStrategiesTest {
         assertThat(recorded.parameters().get(4)).isEqualTo("PROCESSING");
         assertThat(recorded.parameters().get(5)).isEqualTo(LocalDateTime.of(2026, 7, 16, 10, 15, 30));
         assertThat(recorded.parameters().get(6)).isEqualTo(LocalDateTime.of(2026, 7, 16, 10, 15, 30));
+    }
+
+    @Test
+    void mysqlReturnsFalseWhenAffectedRowsReportOneButTheGeneratedIdWasNotInserted() {
+        RecordedNativeQuery recorded = new RecordedNativeQuery(1, false);
+
+        assertThat(new MySqlJpaInboxClaimStrategy()
+                .tryClaim(recorded.entityManager(), "msg-1", "billing", Instant.parse("2026-07-16T10:15:30Z")))
+                .isFalse();
+        assertThat(recorded.lookupSql()).contains("JpaInboxMessageEntity e where e.id = :generatedId");
+        assertThat(recorded.lookupId()).isEqualTo(recorded.parameters().get(1));
     }
 
     @Test
@@ -105,11 +117,19 @@ class JpaInboxClaimStrategiesTest {
     private static final class RecordedNativeQuery {
 
         private final int updateCount;
+        private final boolean generatedIdPresent;
         private final Map<Integer, Object> parameters = new LinkedHashMap<>();
         private String sql;
+        private String lookupQuery;
+        private Object lookupId;
 
         private RecordedNativeQuery(int updateCount) {
+            this(updateCount, true);
+        }
+
+        private RecordedNativeQuery(int updateCount, boolean generatedIdPresent) {
             this.updateCount = updateCount;
+            this.generatedIdPresent = generatedIdPresent;
         }
 
         private EntityManager entityManager() {
@@ -119,13 +139,17 @@ class JpaInboxClaimStrategiesTest {
                     (proxy, method, args) -> {
                         if (method.getName().equals("createNativeQuery")) {
                             sql = (String) args[0];
-                            return query();
+                            return nativeQuery();
+                        }
+                        if (method.getName().equals("createQuery")) {
+                            lookupQuery = (String) args[0];
+                            return lookupQueryProxy();
                         }
                         throw new UnsupportedOperationException(method.getName());
                     });
         }
 
-        private Query query() {
+        private Query nativeQuery() {
             return (Query) Proxy.newProxyInstance(
                     getClass().getClassLoader(),
                     new Class<?>[]{Query.class},
@@ -141,12 +165,37 @@ class JpaInboxClaimStrategiesTest {
                     });
         }
 
+        @SuppressWarnings("unchecked")
+        private TypedQuery<Long> lookupQueryProxy() {
+            return (TypedQuery<Long>) Proxy.newProxyInstance(
+                    getClass().getClassLoader(),
+                    new Class<?>[]{TypedQuery.class},
+                    (proxy, method, args) -> {
+                        if (method.getName().equals("setParameter")) {
+                            lookupId = args[1];
+                            return proxy;
+                        }
+                        if (method.getName().equals("getSingleResult")) {
+                            return generatedIdPresent && parameters.get(1).equals(lookupId) ? 1L : 0L;
+                        }
+                        throw new UnsupportedOperationException(method.getName());
+                    });
+        }
+
         private String sql() {
             return sql;
         }
 
         private Map<Integer, Object> parameters() {
             return parameters;
+        }
+
+        private String lookupSql() {
+            return lookupQuery;
+        }
+
+        private Object lookupId() {
+            return lookupId;
         }
     }
 }
