@@ -1,13 +1,16 @@
 package org.jfoundry.infrastructure.inbox.jpa;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import jakarta.persistence.Query;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Proxy;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,41 +33,79 @@ class JpaInboxClaimStrategiesTest {
                 .hasMessageContaining("JpaInboxClaimStrategy");
     }
 
+    // H2 does not implement PostgreSQL ON CONFLICT; middleware Testcontainers verify native PostgreSQL/MySQL behavior.
     @Test
     void postgresUsesNoConflictInsertAndReturnsWhetherTheRowWasInserted() {
         RecordedNativeQuery recorded = new RecordedNativeQuery(1);
+        Instant now = Instant.parse("2026-07-16T10:15:30Z");
 
         boolean claimed = new PostgreSqlJpaInboxClaimStrategy()
-                .tryClaim(recorded.entityManager(), "msg-1", "billing", Instant.parse("2026-07-16T10:15:30Z"));
+                .tryClaim(recorded.entityManager(), "msg-1", "billing", now);
 
         assertThat(claimed).isTrue();
         assertThat(recorded.sql()).containsIgnoringCase("insert into jfoundry_inbox_message")
                 .containsIgnoringCase("on conflict (consumer_name, message_id) do nothing");
-        assertThat(recorded.parameters()).hasSize(6);
-        assertThat(recorded.parameters().get(1)).isEqualTo("msg-1");
-        assertThat(recorded.parameters().get(2)).isEqualTo("billing");
-        assertThat(recorded.parameters().get(3)).isEqualTo("PROCESSING");
+        assertThat(recorded.parameters()).containsOnlyKeys(1, 2, 3, 4, 5, 6);
+        assertThat(recorded.parameters().get(1)).isInstanceOf(String.class);
+        assertThat(recorded.parameters().get(2)).isEqualTo("msg-1");
+        assertThat(recorded.parameters().get(3)).isEqualTo("billing");
+        assertThat(recorded.parameters().get(4)).isEqualTo("PROCESSING");
+        assertThat(recorded.parameters().get(5)).isEqualTo(LocalDateTime.of(2026, 7, 16, 10, 15, 30));
+        assertThat(recorded.parameters().get(6)).isEqualTo(LocalDateTime.of(2026, 7, 16, 10, 15, 30));
     }
 
     @Test
-    void mysqlUsesIgnoreInsertAndReturnsFalseWhenTheRowAlreadyExists() {
+    void mysqlUsesNoOpDuplicateUpdateAndReturnsFalseWhenTheRowAlreadyExists() {
         RecordedNativeQuery recorded = new RecordedNativeQuery(0);
+        Instant now = Instant.parse("2026-07-16T10:15:30Z");
 
         boolean claimed = new MySqlJpaInboxClaimStrategy()
-                .tryClaim(recorded.entityManager(), "msg-1", "billing", Instant.parse("2026-07-16T10:15:30Z"));
+                .tryClaim(recorded.entityManager(), "msg-1", "billing", now);
 
         assertThat(claimed).isFalse();
-        assertThat(recorded.sql()).containsIgnoringCase("insert ignore into jfoundry_inbox_message");
-        assertThat(recorded.parameters()).hasSize(6);
-        assertThat(recorded.parameters().get(1)).isEqualTo("msg-1");
-        assertThat(recorded.parameters().get(2)).isEqualTo("billing");
-        assertThat(recorded.parameters().get(3)).isEqualTo("PROCESSING");
+        assertThat(recorded.sql()).containsIgnoringCase("insert into jfoundry_inbox_message")
+                .containsIgnoringCase("on duplicate key update id = id")
+                .doesNotContainIgnoringCase("insert ignore");
+        assertThat(recorded.parameters()).containsOnlyKeys(1, 2, 3, 4, 5, 6);
+        assertThat(recorded.parameters().get(1)).isInstanceOf(String.class);
+        assertThat(recorded.parameters().get(2)).isEqualTo("msg-1");
+        assertThat(recorded.parameters().get(3)).isEqualTo("billing");
+        assertThat(recorded.parameters().get(4)).isEqualTo("PROCESSING");
+        assertThat(recorded.parameters().get(5)).isEqualTo(LocalDateTime.of(2026, 7, 16, 10, 15, 30));
+        assertThat(recorded.parameters().get(6)).isEqualTo(LocalDateTime.of(2026, 7, 16, 10, 15, 30));
+    }
+
+    @Test
+    void mysqlStrategyClaimsOnceAndPropagatesInvalidRowsInMysqlMode() {
+        try (EntityManagerFactory entityManagerFactory = entityManagerFactory("MySQL")) {
+            EntityManager entityManager = entityManagerFactory.createEntityManager();
+            try {
+                entityManager.getTransaction().begin();
+
+                MySqlJpaInboxClaimStrategy strategy = new MySqlJpaInboxClaimStrategy();
+                assertThat(strategy.tryClaim(entityManager, "msg-1", "billing", Instant.now())).isTrue();
+                assertThat(strategy.tryClaim(entityManager, "msg-1", "billing", Instant.now())).isFalse();
+                assertThatThrownBy(() -> strategy.tryClaim(entityManager, "msg-2", "x".repeat(256), Instant.now()))
+                        .hasRootCauseInstanceOf(org.h2.jdbc.JdbcSQLDataException.class);
+            } finally {
+                if (entityManager.getTransaction().isActive()) {
+                    entityManager.getTransaction().rollback();
+                }
+                entityManager.close();
+            }
+        }
+    }
+
+    private static EntityManagerFactory entityManagerFactory(String mode) {
+        return Persistence.createEntityManagerFactory("jfoundry-inbox-jpa-test", Map.of(
+                "jakarta.persistence.jdbc.url", "jdbc:h2:mem:jfoundry-inbox-jpa-" + mode
+                        + ";MODE=" + mode + ";DB_CLOSE_DELAY=-1"));
     }
 
     private static final class RecordedNativeQuery {
 
         private final int updateCount;
-        private final List<Object> parameters = new ArrayList<>();
+        private final Map<Integer, Object> parameters = new LinkedHashMap<>();
         private String sql;
 
         private RecordedNativeQuery(int updateCount) {
@@ -90,7 +131,7 @@ class JpaInboxClaimStrategiesTest {
                     new Class<?>[]{Query.class},
                     (proxy, method, args) -> {
                         if (method.getName().equals("setParameter")) {
-                            parameters.add(args[1]);
+                            parameters.put((Integer) args[0], args[1]);
                             return proxy;
                         }
                         if (method.getName().equals("executeUpdate")) {
@@ -104,7 +145,7 @@ class JpaInboxClaimStrategiesTest {
             return sql;
         }
 
-        private List<Object> parameters() {
+        private Map<Integer, Object> parameters() {
             return parameters;
         }
     }

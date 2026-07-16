@@ -4,24 +4,29 @@ import jakarta.persistence.EntityManager;
 import org.jfoundry.application.inbox.InboxMessageStatus;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /// Claims Inbox messages using MySQL's duplicate-tolerant insert syntax.
 public final class MySqlJpaInboxClaimStrategy implements JpaInboxClaimStrategy {
 
+    private static final InstantUtcConverter UTC_CONVERTER = new InstantUtcConverter();
+
     @Override
     public boolean tryClaim(EntityManager entityManager, String messageId, String consumerName, Instant now) {
+        LocalDateTime utcNow = UTC_CONVERTER.convertToDatabaseColumn(now);
         return entityManager.createNativeQuery("""
-                insert ignore into jfoundry_inbox_message
+                insert into jfoundry_inbox_message
                     (id, message_id, consumer_name, status, created_at, updated_at)
                 values (?1, ?2, ?3, ?4, ?5, ?6)
+                on duplicate key update id = id
                 """)
                 .setParameter(1, UUID.randomUUID().toString())
                 .setParameter(2, messageId)
                 .setParameter(3, consumerName)
                 .setParameter(4, InboxMessageStatus.PROCESSING.name())
-                .setParameter(5, now)
-                .setParameter(6, now)
+                .setParameter(5, utcNow)
+                .setParameter(6, utcNow)
                 .executeUpdate() == 1;
     }
 }
