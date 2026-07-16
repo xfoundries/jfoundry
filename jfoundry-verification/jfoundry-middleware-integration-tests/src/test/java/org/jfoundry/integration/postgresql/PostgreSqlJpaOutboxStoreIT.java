@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -79,20 +80,24 @@ class PostgreSqlJpaOutboxStoreIT {
             return null;
         });
         CountDownLatch start = new CountDownLatch(1);
-        ExecutorService pool = Executors.newFixedThreadPool(4);
+        ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor();
         List<String> claimedIds = java.util.Collections.synchronizedList(new ArrayList<>());
+        List<Future<?>> workers = new ArrayList<>();
         try {
             for (int i = 0; i < 4; i++) {
                 int worker = i;
-                pool.submit(() -> {
+                workers.add(pool.submit(() -> {
                     await(start);
                     claimedIds.addAll(inTransaction(() -> store.claimDispatchable(1, "pod-" + worker))
                             .stream().map(OutboxMessage::getEventId).toList());
-                });
+                }));
             }
             start.countDown();
             pool.shutdown();
             assertThat(pool.awaitTermination(20, TimeUnit.SECONDS)).isTrue();
+            for (Future<?> worker : workers) {
+                worker.get();
+            }
         } finally {
             pool.shutdownNow();
         }

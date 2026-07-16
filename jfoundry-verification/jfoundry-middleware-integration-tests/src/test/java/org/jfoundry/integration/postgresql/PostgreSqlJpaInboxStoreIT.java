@@ -22,6 +22,7 @@ import javax.sql.DataSource;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -84,22 +85,26 @@ class PostgreSqlJpaInboxStoreIT {
     @Test
     void onlyOneConcurrentWorkerClaimsTheMessage() throws Exception {
         CountDownLatch start = new CountDownLatch(1);
-        ExecutorService pool = Executors.newFixedThreadPool(4);
+        ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor();
         AtomicInteger winners = new AtomicInteger();
+        var workers = new java.util.ArrayList<Future<?>>();
         try {
             for (int i = 0; i < 4; i++) {
-                pool.submit(() -> {
+                workers.add(pool.submit(() -> {
                     await(start);
                     inTransaction(() -> {
                         if (store.tryStartProcessing("evt-1", "projection")) {
                             winners.incrementAndGet();
                         }
                     });
-                });
+                }));
             }
             start.countDown();
             pool.shutdown();
             assertThat(pool.awaitTermination(20, TimeUnit.SECONDS)).isTrue();
+            for (Future<?> worker : workers) {
+                worker.get();
+            }
         } finally {
             pool.shutdownNow();
         }
