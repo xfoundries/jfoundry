@@ -133,6 +133,7 @@ public final class JpaOutboxMessageStore implements OutboxMessageStore {
             if (candidates.isEmpty()) {
                 break;
             }
+            int claimedFromPage = 0;
             for (OutboxMessage candidate : candidates) {
                 Instant claimedAt = Instant.now();
                 int updated = entityManager.createQuery("""
@@ -155,7 +156,11 @@ public final class JpaOutboxMessageStore implements OutboxMessageStore {
                     candidate.setClaimedBy(claimerId);
                     candidate.setClaimToken(claimToken);
                     claimed.add(candidate);
+                    claimedFromPage++;
                 }
+            }
+            if (claimedFromPage == 0) {
+                break;
             }
         }
         return claimed;

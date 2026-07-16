@@ -212,6 +212,11 @@
             <artifactId>spring-aop</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <optional>true</optional>
+        </dependency>
         <!-- mybatis-spring: @MapperScan annotation source; the MyBatis-Plus starter provides runtime via mybatis-plus-spring-boot3-starter -->
         <dependency>
             <groupId>org.mybatis</groupId>
@@ -251,6 +256,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
             <scope>test</scope>
         </dependency>
         <!--

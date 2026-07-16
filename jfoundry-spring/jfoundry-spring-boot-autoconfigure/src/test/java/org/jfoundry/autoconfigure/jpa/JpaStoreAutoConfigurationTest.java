@@ -1,6 +1,6 @@
 package org.jfoundry.autoconfigure.jpa;
 
-import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import org.jfoundry.application.inbox.InboxMessageStore;
 import org.jfoundry.application.inbox.InboxTemplate;
 import org.jfoundry.application.messaging.MessageSender;
@@ -61,7 +61,7 @@ class JpaStoreAutoConfigurationTest {
     void createsJpaOutboxStoreBeforeTheDispatcherConfiguration() {
         outboxRunner
                 .withPropertyValues("jfoundry.outbox.dispatcher.mode=none")
-                .withBean(EntityManager.class, () -> mock(EntityManager.class))
+                .withBean(EntityManagerFactory.class, () -> mock(EntityManagerFactory.class))
                 .withBean(MessageSender.class, () -> (topic, key, payload) -> SendResult.ok())
                 .run(context -> {
                     assertThat(context).hasSingleBean(OutboxMessageStore.class);
@@ -76,7 +76,7 @@ class JpaStoreAutoConfigurationTest {
         OutboxMessageStore userStore = mock(OutboxMessageStore.class);
 
         outboxRunner
-                .withBean(EntityManager.class, () -> mock(EntityManager.class))
+                .withBean(EntityManagerFactory.class, () -> mock(EntityManagerFactory.class))
                 .withBean(OutboxMessageStore.class, () -> userStore)
                 .run(context -> assertThat(context).hasSingleBean(OutboxMessageStore.class)
                         .getBean(OutboxMessageStore.class).isSameAs(userStore));
@@ -88,7 +88,7 @@ class JpaStoreAutoConfigurationTest {
                 .withConfiguration(AutoConfigurations.of(
                         OutboxJpaAutoConfiguration.class,
                         OutboxMybatisPlusAutoConfiguration.class))
-                .withBean(EntityManager.class, () -> mock(EntityManager.class))
+                .withBean(EntityManagerFactory.class, () -> mock(EntityManagerFactory.class))
                 .withBean(OutboxMapper.class, () -> mock(OutboxMapper.class))
                 .run(context -> {
                     assertThat(context).hasSingleBean(OutboxMessageStore.class);
@@ -100,7 +100,7 @@ class JpaStoreAutoConfigurationTest {
     @Test
     void createsJpaInboxStoreAndTemplateUsingTheDatabaseProductStrategy() {
         inboxRunner
-                .withBean(EntityManager.class, () -> mock(EntityManager.class))
+                .withBean(EntityManagerFactory.class, () -> mock(EntityManagerFactory.class))
                 .withBean(DataSource.class, () -> dataSourceWithProduct("PostgreSQL 16"))
                 .run(context -> {
                     assertThat(context).hasSingleBean(JpaInboxClaimStrategy.class);
@@ -118,7 +118,7 @@ class JpaStoreAutoConfigurationTest {
         MetadataDataSource metadataDataSource = metadataDataSourceWithProduct("PostgreSQL 16");
 
         inboxRunner
-                .withBean(EntityManager.class, () -> mock(EntityManager.class))
+                .withBean(EntityManagerFactory.class, () -> mock(EntityManagerFactory.class))
                 .withBean(DataSource.class, metadataDataSource::dataSource)
                 .run(context -> {
                     assertThat(context).hasSingleBean(JpaInboxClaimStrategy.class);
@@ -135,7 +135,7 @@ class JpaStoreAutoConfigurationTest {
                         InboxJpaAutoConfiguration.class,
                         InboxMybatisPlusAutoConfiguration.class,
                         InboxAutoConfiguration.class))
-                .withBean(EntityManager.class, () -> mock(EntityManager.class))
+                .withBean(EntityManagerFactory.class, () -> mock(EntityManagerFactory.class))
                 .withBean(DataSource.class, () -> dataSourceWithProduct("PostgreSQL 16"))
                 .withBean(SqlSessionFactory.class, () -> mock(SqlSessionFactory.class))
                 .withBean(InboxMessageMapper.class, () -> mock(InboxMessageMapper.class))
@@ -151,7 +151,7 @@ class JpaStoreAutoConfigurationTest {
         JpaInboxClaimStrategy userStrategy = (entityManager, messageId, consumerName, now) -> false;
 
         inboxRunner
-                .withBean(EntityManager.class, () -> mock(EntityManager.class))
+                .withBean(EntityManagerFactory.class, () -> mock(EntityManagerFactory.class))
                 .withBean(JpaInboxClaimStrategy.class, () -> userStrategy)
                 .run(context -> {
                     assertThat(context).hasSingleBean(JpaInboxClaimStrategy.class)
@@ -166,7 +166,7 @@ class JpaStoreAutoConfigurationTest {
         InboxMessageStore userStore = mock(InboxMessageStore.class);
 
         inboxRunner
-                .withBean(EntityManager.class, () -> mock(EntityManager.class))
+                .withBean(EntityManagerFactory.class, () -> mock(EntityManagerFactory.class))
                 .withBean(InboxMessageStore.class, () -> userStore)
                 .run(context -> assertThat(context).hasSingleBean(InboxMessageStore.class)
                         .getBean(InboxMessageStore.class).isSameAs(userStore));
@@ -175,7 +175,7 @@ class JpaStoreAutoConfigurationTest {
     @Test
     void failsClearlyForUnsupportedInboxDatabaseProduct() {
         inboxRunner
-                .withBean(EntityManager.class, () -> mock(EntityManager.class))
+                .withBean(EntityManagerFactory.class, () -> mock(EntityManagerFactory.class))
                 .withBean(DataSource.class, () -> dataSourceWithProduct("H2"))
                 .run(context -> assertThat(context).hasFailed()
                         .getFailure().hasRootCauseMessage(

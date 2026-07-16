@@ -1,6 +1,7 @@
 package org.jfoundry.autoconfigure.inbox;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import org.jfoundry.application.inbox.InboxMessageStore;
 import org.jfoundry.infrastructure.inbox.jpa.JpaInboxClaimStrategies;
 import org.jfoundry.infrastructure.inbox.jpa.JpaInboxClaimStrategy;
@@ -12,16 +13,20 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.orm.jpa.SharedEntityManagerCreator;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
 /// Auto-configures the Jakarta Persistence Inbox store.
 @AutoConfiguration
-@AutoConfigureAfter(InboxMybatisPlusAutoConfiguration.class)
+@AutoConfigureAfter(name = {
+        "org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration",
+        "org.jfoundry.autoconfigure.inbox.InboxMybatisPlusAutoConfiguration"
+})
 @AutoConfigureBefore(InboxAutoConfiguration.class)
 @ConditionalOnClass({EntityManager.class, JpaInboxMessageStore.class})
-@ConditionalOnBean(EntityManager.class)
+@ConditionalOnBean(EntityManagerFactory.class)
 public class InboxJpaAutoConfiguration {
 
     @Bean
@@ -39,8 +44,9 @@ public class InboxJpaAutoConfiguration {
     @Bean
     @ConditionalOnBean(JpaInboxClaimStrategy.class)
     @ConditionalOnMissingBean(InboxMessageStore.class)
-    public InboxMessageStore jpaInboxMessageStore(
-            EntityManager entityManager, JpaInboxClaimStrategy claimStrategy) {
-        return new JpaInboxMessageStore(entityManager, claimStrategy);
+    public JpaInboxMessageStore jpaInboxMessageStore(
+            EntityManagerFactory entityManagerFactory, JpaInboxClaimStrategy claimStrategy) {
+        return new JpaInboxMessageStore(
+                SharedEntityManagerCreator.createSharedEntityManager(entityManagerFactory), claimStrategy);
     }
 }

@@ -101,7 +101,7 @@ outboxTemplate.append(new OutboxAppendRequest(
 
 ## 配置
 
-Outbox 是可选能力。业务侧需要可靠外部化时引入 `jfoundry-outbox-spring-boot-starter`；存在 `OutboxMessageStore` 和 `PayloadSerializer` 时，该启动器会自动装配 `OutboxTemplate`。如果需要 MyBatis-Plus 的 Outbox 存储，再引入 `jfoundry-outbox-mybatis-plus-spring-boot-starter`；如果需要框架无关的 JPA Outbox 存储，则显式引入 `jfoundry-outbox-jpa-spring-boot-starter`。通用 `jfoundry-jpa-spring-boot-starter` 不会引入 Outbox 或 Inbox 存储。业务侧自定义的 `OutboxMessageStore` 优先于 Boot 默认实现。MyBatis-Plus 存储的表名默认为 `jfoundry_outbox_event`；如需自定义表名，设置 `jfoundry.outbox.table-name`，并由业务侧创建同结构表。
+Outbox 是可选能力。业务侧需要可靠外部化时引入 `jfoundry-outbox-spring-boot-starter`；存在 `OutboxMessageStore` 和 `PayloadSerializer` 时，该启动器会自动装配 `OutboxTemplate`。如果需要 MyBatis-Plus 的 Outbox 存储，再引入 `jfoundry-outbox-mybatis-plus-spring-boot-starter`；如果需要框架无关的 JPA Outbox 存储，则显式引入 `jfoundry-outbox-jpa-spring-boot-starter`。通用 `jfoundry-jpa-spring-boot-starter` 不会引入 Outbox 或 Inbox 存储。业务侧自定义的 `OutboxMessageStore` 优先于 Boot 默认实现。JPA Outbox 和 Inbox 启动器会将框架实体注册到 Spring Boot 的 JPA 映射，业务应用无需在自己的 `@EntityScan` 配置中加入这些实体。MyBatis-Plus 存储的表名默认为 `jfoundry_outbox_event`；如需自定义表名，设置 `jfoundry.outbox.table-name`，并由业务侧创建同结构表。
 
 Outbox 间接使用的 messaging starter 已包含 Spring Boot 官方 JSON starter。因此批处理消费者等
 非 Web 应用也会获得默认 Jackson `ObjectMapper` 和 `PayloadSerializer`，无需为了 Outbox 额外

@@ -16,7 +16,6 @@ import org.springframework.dao.TransientDataAccessException;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.transaction.TransactionDefinition;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PessimisticLockException;
 import org.testcontainers.containers.MySQLContainer;
@@ -74,12 +73,12 @@ class MySqlJpaOutboxStoreIT {
 
     @BeforeEach
     void cleanDb() {
-        transactions.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
         jdbcTemplate.update("delete from jfoundry_outbox_event");
     }
 
     @Test
-    void claimDispatchableClaimsEachEventOnlyOnceUnderConcurrency() throws Exception {
+    void concurrentClaimLoserReturnsAtMySqlDefaultRepeatableReadIsolation() throws Exception {
+        assertThat(value("select @@transaction_isolation")).isEqualTo("REPEATABLE-READ");
         inTransaction(() -> {
             store.append(OutboxMessages.pending("evt-1"));
             return null;

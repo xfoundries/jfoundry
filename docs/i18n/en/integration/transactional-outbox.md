@@ -65,6 +65,8 @@ Add `jfoundry-outbox-spring-boot-starter` when reliable externalization is neede
 MyBatis-Plus Outbox store, or `jfoundry-outbox-jpa-spring-boot-starter` for the built-in
 framework-neutral JPA store. The general `jfoundry-jpa-spring-boot-starter` does not add an Outbox
 or Inbox store. A user-defined `OutboxMessageStore` takes precedence over Boot defaults. The
+JPA Outbox and Inbox starters register their framework entities with Spring Boot's JPA mapping, so
+applications do not need to add those entities to their own `@EntityScan` configuration. The
 messaging starter transitively supplies Spring Boot's JSON starter,
 so batch consumers and other non-web applications receive the default Jackson `ObjectMapper` and
 `PayloadSerializer` without adding a WebMVC or WebFlux starter. A user-defined `ObjectMapper` or
