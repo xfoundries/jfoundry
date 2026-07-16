@@ -1,0 +1,76 @@
+package org.jfoundry.infrastructure.outbox.jpa;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import org.jfoundry.application.outbox.OutboxMessage;
+import org.jfoundry.application.outbox.OutboxMessageStatus;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class JpaOutboxMessageEntityTest {
+
+    private static EntityManagerFactory entityManagerFactory;
+
+    @BeforeAll
+    static void createEntityManagerFactory() {
+        entityManagerFactory = Persistence.createEntityManagerFactory("jfoundry-outbox-jpa-test");
+    }
+
+    @AfterAll
+    static void closeEntityManagerFactory() {
+        entityManagerFactory.close();
+    }
+
+    @Test
+    void persistsEveryOutboxMessageFieldWithTheDocumentedTableMapping() {
+        Instant now = Instant.parse("2026-07-16T10:15:30Z");
+        OutboxMessage message = OutboxMessage.newPending(
+                "evt-1", "orders", "order-1", "example.OrderPlaced", "{\"id\":1}", now,
+                "Order", "order-1", 4L);
+        message.setStatus(OutboxMessageStatus.FAILED);
+        message.setRetryCount(2);
+        message.setErrorMessage("broker unavailable");
+        message.setLastAttemptAt(now.plusSeconds(1));
+        message.setNextRetryAt(now.plusSeconds(10));
+        message.setCreatedAt(now.minusSeconds(2));
+        message.setUpdatedAt(now.plusSeconds(2));
+        message.setClaimedAt(now.plusSeconds(3));
+        message.setClaimedBy("node-a");
+        message.setClaimToken("token-1");
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.persist(JpaOutboxMessageEntity.fromMessage(message));
+        entityManager.getTransaction().commit();
+        entityManager.clear();
+
+        OutboxMessage loaded = entityManager.find(JpaOutboxMessageEntity.class, "evt-1").toMessage();
+
+        assertThat(loaded.getEventId()).isEqualTo("evt-1");
+        assertThat(loaded.getTopic()).isEqualTo("orders");
+        assertThat(loaded.getPayloadKey()).isEqualTo("order-1");
+        assertThat(loaded.getPayloadType()).isEqualTo("example.OrderPlaced");
+        assertThat(loaded.getPayloadJson()).isEqualTo("{\"id\":1}");
+        assertThat(loaded.getAggregateType()).isEqualTo("Order");
+        assertThat(loaded.getAggregateId()).isEqualTo("order-1");
+        assertThat(loaded.getAggregateVersion()).isEqualTo(4L);
+        assertThat(loaded.getStatus()).isEqualTo(OutboxMessageStatus.FAILED);
+        assertThat(loaded.getRetryCount()).isEqualTo(2);
+        assertThat(loaded.getErrorMessage()).isEqualTo("broker unavailable");
+        assertThat(loaded.getOccurredAt()).isEqualTo(now);
+        assertThat(loaded.getLastAttemptAt()).isEqualTo(now.plusSeconds(1));
+        assertThat(loaded.getNextRetryAt()).isEqualTo(now.plusSeconds(10));
+        assertThat(loaded.getCreatedAt()).isEqualTo(now.minusSeconds(2));
+        assertThat(loaded.getUpdatedAt()).isEqualTo(now.plusSeconds(2));
+        assertThat(loaded.getClaimedAt()).isEqualTo(now.plusSeconds(3));
+        assertThat(loaded.getClaimedBy()).isEqualTo("node-a");
+        assertThat(loaded.getClaimToken()).isEqualTo("token-1");
+        entityManager.close();
+    }
+}
