@@ -3,7 +3,6 @@ package org.jfoundry.infrastructure.outbox.jpa;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import org.jfoundry.application.outbox.OutboxMessage;
 import org.jfoundry.application.outbox.OutboxMessageStatus;
@@ -28,8 +27,7 @@ public class JpaOutboxMessageEntity {
     @Column(name = "payload_type", nullable = false, length = 500)
     private String payloadType;
 
-    @Lob
-    @Column(name = "payload_json", nullable = false)
+    @Column(name = "payload_json", nullable = false, columnDefinition = "text")
     private String payloadJson;
 
     @Column(name = "aggregate_type", length = 255)
@@ -50,22 +48,22 @@ public class JpaOutboxMessageEntity {
     @Column(name = "error_message", length = 2000)
     private String errorMessage;
 
-    @Column(name = "occurred_at", nullable = false)
+    @Column(name = "occurred_at", nullable = false, columnDefinition = "timestamp")
     private Instant occurredAt;
 
-    @Column(name = "last_attempt_at")
+    @Column(name = "last_attempt_at", columnDefinition = "timestamp")
     private Instant lastAttemptAt;
 
-    @Column(name = "next_retry_at")
+    @Column(name = "next_retry_at", columnDefinition = "timestamp")
     private Instant nextRetryAt;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, columnDefinition = "timestamp")
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at", nullable = false, columnDefinition = "timestamp")
     private Instant updatedAt;
 
-    @Column(name = "claimed_at")
+    @Column(name = "claimed_at", columnDefinition = "timestamp")
     private Instant claimedAt;
 
     @Column(name = "claimed_by", length = 100)

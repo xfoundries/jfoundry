@@ -2,6 +2,8 @@ package org.jfoundry.infrastructure.outbox.jpa;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Persistence;
 import org.jfoundry.application.outbox.OutboxMessage;
 import org.jfoundry.application.outbox.OutboxMessageStatus;
@@ -72,5 +74,24 @@ class JpaOutboxMessageEntityTest {
         assertThat(loaded.getClaimedBy()).isEqualTo("node-a");
         assertThat(loaded.getClaimToken()).isEqualTo("token-1");
         entityManager.close();
+    }
+
+    @Test
+    void mapsPayloadAndInstantsToThePortableSqlTemplateColumnTypes() throws NoSuchFieldException {
+        assertThat(JpaOutboxMessageEntity.class.getDeclaredField("payloadJson")
+                .isAnnotationPresent(Lob.class)).isFalse();
+        assertThat(columnDefinition("payloadJson")).isEqualToIgnoringCase("text");
+        assertThat(columnDefinition("occurredAt")).isEqualToIgnoringCase("timestamp");
+        assertThat(columnDefinition("lastAttemptAt")).isEqualToIgnoringCase("timestamp");
+        assertThat(columnDefinition("nextRetryAt")).isEqualToIgnoringCase("timestamp");
+        assertThat(columnDefinition("createdAt")).isEqualToIgnoringCase("timestamp");
+        assertThat(columnDefinition("updatedAt")).isEqualToIgnoringCase("timestamp");
+        assertThat(columnDefinition("claimedAt")).isEqualToIgnoringCase("timestamp");
+    }
+
+    private static String columnDefinition(String fieldName) throws NoSuchFieldException {
+        return JpaOutboxMessageEntity.class.getDeclaredField(fieldName)
+                .getAnnotation(Column.class)
+                .columnDefinition();
     }
 }

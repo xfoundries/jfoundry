@@ -206,9 +206,12 @@ public final class JpaOutboxMessageStore implements OutboxMessageStore {
                 return deleted;
             }
             int removed = entityManager.createQuery("""
-                    delete from JpaOutboxMessageEntity e where e.eventId in :ids
+                    delete from JpaOutboxMessageEntity e
+                     where e.eventId in :ids and e.status = :status and e.occurredAt < :cutoff
                     """)
                     .setParameter("ids", ids)
+                    .setParameter("status", status.name())
+                    .setParameter("cutoff", cutoff)
                     .executeUpdate();
             entityManager.clear();
             deleted += removed;

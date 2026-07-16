@@ -3,6 +3,7 @@ package org.jfoundry.infrastructure.outbox.jpa;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import jakarta.persistence.Query;
 import org.jfoundry.application.outbox.BackoffStrategy;
 import org.jfoundry.application.outbox.OutboxMessage;
 import org.jfoundry.application.outbox.OutboxMessageStatus;
@@ -12,9 +13,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -191,6 +195,69 @@ class JpaOutboxMessageStoreTest {
     }
 
     @Test
+    void cleanupDoesNotDeleteRowsWhoseStatusOrOccurrenceChangesAfterTheirIdsWereSelected() {
+        Instant old = Instant.now().minusSeconds(120);
+        append(terminal("reactivated", OutboxMessageStatus.PUBLISHED, old));
+        append(terminal("retained", OutboxMessageStatus.PUBLISHED, old));
+        EntityManager reactivatingManager = entityManagerFactory.createEntityManager();
+        EntityManager cleanupManager = entityManagerFactory.createEntityManager();
+        try {
+            JpaOutboxMessageStore cleanupStore = new JpaOutboxMessageStore(
+                    entityManagerThatRunsBeforeBulkUpdate(cleanupManager, "delete from JpaOutboxMessageEntity", () ->
+                            inTransaction(reactivatingManager, () -> {
+                                reactivatingManager.createQuery("""
+                                        update JpaOutboxMessageEntity e
+                                           set e.status = :pending
+                                         where e.eventId = :eventId
+                                        """)
+                                        .setParameter("pending", OutboxMessageStatus.PENDING.name())
+                                        .setParameter("eventId", "reactivated")
+                                        .executeUpdate();
+                                reactivatingManager.createQuery("""
+                                        update JpaOutboxMessageEntity e
+                                           set e.occurredAt = :occurredAt
+                                         where e.eventId = :eventId
+                                        """)
+                                        .setParameter("occurredAt", Instant.now())
+                                        .setParameter("eventId", "retained")
+                                        .executeUpdate();
+                            })));
+
+            int deleted = inTransactionResult(cleanupManager, () -> cleanupStore.deleteByStatusAndOccurredAtBefore(
+                    OutboxMessageStatus.PUBLISHED, Instant.now().minusSeconds(60), 2));
+
+            assertThat(deleted).isZero();
+            assertThat(load("reactivated").getStatus()).isEqualTo(OutboxMessageStatus.PENDING);
+            assertThat(load("retained")).isNotNull();
+        } finally {
+            reactivatingManager.close();
+            cleanupManager.close();
+        }
+    }
+
+    @Test
+    void losingClaimCasIsExcludedWhenAnotherTransactionClaimsTheCandidateFirst() {
+        append(pending("contested", Instant.now()));
+        EntityManager winnerManager = entityManagerFactory.createEntityManager();
+        EntityManager loserManager = entityManagerFactory.createEntityManager();
+        try {
+            JpaOutboxMessageStore winnerStore = new JpaOutboxMessageStore(winnerManager);
+            JpaOutboxMessageStore loserStore = new JpaOutboxMessageStore(
+                    entityManagerThatRunsBeforeBulkUpdate(loserManager, "e.status = :candidateStatus", () ->
+                            inTransaction(winnerManager, () -> winnerStore.claimDispatchable(1, "winner"))));
+
+            List<OutboxMessage> claimed = inTransactionResult(loserManager, () -> loserStore.claimDispatchable(1, "loser"));
+
+            assertThat(claimed).isEmpty();
+            assertThat(load("contested").getStatus()).isEqualTo(OutboxMessageStatus.DISPATCHING);
+            assertThat(load("contested").getClaimedBy()).isEqualTo("winner");
+        } finally {
+            winnerManager.close();
+            loserManager.close();
+        }
+    }
+
+    @Test
     void validatesClaimRecoveryAndCleanupInputs() {
         assertThatThrownBy(() -> store.claimDispatchable(0, "node-a"))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("limit");
@@ -214,6 +281,7 @@ class JpaOutboxMessageStoreTest {
 
     private OutboxMessage load(String eventId) {
         return inTransactionResult(() -> {
+            entityManager.clear();
             JpaOutboxMessageEntity entity = entityManager.find(JpaOutboxMessageEntity.class, eventId);
             return entity == null ? null : entity.toMessage();
         });
@@ -241,14 +309,67 @@ class JpaOutboxMessageStoreTest {
     }
 
     private <T> T inTransactionResult(java.util.function.Supplier<T> work) {
-        entityManager.getTransaction().begin();
+        return inTransactionResult(entityManager, work);
+    }
+
+    private static void inTransaction(EntityManager manager, Runnable work) {
+        manager.getTransaction().begin();
+        try {
+            work.run();
+            manager.getTransaction().commit();
+        } catch (RuntimeException exception) {
+            manager.getTransaction().rollback();
+            throw exception;
+        }
+    }
+
+    private static <T> T inTransactionResult(EntityManager manager, java.util.function.Supplier<T> work) {
+        manager.getTransaction().begin();
         try {
             T result = work.get();
-            entityManager.getTransaction().commit();
+            manager.getTransaction().commit();
             return result;
         } catch (RuntimeException exception) {
-            entityManager.getTransaction().rollback();
+            manager.getTransaction().rollback();
             throw exception;
+        }
+    }
+
+    private static EntityManager entityManagerThatRunsBeforeBulkUpdate(
+            EntityManager delegate, String queryFragment, Runnable beforeBulkUpdate) {
+        return (EntityManager) Proxy.newProxyInstance(
+                JpaOutboxMessageStoreTest.class.getClassLoader(),
+                new Class<?>[]{EntityManager.class},
+                (proxy, method, arguments) -> {
+                    Object result = invoke(delegate, method, arguments);
+                    if ("createQuery".equals(method.getName()) && arguments != null
+                            && arguments.length > 0 && arguments[0] instanceof String query
+                            && query.contains(queryFragment)) {
+                        return queryThatRunsBeforeBulkUpdate((Query) result, beforeBulkUpdate);
+                    }
+                    return result;
+                });
+    }
+
+    private static Query queryThatRunsBeforeBulkUpdate(Query delegate, Runnable beforeBulkUpdate) {
+        AtomicBoolean invoked = new AtomicBoolean();
+        return (Query) Proxy.newProxyInstance(
+                JpaOutboxMessageStoreTest.class.getClassLoader(),
+                new Class<?>[]{Query.class},
+                (proxy, method, arguments) -> {
+                    if ("executeUpdate".equals(method.getName()) && invoked.compareAndSet(false, true)) {
+                        beforeBulkUpdate.run();
+                    }
+                    Object result = invoke(delegate, method, arguments);
+                    return Query.class.isAssignableFrom(method.getReturnType()) ? proxy : result;
+                });
+    }
+
+    private static Object invoke(Object target, java.lang.reflect.Method method, Object[] arguments) throws Throwable {
+        try {
+            return method.invoke(target, arguments);
+        } catch (InvocationTargetException exception) {
+            throw exception.getCause();
         }
     }
 }
