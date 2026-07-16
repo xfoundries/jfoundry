@@ -69,11 +69,11 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 | `RabbitMqMessageSenderAutoConfiguration` | `RabbitMqMessageSender` | `RabbitTemplate` class and `RabbitOperations` bean exist; no existing `MessageSender`. |
 | `RocketMqMessageSenderAutoConfiguration` | `RocketMqMessageSender` | RocketMQ producer class and `MQProducer` bean exist; no existing `MessageSender`. |
 | `OutboxMybatisPlusAutoConfiguration` | Outbox table-name customizer, `MybatisPlusInterceptor`, `OutboxMessageStore` | MyBatis-Plus and Outbox store adapter classes are present. SQL templates are not run automatically. |
-| `OutboxJpaAutoConfiguration` | JPA `OutboxMessageStore` | `EntityManager` and the JPA Outbox adapter are present; no user-defined `OutboxMessageStore` exists. |
+| `OutboxJpaAutoConfiguration` | JPA `OutboxMessageStore` | `EntityManagerFactory` and the JPA Outbox adapter are present; no user-defined `OutboxMessageStore` exists. |
 | `OutboxDispatcherAutoConfiguration` | `BackoffStrategy`, scheduled dispatcher, recovery job, cleanup job | Outbox store, message sender, and scheduled dispatcher classes are present; mode is `scheduled` or maintenance is enabled by managed modes. |
 | `JobRunrDispatcherAutoConfiguration` | `JobRunrOutboxDispatcher` | JobRunr and jfoundry JobRunr adapter classes are present; `mode=jobrunr`; store, sender, and backoff beans exist. |
 | `InboxMybatisPlusAutoConfiguration` | MyBatis-Plus `InboxMessageStore` | `SqlSessionFactory`, mapper scanning, and Inbox store adapter are present; no existing store. |
-| `InboxJpaAutoConfiguration` | `JpaInboxClaimStrategy`, JPA `InboxMessageStore` | `EntityManager` and the JPA Inbox adapter are present. A user `InboxMessageStore` or `JpaInboxClaimStrategy` takes precedence; built-in claim strategies support only PostgreSQL and MySQL, and an unknown database product fails fast unless the application supplies a strategy. |
+| `InboxJpaAutoConfiguration` | `JpaInboxClaimStrategy`, JPA `InboxMessageStore` | `EntityManagerFactory` and the JPA Inbox adapter are present. A user `InboxMessageStore` or `JpaInboxClaimStrategy` takes precedence; built-in claim strategies support only PostgreSQL and MySQL, and an unknown database product fails fast unless the application supplies a strategy. |
 | `InboxAutoConfiguration` | `InboxTemplate` | `InboxTemplate` is on the classpath and an `InboxMessageStore` bean exists. |
 | `WebMvcProblemDetailAutoConfiguration` | `ProblemDetailExceptionHandler` | Servlet Web MVC application and handler class are present; no existing handler. |
 
