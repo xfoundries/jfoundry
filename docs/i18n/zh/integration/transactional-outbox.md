@@ -158,8 +158,8 @@ jfoundry 当前提供 Kafka、RabbitMQ、RocketMQ 等 broker adapter。Kafka/Rab
 
 ## 表结构与迁移
 
-这些 SQL 以模板形式随 jar 发布，路径避开 Flyway 默认扫描目录，不会被业务项目自动执行。
-业务项目应按数据库类型复制对应模板到自己的 Flyway/Liquibase migration 目录，或由 DBA 手工执行。
+这些 SQL 以模板形式随核心模块发布，路径避开 Flyway 默认扫描目录，不会被业务项目自动执行。
+Outbox 模板位于 `jfoundry-outbox-core`，通用 Inbox 模板位于 `jfoundry-inbox-core`。业务项目应按数据库类型复制对应模板到自己的 Flyway/Liquibase migration 目录，或由 DBA 手工执行。
 
 Outbox 模板的 classpath resource 路径：
 
@@ -171,8 +171,8 @@ jfoundry/sql/outbox/postgresql/create_outbox_event.sql
 可以从依赖 jar 中查看或解出模板：
 
 ```bash
-jar tf jfoundry-outbox-mybatis-plus-*.jar | grep 'jfoundry/sql/outbox'
-jar xf jfoundry-outbox-mybatis-plus-*.jar jfoundry/sql/outbox/mysql/create_outbox_event.sql
+jar tf jfoundry-outbox-core-*.jar | grep 'jfoundry/sql/outbox'
+jar xf jfoundry-outbox-core-*.jar jfoundry/sql/outbox/mysql/create_outbox_event.sql
 ```
 
 解出后复制到业务项目自己的迁移目录，并按项目命名规范改成业务侧 migration 文件名。

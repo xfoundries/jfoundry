@@ -96,6 +96,9 @@ jfoundry ships SQL as copyable templates, not auto-run migrations. Applications 
 needed template into their own Flyway/Liquibase migration directory or execute it through their
 operational process.
 
+Outbox templates are packaged in `jfoundry-outbox-core`; the common Inbox template is packaged in
+`jfoundry-inbox-core`.
+
 ```text
 jfoundry/sql/outbox/mysql/create_outbox_event.sql
 jfoundry/sql/outbox/postgresql/create_outbox_event.sql
