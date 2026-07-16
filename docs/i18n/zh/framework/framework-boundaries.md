@@ -83,12 +83,12 @@ starter 是业务项目优先依赖的聚合入口。新项目应按能力显式
 - `jfoundry-messaging-kafka-spring-boot-starter`：在 messaging starter 之上选择 Kafka `MessageSender` adapter。
 - `jfoundry-outbox-spring-boot-starter`：聚合 Outbox core、Spring transaction synchronization、scheduled dispatcher、recovery 和 cleanup。
 - `jfoundry-outbox-mybatis-plus-spring-boot-starter`：在 Outbox starter 之上选择 MyBatis-Plus `OutboxMessageStore` adapter。
-- `jfoundry-outbox-jpa-spring-boot-starter`：在 Outbox starter 之上选择框架无关的 JPA `OutboxMessageStore` adapter。
+- `jfoundry-outbox-jpa-spring-boot-starter`：在 Outbox 启动器之上选择框架无关的 JPA `OutboxMessageStore` 适配器。
 - `jfoundry-outbox-jobrunr-spring-boot-starter`：在 Outbox starter 之上选择 JobRunr dispatcher adapter。
 - `jfoundry-inbox-spring-boot-starter`：聚合 Inbox core 和 `InboxTemplate` auto-configuration。
 - `jfoundry-inbox-mybatis-plus-spring-boot-starter`：在 Inbox starter 之上选择 MyBatis-Plus `InboxMessageStore` adapter。
-- `jfoundry-inbox-jpa-spring-boot-starter`：在 Inbox starter 之上选择框架无关的 JPA `InboxMessageStore` adapter。
-- `jfoundry-jpa-spring-boot-starter`：JPA 业务运行时装配入口，不隐式包含 Outbox 或 Inbox store；需要时必须显式选择对应 JPA store starter。
+- `jfoundry-inbox-jpa-spring-boot-starter`：在 Inbox 启动器之上选择框架无关的 JPA `InboxMessageStore` 适配器。
+- `jfoundry-jpa-spring-boot-starter`：JPA 业务运行时装配入口，不隐式包含 Outbox 或 Inbox 存储；需要这些能力时，必须显式选择对应 JPA 存储启动器。
 - `jfoundry-mybatis-plus-spring-boot-starter`：Spring Boot 运行时装配入口，聚合 jfoundry 基础自动装配和 MyBatis-Plus Boot starter，不隐式包含业务模块使用的 `jfoundry-infrastructure-mybatis-plus-starter`，也不隐式包含 Outbox/Inbox store。
 
 ## 放置规则
@@ -123,9 +123,9 @@ Outbox/Inbox data object 不继承 `AggregateData`；对应 MyBatis store 直接
 
 `jfoundry-messaging-kafka`、`jfoundry-messaging-rabbitmq` 和 `jfoundry-messaging-rocketmq` 只放面向 broker 原生客户端的 `MessageSender` adapter。业务侧显式选择 Kafka/RabbitMQ/RocketMQ 时引入对应 Spring Boot starter；starter 负责选择 Spring 侧 wrapper，不把 Spring 模板对象下沉到基础设施 adapter。未来切换 MQ 通过替换 `MessageSender` adapter starter 完成，不影响 Outbox core。
 
-MyBatis-Plus adapter 不进入 `jfoundry-spring-boot-starter`。JPA Outbox 与 Inbox adapter 是框架无关的 Jakarta Persistence 实现；业务使用 Spring Data / JPA 时，`jfoundry-jpa-spring-boot-starter` 只提供 JPA 业务运行时装配，不隐式提供 `OutboxMessageStore` 或 `InboxMessageStore`。需要内置存储时，业务侧显式引入对应 JPA store starter；也可以提供自己的 store 实现。
+MyBatis-Plus 适配器不进入 `jfoundry-spring-boot-starter`。JPA Outbox 与 Inbox 适配器是框架无关的 Jakarta Persistence 实现；业务使用 Spring Data / JPA 时，`jfoundry-jpa-spring-boot-starter` 只提供 JPA 业务运行时装配，不隐式提供 `OutboxMessageStore` 或 `InboxMessageStore`。需要内置存储时，业务侧显式引入对应 JPA 存储启动器；也可以提供自己的存储实现。
 
-JPA Outbox 使用 JPQL 分页查询可派发候选记录，并对每条记录执行 compare-and-set claim。对于 dispatcher 驱动的已领取消息，claim token 建立所有权，带 token 的发布或失败状态更新使用该 token。JPA Inbox 的内置原子 claim 策略仅支持 PostgreSQL 和 MySQL；其他数据库必须由业务侧提供 `JpaInboxClaimStrategy`。
+JPA Outbox 使用 JPQL 分页查询可派发候选记录，并对每条记录执行比较并设置（compare-and-set）领取。对于派发器驱动的已领取消息，领取令牌建立所有权，带令牌的发布或失败状态更新使用该令牌。JPA Inbox 的内置原子领取策略仅支持 PostgreSQL 和 MySQL；其他数据库必须由业务侧提供 `JpaInboxClaimStrategy`。
 
 ## 兼容规则
 

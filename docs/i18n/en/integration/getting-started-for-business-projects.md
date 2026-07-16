@@ -52,9 +52,10 @@ before generating package structures or architecture tests that depend on that c
 - Inbox JPA store: `jfoundry-inbox-jpa-spring-boot-starter`
 - Web MVC ProblemDetail responses: `jfoundry-webmvc-spring-boot-starter`
 
-The JPA Outbox and Inbox starters are explicit store choices. `jfoundry-jpa-spring-boot-starter`
-does not add either store, so a JPA application must select the corresponding store starter or
-provide its own `OutboxMessageStore` or `InboxMessageStore`.
+The JPA Outbox and Inbox starters are explicit store choices. Only an application that elects to
+use Outbox and/or Inbox needs the corresponding JPA store starter or its own `OutboxMessageStore`
+or `InboxMessageStore`. `jfoundry-jpa-spring-boot-starter` remains sufficient for business JPA
+without either capability.
 
 ## Package Shape
 

@@ -101,7 +101,7 @@ outboxTemplate.append(new OutboxAppendRequest(
 
 ## 配置
 
-Outbox 是可选能力。业务侧需要可靠外部化时引入 `jfoundry-outbox-spring-boot-starter`；存在 `OutboxMessageStore` 和 `PayloadSerializer` 时，该 starter 会自动装配 `OutboxTemplate`。如果需要 MyBatis-Plus 的 Outbox 存储，再引入 `jfoundry-outbox-mybatis-plus-spring-boot-starter`；如果需要框架无关的 JPA Outbox 存储，则显式引入 `jfoundry-outbox-jpa-spring-boot-starter`。通用 `jfoundry-jpa-spring-boot-starter` 不会引入 Outbox 或 Inbox store。业务侧自定义的 `OutboxMessageStore` 优先于 Boot 默认实现。MyBatis-Plus store 的表名默认为 `jfoundry_outbox_event`；如需自定义表名，设置 `jfoundry.outbox.table-name`，并由业务侧创建同结构表。
+Outbox 是可选能力。业务侧需要可靠外部化时引入 `jfoundry-outbox-spring-boot-starter`；存在 `OutboxMessageStore` 和 `PayloadSerializer` 时，该启动器会自动装配 `OutboxTemplate`。如果需要 MyBatis-Plus 的 Outbox 存储，再引入 `jfoundry-outbox-mybatis-plus-spring-boot-starter`；如果需要框架无关的 JPA Outbox 存储，则显式引入 `jfoundry-outbox-jpa-spring-boot-starter`。通用 `jfoundry-jpa-spring-boot-starter` 不会引入 Outbox 或 Inbox 存储。业务侧自定义的 `OutboxMessageStore` 优先于 Boot 默认实现。MyBatis-Plus 存储的表名默认为 `jfoundry_outbox_event`；如需自定义表名，设置 `jfoundry.outbox.table-name`，并由业务侧创建同结构表。
 
 Outbox 间接使用的 messaging starter 已包含 Spring Boot 官方 JSON starter。因此批处理消费者等
 非 Web 应用也会获得默认 Jackson `ObjectMapper` 和 `PayloadSerializer`，无需为了 Outbox 额外
@@ -158,7 +158,7 @@ jfoundry 当前提供 Kafka、RabbitMQ、RocketMQ 等 broker adapter。Kafka/Rab
 
 ## 表结构与迁移
 
-这些 SQL 以模板形式随核心模块发布，路径避开 Flyway 默认扫描目录，不会被业务项目自动执行。规范且不变的 Outbox 路径由 `jfoundry-outbox-core` 提供，规范且不变的 Inbox 路径由 `jfoundry-inbox-core` 提供。业务项目应按数据库类型复制对应模板到自己的 Flyway/Liquibase migration 目录，或由 DBA 手工执行；jfoundry 永不创建这些表，也永不执行这些迁移。
+这些 SQL 以模板形式随核心模块发布，路径避开 Flyway 默认扫描目录，不会被业务项目自动执行。规范且不变的 Outbox 路径由 `jfoundry-outbox-core` 提供，规范且不变的 Inbox 路径由 `jfoundry-inbox-core` 提供。业务项目应按数据库类型复制对应模板到自己的 Flyway/Liquibase 迁移目录，或由 DBA 手工执行；jfoundry 永不创建这些表，也永不执行这些迁移。
 
 Outbox 模板的 classpath resource 路径：
 
@@ -188,7 +188,7 @@ jar xf jfoundry-outbox-core-*.jar jfoundry/sql/outbox/mysql/create_outbox_event.
 
 派发器通过原子 claim 避免多实例重复取同一批记录。恢复任务会把长时间停留在 `DISPATCHING` 的记录回滚为 `PENDING`，清理任务只删除过期的 `PUBLISHED` 和 `DEAD_LETTERED` 终态记录。
 
-JPA Outbox store 使用 JPQL 分页查询可派发候选记录，再对每条记录执行 compare-and-set claim。对于 dispatcher 驱动的已领取消息，claim token 建立领取所有权，带 token 的发布和失败状态更新使用同一 token。JPA Inbox store 的内置原子 claim 仅支持 PostgreSQL 和 MySQL；其他数据库产品必须提供 `JpaInboxClaimStrategy`，否则 Boot 会快速失败，而不会选择泛化的 dialect 行为。虚拟线程仅用于并发测试，不是生产环境的派发执行模型。
+JPA Outbox 存储使用 JPQL 分页查询可派发候选记录，再对每条记录执行比较并设置（compare-and-set）领取。对于派发器驱动的已领取消息，领取令牌建立领取所有权，带令牌的发布和失败状态更新使用同一令牌。JPA Inbox 存储的内置原子领取仅支持 PostgreSQL 和 MySQL；其他数据库产品必须提供 `JpaInboxClaimStrategy`，否则 Boot 会快速失败，而不会选择泛化的方言行为。虚拟线程仅用于并发测试，不是生产环境的派发执行模型。
 
 ## 使用建议
 

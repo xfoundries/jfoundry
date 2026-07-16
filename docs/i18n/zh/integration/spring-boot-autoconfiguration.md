@@ -15,11 +15,11 @@
 | `jfoundry-messaging-rocketmq-spring-boot-starter` | RocketMQ `MessageSender` adapter | Outbox store |
 | `jfoundry-outbox-spring-boot-starter` | Outbox core、`OutboxTemplate`、领域事件外部化、scheduled 派发集成 | Outbox 表存储、JobRunr |
 | `jfoundry-outbox-mybatis-plus-spring-boot-starter` | MyBatis-Plus `OutboxMessageStore` adapter | 数据库 migration 执行 |
-| `jfoundry-outbox-jpa-spring-boot-starter` | JPA `OutboxMessageStore` adapter | 数据库 migration 执行 |
+| `jfoundry-outbox-jpa-spring-boot-starter` | JPA `OutboxMessageStore` 适配器 | 数据库迁移执行 |
 | `jfoundry-outbox-jobrunr-spring-boot-starter` | JobRunr Outbox dispatcher | Outbox 表存储 |
 | `jfoundry-inbox-spring-boot-starter` | Inbox core、`InboxTemplate` | Inbox 表存储 |
 | `jfoundry-inbox-mybatis-plus-spring-boot-starter` | MyBatis-Plus `InboxMessageStore` adapter | 数据库 migration 执行 |
-| `jfoundry-inbox-jpa-spring-boot-starter` | JPA `InboxMessageStore` adapter 和受支持数据库的 claim strategy | 数据库 migration 执行，以及 PostgreSQL、MySQL 之外的数据库 claim 支持 |
+| `jfoundry-inbox-jpa-spring-boot-starter` | JPA `InboxMessageStore` 适配器和受支持数据库的领取策略 | 数据库迁移执行，以及 PostgreSQL、MySQL 之外数据库的内置领取支持 |
 | `jfoundry-mybatis-plus-spring-boot-starter` | Spring Boot MyBatis-Plus 运行时装配 | 业务持久化 starter、Outbox/Inbox store |
 | `jfoundry-jpa-spring-boot-starter` | 每个聚合一个由 JPA 管理的实体图的 jfoundry JPA 适配器、共享 Spring 事务持久化上下文、Spring Boot JPA 运行时 | 对分离聚合执行合并、手动多表或多实体图同步算法、Outbox 和 Inbox 存储 |
 | `jfoundry-webmvc-spring-boot-starter` | Web MVC `ProblemDetail` 异常响应 | Messaging、Outbox、Inbox |
@@ -68,11 +68,11 @@
 | `RabbitMqMessageSenderAutoConfiguration` | `RabbitMqMessageSender` | 存在 `RabbitTemplate` class 和 `RabbitOperations` Bean；没有已有 `MessageSender`。 |
 | `RocketMqMessageSenderAutoConfiguration` | `RocketMqMessageSender` | 存在 RocketMQ producer class 和 `MQProducer` Bean；没有已有 `MessageSender`。 |
 | `OutboxMybatisPlusAutoConfiguration` | Outbox 表名 customizer、`MybatisPlusInterceptor`、`OutboxMessageStore` | MyBatis-Plus 和 Outbox store adapter class 存在。SQL 模板不会自动执行。 |
-| `OutboxJpaAutoConfiguration` | JPA `OutboxMessageStore` | 存在 `EntityManager` 和 JPA Outbox adapter；没有用户自定义 `OutboxMessageStore`。 |
+| `OutboxJpaAutoConfiguration` | JPA `OutboxMessageStore` | 存在 `EntityManagerFactory` 和 JPA Outbox 适配器；没有用户自定义 `OutboxMessageStore`。 |
 | `OutboxDispatcherAutoConfiguration` | `BackoffStrategy`、scheduled dispatcher、recovery job、cleanup job | 存在 Outbox store、message sender、scheduled dispatcher class；mode 为 `scheduled` 或维护任务由托管 mode 启用。 |
 | `JobRunrDispatcherAutoConfiguration` | `JobRunrOutboxDispatcher` | 存在 JobRunr 和 jfoundry JobRunr adapter class；`mode=jobrunr`；存在 store、sender、backoff Bean。 |
 | `InboxMybatisPlusAutoConfiguration` | MyBatis-Plus `InboxMessageStore` | 存在 `SqlSessionFactory`、mapper scanning 和 Inbox store adapter；没有已有 store。 |
-| `InboxJpaAutoConfiguration` | `JpaInboxClaimStrategy`、JPA `InboxMessageStore` | 存在 `EntityManager` 和 JPA Inbox adapter。用户提供的 `InboxMessageStore` 或 `JpaInboxClaimStrategy` 优先；内置 claim strategy 仅支持 PostgreSQL 和 MySQL，未知数据库产品在应用未提供 strategy 时会快速失败。 |
+| `InboxJpaAutoConfiguration` | `JpaInboxClaimStrategy`、JPA `InboxMessageStore` | 存在 `EntityManagerFactory` 和 JPA Inbox 适配器。用户提供的 `InboxMessageStore` 或 `JpaInboxClaimStrategy` 优先；内置领取策略仅支持 PostgreSQL 和 MySQL，未知数据库产品在应用未提供策略时会快速失败。 |
 | `InboxAutoConfiguration` | `InboxTemplate` | classpath 中存在 `InboxTemplate`，且存在 `InboxMessageStore` Bean。 |
 | `WebMvcProblemDetailAutoConfiguration` | `ProblemDetailExceptionHandler` | Servlet Web MVC 应用且 handler class 存在；没有已有 handler。 |
 

@@ -212,7 +212,7 @@ transactionRunner.run(TransactionOptions.builder()
 - Redisson 分布式锁：`jfoundry-lock-redisson-spring-boot-starter`
 - 架构测试：`jfoundry-architecture-test`，`test` scope
 
-JPA Outbox 和 Inbox starter 是显式的存储选择。`jfoundry-jpa-spring-boot-starter` 不会引入任一 store；JPA 应用必须选择对应的 store starter，或自行提供 `OutboxMessageStore`、`InboxMessageStore`。
+JPA Outbox 和 Inbox 启动器是显式的存储选择。只有应用选择使用 Outbox 和/或 Inbox 时，才需要选择对应的 JPA 存储启动器，或自行提供 `OutboxMessageStore`、`InboxMessageStore`。未使用这两项能力的业务 JPA 应用使用 `jfoundry-jpa-spring-boot-starter` 即可。
 
 单应用模块可以作为小项目的折中做法，但不要因此把职责混在一起：仍应保留 domain、application、adapter、infrastructure 包边界，并让 ArchUnit 测试覆盖这些包。
 
