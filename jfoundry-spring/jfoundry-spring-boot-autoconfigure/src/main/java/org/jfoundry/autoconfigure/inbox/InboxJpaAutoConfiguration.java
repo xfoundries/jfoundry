@@ -6,6 +6,7 @@ import org.jfoundry.infrastructure.inbox.jpa.JpaInboxClaimStrategies;
 import org.jfoundry.infrastructure.inbox.jpa.JpaInboxClaimStrategy;
 import org.jfoundry.infrastructure.inbox.jpa.JpaInboxMessageStore;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -17,6 +18,7 @@ import java.sql.SQLException;
 
 /// Auto-configures the Jakarta Persistence Inbox store.
 @AutoConfiguration
+@AutoConfigureAfter(InboxMybatisPlusAutoConfiguration.class)
 @AutoConfigureBefore(InboxAutoConfiguration.class)
 @ConditionalOnClass({EntityManager.class, JpaInboxMessageStore.class})
 @ConditionalOnBean(EntityManager.class)

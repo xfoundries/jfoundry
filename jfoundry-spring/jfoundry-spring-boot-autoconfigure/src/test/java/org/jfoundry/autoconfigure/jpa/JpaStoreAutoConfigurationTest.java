@@ -9,13 +9,20 @@ import org.jfoundry.application.outbox.OutboxDispatcher;
 import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.autoconfigure.inbox.InboxAutoConfiguration;
 import org.jfoundry.autoconfigure.inbox.InboxJpaAutoConfiguration;
+import org.jfoundry.autoconfigure.inbox.InboxMybatisPlusAutoConfiguration;
 import org.jfoundry.autoconfigure.outbox.dispatcher.OutboxDispatcherAutoConfiguration;
 import org.jfoundry.autoconfigure.outbox.persistence.OutboxJpaAutoConfiguration;
+import org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration;
 import org.jfoundry.infrastructure.inbox.jpa.JpaInboxClaimStrategy;
 import org.jfoundry.infrastructure.inbox.jpa.JpaInboxMessageStore;
 import org.jfoundry.infrastructure.inbox.jpa.PostgreSqlJpaInboxClaimStrategy;
+import org.jfoundry.infrastructure.inbox.mybatis.InboxMessageMapper;
+import org.jfoundry.infrastructure.inbox.mybatis.MybatisPlusInboxMessageStore;
 import org.jfoundry.infrastructure.outbox.jpa.JpaOutboxMessageStore;
+import org.jfoundry.infrastructure.outbox.mybatis.MybatisPlusOutboxMessageStore;
+import org.jfoundry.infrastructure.outbox.mybatis.OutboxMapper;
 import org.junit.jupiter.api.Test;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
@@ -27,6 +34,7 @@ import java.sql.SQLException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class JpaStoreAutoConfigurationTest {
@@ -75,6 +83,21 @@ class JpaStoreAutoConfigurationTest {
     }
 
     @Test
+    void prefersMybatisPlusOutboxStoreWhenBothAdaptersAreAvailable() {
+        new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(
+                        OutboxJpaAutoConfiguration.class,
+                        OutboxMybatisPlusAutoConfiguration.class))
+                .withBean(EntityManager.class, () -> mock(EntityManager.class))
+                .withBean(OutboxMapper.class, () -> mock(OutboxMapper.class))
+                .run(context -> {
+                    assertThat(context).hasSingleBean(OutboxMessageStore.class);
+                    assertThat(context.getBean(OutboxMessageStore.class))
+                            .isInstanceOf(MybatisPlusOutboxMessageStore.class);
+                });
+    }
+
+    @Test
     void createsJpaInboxStoreAndTemplateUsingTheDatabaseProductStrategy() {
         inboxRunner
                 .withBean(EntityManager.class, () -> mock(EntityManager.class))
@@ -87,6 +110,39 @@ class JpaStoreAutoConfigurationTest {
                     assertThat(context.getBean(InboxMessageStore.class))
                             .isInstanceOf(JpaInboxMessageStore.class);
                     assertThat(context).hasSingleBean(InboxTemplate.class);
+                });
+    }
+
+    @Test
+    void closesMetadataConnectionAfterCreatingTheDefaultInboxClaimStrategy() {
+        MetadataDataSource metadataDataSource = metadataDataSourceWithProduct("PostgreSQL 16");
+
+        inboxRunner
+                .withBean(EntityManager.class, () -> mock(EntityManager.class))
+                .withBean(DataSource.class, metadataDataSource::dataSource)
+                .run(context -> {
+                    assertThat(context).hasSingleBean(JpaInboxClaimStrategy.class);
+                    assertThat(context.getBean(JpaInboxClaimStrategy.class))
+                            .isInstanceOf(PostgreSqlJpaInboxClaimStrategy.class);
+                    verifyConnectionClosed(metadataDataSource.connection());
+                });
+    }
+
+    @Test
+    void prefersMybatisPlusInboxStoreWhenBothAdaptersAreAvailable() {
+        new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(
+                        InboxJpaAutoConfiguration.class,
+                        InboxMybatisPlusAutoConfiguration.class,
+                        InboxAutoConfiguration.class))
+                .withBean(EntityManager.class, () -> mock(EntityManager.class))
+                .withBean(DataSource.class, () -> dataSourceWithProduct("PostgreSQL 16"))
+                .withBean(SqlSessionFactory.class, () -> mock(SqlSessionFactory.class))
+                .withBean(InboxMessageMapper.class, () -> mock(InboxMessageMapper.class))
+                .run(context -> {
+                    assertThat(context).hasSingleBean(InboxMessageStore.class);
+                    assertThat(context.getBean(InboxMessageStore.class))
+                            .isInstanceOf(MybatisPlusInboxMessageStore.class);
                 });
     }
 
@@ -127,6 +183,10 @@ class JpaStoreAutoConfigurationTest {
     }
 
     private static DataSource dataSourceWithProduct(String productName) {
+        return metadataDataSourceWithProduct(productName).dataSource();
+    }
+
+    private static MetadataDataSource metadataDataSourceWithProduct(String productName) {
         DataSource dataSource = mock(DataSource.class);
         Connection connection = mock(Connection.class);
         DatabaseMetaData metadata = mock(DatabaseMetaData.class);
@@ -137,6 +197,17 @@ class JpaStoreAutoConfigurationTest {
         } catch (SQLException exception) {
             throw new AssertionError("Unable to configure database metadata mock", exception);
         }
-        return dataSource;
+        return new MetadataDataSource(dataSource, connection);
+    }
+
+    private static void verifyConnectionClosed(Connection connection) {
+        try {
+            verify(connection).close();
+        } catch (SQLException exception) {
+            throw new AssertionError("Unable to verify metadata connection closure", exception);
+        }
+    }
+
+    private record MetadataDataSource(DataSource dataSource, Connection connection) {
     }
 }
