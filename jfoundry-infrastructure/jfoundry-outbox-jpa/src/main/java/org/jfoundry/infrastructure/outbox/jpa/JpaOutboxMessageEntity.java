@@ -1,6 +1,7 @@
 package org.jfoundry.infrastructure.outbox.jpa;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -49,21 +50,27 @@ public class JpaOutboxMessageEntity {
     private String errorMessage;
 
     @Column(name = "occurred_at", nullable = false, columnDefinition = "timestamp")
+    @Convert(converter = InstantUtcConverter.class)
     private Instant occurredAt;
 
     @Column(name = "last_attempt_at", columnDefinition = "timestamp")
+    @Convert(converter = InstantUtcConverter.class)
     private Instant lastAttemptAt;
 
     @Column(name = "next_retry_at", columnDefinition = "timestamp")
+    @Convert(converter = InstantUtcConverter.class)
     private Instant nextRetryAt;
 
     @Column(name = "created_at", nullable = false, columnDefinition = "timestamp")
+    @Convert(converter = InstantUtcConverter.class)
     private Instant createdAt;
 
     @Column(name = "updated_at", nullable = false, columnDefinition = "timestamp")
+    @Convert(converter = InstantUtcConverter.class)
     private Instant updatedAt;
 
     @Column(name = "claimed_at", columnDefinition = "timestamp")
+    @Convert(converter = InstantUtcConverter.class)
     private Instant claimedAt;
 
     @Column(name = "claimed_by", length = 100)

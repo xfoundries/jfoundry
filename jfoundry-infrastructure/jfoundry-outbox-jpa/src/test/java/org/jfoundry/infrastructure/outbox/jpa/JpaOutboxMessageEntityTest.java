@@ -3,6 +3,7 @@ package org.jfoundry.infrastructure.outbox.jpa;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Persistence;
 import org.jfoundry.application.outbox.OutboxMessage;
@@ -87,11 +88,23 @@ class JpaOutboxMessageEntityTest {
         assertThat(columnDefinition("createdAt")).isEqualToIgnoringCase("timestamp");
         assertThat(columnDefinition("updatedAt")).isEqualToIgnoringCase("timestamp");
         assertThat(columnDefinition("claimedAt")).isEqualToIgnoringCase("timestamp");
+        assertThat(converter("occurredAt")).isEqualTo(InstantUtcConverter.class);
+        assertThat(converter("lastAttemptAt")).isEqualTo(InstantUtcConverter.class);
+        assertThat(converter("nextRetryAt")).isEqualTo(InstantUtcConverter.class);
+        assertThat(converter("createdAt")).isEqualTo(InstantUtcConverter.class);
+        assertThat(converter("updatedAt")).isEqualTo(InstantUtcConverter.class);
+        assertThat(converter("claimedAt")).isEqualTo(InstantUtcConverter.class);
     }
 
     private static String columnDefinition(String fieldName) throws NoSuchFieldException {
         return JpaOutboxMessageEntity.class.getDeclaredField(fieldName)
                 .getAnnotation(Column.class)
                 .columnDefinition();
+    }
+
+    private static Class<?> converter(String fieldName) throws NoSuchFieldException {
+        return JpaOutboxMessageEntity.class.getDeclaredField(fieldName)
+                .getAnnotation(Convert.class)
+                .converter();
     }
 }

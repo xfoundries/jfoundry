@@ -236,6 +236,39 @@ class JpaOutboxMessageStoreTest {
     }
 
     @Test
+    void cleanupContinuesAfterAGuardedPageDeleteLosesEveryCandidate() {
+        Instant old = Instant.now().minusSeconds(120);
+        append(terminal("cleanup-1", OutboxMessageStatus.PUBLISHED, old));
+        append(terminal("cleanup-2", OutboxMessageStatus.PUBLISHED, old));
+        append(terminal("cleanup-3", OutboxMessageStatus.PUBLISHED, old));
+        EntityManager competingManager = entityManagerFactory.createEntityManager();
+        EntityManager cleanupManager = entityManagerFactory.createEntityManager();
+        try {
+            JpaOutboxMessageStore cleanupStore = new JpaOutboxMessageStore(
+                    entityManagerThatRunsBeforeBulkUpdate(cleanupManager, "delete from JpaOutboxMessageEntity", () ->
+                            inTransaction(competingManager, () -> competingManager.createQuery("""
+                                    update JpaOutboxMessageEntity e
+                                       set e.status = :pending
+                                     where e.eventId in :eventIds
+                                    """)
+                                    .setParameter("pending", OutboxMessageStatus.PENDING.name())
+                                    .setParameter("eventIds", List.of("cleanup-1", "cleanup-2"))
+                                    .executeUpdate())));
+
+            int deleted = inTransactionResult(cleanupManager, () -> cleanupStore.deleteByStatusAndOccurredAtBefore(
+                    OutboxMessageStatus.PUBLISHED, Instant.now().minusSeconds(60), 2));
+
+            assertThat(deleted).isEqualTo(1);
+            assertThat(load("cleanup-1").getStatus()).isEqualTo(OutboxMessageStatus.PENDING);
+            assertThat(load("cleanup-2").getStatus()).isEqualTo(OutboxMessageStatus.PENDING);
+            assertThat(load("cleanup-3")).isNull();
+        } finally {
+            competingManager.close();
+            cleanupManager.close();
+        }
+    }
+
+    @Test
     void losingClaimCasIsExcludedWhenAnotherTransactionClaimsTheCandidateFirst() {
         append(pending("contested", Instant.now()));
         EntityManager winnerManager = entityManagerFactory.createEntityManager();

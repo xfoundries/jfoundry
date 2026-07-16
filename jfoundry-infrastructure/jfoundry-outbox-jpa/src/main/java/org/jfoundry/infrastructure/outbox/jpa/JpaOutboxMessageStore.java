@@ -215,9 +215,6 @@ public final class JpaOutboxMessageStore implements OutboxMessageStore {
                     .executeUpdate();
             entityManager.clear();
             deleted += removed;
-            if (removed < batchSize) {
-                return deleted;
-            }
         }
     }
 
