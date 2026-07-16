@@ -170,6 +170,27 @@ class JpaOutboxMessageStoreTest {
     }
 
     @Test
+    void cleanupRejectsNonTerminalStatusesAndLeavesTheirRowsIntact() {
+        Instant old = Instant.now().minusSeconds(120);
+        append(pending("pending", old));
+        OutboxMessage failed = pending("failed", old);
+        failed.setStatus(OutboxMessageStatus.FAILED);
+        append(failed);
+
+        assertThatThrownBy(() -> inTransaction(() -> store.deleteByStatusAndOccurredAtBefore(
+                OutboxMessageStatus.PENDING, Instant.now(), 1)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("terminal");
+        assertThatThrownBy(() -> inTransaction(() -> store.deleteByStatusAndOccurredAtBefore(
+                OutboxMessageStatus.FAILED, Instant.now(), 1)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("terminal");
+
+        assertThat(load("pending")).isNotNull();
+        assertThat(load("failed")).isNotNull();
+    }
+
+    @Test
     void validatesClaimRecoveryAndCleanupInputs() {
         assertThatThrownBy(() -> store.claimDispatchable(0, "node-a"))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("limit");

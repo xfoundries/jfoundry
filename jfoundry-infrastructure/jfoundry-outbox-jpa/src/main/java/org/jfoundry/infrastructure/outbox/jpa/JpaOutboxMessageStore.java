@@ -184,6 +184,9 @@ public final class JpaOutboxMessageStore implements OutboxMessageStore {
         if (status == null) {
             throw new IllegalArgumentException("status must not be null");
         }
+        if (status != OutboxMessageStatus.PUBLISHED && status != OutboxMessageStatus.DEAD_LETTERED) {
+            throw new IllegalArgumentException("status must be terminal: " + status);
+        }
         if (cutoff == null) {
             throw new IllegalArgumentException("cutoff must not be null");
         }
