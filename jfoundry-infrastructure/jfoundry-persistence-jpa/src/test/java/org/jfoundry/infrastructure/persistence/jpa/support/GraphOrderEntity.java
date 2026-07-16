@@ -1,6 +1,7 @@
 package org.jfoundry.infrastructure.persistence.jpa.support;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -20,6 +21,9 @@ public class GraphOrderEntity {
 
     @Version
     private long version;
+
+    @Column(nullable = false)
+    private long lineRevision;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<GraphOrderLineEntity> lines = new ArrayList<>();
@@ -46,5 +50,6 @@ public class GraphOrderEntity {
     public void replaceLines(Collection<String> skus) {
         lines.clear();
         skus.forEach(sku -> lines.add(new GraphOrderLineEntity(this, sku)));
+        lineRevision++;
     }
 }
