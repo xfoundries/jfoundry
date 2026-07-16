@@ -2,7 +2,11 @@ package org.jfoundry.infrastructure.persistence.jpa;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.Persistence;
+import org.jfoundry.application.exception.ConflictException;
+import org.jfoundry.application.event.DomainEventContext;
+import org.jfoundry.domain.event.EventRecordable;
 import org.jfoundry.infrastructure.persistence.jpa.support.GraphOrder;
 import org.jfoundry.infrastructure.persistence.jpa.support.GraphOrderEntity;
 import org.jfoundry.infrastructure.persistence.jpa.support.GraphOrderId;
@@ -14,9 +18,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class JpaAggregateRepositoryEntityGraphIntegrationTest {
 
@@ -89,6 +95,90 @@ class JpaAggregateRepositoryEntityGraphIntegrationTest {
         assertThat(managed.version()).isGreaterThan(versionBeforeModify);
     }
 
+    @Test
+    void addAllPersistsEachGraphAndRegistersEachAggregateOnce() {
+        RecordingDomainEventContext domainEventContext = new RecordingDomainEventContext();
+        repository.setDomainEventContext(domainEventContext);
+        GraphOrder first = GraphOrder.create(new GraphOrderId("GRAPH-BATCH-1"), List.of("A"));
+        GraphOrder second = GraphOrder.create(new GraphOrderId("GRAPH-BATCH-2"), List.of("B"));
+
+        repository.addAll(List.of(first, second));
+
+        assertThat(lineSkus("GRAPH-BATCH-1")).containsExactly("A");
+        assertThat(lineSkus("GRAPH-BATCH-2")).containsExactly("B");
+        assertThat(domainEventContext.registered()).containsExactly(first, second);
+    }
+
+    @Test
+    void modifyAllUpdatesEachGraphAndRegistersEachAggregateOnce() {
+        GraphOrder first = GraphOrder.create(new GraphOrderId("GRAPH-MODIFY-BATCH-1"), List.of("A"));
+        GraphOrder second = GraphOrder.create(new GraphOrderId("GRAPH-MODIFY-BATCH-2"), List.of("B"));
+        repository.addAll(List.of(first, second));
+
+        RecordingDomainEventContext domainEventContext = new RecordingDomainEventContext();
+        repository.setDomainEventContext(domainEventContext);
+        GraphOrder loadedFirst = repository.findById(first.getId());
+        GraphOrder loadedSecond = repository.findById(second.getId());
+        loadedFirst.replaceLines(List.of("A-UPDATED"));
+        loadedSecond.replaceLines(List.of("B-UPDATED"));
+
+        repository.modifyAll(List.of(loadedFirst, loadedSecond));
+
+        assertThat(lineSkus("GRAPH-MODIFY-BATCH-1")).containsExactly("A-UPDATED");
+        assertThat(lineSkus("GRAPH-MODIFY-BATCH-2")).containsExactly("B-UPDATED");
+        assertThat(domainEventContext.registered()).containsExactly(loadedFirst, loadedSecond);
+    }
+
+    @Test
+    void staleRemoveReportsConflictAndKeepsWinnerGraph() {
+        GraphOrderId orderId = new GraphOrderId("GRAPH-REMOVE-CONFLICT");
+        repository.add(GraphOrder.create(orderId, List.of("A")));
+        entityManager.getTransaction().commit();
+
+        EntityManager staleManager = entityManagerFactory.createEntityManager();
+        EntityManager winnerManager = entityManagerFactory.createEntityManager();
+        JpaAggregateRepository<GraphOrder, GraphOrderId, GraphOrderEntity, String> staleRepository =
+                repository(staleManager);
+        JpaAggregateRepository<GraphOrder, GraphOrderId, GraphOrderEntity, String> winnerRepository =
+                repository(winnerManager);
+        staleManager.getTransaction().begin();
+        winnerManager.getTransaction().begin();
+
+        try {
+            GraphOrder stale = staleRepository.findById(orderId);
+            GraphOrder winner = winnerRepository.findById(orderId);
+            winner.replaceLines(List.of("B"));
+            winnerRepository.modify(winner);
+            winnerManager.getTransaction().commit();
+
+            assertThatThrownBy(() -> staleRepository.remove(stale))
+                    .isInstanceOf(ConflictException.class)
+                    .hasMessageContaining("remove optimistic lock conflict")
+                    .hasCauseInstanceOf(OptimisticLockException.class);
+
+            staleManager.getTransaction().rollback();
+        } finally {
+            if (staleManager.getTransaction().isActive()) {
+                staleManager.getTransaction().rollback();
+            }
+            staleManager.close();
+            if (winnerManager.getTransaction().isActive()) {
+                winnerManager.getTransaction().rollback();
+            }
+            winnerManager.close();
+        }
+
+        EntityManager verificationManager = entityManagerFactory.createEntityManager();
+        try {
+            GraphOrderEntity winner = verificationManager.find(GraphOrderEntity.class, orderId.value());
+
+            assertThat(winner).isNotNull();
+            assertThat(winner.lineSkus()).containsExactly("B");
+        } finally {
+            verificationManager.close();
+        }
+    }
+
     private JpaAggregateRepository<GraphOrder, GraphOrderId, GraphOrderEntity, String> repository(
             EntityManager entityManager) {
         GraphRepository repository = new GraphRepository(entityManager, new GraphOrderMapper());
@@ -117,6 +207,20 @@ class JpaAggregateRepositoryEntityGraphIntegrationTest {
 
         private GraphRepository(EntityManager entityManager, GraphOrderMapper mapper) {
             super(entityManager, GraphOrderEntity.class, mapper);
+        }
+    }
+
+    private static final class RecordingDomainEventContext implements DomainEventContext {
+
+        private final List<EventRecordable> registered = new ArrayList<>();
+
+        @Override
+        public void register(EventRecordable aggregate) {
+            registered.add(aggregate);
+        }
+
+        private List<EventRecordable> registered() {
+            return List.copyOf(registered);
         }
     }
 }
