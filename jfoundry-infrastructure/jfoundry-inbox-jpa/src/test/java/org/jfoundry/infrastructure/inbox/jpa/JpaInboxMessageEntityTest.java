@@ -3,6 +3,7 @@ package org.jfoundry.infrastructure.inbox.jpa;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import jakarta.persistence.Convert;
 import org.jfoundry.application.inbox.InboxMessage;
 import org.jfoundry.application.inbox.InboxMessageStatus;
 import org.junit.jupiter.api.AfterAll;
@@ -69,5 +70,18 @@ class JpaInboxMessageEntityTest {
             entityManager.getTransaction().rollback();
         }
         entityManager.close();
+    }
+
+    @Test
+    void mapsTimestampColumnsWithTheExplicitUtcConverter() throws NoSuchFieldException {
+        assertThat(converter("processedAt")).isEqualTo(InstantUtcConverter.class);
+        assertThat(converter("createdAt")).isEqualTo(InstantUtcConverter.class);
+        assertThat(converter("updatedAt")).isEqualTo(InstantUtcConverter.class);
+    }
+
+    private static Class<?> converter(String fieldName) throws NoSuchFieldException {
+        return JpaInboxMessageEntity.class.getDeclaredField(fieldName)
+                .getAnnotation(Convert.class)
+                .converter();
     }
 }

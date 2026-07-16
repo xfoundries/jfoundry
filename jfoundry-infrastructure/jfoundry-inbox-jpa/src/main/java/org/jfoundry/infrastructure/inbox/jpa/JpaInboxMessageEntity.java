@@ -1,6 +1,7 @@
 package org.jfoundry.infrastructure.inbox.jpa;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -31,12 +32,15 @@ public class JpaInboxMessageEntity {
     private String status;
 
     @Column(name = "processed_at", columnDefinition = "timestamp")
+    @Convert(converter = InstantUtcConverter.class)
     private Instant processedAt;
 
     @Column(name = "created_at", nullable = false, columnDefinition = "timestamp")
+    @Convert(converter = InstantUtcConverter.class)
     private Instant createdAt;
 
     @Column(name = "updated_at", nullable = false, columnDefinition = "timestamp")
+    @Convert(converter = InstantUtcConverter.class)
     private Instant updatedAt;
 
     @Column(name = "error_message", length = 2000)
