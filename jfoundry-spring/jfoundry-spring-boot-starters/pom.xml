@@ -24,9 +24,11 @@
         <module>jfoundry-lock-redisson-spring-boot-starter</module>
         <module>jfoundry-outbox-spring-boot-starter</module>
         <module>jfoundry-outbox-mybatis-plus-spring-boot-starter</module>
+        <module>jfoundry-outbox-jpa-spring-boot-starter</module>
         <module>jfoundry-outbox-jobrunr-spring-boot-starter</module>
         <module>jfoundry-inbox-spring-boot-starter</module>
         <module>jfoundry-inbox-mybatis-plus-spring-boot-starter</module>
+        <module>jfoundry-inbox-jpa-spring-boot-starter</module>
         <module>jfoundry-mybatis-plus-spring-boot-starter</module>
         <module>jfoundry-jpa-spring-boot-starter</module>
     </modules>
