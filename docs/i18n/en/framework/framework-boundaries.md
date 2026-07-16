@@ -55,8 +55,9 @@ Spring Boot starters, `jfoundry-outbox-jpa-spring-boot-starter` and
 store.
 
 The JPA Outbox store pages dispatchable candidates with JPQL and claims each row through a
-compare-and-set update. A claim token establishes ownership, and publish or failure updates require
-that token. The JPA Inbox adapter supplies built-in claim strategies only for PostgreSQL and MySQL;
+compare-and-set update. For dispatcher-driven processing of a claimed message, a claim token
+establishes ownership and the token-scoped publish or failure updates use that token. The JPA Inbox
+adapter supplies built-in claim strategies only for PostgreSQL and MySQL;
 other database products must provide a `JpaInboxClaimStrategy`.
 
 ## Acceptance Criteria

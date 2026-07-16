@@ -125,8 +125,9 @@ Recovery moves stuck `DISPATCHING` messages back to `PENDING`. Cleanup deletes e
 states only.
 
 The JPA Outbox store selects a page of dispatchable candidates with JPQL, then performs a
-compare-and-set claim for each row. The claim token establishes ownership: publish and failure
-updates require the same token. The JPA Inbox store supports built-in atomic claims only for
+compare-and-set claim for each row. In dispatcher-driven processing of a claimed message, the claim
+token establishes ownership and token-scoped publish and failure updates use the same token. The
+JPA Inbox store supports built-in atomic claims only for
 PostgreSQL and MySQL. Provide a `JpaInboxClaimStrategy` for another database product; without one,
 Boot fails fast rather than selecting a generic dialect behavior. Virtual threads are used only by
 concurrency tests and are not a production dispatch execution model.

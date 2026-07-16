@@ -125,7 +125,7 @@ Outbox/Inbox data object 不继承 `AggregateData`；对应 MyBatis store 直接
 
 MyBatis-Plus adapter 不进入 `jfoundry-spring-boot-starter`。JPA Outbox 与 Inbox adapter 是框架无关的 Jakarta Persistence 实现；业务使用 Spring Data / JPA 时，`jfoundry-jpa-spring-boot-starter` 只提供 JPA 业务运行时装配，不隐式提供 `OutboxMessageStore` 或 `InboxMessageStore`。需要内置存储时，业务侧显式引入对应 JPA store starter；也可以提供自己的 store 实现。
 
-JPA Outbox 使用 JPQL 分页查询可派发候选记录，并对每条记录执行 compare-and-set claim；claim token 用于约束后续发布或失败状态更新的所有权。JPA Inbox 的内置原子 claim 策略仅支持 PostgreSQL 和 MySQL；其他数据库必须由业务侧提供 `JpaInboxClaimStrategy`。
+JPA Outbox 使用 JPQL 分页查询可派发候选记录，并对每条记录执行 compare-and-set claim。对于 dispatcher 驱动的已领取消息，claim token 建立所有权，带 token 的发布或失败状态更新使用该 token。JPA Inbox 的内置原子 claim 策略仅支持 PostgreSQL 和 MySQL；其他数据库必须由业务侧提供 `JpaInboxClaimStrategy`。
 
 ## 兼容规则
 

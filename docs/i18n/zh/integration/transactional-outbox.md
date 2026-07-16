@@ -188,7 +188,7 @@ jar xf jfoundry-outbox-core-*.jar jfoundry/sql/outbox/mysql/create_outbox_event.
 
 派发器通过原子 claim 避免多实例重复取同一批记录。恢复任务会把长时间停留在 `DISPATCHING` 的记录回滚为 `PENDING`，清理任务只删除过期的 `PUBLISHED` 和 `DEAD_LETTERED` 终态记录。
 
-JPA Outbox store 使用 JPQL 分页查询可派发候选记录，再对每条记录执行 compare-and-set claim。claim token 建立领取所有权，发布和失败状态更新必须携带同一 token。JPA Inbox store 的内置原子 claim 仅支持 PostgreSQL 和 MySQL；其他数据库产品必须提供 `JpaInboxClaimStrategy`，否则 Boot 会快速失败，而不会选择泛化的 dialect 行为。虚拟线程仅用于并发测试，不是生产环境的派发执行模型。
+JPA Outbox store 使用 JPQL 分页查询可派发候选记录，再对每条记录执行 compare-and-set claim。对于 dispatcher 驱动的已领取消息，claim token 建立领取所有权，带 token 的发布和失败状态更新使用同一 token。JPA Inbox store 的内置原子 claim 仅支持 PostgreSQL 和 MySQL；其他数据库产品必须提供 `JpaInboxClaimStrategy`，否则 Boot 会快速失败，而不会选择泛化的 dialect 行为。虚拟线程仅用于并发测试，不是生产环境的派发执行模型。
 
 ## 使用建议
 
