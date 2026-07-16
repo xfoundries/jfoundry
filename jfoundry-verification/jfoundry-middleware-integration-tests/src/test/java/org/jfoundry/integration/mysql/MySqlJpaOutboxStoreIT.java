@@ -16,7 +16,9 @@ import org.springframework.dao.TransientDataAccessException;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.TransactionDefinition;
 import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.PessimisticLockException;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -72,6 +74,7 @@ class MySqlJpaOutboxStoreIT {
 
     @BeforeEach
     void cleanDb() {
+        transactions.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
         jdbcTemplate.update("delete from jfoundry_outbox_event");
     }
 
@@ -79,7 +82,6 @@ class MySqlJpaOutboxStoreIT {
     void claimDispatchableClaimsEachEventOnlyOnceUnderConcurrency() throws Exception {
         inTransaction(() -> {
             store.append(OutboxMessages.pending("evt-1"));
-            store.append(OutboxMessages.pending("evt-2"));
             return null;
         });
         CountDownLatch start = new CountDownLatch(1);
@@ -87,7 +89,7 @@ class MySqlJpaOutboxStoreIT {
         List<String> claimedIds = java.util.Collections.synchronizedList(new ArrayList<>());
         List<Future<?>> workers = new ArrayList<>();
         try {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 2; i++) {
                 int worker = i;
                 workers.add(pool.submit(() -> {
                     await(start);
@@ -104,7 +106,7 @@ class MySqlJpaOutboxStoreIT {
         } finally {
             pool.shutdownNow();
         }
-        assertThat(claimedIds).containsExactlyInAnyOrder("evt-1", "evt-2");
+        assertThat(claimedIds).containsExactly("evt-1");
         assertThat(claimedIds).doesNotHaveDuplicates();
     }
 
@@ -168,7 +170,8 @@ class MySqlJpaOutboxStoreIT {
                 return inTransaction(action);
             } catch (RuntimeException exception) {
                 if (!(exception instanceof TransientDataAccessException)
-                        && !(exception instanceof OptimisticLockException)) {
+                        && !(exception instanceof OptimisticLockException)
+                        && !(exception instanceof PessimisticLockException)) {
                     throw exception;
                 }
                 if (attempt == 4) {

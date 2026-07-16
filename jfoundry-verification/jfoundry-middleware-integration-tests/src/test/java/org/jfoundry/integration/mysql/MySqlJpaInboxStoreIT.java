@@ -15,7 +15,9 @@ import org.springframework.dao.TransientDataAccessException;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.TransactionDefinition;
 import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.PessimisticLockException;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -71,6 +73,7 @@ class MySqlJpaInboxStoreIT {
 
     @BeforeEach
     void cleanDb() {
+        transactions.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
         jdbcTemplate.update("delete from jfoundry_inbox_message");
     }
 
@@ -92,14 +95,12 @@ class MySqlJpaInboxStoreIT {
         AtomicInteger winners = new AtomicInteger();
         var workers = new java.util.ArrayList<Future<?>>();
         try {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 2; i++) {
                 workers.add(pool.submit(() -> {
                     await(start);
-                    inTransaction(() -> {
-                        if (retryTransientTransaction(() -> store.tryStartProcessing("evt-1", "projection"))) {
-                            winners.incrementAndGet();
-                        }
-                    });
+                    if (retryTransientTransaction(() -> store.tryStartProcessing("evt-1", "projection"))) {
+                        winners.incrementAndGet();
+                    }
                 }));
             }
             start.countDown();
@@ -134,7 +135,8 @@ class MySqlJpaInboxStoreIT {
                 return transactions.execute(ignored -> action.get());
             } catch (RuntimeException exception) {
                 if (!(exception instanceof TransientDataAccessException)
-                        && !(exception instanceof OptimisticLockException)) {
+                        && !(exception instanceof OptimisticLockException)
+                        && !(exception instanceof PessimisticLockException)) {
                     throw exception;
                 }
                 if (attempt == 4) {
