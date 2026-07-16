@@ -62,7 +62,10 @@ when a project needs another wire format.
 Add `jfoundry-outbox-spring-boot-starter` when reliable externalization is needed. It auto-configures
 `OutboxTemplate` when an `OutboxMessageStore` and `PayloadSerializer` are available. Add
 `jfoundry-outbox-mybatis-plus-spring-boot-starter` when the application uses the built-in
-MyBatis-Plus Outbox store. The messaging starter transitively supplies Spring Boot's JSON starter,
+MyBatis-Plus Outbox store, or `jfoundry-outbox-jpa-spring-boot-starter` for the built-in
+framework-neutral JPA store. The general `jfoundry-jpa-spring-boot-starter` does not add an Outbox
+or Inbox store. A user-defined `OutboxMessageStore` takes precedence over Boot defaults. The
+messaging starter transitively supplies Spring Boot's JSON starter,
 so batch consumers and other non-web applications receive the default Jackson `ObjectMapper` and
 `PayloadSerializer` without adding a WebMVC or WebFlux starter. A user-defined `ObjectMapper` or
 `PayloadSerializer` still takes precedence.
@@ -92,9 +95,11 @@ selected `MessageSender` is the broker sender rather than relying only on classp
 
 ## SQL Templates
 
-jfoundry ships SQL as copyable templates, not auto-run migrations. Applications should copy the
-needed template into their own Flyway/Liquibase migration directory or execute it through their
-operational process.
+jfoundry ships SQL as copyable templates, not auto-run migrations. The canonical, unchanged Outbox
+paths are owned by `jfoundry-outbox-core`, and the canonical, unchanged Inbox path is owned by
+`jfoundry-inbox-core`. Applications should copy the needed template into their own Flyway/Liquibase
+migration directory or execute it through their operational process; jfoundry never creates these
+tables or runs those migrations.
 
 Outbox templates are packaged in `jfoundry-outbox-core`; the common Inbox template is packaged in
 `jfoundry-inbox-core`.
@@ -118,3 +123,10 @@ DDL should be supplied by vendors, third-party integrations, or downstream appli
 
 Recovery moves stuck `DISPATCHING` messages back to `PENDING`. Cleanup deletes expired terminal
 states only.
+
+The JPA Outbox store selects a page of dispatchable candidates with JPQL, then performs a
+compare-and-set claim for each row. The claim token establishes ownership: publish and failure
+updates require the same token. The JPA Inbox store supports built-in atomic claims only for
+PostgreSQL and MySQL. Provide a `JpaInboxClaimStrategy` for another database product; without one,
+Boot fails fast rather than selecting a generic dialect behavior. Virtual threads are used only by
+concurrency tests and are not a production dispatch execution model.

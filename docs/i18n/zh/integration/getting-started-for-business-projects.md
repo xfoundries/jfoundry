@@ -202,13 +202,17 @@ transactionRunner.run(TransactionOptions.builder()
 - 本地 Spring 领域事件发布：`jfoundry-event-spring-boot-starter`
 - Outbox：`jfoundry-outbox-spring-boot-starter`
 - Outbox MyBatis-Plus 存储：`jfoundry-outbox-mybatis-plus-spring-boot-starter`
+- Outbox JPA 存储：`jfoundry-outbox-jpa-spring-boot-starter`
 - Inbox：`jfoundry-inbox-spring-boot-starter`
 - Inbox MyBatis-Plus 存储：`jfoundry-inbox-mybatis-plus-spring-boot-starter`
+- Inbox JPA 存储：`jfoundry-inbox-jpa-spring-boot-starter`
 - Kafka adapter：`jfoundry-messaging-kafka-spring-boot-starter`
 - RabbitMQ adapter：`jfoundry-messaging-rabbitmq-spring-boot-starter`
 - RocketMQ adapter：`jfoundry-messaging-rocketmq-spring-boot-starter`
 - Redisson 分布式锁：`jfoundry-lock-redisson-spring-boot-starter`
 - 架构测试：`jfoundry-architecture-test`，`test` scope
+
+JPA Outbox 和 Inbox starter 是显式的存储选择。`jfoundry-jpa-spring-boot-starter` 不会引入任一 store；JPA 应用必须选择对应的 store starter，或自行提供 `OutboxMessageStore`、`InboxMessageStore`。
 
 单应用模块可以作为小项目的折中做法，但不要因此把职责混在一起：仍应保留 domain、application、adapter、infrastructure 包边界，并让 ArchUnit 测试覆盖这些包。
 

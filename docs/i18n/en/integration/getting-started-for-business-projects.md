@@ -45,10 +45,16 @@ before generating package structures or architecture tests that depend on that c
 - Redisson-backed distributed locks: `jfoundry-lock-redisson-spring-boot-starter`
 - Outbox core runtime: `jfoundry-outbox-spring-boot-starter`
 - Outbox MyBatis-Plus store: `jfoundry-outbox-mybatis-plus-spring-boot-starter`
+- Outbox JPA store: `jfoundry-outbox-jpa-spring-boot-starter`
 - JobRunr dispatch trigger: `jfoundry-outbox-jobrunr-spring-boot-starter`
 - Inbox core runtime: `jfoundry-inbox-spring-boot-starter`
 - Inbox MyBatis-Plus store: `jfoundry-inbox-mybatis-plus-spring-boot-starter`
+- Inbox JPA store: `jfoundry-inbox-jpa-spring-boot-starter`
 - Web MVC ProblemDetail responses: `jfoundry-webmvc-spring-boot-starter`
+
+The JPA Outbox and Inbox starters are explicit store choices. `jfoundry-jpa-spring-boot-starter`
+does not add either store, so a JPA application must select the corresponding store starter or
+provide its own `OutboxMessageStore` or `InboxMessageStore`.
 
 ## Package Shape
 

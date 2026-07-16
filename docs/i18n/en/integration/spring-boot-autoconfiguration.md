@@ -16,11 +16,13 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 | `jfoundry-messaging-rocketmq-spring-boot-starter` | RocketMQ `MessageSender` adapter | Outbox store |
 | `jfoundry-outbox-spring-boot-starter` | Outbox core, `OutboxTemplate`, domain-event externalization, scheduled dispatch integration | Outbox table store, JobRunr |
 | `jfoundry-outbox-mybatis-plus-spring-boot-starter` | MyBatis-Plus `OutboxMessageStore` adapter | Database migration execution |
+| `jfoundry-outbox-jpa-spring-boot-starter` | JPA `OutboxMessageStore` adapter | Database migration execution |
 | `jfoundry-outbox-jobrunr-spring-boot-starter` | JobRunr Outbox dispatcher | Outbox table store |
 | `jfoundry-inbox-spring-boot-starter` | Inbox core and `InboxTemplate` | Inbox table store |
 | `jfoundry-inbox-mybatis-plus-spring-boot-starter` | MyBatis-Plus `InboxMessageStore` adapter | Database migration execution |
+| `jfoundry-inbox-jpa-spring-boot-starter` | JPA `InboxMessageStore` adapter and supported-database claim strategy | Database migration execution, claim support for database products other than PostgreSQL and MySQL |
 | `jfoundry-mybatis-plus-spring-boot-starter` | Spring Boot MyBatis-Plus runtime assembly | Business persistence starter, Outbox/Inbox stores |
-| `jfoundry-jpa-spring-boot-starter` | jfoundry JPA adapter for one managed entity graph per aggregate, shared Spring transaction persistence context, Spring Boot JPA runtime | Detached aggregate merge, manual multi-table or multi-graph synchronization algorithms |
+| `jfoundry-jpa-spring-boot-starter` | jfoundry JPA adapter for one managed entity graph per aggregate, shared Spring transaction persistence context, Spring Boot JPA runtime | Detached aggregate merge, manual multi-table or multi-graph synchronization algorithms, Outbox and Inbox stores |
 | `jfoundry-webmvc-spring-boot-starter` | Web MVC `ProblemDetail` exception handling | Messaging, Outbox, Inbox |
 
 ## Configuration Properties
@@ -67,15 +69,19 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 | `RabbitMqMessageSenderAutoConfiguration` | `RabbitMqMessageSender` | `RabbitTemplate` class and `RabbitOperations` bean exist; no existing `MessageSender`. |
 | `RocketMqMessageSenderAutoConfiguration` | `RocketMqMessageSender` | RocketMQ producer class and `MQProducer` bean exist; no existing `MessageSender`. |
 | `OutboxMybatisPlusAutoConfiguration` | Outbox table-name customizer, `MybatisPlusInterceptor`, `OutboxMessageStore` | MyBatis-Plus and Outbox store adapter classes are present. SQL templates are not run automatically. |
+| `OutboxJpaAutoConfiguration` | JPA `OutboxMessageStore` | `EntityManager` and the JPA Outbox adapter are present; no user-defined `OutboxMessageStore` exists. |
 | `OutboxDispatcherAutoConfiguration` | `BackoffStrategy`, scheduled dispatcher, recovery job, cleanup job | Outbox store, message sender, and scheduled dispatcher classes are present; mode is `scheduled` or maintenance is enabled by managed modes. |
 | `JobRunrDispatcherAutoConfiguration` | `JobRunrOutboxDispatcher` | JobRunr and jfoundry JobRunr adapter classes are present; `mode=jobrunr`; store, sender, and backoff beans exist. |
 | `InboxMybatisPlusAutoConfiguration` | MyBatis-Plus `InboxMessageStore` | `SqlSessionFactory`, mapper scanning, and Inbox store adapter are present; no existing store. |
+| `InboxJpaAutoConfiguration` | `JpaInboxClaimStrategy`, JPA `InboxMessageStore` | `EntityManager` and the JPA Inbox adapter are present. A user `InboxMessageStore` or `JpaInboxClaimStrategy` takes precedence; built-in claim strategies support only PostgreSQL and MySQL, and an unknown database product fails fast unless the application supplies a strategy. |
 | `InboxAutoConfiguration` | `InboxTemplate` | `InboxTemplate` is on the classpath and an `InboxMessageStore` bean exists. |
 | `WebMvcProblemDetailAutoConfiguration` | `ProblemDetailExceptionHandler` | Servlet Web MVC application and handler class are present; no existing handler. |
 
 ## Notes
 
-- SQL templates are copyable templates. jfoundry jars do not create Outbox or Inbox tables.
+- SQL templates are copyable templates. `jfoundry-outbox-core` owns the canonical Outbox paths and
+  `jfoundry-inbox-core` owns the canonical Inbox path; applications copy them into their own
+  migrations, and jfoundry never creates tables or runs migrations.
 - Broker-specific `MessageSender` beans take precedence over the logging fallback. Kafka sender
   auto-configuration runs after Spring Boot's `KafkaAutoConfiguration`, so a Boot-created
   `KafkaOperations` bean is visible before jfoundry evaluates the sender condition, and before

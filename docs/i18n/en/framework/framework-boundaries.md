@@ -15,7 +15,7 @@ such as jMolecules and `slf4j-api` may appear in core modules when they express 
 |------|---------|
 | Domain and architecture | `jfoundry-domain`, `jfoundry-architecture`, `jfoundry-hexagonal`, `jfoundry-onion`, `jfoundry-cqrs` |
 | Application contracts | `jfoundry-application-core`, `jfoundry-transaction-core`, `jfoundry-event-core`, `jfoundry-event-externalization-core`, `jfoundry-messaging-core`, `jfoundry-outbox-core`, `jfoundry-inbox-core` |
-| Framework-neutral adapters | `jfoundry-persistence-core`, `jfoundry-persistence-mybatis-plus`, `jfoundry-persistence-jpa`, `jfoundry-messaging-jackson`, broker adapters, Outbox/Inbox MyBatis-Plus stores, JobRunr dispatch adapter |
+| Framework-neutral adapters | `jfoundry-persistence-core`, `jfoundry-persistence-mybatis-plus`, `jfoundry-persistence-jpa`, `jfoundry-messaging-jackson`, broker adapters, Outbox/Inbox MyBatis-Plus and JPA stores, JobRunr dispatch adapter |
 | Spring runtime integration | `jfoundry-spring-runtime/*` |
 | Spring Boot integration | `jfoundry-spring-boot-autoconfigure`, `jfoundry-spring-boot-starters/*` |
 | Verification | `jfoundry-verification/*` |
@@ -46,6 +46,18 @@ a Boot concern.
 
 `jfoundry-outbox-jobrunr` is a pure JobRunr dispatch adapter. Its Spring Boot auto-configuration
 also belongs under `jfoundry-spring-boot-autoconfigure`.
+
+`jfoundry-outbox-jpa` and `jfoundry-inbox-jpa` are framework-neutral Jakarta Persistence adapters.
+They implement the Outbox and Inbox store SPIs without requiring Spring or Spring Boot. Their
+Spring Boot starters, `jfoundry-outbox-jpa-spring-boot-starter` and
+`jfoundry-inbox-jpa-spring-boot-starter`, are explicit capability choices; the general
+`jfoundry-jpa-spring-boot-starter` provides business JPA runtime assembly only and adds neither
+store.
+
+The JPA Outbox store pages dispatchable candidates with JPQL and claims each row through a
+compare-and-set update. A claim token establishes ownership, and publish or failure updates require
+that token. The JPA Inbox adapter supplies built-in claim strategies only for PostgreSQL and MySQL;
+other database products must provide a `JpaInboxClaimStrategy`.
 
 ## Acceptance Criteria
 
