@@ -1,8 +1,29 @@
 # jfoundry Documentation
 
-This documentation is organized by concepts rather than by artifact names. Start with integration
-guidance for business projects, architecture guidance for boundary decisions, and release notes for
-maintainer work.
+This documentation is capability-first. Capability pages define contracts and behavior;
+implementation pages explain technology-specific choices; reference pages provide lookup material.
+
+## Getting Started
+
+- [Getting Started for Business Projects](integration/getting-started-for-business-projects.md)
+- [Adoption Readiness and Validated Scope](integration/adoption-readiness.md)
+
+## Capabilities
+
+- [Aggregate Persistence](capabilities/aggregate-persistence.md)
+- [Reliable Messaging: Outbox And Inbox](capabilities/reliable-messaging.md)
+- [Application Transactions](capabilities/application-transactions.md)
+- [Distributed Locks](capabilities/distributed-locks.md)
+
+## Implementations
+
+- [JPA](implementations/jpa.md)
+- [MyBatis-Plus](implementations/mybatis-plus.md)
+- [Spring Boot Runtime Assembly](implementations/spring-boot.md)
+
+## Reference
+
+- [Spring Boot Auto-configuration](reference/spring-boot-autoconfiguration.md)
 
 ## Framework Semantics
 
@@ -10,20 +31,10 @@ maintainer work.
 - [ArchUnit Architecture Rules](framework/archunit-rules.md)
 - [Framework Boundaries](framework/framework-boundaries.md)
 
-## Modeling Conventions
+## Modeling
 
 - [Value Object Guide](modeling/value-object.md)
 - [Repository and Read-side Contracts](modeling/repository-vs-read-contracts.md)
-
-## Technical Integration
-
-- [Getting Started for Business Projects](integration/getting-started-for-business-projects.md)
-- [Adoption Readiness and Validated Scope](integration/adoption-readiness.md)
-- [Spring Boot Auto-configuration](integration/spring-boot-autoconfiguration.md)
-- [Application Transactions](integration/application-transactions.md)
-- [Distributed Locks](integration/distributed-locks.md)
-- [Persistence DataMapper and MapStruct](integration/persistence-data-mappers.md)
-- [Transactional Outbox and Inbox](integration/transactional-outbox.md)
 
 ## Release and Compatibility
 

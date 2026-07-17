@@ -32,7 +32,7 @@ such as jMolecules and `slf4j-api` may appear in core modules when they express 
 - Middleware integration tests and Testcontainers compatibility checks belong under
   `jfoundry-verification`.
 
-## Outbox Boundary
+## Reliable Messaging Boundary
 
 `jfoundry-outbox-core` owns the message model, store contract, dispatch service, retry/backoff
 contract, and state machine.
@@ -54,11 +54,8 @@ Spring Boot starters, `jfoundry-outbox-jpa-spring-boot-starter` and
 `jfoundry-jpa-spring-boot-starter` provides business JPA runtime assembly only and adds neither
 store.
 
-The JPA Outbox store pages dispatchable candidates with JPQL and claims each row through a
-compare-and-set update. For dispatcher-driven processing of a claimed message, a claim token
-establishes ownership and the token-scoped publish or failure updates use that token. The JPA Inbox
-adapter supplies built-in claim strategies only for PostgreSQL and MySQL;
-other database products must provide a `JpaInboxClaimStrategy`.
+Implementation mechanics and database limitations belong in the [JPA implementation guide](../implementations/jpa.md).
+The capability state model and SQL-template policy belong in [Reliable Messaging](../capabilities/reliable-messaging.md).
 
 ## Acceptance Criteria
 

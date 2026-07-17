@@ -1,6 +1,6 @@
 # Spring Boot 自动配置总览
 
-本文汇总 jfoundry 提供的 Spring Boot 入口、配置项和 Bean 装配条件，用于选择 starter，也用于排查某个 Bean 为什么注册或没有注册。
+本文是 Spring Boot 入口、配置项和 Bean 装配条件的查询材料。行为契约请先看[能力页](../capabilities/aggregate-persistence.md)，技术相关配置请看[实现指南](../implementations/spring-boot.md)。
 
 ## Starter 入口
 
@@ -78,16 +78,11 @@
 
 ## 说明
 
-- SQL 文件只是可复制模板。`jfoundry-outbox-core` 拥有规范且不变的 Outbox 路径，`jfoundry-inbox-core` 拥有规范且不变的 Inbox 路径；业务应用复制到自己的迁移中，jfoundry 永不创建表或执行迁移。
 - broker-specific `MessageSender` 会优先于 logging fallback。Kafka sender 自动配置在
   Spring Boot 的 `KafkaAutoConfiguration` 之后执行，因此 jfoundry 评估 sender 条件时可以看到
   Boot 创建的 `KafkaOperations` Bean；该评估又早于 `MessageSenderAutoConfiguration` 选择 fallback。
-- 默认 Jackson payload serializer 会输出 ISO-8601 时间和普通 JSON 值，不会开启 Jackson
-  default typing，也不会在集成 payload 中暴露 Java 类名。
 - `TransactionRunnerAutoConfiguration` 在 Spring Boot 事务自动配置之后运行，确保其 Bean 条件评估前已经可以看到 JDBC、JPA 或 JTA 事务管理器。
 - jfoundry 通过 Spring 规范的 auto-proxy creator 注册各类 advisor。其他 Spring 集成已经注册更强的
   creator 时，Spring 的标准升级协议会保留该 creator；业务应用无需注册 jfoundry 专用 proxy creator。
 - 分布式锁是显式能力。默认 Spring Boot starter 不会引入 Redisson。
-- MyBatis-Plus 与 JPA starter 会引入 `jfoundry-persistence-spring`。它是共享的 Spring 运行时适配器，负责提供事务绑定的聚合持久化上下文，并不专属于任一持久化技术。其默认 translator 只处理已知的可用性故障；用户自定义的 `PersistenceFailureTranslator` Bean 优先。
 - `mode=none` 表示不注册 dispatcher、recovery job 或 cleanup job，即使显式开启 recovery 或 cleanup 也不会注册。
-- MyBatis-Plus 与 JPA 运行时 starter 会把共享的 Spring 事务绑定持久化上下文自动注入感知仓储，因此业务构造器不接收它。版本跟踪仍是可选能力；业务应用必须配置 ORM 或插件的乐观锁支持，并在同一事务内完成加载与修改。对于 JPA，每个聚合使用一个由 JPA 管理的实体图，在其根实体上声明 `@Version`，并让每次实体图变更修改根实体的持久化属性；仅有 `@Version` 不能保护只修改子实体的更新。仓储 `flush` 会将根实体的并发更新报告为 `ConflictException`。`JpaAggregateMapper` 负责实体图创建、还原和同步；手动多表或多实体图同步仍是业务适配器代码。

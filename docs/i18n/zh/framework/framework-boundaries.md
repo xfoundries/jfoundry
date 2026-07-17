@@ -1,140 +1,47 @@
 # 框架边界设计
 
-本文是维护者和贡献者使用的架构边界说明，用于约束 jfoundry 内部模块如何依赖框架、适配器和 starter。业务用户通常只需要阅读具体功能文档，例如 Outbox 或架构风格指南。
+本文面向维护者和贡献者，定义框架代码的归属，并说明 jfoundry 如何保持 core 不依赖具体运行时框架。
 
 ## 核心决策
 
-jfoundry 的核心模块必须独立于具体应用框架，例如 Spring、Spring Boot、Helidon、Quarkus、CDI 和 Jakarta EE 运行时集成。核心模块可以依赖稳定、低侵入的库来表达领域或库级契约，例如 jMolecules 或 `slf4j-api`。
+jfoundry core 模块不得依赖 Spring、Spring Boot、Helidon、Quarkus、Micronaut、CDI 或 Jakarta EE 运行时集成 API。jMolecules 和 `slf4j-api` 等稳定且低侵入的库只有在表达契约时才可进入 core。
 
-Jackson、Spring SpEL、Spring scheduling、Spring Boot auto-configuration 以及框架生命周期逻辑不能进入核心模块。
+## 模块职责
 
-## 模块角色
-
-核心模块只定义契约和框架无关行为：
-
-- `jfoundry-domain`
-- `jfoundry-architecture`
-- `jfoundry-hexagonal`
-- `jfoundry-onion`
-- `jfoundry-persistence-core`
-
-`jfoundry-application` 承载应用层可靠性契约和框架无关服务：
-
-- `jfoundry-event-core`
-- `jfoundry-event-externalization-core`
-- `jfoundry-messaging-core`
-- `jfoundry-inbox-core`
-- `jfoundry-outbox-core`
-
-`jfoundry-infrastructure` 承载实现或消费应用层契约的技术适配器。
-技术适配器实现核心契约，但不负责 Spring Boot、Helidon、Quarkus 等应用运行时启动和自动装配；若 adapter 需要 Spring Framework 生命周期、模板对象、属性绑定或事务同步，则归入 `jfoundry-spring`：
-
-- `jfoundry-persistence-mybatis-plus`
-- `jfoundry-persistence-jpa`
-- `jfoundry-outbox-mybatis-plus`
-- `jfoundry-inbox-mybatis-plus`
-- `jfoundry-outbox-jpa`
-- `jfoundry-inbox-jpa`
-- `jfoundry-messaging-jackson`
-- `jfoundry-messaging-kafka`
-- `jfoundry-messaging-rocketmq`
-- `jfoundry-messaging-rabbitmq`
-- `jfoundry-outbox-jobrunr`
-
-这里的 `infrastructure` 表示 Onion simplified 中的基础设施环。它按技术关注点组织模块（MyBatis-Plus、Kafka、RocketMQ、RabbitMQ、JobRunr 等），但不承载应用运行时框架本身。Spring runtime adapter 统一归入 `jfoundry-spring`，未来 Helidon、Micronaut、Quarkus 等运行时也应以平级集成模块扩展。
-
-非 Spring starter 层负责为业务模块提供稳定、低摩擦的依赖入口，但不注册运行时组件：
-
-- `../../../../jfoundry-starters/jfoundry-domain-starter`
-- `../../../../jfoundry-starters/jfoundry-application-starter`
-- `../../../../jfoundry-starters/jfoundry-infrastructure-mybatis-plus-starter`
-
-框架集成层负责把适配器装配进具体运行时，并提供用户入口。当前第一套运行时集成是 Spring，并在 `jfoundry-spring` 下按 runtime adapter、Boot auto-configuration、starter 分组：
-
-- `../../../../jfoundry-spring/jfoundry-spring-runtime/jfoundry-event-spring`
-- `../../../../jfoundry-spring/jfoundry-spring-runtime/jfoundry-messaging-spring`
-- `../../../../jfoundry-spring/jfoundry-spring-runtime/jfoundry-outbox-spring`
-- `../../../../jfoundry-spring/jfoundry-spring-boot-autoconfigure`
-- `../../../../jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-spring-boot-starter`
-- `../../../../jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-event-spring-boot-starter`
-- `../../../../jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-messaging-spring-boot-starter`
-- `../../../../jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-messaging-kafka-spring-boot-starter`
-- `../../../../jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-outbox-spring-boot-starter`
-- `../../../../jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-outbox-mybatis-plus-spring-boot-starter`
-- `../../../../jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-outbox-jpa-spring-boot-starter`
-- `../../../../jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-outbox-jobrunr-spring-boot-starter`
-- `../../../../jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-inbox-spring-boot-starter`
-- `../../../../jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-inbox-mybatis-plus-spring-boot-starter`
-- `../../../../jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-inbox-jpa-spring-boot-starter`
-- `../../../../jfoundry-spring/jfoundry-spring-boot-starters/jfoundry-mybatis-plus-spring-boot-starter`
-- 未来的 `jfoundry-helidon`
-- 未来的 `jfoundry-quarkus`
-
-JFoundry 框架内部默认采用 Onion simplified：`jfoundry-domain` 标注 `DomainRing`，`jfoundry-application` 标注 `ApplicationRing`，`jfoundry-infrastructure` 标注 `InfrastructureRing`。`jfoundry-hexagonal` 与 `jfoundry-onion` 仍保留为业务项目使用的稳定门面，因此外部项目可以按需选择 Hexagonal 或 Onion。`jfoundry-spring-boot-autoconfigure` 负责创建和装配这些模块，但它本身不参与 Onion ring 标注。各 starter 是 POM 依赖入口，本身不承载 Java 包级架构角色。
-
-starter 是业务项目优先依赖的聚合入口。新项目应按能力显式选择：
-
-- `jfoundry-domain-starter`：聚合领域建模 API 与 Hexagonal / Onion 架构边界语义，适合业务 domain 模块。
-- `jfoundry-application-starter`：聚合 domain starter、application core 与 CQRS 入口语义，适合业务 application 模块。
-- `jfoundry-infrastructure-mybatis-plus-starter`：聚合 MyBatis-Plus repository adapter、domain starter 与通用 SQL parser 支持，适合业务 infrastructure 模块。
-- `jfoundry-spring-boot-starter`：基础 Spring Boot 集成入口，只聚合 Spring Boot 自动装配和 DDD domain 基础能力。
-- `jfoundry-event-spring-boot-starter`：聚合领域事件应用契约和 Spring `ApplicationEventPublisher` 发布适配器。
-- `jfoundry-messaging-spring-boot-starter`：聚合 messaging transport contracts、Jackson payload serializer 和默认 logging `MessageSender`。
-- `jfoundry-messaging-kafka-spring-boot-starter`：在 messaging starter 之上选择 Kafka `MessageSender` adapter。
-- `jfoundry-outbox-spring-boot-starter`：聚合 Outbox core、Spring transaction synchronization、scheduled dispatcher、recovery 和 cleanup。
-- `jfoundry-outbox-mybatis-plus-spring-boot-starter`：在 Outbox starter 之上选择 MyBatis-Plus `OutboxMessageStore` adapter。
-- `jfoundry-outbox-jpa-spring-boot-starter`：在 Outbox 启动器之上选择框架无关的 JPA `OutboxMessageStore` 适配器。
-- `jfoundry-outbox-jobrunr-spring-boot-starter`：在 Outbox starter 之上选择 JobRunr dispatcher adapter。
-- `jfoundry-inbox-spring-boot-starter`：聚合 Inbox core 和 `InboxTemplate` auto-configuration。
-- `jfoundry-inbox-mybatis-plus-spring-boot-starter`：在 Inbox starter 之上选择 MyBatis-Plus `InboxMessageStore` adapter。
-- `jfoundry-inbox-jpa-spring-boot-starter`：在 Inbox 启动器之上选择框架无关的 JPA `InboxMessageStore` 适配器。
-- `jfoundry-jpa-spring-boot-starter`：JPA 业务运行时装配入口，不隐式包含 Outbox 或 Inbox 存储；需要这些能力时，必须显式选择对应 JPA 存储启动器。
-- `jfoundry-mybatis-plus-spring-boot-starter`：Spring Boot 运行时装配入口，聚合 jfoundry 基础自动装配和 MyBatis-Plus Boot starter，不隐式包含业务模块使用的 `jfoundry-infrastructure-mybatis-plus-starter`，也不隐式包含 Outbox/Inbox store。
+| 区域 | 模块 |
+|------|------|
+| 领域与架构 | `jfoundry-domain`、`jfoundry-architecture`、`jfoundry-hexagonal`、`jfoundry-onion`、`jfoundry-cqrs` |
+| 应用契约 | `jfoundry-application-core`、`jfoundry-transaction-core`、`jfoundry-event-core`、`jfoundry-event-externalization-core`、`jfoundry-messaging-core`、`jfoundry-outbox-core`、`jfoundry-inbox-core` |
+| 运行时无关适配器 | `jfoundry-persistence-core`、`jfoundry-persistence-mybatis-plus`、`jfoundry-persistence-jpa`、`jfoundry-messaging-jackson`、broker adapter、Outbox/Inbox MyBatis-Plus 与 JPA store、JobRunr dispatcher adapter |
+| Spring 运行时集成 | `jfoundry-spring-runtime/*` |
+| Spring Boot 集成 | `jfoundry-spring-boot-autoconfigure`、`jfoundry-spring-boot-starters/*` |
+| 验证 | `jfoundry-verification/*` |
 
 ## 放置规则
 
-核心模块和框架无关基础设施模块不能依赖具体应用运行时。只要模块需要 Spring Framework 生命周期、事务同步、事件发布、属性绑定或 Boot 自动装配，就属于 `jfoundry-spring`。
+- Spring Framework 生命周期、事务同步、调度、事件发布、MVC API 和 Spring 侧 client wrapper 位于 `../../../../jfoundry-spring/jfoundry-spring-runtime`。
+- Spring Boot 条件、`@ConfigurationProperties`、Bean 装配、metadata 和 `AutoConfiguration.imports` 位于 `../../../../jfoundry-spring/jfoundry-spring-boot-autoconfigure`。
+- Starter 只是依赖入口，不得承载运行时行为。
+- 运行时无关的数据库、broker、serializer 和 scheduler adapter 位于 `jfoundry-infrastructure`。
+- 中间件集成测试和 Testcontainers 兼容性验证位于 `jfoundry-verification`。
 
-`jfoundry-event-spring`、`jfoundry-messaging-spring` 和 `jfoundry-outbox-spring` 是 Spring 运行时适配器，分别服务于领域事件本地发布、messaging transport 默认适配和 outbox Spring transaction/scheduling 集成，因此归入 `jfoundry-spring`。它们可以依赖应用层 SPI 和框架无关 adapter，但核心层与 `jfoundry-infrastructure` 不能反向依赖它们。
+## 可靠消息边界
 
-`jfoundry-spring` 是 Spring 生态总聚合，但内部职责继续拆开：`jfoundry-spring-runtime` 只放 Spring Framework 运行时适配器，`jfoundry-spring-boot-autoconfigure` 作为直接子模块承载 Spring Boot 自动装配，`jfoundry-spring-boot-starters` 只放 starter 依赖入口。未来 `jfoundry-helidon` 或 `jfoundry-quarkus` 应作为平级运行时集成模块，基于同一套 core SPI 和框架无关 adapter 完成自己的运行时集成。
+`jfoundry-outbox-core` 拥有消息模型、store 契约、派发服务、重试/退避契约和状态机。
 
-## 当前约束
+`jfoundry-outbox-spring` 拥有 Spring 运行时集成，例如事务同步、scheduled dispatch 和 Spring 运行时中的领域事件记录。
 
-`jfoundry-event-core` 属于 `jfoundry-application`，定义领域事件登记、批量校验和 `DomainEventDispatcher` 等应用层事件契约。
+`jfoundry-spring-boot-autoconfigure` 拥有 Outbox 配置项、条件和 Bean 装配。`OutboxDispatcherProperties` 及关联属性位于这里，因为属性绑定属于 Boot 职责。
 
-`jfoundry-event-externalization-core` 属于 `jfoundry-application`，定义领域事件外部化规则与路由元数据，例如 `ExternalizationRuleResolver`、`MessageRouting`、`AggregateRoutingResolver`。它依赖领域事件抽象，但不依赖任何 broker 或 Spring 运行时。
+`jfoundry-outbox-jobrunr` 是纯 JobRunr 派发 adapter；它的 Spring Boot 自动配置也属于 `jfoundry-spring-boot-autoconfigure`。
 
-`jfoundry-messaging-core` 属于 `jfoundry-application`，只定义消息发送与 payload 序列化 SPI，例如 `MessageSender`、`PayloadSerializer`、`SendResult`。它是底层消息传输抽象，不承载领域事件外部化规则。
+`jfoundry-outbox-jpa` 和 `jfoundry-inbox-jpa` 是运行时无关的 Jakarta Persistence adapter。它们实现 Outbox 和 Inbox store SPI，不要求 Spring 或 Spring Boot。它们的 Spring Boot starter，即 `jfoundry-outbox-jpa-spring-boot-starter` 和 `jfoundry-inbox-jpa-spring-boot-starter`，是显式能力选择；通用 `jfoundry-jpa-spring-boot-starter` 只提供业务 JPA 运行时装配，不会引入任一 store。
 
-`jfoundry-outbox-core` 属于 `jfoundry-application`，只保留 Outbox 状态模型、message store 契约、派发服务、重试/退避抽象和框架无关派发运行时。
-
-`jfoundry-inbox-core` 属于 `jfoundry-application`，提供消费端幂等的 `InboxMessageStore` message store 契约与 `InboxTemplate`。
-
-Outbox/Inbox data object 不继承 `AggregateData`；对应 MyBatis store 直接使用 `BaseMapper`，不复用 `MybatisPlusAggregateRepository`。
-
-`jfoundry-event-spring` 只放 Spring-specific domain event adapter，例如 `SpringApplicationEventDispatcher`。它负责“如何在 Spring 运行时发布本地领域事件”，不负责事件外部化规则，也不负责 broker 投递。
-
-`jfoundry-messaging-spring` 只放 Spring-specific messaging transport adapter，例如默认 logging `MessageSender`、Spring Kafka/RabbitMQ wrapper。它负责把 Spring 侧消息客户端适配到 `MessageSender` SPI，不负责领域事件发布或事件外部化规则。
-
-`jfoundry-outbox-spring` 只放 Spring-specific outbox runtime adapter，例如 `DefaultDomainEventOutboxRecorder`、scheduled dispatcher、transaction synchronization 和 Spring-specific outbox runtime wiring。`@ConfigurationProperties`、条件装配和 Spring Boot bean wiring 属于 `jfoundry-spring-boot-autoconfigure`。它负责“如何把符合规则的领域事件写入 Outbox 并调度派发”，不定义领域事件本身，也不定义 broker 抽象。
-
-`jfoundry-outbox-jobrunr` 只放纯 JobRunr adapter。JobRunr 的 Spring Boot auto-configuration 属于 `../../../../jfoundry-spring/jfoundry-spring-boot-autoconfigure`。
-
-`jfoundry-messaging-kafka`、`jfoundry-messaging-rabbitmq` 和 `jfoundry-messaging-rocketmq` 只放面向 broker 原生客户端的 `MessageSender` adapter。业务侧显式选择 Kafka/RabbitMQ/RocketMQ 时引入对应 Spring Boot starter；starter 负责选择 Spring 侧 wrapper，不把 Spring 模板对象下沉到基础设施 adapter。未来切换 MQ 通过替换 `MessageSender` adapter starter 完成，不影响 Outbox core。
-
-MyBatis-Plus 适配器不进入 `jfoundry-spring-boot-starter`。JPA Outbox 与 Inbox 适配器是框架无关的 Jakarta Persistence 实现；业务使用 Spring Data / JPA 时，`jfoundry-jpa-spring-boot-starter` 只提供 JPA 业务运行时装配，不隐式提供 `OutboxMessageStore` 或 `InboxMessageStore`。需要内置存储时，业务侧显式引入对应 JPA 存储启动器；也可以提供自己的存储实现。
-
-JPA Outbox 使用 JPQL 分页查询可派发候选记录，并对每条记录执行比较并设置（compare-and-set）领取。对于派发器驱动的已领取消息，领取令牌建立所有权，带令牌的发布或失败状态更新使用该令牌。JPA Inbox 的内置原子领取策略仅支持 PostgreSQL 和 MySQL；其他数据库必须由业务侧提供 `JpaInboxClaimStrategy`。
-
-## 兼容规则
-
-业务项目应优先依赖框架 starter。直接依赖 adapter 模块适用于高级组合场景，但 adapter 不应自行注册 Spring Boot auto-configuration，也不应把框架启动生命周期混入核心能力。
+实现机制和数据库限制属于 [JPA 实现指南](../implementations/jpa.md)。能力状态模型和 SQL 模板策略属于[可靠消息](../capabilities/reliable-messaging.md)。
 
 ## 验收标准
 
-- 核心模块不能以 compile 或 provided scope 依赖 Spring、Spring Boot、Helidon、Quarkus、CDI 或 Jakarta runtime API。
-- Spring Boot auto-configuration 只放在 `../../../../jfoundry-spring/jfoundry-spring-boot-autoconfigure`。
-- adapter 模块不通过 `AutoConfiguration.imports` 自行注册 Spring Boot bean。
-- Spring Boot starter 继续作为业务项目选择 Spring Boot 时的集成入口；基础 starter 保持轻量，能力 starter 使用 `starter-{能力}` / `starter-{能力}-{adapter}` 命名。
-- 未来 Helidon 或 Quarkus 模块可以复用 core SPI 和非 Spring 专属 adapter，而不依赖 Spring Boot 装配模块。
+- Core 模块对 Spring、Spring Boot、Helidon、Quarkus、Micronaut、CDI、Jakarta runtime API、broker client 和持久化框架细节没有 compile/provided 依赖。
+- Adapter 模块不得直接注册 Spring Boot 自动配置。
+- Starter 保持为轻量依赖选择。
+- 未来运行时集成可以复用 core SPI 和运行时无关 adapter，而不依赖 Spring Boot。

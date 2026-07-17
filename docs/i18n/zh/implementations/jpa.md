@@ -1,0 +1,23 @@
+# JPA 实现
+
+该实现使用 Jakarta Persistence 满足[聚合持久化](../capabilities/aggregate-persistence.md)和[可靠消息](../capabilities/reliable-messaging.md)契约。
+
+## 聚合持久化
+
+受支持的默认形态是每个聚合一个由 JPA 管理的实体图。`JpaAggregateRepository` 通过 `EntityManager.find` 加载实体图，追踪受管理的根实体，把聚合变更应用到同一个图，并在报告成功前 flush。它从不调用 `merge`；加载、领域行为和 `modify(...)` 必须位于同一个事务和持久化上下文。
+
+`JpaAggregateMapper` 创建和还原实体图、转换 ID，并把当前聚合状态同步到受管理的实体图。它不提供跨多个表或实体图的通用手工同步。
+
+乐观并发控制时，在实体图根实体上标注 `@Version`，并确保每次实体图变更都会改变根实体的持久化属性。子实体变更不会仅因根实体存在 `@Version` 就参与并发控制；mapper 可在同步子实体变更时显式 touch 根实体。并发根更新会在 repository flush 时以 `ConflictException` 报告。
+
+JPA 业务运行时装配使用 `jfoundry-jpa-spring-boot-starter`。它不会引入 Outbox 或 Inbox store。
+
+## Outbox 与 Inbox Store
+
+显式选择 `jfoundry-outbox-jpa-spring-boot-starter` 和/或 `jfoundry-inbox-jpa-spring-boot-starter`。JPA adapter 是运行时无关的；在 Spring Boot 下，框架实体会自动映射，因此应用无需把它们加入自己的 `@EntityScan`。
+
+Outbox store 使用 JPQL 读取一页可派发候选记录，并通过 compare-and-set 更新逐条 claim。dispatcher 的 claim token 建立所有权；已 claim 记录的发布和失败更新都使用该 token。
+
+JPA Inbox 内置原子 claim 策略只支持 PostgreSQL 和 MySQL。其他数据库产品需要提供 `JpaInboxClaimStrategy`。当数据库产品未知且未提供策略时，Boot 会快速失败，而不是选择通用方言行为。用户提供的 `InboxMessageStore`、`OutboxMessageStore` 或 `JpaInboxClaimStrategy` 优先。
+
+运行时装配和配置见 [Spring Boot](spring-boot.md) 和[自动配置参考](../reference/spring-boot-autoconfiguration.md)。

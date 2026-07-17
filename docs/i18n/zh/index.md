@@ -1,6 +1,28 @@
 # jfoundry 中文文档
 
-本文档按概念组织，而不是按模块堆砌。业务接入先看集成指南，架构判断先看框架语义，维护者再看框架边界和发布文档。
+本文档以能力为主线。能力页定义契约和行为，实现页说明技术选择，参考页提供查询材料。
+
+## 快速开始
+
+- [业务项目接入指南](integration/getting-started-for-business-projects.md)
+- [采用就绪度与已验证范围](integration/adoption-readiness.md)
+
+## 能力
+
+- [聚合持久化](capabilities/aggregate-persistence.md)
+- [可靠消息：Outbox 与 Inbox](capabilities/reliable-messaging.md)
+- [应用事务](capabilities/application-transactions.md)
+- [分布式锁](capabilities/distributed-locks.md)
+
+## 实现
+
+- [JPA](implementations/jpa.md)
+- [MyBatis-Plus](implementations/mybatis-plus.md)
+- [Spring Boot 运行时装配](implementations/spring-boot.md)
+
+## 参考
+
+- [Spring Boot 自动配置](reference/spring-boot-autoconfiguration.md)
 
 ## 框架语义
 
@@ -8,20 +30,10 @@
 - [ArchUnit 架构规则](framework/archunit-rules.md)
 - [框架边界设计](framework/framework-boundaries.md)
 
-## 建模约定
+## 建模
 
 - [值对象规范](modeling/value-object.md)
 - [Repository 与读侧契约迁移指南](modeling/repository-vs-read-contracts.md)
-
-## 技术集成
-
-- [业务项目接入指南](integration/getting-started-for-business-projects.md)
-- [采用就绪度与已验证范围](integration/adoption-readiness.md)
-- [Spring Boot 自动配置总览](integration/spring-boot-autoconfiguration.md)
-- [应用事务](integration/application-transactions.md)
-- [分布式锁](integration/distributed-locks.md)
-- [持久化 DataMapper 与 MapStruct 使用指南](integration/persistence-data-mappers.md)
-- [Transactional Outbox 事务性发件箱](integration/transactional-outbox.md)
 
 ## 发布与兼容
 

@@ -1,7 +1,8 @@
 # Spring Boot Auto-configuration
 
-This page summarizes the Spring Boot entry points, configuration properties, and bean conditions
-provided by jfoundry. Use it to choose starters and to diagnose why a bean is or is not registered.
+This is lookup material for Spring Boot entry points, configuration properties, and bean conditions.
+For behavioral contracts, start with [capabilities](../capabilities/aggregate-persistence.md); for
+technology-specific setup, use the [implementation guides](../implementations/spring-boot.md).
 
 ## Starter Entry Points
 
@@ -79,32 +80,15 @@ provided by jfoundry. Use it to choose starters and to diagnose why a bean is or
 
 ## Notes
 
-- SQL templates are copyable templates. `jfoundry-outbox-core` owns the canonical Outbox paths and
-  `jfoundry-inbox-core` owns the canonical Inbox path; applications copy them into their own
-  migrations, and jfoundry never creates tables or runs migrations.
 - Broker-specific `MessageSender` beans take precedence over the logging fallback. Kafka sender
   auto-configuration runs after Spring Boot's `KafkaAutoConfiguration`, so a Boot-created
   `KafkaOperations` bean is visible before jfoundry evaluates the sender condition, and before
   `MessageSenderAutoConfiguration` selects the fallback.
-- The default Jackson payload serializer writes ISO-8601 time values and ordinary JSON values. It
-  does not enable Jackson default typing or expose Java class names in integration payloads.
 - `TransactionRunnerAutoConfiguration` runs after Spring Boot transaction auto-configuration so
   JDBC, JPA, or JTA transaction managers are visible before its bean conditions are evaluated.
 - jfoundry registers its advisors through Spring's canonical auto-proxy creator. A more capable
   creator already registered by another Spring integration is preserved through Spring's standard
   escalation protocol; applications do not need a jfoundry-specific proxy creator.
 - Distributed lock support is explicit. The default Spring Boot starter does not pull Redisson.
-- The MyBatis-Plus and JPA starters include `jfoundry-persistence-spring`, the shared Spring
-  runtime adapter for the transaction-bound aggregate persistence context. It is not specific to
-  either persistence technology. Its default translator handles only known availability failures;
-  a user-defined `PersistenceFailureTranslator` bean takes precedence.
 - `mode=none` means no dispatcher, recovery job, or cleanup job is registered, even when recovery
   or cleanup is explicitly enabled.
-- The MyBatis-Plus and JPA runtime starters inject the shared transaction-bound persistence context
-  into aware repositories, so business constructors do not receive it. Version tracking remains
-  opt-in. Configure ORM/plugin optimistic locking and keep each tracked load-modify operation in
-  one transaction. For JPA, use one managed entity graph per aggregate, declare `@Version` on its
-  root, and make each graph mutation change a persistent root attribute; `@Version` alone does not
-  protect child-only updates. Repository `flush` reports a concurrent root update as
-  `ConflictException`. `JpaAggregateMapper` owns graph creation, restoration, and synchronization;
-  manual multi-table or multi-graph synchronization remains business adapter code.

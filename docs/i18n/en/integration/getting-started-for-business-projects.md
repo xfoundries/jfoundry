@@ -1,88 +1,37 @@
 # Getting Started for Business Projects
 
-This guide is for teams adopting jfoundry in business systems. Start from architecture boundaries,
-then add runtime integration and technical adapters only when the business use case needs them.
+Start with the smallest architecture that serves the current business use case. jfoundry is most
+useful when a system needs explicit aggregates, invariants, domain events, architecture boundaries,
+or reliable external integration. A short CRUD prototype without those needs may be simpler with a
+plain runtime framework and ORM.
 
-## When to Choose jfoundry
+## Start Small
 
-jfoundry fits projects that have explicit domain models, aggregate invariants, domain events,
-architecture boundaries, or reliable integration requirements. For short CRUD prototypes with no
-domain complexity, a plain runtime framework and ORM may be simpler.
+- Use Java 21 and Maven.
+- Choose the architecture style from domain and project constraints; jfoundry does not select
+  Hexagonal or Onion for a business project.
+- Put domain, application, adapters, and runtime assembly in explicit dependency boundaries.
+- Add only the starters required by the chosen capabilities. Do not enable Outbox, Inbox, brokers,
+  schedulers, or distributed locks until the workflow needs them.
+- Add ArchUnit tests before the implementation grows around accidental dependencies.
 
-## Recommended Path
+The default Spring Boot starter is only the base runtime entry point. Persistence, reliable
+messaging, brokers, locks, and Web MVC are explicit additions. The [Spring Boot runtime guide](../implementations/spring-boot.md)
+explains assembly; the [reference](../reference/spring-boot-autoconfiguration.md) is the catalog
+for individual starters, properties, and conditions.
 
-Start with the smallest useful skeleton:
+## Reading Path
 
-- Java 21 and Maven;
-- a confirmed architecture style, such as Hexagonal or Onion, selected from domain and project
-  constraints rather than a jfoundry scaffold default;
-- `jfoundry-dependencies` for runtime-neutral projects, or `jfoundry-spring-dependencies` for
-  Spring/Spring Boot projects;
-- only the starters needed by each module;
-- ArchUnit tests early;
-- no Outbox, Inbox, broker adapter, or JobRunr until the workflow needs them.
+1. Define project boundaries with [Architecture Styles](../framework/architecture-styles.md) and
+   [ArchUnit Architecture Rules](../framework/archunit-rules.md).
+2. Model aggregates and choose repository/read-side contracts with
+   [Repository and Read-side Contracts](../modeling/repository-vs-read-contracts.md).
+3. Add [Aggregate Persistence](../capabilities/aggregate-persistence.md), then select
+   [JPA](../implementations/jpa.md) or [MyBatis-Plus](../implementations/mybatis-plus.md).
+4. Add [Application Transactions](../capabilities/application-transactions.md) or
+   [Distributed Locks](../capabilities/distributed-locks.md) when the use case needs them.
+5. Add [Reliable Messaging: Outbox And Inbox](../capabilities/reliable-messaging.md) only for
+   cross-process delivery or consumer idempotency.
 
-When the architecture style is still undecided, complete domain modeling and architecture guidance
-before generating package structures or architecture tests that depend on that choice.
-
-## Dependency Placement
-
-| Module | Add | Avoid |
-|--------|-----|-------|
-| `domain` | `jfoundry-domain-starter` | Spring, ORM annotations, HTTP, MQ clients, Boot starters |
-| `application` | `jfoundry-application-starter` | mapper/service APIs, broker adapters, Boot starters |
-| `infrastructure` | `jfoundry-infrastructure-mybatis-plus-starter` or `jfoundry-infrastructure-jpa-starter` for the selected persistence adapter | application entrypoints and Boot auto-configuration |
-| `boot` / runtime assembly | `jfoundry-spring-boot-starter` plus explicit capability starters | domain logic |
-| architecture tests | `jfoundry-architecture-test` with `test` scope | production scope |
-
-## Common Spring Boot Additions
-
-- Business MyBatis-Plus runtime assembly: `jfoundry-mybatis-plus-spring-boot-starter`
-- Business JPA runtime assembly: `jfoundry-jpa-spring-boot-starter`
-- Local Spring domain event publishing: `jfoundry-event-spring-boot-starter`
-- Messaging contracts and default logging sender: `jfoundry-messaging-spring-boot-starter`
-- Kafka/RabbitMQ/RocketMQ sender adapters: dedicated messaging starters
-- Redisson-backed distributed locks: `jfoundry-lock-redisson-spring-boot-starter`
-- Outbox core runtime: `jfoundry-outbox-spring-boot-starter`
-- Outbox MyBatis-Plus store: `jfoundry-outbox-mybatis-plus-spring-boot-starter`
-- Outbox JPA store: `jfoundry-outbox-jpa-spring-boot-starter`
-- JobRunr dispatch trigger: `jfoundry-outbox-jobrunr-spring-boot-starter`
-- Inbox core runtime: `jfoundry-inbox-spring-boot-starter`
-- Inbox MyBatis-Plus store: `jfoundry-inbox-mybatis-plus-spring-boot-starter`
-- Inbox JPA store: `jfoundry-inbox-jpa-spring-boot-starter`
-- Web MVC ProblemDetail responses: `jfoundry-webmvc-spring-boot-starter`
-
-The JPA Outbox and Inbox starters are explicit store choices. Only an application that elects to
-use Outbox and/or Inbox needs the corresponding JPA store starter or its own `OutboxMessageStore`
-or `InboxMessageStore`. `jfoundry-jpa-spring-boot-starter` remains sufficient for business JPA
-without either capability.
-
-## Package Shape
-
-```text
-com.example.order
-├── boot
-├── domain
-├── application
-│   └── port
-│       ├── in
-│       └── out
-├── adapter
-│   ├── in
-│   └── out
-└── infrastructure
-```
-
-The exact names can vary, but the dependency direction should stay stable: domain is independent,
-application orchestrates use cases, adapters translate external technologies, and runtime assembly
-wires the application.
-
-## Next Reading
-
-- [Architecture Styles](../framework/architecture-styles.md)
-- [ArchUnit Architecture Rules](../framework/archunit-rules.md)
-- [Repository and Read-side Contracts](../modeling/repository-vs-read-contracts.md)
-- [Application Transactions](application-transactions.md)
-- [Distributed Locks](distributed-locks.md)
-- [Persistence DataMapper and MapStruct](persistence-data-mappers.md)
-- [Transactional Outbox and Inbox](transactional-outbox.md)
+See [Adoption Readiness and Validated Scope](adoption-readiness.md) before relying on a capability
+in production.
