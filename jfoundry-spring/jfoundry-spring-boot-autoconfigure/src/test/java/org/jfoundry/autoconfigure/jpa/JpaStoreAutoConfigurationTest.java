@@ -7,6 +7,7 @@ import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
 import org.jfoundry.application.outbox.OutboxDispatcher;
 import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.application.transaction.TransactionRunner;
 import org.jfoundry.autoconfigure.inbox.InboxAutoConfiguration;
 import org.jfoundry.autoconfigure.inbox.InboxJpaAutoConfiguration;
 import org.jfoundry.autoconfigure.inbox.InboxMybatisPlusAutoConfiguration;
@@ -126,6 +127,7 @@ class JpaStoreAutoConfigurationTest {
         inboxRunner
                 .withBean(EntityManagerFactory.class, () -> mock(EntityManagerFactory.class))
                 .withBean(DataSource.class, () -> dataSourceWithProduct("PostgreSQL 16"))
+                .withBean(TransactionRunner.class, () -> mock(TransactionRunner.class))
                 .run(context -> {
                     assertThat(context).hasSingleBean(JpaInboxClaimStrategy.class);
                     assertThat(context.getBean(JpaInboxClaimStrategy.class))

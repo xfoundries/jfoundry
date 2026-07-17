@@ -40,7 +40,10 @@ import org.springframework.context.annotation.Bean;
 @AutoConfiguration
 @AutoConfigureAfter(
         value = JacksonAutoConfiguration.class,
-        name = "org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration")
+        name = {
+                "org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration",
+                "org.jfoundry.autoconfigure.outbox.persistence.OutboxJpaAutoConfiguration"
+        })
 @ConditionalOnClass({PayloadSerializer.class, JacksonPayloadSerializer.class, OutboxMessageStore.class, DefaultDomainEventOutboxRecorder.class})
 public class DomainEventOutboxRecorderAutoConfiguration {
 

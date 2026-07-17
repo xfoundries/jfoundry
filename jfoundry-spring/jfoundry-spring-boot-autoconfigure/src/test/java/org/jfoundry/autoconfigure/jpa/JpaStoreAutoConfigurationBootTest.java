@@ -9,11 +9,13 @@ import org.jfoundry.application.messaging.SendResult;
 import org.jfoundry.application.outbox.OutboxDispatcher;
 import org.jfoundry.application.outbox.OutboxMessage;
 import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.application.outbox.OutboxTemplate;
 import org.jfoundry.infrastructure.inbox.jpa.JpaInboxClaimStrategy;
 import org.jfoundry.infrastructure.inbox.jpa.JpaInboxMessageEntity;
 import org.jfoundry.infrastructure.inbox.jpa.JpaInboxMessageStore;
 import org.jfoundry.infrastructure.outbox.jpa.JpaOutboxMessageEntity;
 import org.jfoundry.infrastructure.outbox.jpa.JpaOutboxMessageStore;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
@@ -25,6 +27,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,6 +43,9 @@ class JpaStoreAutoConfigurationBootTest {
 
     @Autowired
     private OutboxMessageStore outboxMessageStore;
+
+    @Autowired
+    private OutboxTemplate outboxTemplate;
 
     @Autowired
     private InboxMessageStore inboxMessageStore;
@@ -59,6 +65,7 @@ class JpaStoreAutoConfigurationBootTest {
     @Test
     void bootsWithTheStandardJpaFactoryAndMapsApplicationAndFrameworkEntities() {
         assertThat(outboxMessageStore).isInstanceOf(JpaOutboxMessageStore.class);
+        assertThat(outboxTemplate).isNotNull();
         assertThat(inboxMessageStore).isInstanceOf(JpaInboxMessageStore.class);
         assertThat(entityManagerFactory.getMetamodel().entity(JpaStoreApplicationEntity.class)).isNotNull();
         assertThat(entityManagerFactory.getMetamodel().entity(JpaOutboxMessageEntity.class)).isNotNull();
@@ -81,9 +88,13 @@ class JpaStoreAutoConfigurationBootTest {
 
         outboxDispatcher.dispatch(10);
 
-        assertThat(jdbcTemplate.queryForObject(
-                "select status from jfoundry_outbox_event where event_id = ?", String.class, "evt-transactional"))
-                .isEqualTo("PUBLISHED");
+        Awaitility.await()
+                .atMost(5, TimeUnit.SECONDS)
+                .pollInterval(50, TimeUnit.MILLISECONDS)
+                .untilAsserted(() -> assertThat(jdbcTemplate.queryForObject(
+                        "select status from jfoundry_outbox_event where event_id = ?",
+                        String.class,
+                        "evt-transactional")).isEqualTo("PUBLISHED"));
         assertThat(inboxTemplate.executeOnce("inbox-transactional", "projection", () -> {})).isTrue();
         assertThat(jdbcTemplate.queryForObject(
                 "select status from jfoundry_inbox_message where message_id = ? and consumer_name = ?",
