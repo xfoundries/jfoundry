@@ -96,6 +96,8 @@ assessment date, the recorded evidence includes:
   container-based end-to-end scenarios.
 - Two independent PostgreSQL databases, Kafka, Redis, and two Spring Boot application contexts in
   the end-to-end environment.
+- Testcontainers verification of the JPA and MyBatis-Plus Outbox/Inbox stores on both PostgreSQL
+  and MySQL, including database-specific JPA Inbox claiming.
 - Payment success and failure, duplicate message delivery through Inbox, concurrent monthly-limit
   enforcement, and transaction rollback without an approval Outbox record.
 - A separately executed local path from HTTP approval through Kafka to the final `PAID` projection.
@@ -122,7 +124,8 @@ The strongest evidence currently applies to:
 
 - Java 21 business applications, with Java 25 covered by the jfoundry CI compatibility matrix.
 - Spring Boot 3.5.x and Spring Framework 6.2.x.
-- MyBatis-Plus persistence with PostgreSQL.
+- MyBatis-Plus business persistence with PostgreSQL.
+- JPA and MyBatis-Plus Outbox/Inbox stores with PostgreSQL and MySQL.
 - Kafka integration, Redis/Redisson distributed locking, transactional Outbox, and consumer Inbox.
 - DDD modeling with either separately validated Hexagonal Architecture or Onion Simple
   Architecture, plus targeted CQRS without Event Sourcing.
