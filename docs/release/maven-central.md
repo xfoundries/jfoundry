@@ -40,7 +40,7 @@ Example server configuration:
 ## GitHub Secrets To Add Later
 
 When the Central Portal namespace is ready, add these secrets to the repository environment
-named `maven-central`:
+named `jfoundry`:
 
 | Secret | Value |
 |--------|-------|
@@ -49,7 +49,7 @@ named `maven-central`:
 | `GPG_PRIVATE_KEY` | ASCII-armored private key used to sign artifacts |
 | `GPG_PASSPHRASE` | Passphrase for `GPG_PRIVATE_KEY` |
 
-GitHub path: repository `Settings` -> `Environments` -> `maven-central` -> `Environment secrets`.
+GitHub path: repository `Settings` -> `Environments` -> `jfoundry` -> `Environment secrets`.
 Add protection reviewers to the environment if release publication should require manual approval.
 
 ## Local Verification
