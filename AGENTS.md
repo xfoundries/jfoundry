@@ -62,6 +62,8 @@ jfoundry ships SQL only as copyable templates. Do not place framework SQL templa
 
 Recent history follows Conventional Commits, for example `fix(outbox): ...`, `test(archunit): ...`, `refactor(ddd-framework): ...`, and `docs: ...`. Keep commits scoped and use the module or concern as the scope when helpful. Follow the Language Policy for commit and PR text: keep the Conventional Commits type and optional scope, and write the subject and body in English, for example `refactor(application): split application core module` or `fix(outbox): update retry state consistently`. Do not add `Co-Authored-By` trailers for AI coding tools or agents. Pull requests should describe the behavior change, list validation commands run, link related issues, and call out migration, configuration, or compatibility impact.
 
+Keep `main` history linear. Do not use `git merge` to integrate completed work into `main`; rebase a feature branch onto the current `main` or cherry-pick its ordered commits instead. Do not rewrite already-pushed history unless the user explicitly authorizes it; when authorized, use `git push --force-with-lease`, not `--force`.
+
 ## Documentation Comments
 
 Javadocs and documentation comments in source code must follow the Language Policy. There is no Javadoc i18n mechanism for comment bodies; generated documentation uses the text from source comments. Keep comments concise and focused on API intent; avoid restating obvious implementation details.
