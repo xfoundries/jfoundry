@@ -12,6 +12,10 @@
 
 普通单表条件、排序、更新和删除优先使用 Lambda Wrapper。一个原子语句或数据库特定行为不可或缺时，例如 compare-and-set 更新，保留显式 SQL。
 
+### 直接装配 MyBatis-Plus
+
+MyBatis-Plus adapter 是运行时无关的，但不是开箱即用的运行时 bootstrap。Spring Boot 之外，应用负责配置 MyBatis-Plus、开启和完成每个事务，并注册 mapper。配置 `@Version` 时，还必须向 `MybatisPlusAggregateRepository` 提供事务作用域内的 `AggregatePersistenceContext`；该上下文保存加载时的版本，供后续更新和删除使用。未配置 `@Version` 的 repository 不保留版本状态，但其数据库操作仍应位于应用自己的事务内。
+
 ## Outbox 与 Inbox Store
 
 内置 `OutboxMessageStore` 选择 `jfoundry-outbox-mybatis-plus-spring-boot-starter`，内置 `InboxMessageStore` 选择 `jfoundry-inbox-mybatis-plus-spring-boot-starter`。两者均为显式选择；`jfoundry-mybatis-plus-spring-boot-starter` 只装配业务持久化，不会引入任一 store。SQL 模板仍由业务应用迁移流程拥有。

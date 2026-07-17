@@ -25,6 +25,15 @@ Use Lambda Wrappers for ordinary single-table predicates, ordering, updates, and
 explicit SQL where one atomic statement or database-specific behavior is required, such as a
 compare-and-set update.
 
+### Direct MyBatis-Plus Assembly
+
+The MyBatis-Plus adapter is runtime-neutral, not a turnkey runtime bootstrap. Outside Spring Boot,
+the application configures MyBatis-Plus, starts and completes each transaction, and owns mapper
+registration. When `@Version` is configured, it must also supply a transaction-scoped
+`AggregatePersistenceContext` to `MybatisPlusAggregateRepository`; that context retains the loaded
+version used by later update and delete operations. Repositories without `@Version` do not retain
+version state, but their database operations still belong inside the application's transaction.
+
 ## Outbox And Inbox Stores
 
 Choose `jfoundry-outbox-mybatis-plus-spring-boot-starter` for the built-in `OutboxMessageStore` and

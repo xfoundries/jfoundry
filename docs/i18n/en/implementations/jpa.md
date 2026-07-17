@@ -42,6 +42,10 @@ Select `jfoundry-outbox-jpa-spring-boot-starter` and/or
 Spring Boot their framework entities are mapped automatically, so applications do not add them to
 their own `@EntityScan`.
 
+Entity registration is not schema management. Copy the matching Outbox or Inbox SQL template into
+the application's migration process and maintain it there. Do not rely on Hibernate schema
+generation to create or evolve jfoundry tables.
+
 The Outbox store reads a page of dispatchable candidates with JPQL and claims each record through a
 compare-and-set update. A dispatcher claim token establishes ownership; publication and failure
 updates for a claimed record use that token.

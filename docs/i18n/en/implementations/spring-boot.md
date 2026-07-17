@@ -22,9 +22,21 @@ The dispatcher, recovery, cleanup, and the auto-configured Inbox template requir
 `TransactionRunner`; the standard starter creates one when Spring Boot provides a
 `PlatformTransactionManager`. Use the reference for the corresponding properties and conditions.
 
-Add a broker-specific starter or provide a real `MessageSender` before enabling delivery. The
+### Writing And Delivering Outbox Messages
+
+First, copy the matching Outbox SQL template into the application's migration process. Starters map
+and use the table but never run framework SQL.
+
+Then choose how an application writes Outbox messages. Automatic domain-event externalization is
+off by default; set `jfoundry.domain.event.dispatch.outbox.enabled=true` only when explicitly
+externalized domain events are the intended integration contract. Otherwise, keep the default and
+append an explicitly translated integration event through `OutboxTemplate` inside the business
+transaction.
+
+Before enabling delivery, add a broker-specific starter or provide a real `MessageSender`. The
 logging fallback intentionally reports every send as failed, so it is useful for detecting missing
-broker assembly but does not publish messages.
+broker assembly but does not publish messages. With the default dispatcher, those failures are
+retried and eventually dead-lettered.
 
 Auto-configuration supplies defaults only when their prerequisites are available. Application beans
 override the relevant defaults, including `TransactionRunner`, `PersistenceFailureTranslator`,
