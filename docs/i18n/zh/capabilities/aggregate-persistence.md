@@ -12,7 +12,7 @@
 
 `AggregatePersistenceContext` 在一个运行时管理的事务中追踪持久化所有的状态。被追踪的操作如果发生在事务外，或聚合并非在该事务内加载，会快速失败。不支持分离聚合的 merge 生命周期。
 
-`PersistenceFailureTranslator` 是运行时无关的 SPI。Spring 实现只把已知的可用性故障转换为 `ExternalAccessException`；完整性、锁、SQL、mapper 和未知错误保持原始含义，除非业务适配器能够识别出真正的业务冲突。
+`PersistenceFailureTranslator` 是运行时无关的 SPI。运行时集成可以把已知的可用性故障转换为 `ExternalAccessException`；完整性、锁、SQL、mapper 和未知错误保持原始含义，除非业务适配器能够识别出真正的业务冲突。
 
 ## 选择实现
 

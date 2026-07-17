@@ -23,7 +23,7 @@ it.
 Tracked operations fail fast when called outside that transaction or for an aggregate not loaded in
 it. Detached aggregate merge is not a supported lifecycle.
 
-`PersistenceFailureTranslator` is a runtime-neutral SPI. The Spring implementation translates only
+`PersistenceFailureTranslator` is a runtime-neutral SPI. A runtime integration may translate
 known availability failures to `ExternalAccessException`; integrity, locking, SQL, mapper, and
 unknown failures retain their original meaning unless a business adapter can identify a genuine
 business conflict.

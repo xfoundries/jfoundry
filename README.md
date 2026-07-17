@@ -136,7 +136,7 @@ Typical module dependencies:
 </dependency>
 ```
 
-Persistence, Outbox, Inbox, and broker starters should be added explicitly based on business needs. Avoid adding every starter by default. See [Getting Started for Business Projects](docs/i18n/en/integration/getting-started-for-business-projects.md) for module-level dependency guidance.
+Persistence, Outbox, Inbox, and broker starters should be added explicitly based on business needs. Avoid adding every starter by default. See [Getting Started for Business Projects](docs/i18n/en/integration/getting-started.md) for module-level dependency guidance.
 
 ## Domain Model Example
 
@@ -224,7 +224,7 @@ Outbox is optional. Enable it only when events need cross-process delivery, retr
 - [Documentation Index](docs/i18n/en/index.md)
 - Framework semantics: [Architecture Styles](docs/i18n/en/framework/architecture-styles.md), [ArchUnit Rules](docs/i18n/en/framework/archunit-rules.md), [Framework Boundaries](docs/i18n/en/framework/framework-boundaries.md)
 - Modeling conventions: [Value Objects](docs/i18n/en/modeling/value-object.md), [Repository and Read-side Contracts](docs/i18n/en/modeling/repository-vs-read-contracts.md)
-- Technical integration: [Getting Started](docs/i18n/en/integration/getting-started-for-business-projects.md), [Adoption Readiness](docs/i18n/en/integration/adoption-readiness.md), [Aggregate Persistence](docs/i18n/en/capabilities/aggregate-persistence.md), [Reliable Messaging](docs/i18n/en/capabilities/reliable-messaging.md)
+- Technical integration: [Getting Started](docs/i18n/en/integration/getting-started.md), [Adoption Readiness](docs/i18n/en/integration/adoption-readiness.md), [Aggregate Persistence](docs/i18n/en/capabilities/aggregate-persistence.md), [Reliable Messaging](docs/i18n/en/capabilities/reliable-messaging.md)
 
 ## Build
 

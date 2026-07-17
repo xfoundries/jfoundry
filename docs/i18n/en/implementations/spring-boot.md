@@ -10,6 +10,16 @@ matching Outbox or Inbox store starter only when [reliable messaging](../capabil
 needs it. Add an event, messaging, broker, locking, or Web MVC starter only for the corresponding
 capability.
 
+For reliable messaging, `jfoundry-outbox-spring-boot-starter` adds the Outbox runtime; select a
+MyBatis-Plus or JPA Outbox store starter separately. `jfoundry-inbox-spring-boot-starter` adds the
+Inbox runtime; select its store separately. `jfoundry-messaging-spring-boot-starter` supplies the
+default Jackson `PayloadSerializer`, which writes ISO-8601 time values and ordinary JSON values
+without default-typing metadata or Java class names. A user `PayloadSerializer` takes precedence.
+
+The Outbox dispatcher defaults to `scheduled`. `jobrunr` selects JobRunr dispatch while retaining
+lightweight scheduled maintenance, and `none` registers no dispatcher, recovery, or cleanup jobs.
+Use the reference for the corresponding properties and conditions.
+
 Auto-configuration supplies defaults only when their prerequisites are available. Application beans
 override the relevant defaults, including `TransactionRunner`, `PersistenceFailureTranslator`,
 `AggregatePersistenceContext`, `MessageSender`, `PayloadSerializer`, Outbox/Inbox stores, and the

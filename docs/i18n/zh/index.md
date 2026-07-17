@@ -4,7 +4,7 @@
 
 ## 快速开始
 
-- [业务项目接入指南](integration/getting-started-for-business-projects.md)
+- [接入指南](integration/getting-started.md)
 - [采用就绪度与已验证范围](integration/adoption-readiness.md)
 
 ## 能力

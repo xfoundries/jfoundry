@@ -15,11 +15,11 @@
   -> 消费端使用 InboxTemplate 实现幂等
 ```
 
-`DefaultDomainEventOutboxRecorder` 只记录带有 `@Externalized` 的事件；`@MessageRouting` 提供路由信息，但本身不会使事件外部化。只有事件本身是稳定公共契约时才使用自动外部化；否则在应用边界翻译为版本化集成契约，并使用 `OutboxTemplate` 显式追加。该模板加入调用方事务，不会自行开启事务或同步发送。
+自动外部化只记录被明确标记为外部化的事件；路由元数据本身不会使事件外部化。只有事件本身是稳定公共契约时才使用自动外部化；否则在应用边界翻译为版本化集成契约，并使用 `OutboxTemplate` 显式追加。该模板加入调用方事务，不会自行开启事务或同步发送。
 
 ## Payload 契约
 
-将 `payloadType` 视为稳定的契约名称，而不是 Java 类名。消费者应将 envelope 反序列化为各自的版本化契约。默认 Jackson serializer 输出可移植 JSON：时间为 ISO-8601，数值保持普通 JSON 数字，不使用 default typing 或暴露 Java 类名。需要其他 wire format 时提供 `PayloadSerializer`。
+将 `payloadType` 视为稳定的契约名称，而不是 Java 类名。消费者应将 envelope 反序列化为各自的版本化契约。应选择保持 wire format 可移植且不暴露 JVM 类型名的 payload serializer。
 
 ## Outbox 状态机
 
@@ -29,7 +29,7 @@
 - `FAILED`：本次发送失败，等待重试。
 - `DEAD_LETTERED`：超过最大重试次数。
 
-Recovery 将卡住的 `DISPATCHING` 消息恢复为 `PENDING`。Cleanup 只删除过期终态记录。派发触发方式为 `scheduled`、`jobrunr` 或 `none`；`none` 不注册 dispatcher、recovery job 或 cleanup job。
+Recovery 将卡住的 `DISPATCHING` 消息恢复为 `PENDING`。Cleanup 只删除过期终态记录。运行时派发触发和维护任务调度属于实现关注点。
 
 ## SQL 模板
 

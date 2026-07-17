@@ -17,19 +17,17 @@ aggregate records domain event
   -> consumer uses InboxTemplate for idempotency
 ```
 
-`DefaultDomainEventOutboxRecorder` records only events marked `@Externalized`; `@MessageRouting`
-supplies routing information but does not externalize an event by itself. Use automatic
-externalization only for a deliberately stable public event contract. Otherwise translate at the
-application boundary and append the versioned integration contract explicitly with `OutboxTemplate`.
-The template participates in the caller's transaction; it neither starts a transaction nor sends
-synchronously.
+Automatic externalization records only events explicitly marked as externalized; routing metadata
+alone does not externalize an event. Use automatic externalization only for a deliberately stable
+public event contract. Otherwise translate at the application boundary and append the versioned
+integration contract explicitly with `OutboxTemplate`. The template participates in the caller's
+transaction; it neither starts a transaction nor sends synchronously.
 
 ## Payload Contract
 
 Treat `payloadType` as a stable contract name rather than a Java class name. Consumers should
-deserialize the envelope into their own versioned contract. The default Jackson serializer writes
-portable JSON with ISO-8601 time values, ordinary JSON numbers, and no default-typing metadata or
-Java class names. Provide `PayloadSerializer` when another wire format is needed.
+deserialize the envelope into their own versioned contract. Select a payload serializer that keeps
+the wire format portable and does not expose JVM type names.
 
 ## Outbox State Machine
 
@@ -40,8 +38,7 @@ Java class names. Provide `PayloadSerializer` when another wire format is needed
 - `DEAD_LETTERED`: retry limits were exceeded.
 
 Recovery returns stuck `DISPATCHING` messages to `PENDING`. Cleanup deletes expired terminal
-records only. The dispatch trigger is `scheduled`, `jobrunr`, or `none`; `none` registers no
-dispatcher, recovery job, or cleanup job.
+records only. Runtime dispatch triggering and maintenance scheduling are implementation concerns.
 
 ## SQL Templates
 

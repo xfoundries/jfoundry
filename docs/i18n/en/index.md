@@ -5,7 +5,7 @@ implementation pages explain technology-specific choices; reference pages provid
 
 ## Getting Started
 
-- [Getting Started for Business Projects](integration/getting-started-for-business-projects.md)
+- [Getting Started](integration/getting-started.md)
 - [Adoption Readiness and Validated Scope](integration/adoption-readiness.md)
 
 ## Capabilities
