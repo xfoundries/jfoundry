@@ -16,6 +16,16 @@ permissions:
   contents: read
 
 jobs:
+  docs:
+    name: Documentation checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify documentation
+        run: bash scripts/verify-docs.sh
+
   test:
     name: Test (Java ${{ matrix.java }})
     runs-on: ubuntu-latest
