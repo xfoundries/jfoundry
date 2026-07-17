@@ -68,6 +68,8 @@ Keep `main` history linear. Do not use `git merge` to integrate completed work i
 
 Javadocs and documentation comments in source code must follow the Language Policy. There is no Javadoc i18n mechanism for comment bodies; generated documentation uses the text from source comments. Keep comments concise and focused on API intent; avoid restating obvious implementation details.
 
+Use Java 23 Markdown documentation comments (`///`) for all new or modified Java API documentation. Do not introduce traditional `/** ... */` block comments. The Java 21 compilation baseline treats `///` as ordinary comments, so Spring Boot configuration metadata must not rely on them for property descriptions. For `@ConfigurationProperties` IDE descriptions, add or update `META-INF/additional-spring-configuration-metadata.json` instead.
+
 ## Project Skills
 
 - This repository owns a local framework-maintenance skill at `skills/maintain-jfoundry-framework`. When modifying jfoundry framework internals, use `$maintain-jfoundry-framework` if the agent runtime exposes it. If it is not auto-loaded, read `skills/maintain-jfoundry-framework/SKILL.md` and the relevant files under `skills/maintain-jfoundry-framework/references/` directly before editing.
