@@ -40,6 +40,21 @@ the wire format portable and does not expose JVM type names.
 Recovery returns stuck `DISPATCHING` messages to `PENDING`. Cleanup deletes expired terminal
 records only. Runtime dispatch triggering and maintenance scheduling are implementation concerns.
 
+## Runtime Transaction Boundaries
+
+`OutboxTemplate.append(...)` joins the business transaction; it never starts an independent
+transaction. In the Spring Boot runtime, dispatch instead uses three independent short database
+transactions: claim records, send each claimed payload outside a database transaction, then mark
+the result. Recovery and each cleanup batch also run in independent transactions. This applies to
+both JPA and MyBatis-Plus stores.
+
+`InboxTemplate` first claims a delivery in a new transaction. The handler and its `PROCESSED`
+transition run in a second independent transaction. When the handler fails, that transaction rolls
+back and a new transaction records `FAILED` before the original exception is rethrown. Boot creates
+the transactional template only when a `TransactionRunner` is available. Direct construction with
+`new InboxTemplate(store)` remains a manual-runtime API: the caller must provide the transaction
+boundaries required by its store.
+
 ## SQL Templates
 
 SQL is supplied only as a copyable template and is never run by jfoundry. `jfoundry-outbox-core`

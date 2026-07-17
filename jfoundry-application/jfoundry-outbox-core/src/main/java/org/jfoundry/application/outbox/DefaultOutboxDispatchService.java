@@ -2,6 +2,10 @@ package org.jfoundry.application.outbox;
 
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
+import org.jfoundry.application.transaction.TransactionCallback;
+import org.jfoundry.application.transaction.TransactionOptions;
+import org.jfoundry.application.transaction.TransactionPropagation;
+import org.jfoundry.application.transaction.TransactionRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,14 +25,27 @@ public class DefaultOutboxDispatchService implements OutboxDispatcher {
     private final int maxRetries;
     private final BackoffStrategy backoff;
     private final String claimerId;
+    private final TransactionRunner transactionRunner;
 
     public DefaultOutboxDispatchService(OutboxMessageStore repository,
                                         MessageSender messageSender,
                                         int maxRetries,
                                         BackoffStrategy backoff,
                                         String claimerId) {
+        this(repository, messageSender, null, maxRetries, backoff, claimerId);
+    }
+
+    /// Creates a dispatcher whose database state transitions run in independent transactions.
+    /// Message delivery deliberately remains outside those transactions.
+    public DefaultOutboxDispatchService(OutboxMessageStore repository,
+                                        MessageSender messageSender,
+                                        TransactionRunner transactionRunner,
+                                        int maxRetries,
+                                        BackoffStrategy backoff,
+                                        String claimerId) {
         this.repository = repository;
         this.messageSender = messageSender;
+        this.transactionRunner = transactionRunner;
         this.maxRetries = maxRetries;
         this.backoff = backoff;
         this.claimerId = claimerId;
@@ -36,7 +53,8 @@ public class DefaultOutboxDispatchService implements OutboxDispatcher {
 
     @Override
     public void dispatch(int batchSize) {
-        List<OutboxMessage> messages = repository.claimDispatchable(batchSize, claimerId);
+        List<OutboxMessage> messages = inNewTransaction("jfoundry-outbox-claim",
+                () -> repository.claimDispatchable(batchSize, claimerId));
         for (OutboxMessage message : messages) {
             dispatchMessage(message);
         }
@@ -46,15 +64,46 @@ public class DefaultOutboxDispatchService implements OutboxDispatcher {
         try {
             SendResult result = messageSender.send(message.getTopic(), message.getPayloadKey(), message.getPayloadJson());
             if (result.success()) {
-                repository.markAsPublished(message.getEventId(), message.getClaimToken());
+                inNewTransaction("jfoundry-outbox-publish", () -> {
+                    repository.markAsPublished(message.getEventId(), message.getClaimToken());
+                    return null;
+                });
             } else {
-                repository.markAsFailed(message.getEventId(), message.getClaimToken(),
-                        result.errorMessage(), maxRetries, backoff);
+                markAsFailed(message, result.errorMessage());
             }
         } catch (RuntimeException e) {
             log.warn("dispatch message {} failed with exception: {}", message.getEventId(), e.getMessage());
+            markAsFailed(message, e.getMessage());
+        }
+    }
+
+    private void markAsFailed(OutboxMessage message, String errorMessage) {
+        inNewTransaction("jfoundry-outbox-fail", () -> {
             repository.markAsFailed(message.getEventId(), message.getClaimToken(),
-                    e.getMessage(), maxRetries, backoff);
+                    errorMessage, maxRetries, backoff);
+            return null;
+        });
+    }
+
+    private <T> T inNewTransaction(String name, TransactionCallback<T> callback) {
+        if (transactionRunner == null) {
+            try {
+                return callback.execute();
+            } catch (RuntimeException exception) {
+                throw exception;
+            } catch (Exception exception) {
+                throw new IllegalStateException("Outbox operation failed", exception);
+            }
+        }
+        try {
+            return transactionRunner.call(TransactionOptions.builder()
+                    .name(name)
+                    .propagation(TransactionPropagation.REQUIRES_NEW)
+                    .build(), callback);
+        } catch (RuntimeException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("Outbox transaction failed", exception);
         }
     }
 }

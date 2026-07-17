@@ -5,6 +5,9 @@ import org.jfoundry.application.messaging.SendResult;
 import org.jfoundry.application.outbox.BackoffStrategy;
 import org.jfoundry.application.outbox.OutboxDispatcher;
 import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.application.transaction.TransactionCallback;
+import org.jfoundry.application.transaction.TransactionOptions;
+import org.jfoundry.application.transaction.TransactionRunner;
 import org.jfoundry.infrastructure.outbox.jobrunr.dispatcher.JobRunrOutboxDispatcher;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -36,7 +39,8 @@ class JobRunrDispatcherAutoConfigurationTest {
                     .withConfiguration(AutoConfigurations.of(JobRunrDispatcherAutoConfiguration.class))
                     .withBean(OutboxMessageStore.class, () -> mock(OutboxMessageStore.class))
                     .withBean(MessageSender.class, () -> (MessageSender) (topic, key, payload) -> SendResult.ok())
-                    .withBean(BackoffStrategy.class, () -> (BackoffStrategy) failedAttempts -> Duration.ofSeconds(1));
+                    .withBean(BackoffStrategy.class, () -> (BackoffStrategy) failedAttempts -> Duration.ofSeconds(1))
+                    .withBean(CountingTransactionRunner.class, CountingTransactionRunner::new);
 
     @Test
     void jobRunrDispatcherBeanIsRegisteredWhenModeIsJobRunr() {
@@ -91,6 +95,7 @@ class JobRunrDispatcherAutoConfigurationTest {
 
                     ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
                     verify(repo).claimDispatchable(captor.capture(), any());
+                    assertThat(context.getBean(CountingTransactionRunner.class).calls).isEqualTo(1);
                     assertThat(captor.getValue())
                             .as("batchSize must come from jfoundry.outbox.dispatcher.batchSize=20")
                             .isEqualTo(20);
@@ -108,5 +113,15 @@ class JobRunrDispatcherAutoConfigurationTest {
                     assertThat(context).doesNotHaveBean(OutboxDispatcher.class);
                     assertThat(context).hasNotFailed();
                 });
+    }
+
+    static final class CountingTransactionRunner implements TransactionRunner {
+        private int calls;
+
+        @Override
+        public <T> T call(TransactionOptions options, TransactionCallback<T> callback) throws Exception {
+            calls++;
+            return callback.execute();
+        }
     }
 }

@@ -1,7 +1,12 @@
 package org.jfoundry.autoconfigure.jpa;
 
 import jakarta.persistence.EntityManagerFactory;
+import org.jfoundry.application.inbox.InboxMessage;
 import org.jfoundry.application.inbox.InboxMessageStore;
+import org.jfoundry.application.inbox.InboxTemplate;
+import org.jfoundry.application.messaging.MessageSender;
+import org.jfoundry.application.messaging.SendResult;
+import org.jfoundry.application.outbox.OutboxDispatcher;
 import org.jfoundry.application.outbox.OutboxMessage;
 import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.infrastructure.inbox.jpa.JpaInboxClaimStrategy;
@@ -15,6 +20,7 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
@@ -23,7 +29,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(classes = JpaStoreAutoConfigurationBootTest.Application.class, properties = {
-        "jfoundry.outbox.dispatcher.mode=none",
         "spring.datasource.url=jdbc:h2:mem:jpa-store-auto-configuration;DB_CLOSE_DELAY=-1",
         "spring.jpa.hibernate.ddl-auto=create-drop",
         "spring.autoconfigure.exclude=org.jfoundry.autoconfigure.inbox.InboxMybatisPlusAutoConfiguration,org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration"
@@ -41,6 +46,15 @@ class JpaStoreAutoConfigurationBootTest {
 
     @Autowired
     private TransactionTemplate transactions;
+
+    @Autowired
+    private OutboxDispatcher outboxDispatcher;
+
+    @Autowired
+    private InboxTemplate inboxTemplate;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     void bootsWithTheStandardJpaFactoryAndMapsApplicationAndFrameworkEntities() {
@@ -60,13 +74,38 @@ class JpaStoreAutoConfigurationBootTest {
                 .containsExactly("evt-1");
     }
 
+    @Test
+    void dispatchesAndProcessesInboxMessagesThroughJpaTransactionBoundaries() {
+        transactions.executeWithoutResult(ignored -> outboxMessageStore.append(
+                OutboxMessage.newPending("evt-transactional", "topic", null, "example.Event", "{}", Instant.now())));
+
+        outboxDispatcher.dispatch(10);
+
+        assertThat(jdbcTemplate.queryForObject(
+                "select status from jfoundry_outbox_event where event_id = ?", String.class, "evt-transactional"))
+                .isEqualTo("PUBLISHED");
+        assertThat(inboxTemplate.executeOnce("inbox-transactional", "projection", () -> {})).isTrue();
+        assertThat(jdbcTemplate.queryForObject(
+                "select status from jfoundry_inbox_message where message_id = ? and consumer_name = ?",
+                String.class, "inbox-transactional", "projection"))
+                .isEqualTo("PROCESSED");
+    }
+
     @SpringBootConfiguration
     @EnableAutoConfiguration
     static class Application {
 
         @Bean
         JpaInboxClaimStrategy h2JpaInboxClaimStrategy() {
-            return (entityManager, messageId, consumerName, now) -> false;
+            return (entityManager, messageId, consumerName, now) -> {
+                entityManager.persist(JpaInboxMessageEntity.fromMessage(InboxMessage.processing(messageId, consumerName)));
+                return true;
+            };
+        }
+
+        @Bean
+        MessageSender messageSender() {
+            return (topic, key, payload) -> SendResult.ok();
         }
     }
 }

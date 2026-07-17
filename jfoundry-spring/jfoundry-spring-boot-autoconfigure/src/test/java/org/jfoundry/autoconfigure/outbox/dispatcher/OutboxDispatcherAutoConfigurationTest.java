@@ -5,6 +5,9 @@ import org.jfoundry.application.messaging.SendResult;
 import org.jfoundry.application.outbox.BackoffStrategy;
 import org.jfoundry.application.outbox.OutboxDispatcher;
 import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.application.transaction.TransactionCallback;
+import org.jfoundry.application.transaction.TransactionOptions;
+import org.jfoundry.application.transaction.TransactionRunner;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -21,7 +24,8 @@ class OutboxDispatcherAutoConfigurationTest {
                     .withConfiguration(AutoConfigurations.of(OutboxDispatcherAutoConfiguration.class))
                     .withBean(OutboxMessageStore.class, () -> mock(OutboxMessageStore.class))
                     .withBean(MessageSender.class, () -> (topic, key, payload) -> SendResult.ok())
-                    .withBean(BackoffStrategy.class, () -> (BackoffStrategy) failedAttempts -> Duration.ofSeconds(1));
+                    .withBean(BackoffStrategy.class, () -> (BackoffStrategy) failedAttempts -> Duration.ofSeconds(1))
+                    .withBean(CountingTransactionRunner.class, CountingTransactionRunner::new);
 
     @Test
     void scheduledModeRegistersDispatcherAndMaintenanceJobs() {
@@ -91,5 +95,28 @@ class OutboxDispatcherAutoConfigurationTest {
                     assertThat(context).doesNotHaveBean(OutboxRecoveryJob.class);
                     assertThat(context).doesNotHaveBean(OutboxCleanupJob.class);
                 });
+    }
+
+    @Test
+    void dispatchAndMaintenanceUseTheConfiguredTransactionRunner() {
+        runner.run(context -> {
+            int callsBeforeInvocation = context.getBean(CountingTransactionRunner.class).calls;
+            context.getBean(OutboxDispatcher.class).dispatch(10);
+            context.getBean(OutboxRecoveryJob.class).recoverStuckDispatching();
+            context.getBean(OutboxCleanupJob.class).runOnce();
+
+            assertThat(context.getBean(CountingTransactionRunner.class).calls)
+                    .isGreaterThanOrEqualTo(callsBeforeInvocation + 4);
+        });
+    }
+
+    static final class CountingTransactionRunner implements TransactionRunner {
+        private int calls;
+
+        @Override
+        public <T> T call(TransactionOptions options, TransactionCallback<T> callback) throws Exception {
+            calls++;
+            return callback.execute();
+        }
     }
 }

@@ -32,5 +32,9 @@ Choose `jfoundry-outbox-mybatis-plus-spring-boot-starter` for the built-in `Outb
 explicit choices; `jfoundry-mybatis-plus-spring-boot-starter` assembles business persistence only
 and does not add either store. SQL templates remain application-owned migrations.
 
+Under Spring Boot, the default Outbox dispatcher and Inbox template use `TransactionRunner` for
+their database phases. This is required even though individual MyBatis mapper calls can otherwise
+commit independently: the handler and Inbox `PROCESSED` transition must remain atomic.
+
 For runtime assembly and user replacement behavior, see [Spring Boot](spring-boot.md). The
 [reference](../reference/spring-boot-autoconfiguration.md) lists conditions and properties.

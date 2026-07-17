@@ -18,7 +18,13 @@ without default-typing metadata or Java class names. A user `PayloadSerializer` 
 
 The Outbox dispatcher defaults to `scheduled`. `jobrunr` selects JobRunr dispatch while retaining
 lightweight scheduled maintenance, and `none` registers no dispatcher, recovery, or cleanup jobs.
-Use the reference for the corresponding properties and conditions.
+The dispatcher, recovery, cleanup, and the auto-configured Inbox template require a
+`TransactionRunner`; the standard starter creates one when Spring Boot provides a
+`PlatformTransactionManager`. Use the reference for the corresponding properties and conditions.
+
+Add a broker-specific starter or provide a real `MessageSender` before enabling delivery. The
+logging fallback intentionally reports every send as failed, so it is useful for detecting missing
+broker assembly but does not publish messages.
 
 Auto-configuration supplies defaults only when their prerequisites are available. Application beans
 override the relevant defaults, including `TransactionRunner`, `PersistenceFailureTranslator`,

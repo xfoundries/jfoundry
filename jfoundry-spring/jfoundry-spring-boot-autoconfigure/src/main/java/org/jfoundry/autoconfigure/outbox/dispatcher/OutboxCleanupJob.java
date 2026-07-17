@@ -2,6 +2,10 @@ package org.jfoundry.autoconfigure.outbox.dispatcher;
 
 import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.application.outbox.OutboxMessageStatus;
+import org.jfoundry.application.transaction.TransactionCallback;
+import org.jfoundry.application.transaction.TransactionOptions;
+import org.jfoundry.application.transaction.TransactionPropagation;
+import org.jfoundry.application.transaction.TransactionRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +37,19 @@ public class OutboxCleanupJob {
 
     private final OutboxMessageStore outboxRepository;
     private final OutboxCleanupProperties properties;
+    private final TransactionRunner transactionRunner;
 
     @Autowired
     public OutboxCleanupJob(OutboxMessageStore outboxRepository, OutboxCleanupProperties properties) {
+        this(outboxRepository, properties, null);
+    }
+
+    public OutboxCleanupJob(OutboxMessageStore outboxRepository,
+                            OutboxCleanupProperties properties,
+                            TransactionRunner transactionRunner) {
         this.outboxRepository = outboxRepository;
         this.properties = properties;
+        this.transactionRunner = transactionRunner;
     }
 
     /// Executes one cleanup round and returns the total number of deleted records
@@ -56,10 +68,10 @@ public class OutboxCleanupJob {
         Instant publishedCutoff = now.minus(Duration.ofDays(properties.getPublishedRetentionDays()));
         Instant deadCutoff = now.minus(Duration.ofDays(properties.getDeadLetteredRetentionDays()));
 
-        int publishedDeleted = outboxRepository.deleteByStatusAndOccurredAtBefore(
-                OutboxMessageStatus.PUBLISHED, publishedCutoff, properties.getBatchSize());
-        int deadDeleted = outboxRepository.deleteByStatusAndOccurredAtBefore(
-                OutboxMessageStatus.DEAD_LETTERED, deadCutoff, properties.getBatchSize());
+        int publishedDeleted = inNewTransaction(() -> outboxRepository.deleteByStatusAndOccurredAtBefore(
+                OutboxMessageStatus.PUBLISHED, publishedCutoff, properties.getBatchSize()));
+        int deadDeleted = inNewTransaction(() -> outboxRepository.deleteByStatusAndOccurredAtBefore(
+                OutboxMessageStatus.DEAD_LETTERED, deadCutoff, properties.getBatchSize()));
 
         int total = publishedDeleted + deadDeleted;
         if (total > 0) {
@@ -68,5 +80,27 @@ public class OutboxCleanupJob {
                     deadDeleted, properties.getDeadLetteredRetentionDays());
         }
         return total;
+    }
+
+    private <T> T inNewTransaction(TransactionCallback<T> callback) {
+        if (transactionRunner == null) {
+            try {
+                return callback.execute();
+            } catch (RuntimeException exception) {
+                throw exception;
+            } catch (Exception exception) {
+                throw new IllegalStateException("Outbox cleanup failed", exception);
+            }
+        }
+        try {
+            return transactionRunner.call(TransactionOptions.builder()
+                    .name("jfoundry-outbox-cleanup")
+                    .propagation(TransactionPropagation.REQUIRES_NEW)
+                    .build(), callback);
+        } catch (RuntimeException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("Outbox cleanup transaction failed", exception);
+        }
     }
 }

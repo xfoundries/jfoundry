@@ -69,11 +69,11 @@
 | `RocketMqMessageSenderAutoConfiguration` | `RocketMqMessageSender` | 存在 RocketMQ producer class 和 `MQProducer` Bean；没有已有 `MessageSender`。 |
 | `OutboxMybatisPlusAutoConfiguration` | Outbox 表名 customizer、`MybatisPlusInterceptor`、`OutboxMessageStore` | MyBatis-Plus 和 Outbox store adapter class 存在。SQL 模板不会自动执行。 |
 | `OutboxJpaAutoConfiguration` | JPA `OutboxMessageStore` | 存在 `EntityManagerFactory` 和 JPA Outbox 适配器；没有用户自定义 `OutboxMessageStore`。 |
-| `OutboxDispatcherAutoConfiguration` | `BackoffStrategy`、scheduled dispatcher、recovery job、cleanup job | 存在 Outbox store、message sender、scheduled dispatcher class；mode 为 `scheduled` 或维护任务由托管 mode 启用。 |
-| `JobRunrDispatcherAutoConfiguration` | `JobRunrOutboxDispatcher` | 存在 JobRunr 和 jfoundry JobRunr adapter class；`mode=jobrunr`；存在 store、sender、backoff Bean。 |
+| `OutboxDispatcherAutoConfiguration` | `BackoffStrategy`、scheduled dispatcher、recovery job、cleanup job | 存在 Outbox store、message sender 和 `TransactionRunner`；mode 为 `scheduled` 或维护任务由托管 mode 启用。 |
+| `JobRunrDispatcherAutoConfiguration` | `JobRunrOutboxDispatcher` | 存在 JobRunr 和 jfoundry JobRunr adapter class；`mode=jobrunr`；存在 store、sender、backoff 和 `TransactionRunner` Bean。 |
 | `InboxMybatisPlusAutoConfiguration` | MyBatis-Plus `InboxMessageStore` | 存在 `SqlSessionFactory`、mapper scanning 和 Inbox store adapter；没有已有 store。 |
 | `InboxJpaAutoConfiguration` | `JpaInboxClaimStrategy`、JPA `InboxMessageStore` | 存在 `EntityManagerFactory` 和 JPA Inbox 适配器。用户提供的 `InboxMessageStore` 或 `JpaInboxClaimStrategy` 优先；内置领取策略仅支持 PostgreSQL 和 MySQL，未知数据库产品在应用未提供策略时会快速失败。 |
-| `InboxAutoConfiguration` | `InboxTemplate` | classpath 中存在 `InboxTemplate`，且存在 `InboxMessageStore` Bean。 |
+| `InboxAutoConfiguration` | `InboxTemplate` | classpath 中存在 `InboxTemplate`，且存在 `InboxMessageStore` 和 `TransactionRunner` Bean。 |
 | `WebMvcProblemDetailAutoConfiguration` | `ProblemDetailExceptionHandler` | Servlet Web MVC 应用且 handler class 存在；没有已有 handler。 |
 
 ## 说明

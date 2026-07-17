@@ -16,4 +16,6 @@
 
 内置 `OutboxMessageStore` 选择 `jfoundry-outbox-mybatis-plus-spring-boot-starter`，内置 `InboxMessageStore` 选择 `jfoundry-inbox-mybatis-plus-spring-boot-starter`。两者均为显式选择；`jfoundry-mybatis-plus-spring-boot-starter` 只装配业务持久化，不会引入任一 store。SQL 模板仍由业务应用迁移流程拥有。
 
+在 Spring Boot 下，默认 Outbox dispatcher 和 Inbox template 使用 `TransactionRunner` 包裹各自的数据库阶段。即使单次 MyBatis mapper 调用可以自行提交，这仍不可省略：handler 与 Inbox 的 `PROCESSED` 状态迁移必须保持原子性。
+
 运行时装配和用户替换行为见 [Spring Boot](spring-boot.md)，条件和配置项见[参考](../reference/spring-boot-autoconfiguration.md)。

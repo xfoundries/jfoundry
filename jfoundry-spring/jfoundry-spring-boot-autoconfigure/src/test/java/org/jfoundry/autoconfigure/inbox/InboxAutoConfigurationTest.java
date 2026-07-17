@@ -2,6 +2,9 @@ package org.jfoundry.autoconfigure.inbox;
 
 import org.jfoundry.application.inbox.InboxMessageStore;
 import org.jfoundry.application.inbox.InboxTemplate;
+import org.jfoundry.application.transaction.TransactionCallback;
+import org.jfoundry.application.transaction.TransactionOptions;
+import org.jfoundry.application.transaction.TransactionRunner;
 import org.jfoundry.infrastructure.inbox.mybatis.InboxMessageMapper;
 import org.jfoundry.infrastructure.inbox.mybatis.MybatisPlusInboxMessageStore;
 import org.junit.jupiter.api.Test;
@@ -17,7 +20,8 @@ class InboxAutoConfigurationTest {
     private final ApplicationContextRunner runner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(
                     InboxAutoConfiguration.class,
-                    InboxMybatisPlusAutoConfiguration.class));
+                    InboxMybatisPlusAutoConfiguration.class))
+            .withBean(CountingTransactionRunner.class, CountingTransactionRunner::new);
 
     @Test
     void createsInboxTemplateWhenMessageStoreExists() {
@@ -56,6 +60,16 @@ class InboxAutoConfigurationTest {
                 });
     }
 
+    @Test
+    void usesTransactionRunnerForTheAutoConfiguredTemplate() {
+        runner.withBean(InboxMessageStore.class, StubInboxMessageStore::new)
+                .run(context -> {
+                    assertThat(context.getBean(InboxTemplate.class)
+                            .executeOnce("evt-1", "projection", () -> {})).isTrue();
+                    assertThat(context.getBean(CountingTransactionRunner.class).calls).isEqualTo(2);
+                });
+    }
+
     static class StubInboxMessageStore implements InboxMessageStore {
 
         @Override
@@ -65,6 +79,16 @@ class InboxAutoConfigurationTest {
 
         @Override
         public void markProcessed(String messageId, String consumerName) {
+        }
+    }
+
+    static final class CountingTransactionRunner implements TransactionRunner {
+        private int calls;
+
+        @Override
+        public <T> T call(TransactionOptions options, TransactionCallback<T> callback) throws Exception {
+            calls++;
+            return callback.execute();
         }
     }
 }

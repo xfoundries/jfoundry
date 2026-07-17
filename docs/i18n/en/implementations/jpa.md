@@ -22,6 +22,19 @@ root update is reported as `ConflictException` at repository flush.
 Use `jfoundry-jpa-spring-boot-starter` for JPA business runtime assembly. It does not add Outbox or
 Inbox stores.
 
+### Direct JPA Or Hibernate Assembly
+
+The JPA adapter is runtime-neutral, not a turnkey raw-Hibernate bootstrap. Outside Spring Boot,
+the application creates the `EntityManagerFactory`, starts and completes each transaction, registers
+the aggregate and framework entities with its persistence unit, and supplies a transaction-scoped
+`AggregatePersistenceContext` to `JpaAggregateRepository`. The repository must be used only inside
+that persistence context and transaction.
+
+JPQL is portable query language over entities and fields. Hibernate translates JPQL to the selected
+database dialect for ordinary queries and updates. The Inbox first-claim operation is intentionally
+different: it needs an atomic insert-or-ignore equivalent, so its database-specific strategy remains
+explicit instead of pretending that JPQL can express it portably.
+
 ## Outbox And Inbox Stores
 
 Select `jfoundry-outbox-jpa-spring-boot-starter` and/or
@@ -37,6 +50,12 @@ The JPA Inbox built-in atomic claim strategy supports PostgreSQL and MySQL only.
 `JpaInboxClaimStrategy` for another database product. When the product is unknown and no strategy
 is supplied, Boot fails fast rather than choosing a generic dialect behavior. A user-provided
 `InboxMessageStore`, `OutboxMessageStore`, or `JpaInboxClaimStrategy` takes precedence.
+
+A custom claim strategy implements
+`boolean tryClaim(EntityManager entityManager, String messageId, String consumerName, Instant now)`.
+It must atomically create the `PROCESSING` row and return `false` for an existing delivery; include
+a concurrent duplicate-delivery test for the target database. Raw JPA/Hibernate Outbox and Inbox
+assembly must apply the transaction boundaries described by [reliable messaging](../capabilities/reliable-messaging.md).
 
 For runtime assembly and configuration, see [Spring Boot](spring-boot.md) and the
 [auto-configuration reference](../reference/spring-boot-autoconfiguration.md).

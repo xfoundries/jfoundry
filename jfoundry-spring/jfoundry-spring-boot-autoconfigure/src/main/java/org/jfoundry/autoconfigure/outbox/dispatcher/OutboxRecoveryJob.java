@@ -1,6 +1,10 @@
 package org.jfoundry.autoconfigure.outbox.dispatcher;
 
 import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.application.transaction.TransactionCallback;
+import org.jfoundry.application.transaction.TransactionOptions;
+import org.jfoundry.application.transaction.TransactionPropagation;
+import org.jfoundry.application.transaction.TransactionRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +30,19 @@ public class OutboxRecoveryJob {
 
     private final OutboxMessageStore outboxRepository;
     private final OutboxRecoveryProperties properties;
+    private final TransactionRunner transactionRunner;
 
     @Autowired
     public OutboxRecoveryJob(OutboxMessageStore outboxRepository, OutboxRecoveryProperties properties) {
+        this(outboxRepository, properties, null);
+    }
+
+    public OutboxRecoveryJob(OutboxMessageStore outboxRepository,
+                             OutboxRecoveryProperties properties,
+                             TransactionRunner transactionRunner) {
         this.outboxRepository = outboxRepository;
         this.properties = properties;
+        this.transactionRunner = transactionRunner;
     }
 
     /// Resets stuck DISPATCHING records and returns the recovered count for tests and monitoring.
@@ -38,11 +50,33 @@ public class OutboxRecoveryJob {
     public int recoverStuckDispatching() {
         Duration timeout = properties.getStuckTimeout();
         Instant cutoff = Instant.now().minus(timeout);
-        int recovered = outboxRepository.recoverStuckDispatching(cutoff);
+        int recovered = inNewTransaction(() -> outboxRepository.recoverStuckDispatching(cutoff));
         if (recovered > 0) {
             log.warn("Recovered {} stuck DISPATCHING outbox records (threshold={})",
                     recovered, timeout);
         }
         return recovered;
+    }
+
+    private <T> T inNewTransaction(TransactionCallback<T> callback) {
+        if (transactionRunner == null) {
+            try {
+                return callback.execute();
+            } catch (RuntimeException exception) {
+                throw exception;
+            } catch (Exception exception) {
+                throw new IllegalStateException("Outbox recovery failed", exception);
+            }
+        }
+        try {
+            return transactionRunner.call(TransactionOptions.builder()
+                    .name("jfoundry-outbox-recovery")
+                    .propagation(TransactionPropagation.REQUIRES_NEW)
+                    .build(), callback);
+        } catch (RuntimeException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("Outbox recovery transaction failed", exception);
+        }
     }
 }

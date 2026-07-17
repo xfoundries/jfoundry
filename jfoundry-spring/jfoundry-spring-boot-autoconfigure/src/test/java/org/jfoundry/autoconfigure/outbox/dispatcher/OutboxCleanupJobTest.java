@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxData;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxMapper;
+import org.jfoundry.application.messaging.MessageSender;
+import org.jfoundry.application.messaging.SendResult;
+import org.jfoundry.application.outbox.OutboxDispatcher;
 import org.jfoundry.application.outbox.OutboxMessage;
 import org.jfoundry.application.outbox.OutboxMessageStore;
 import org.jfoundry.application.outbox.OutboxMessageStatus;
@@ -60,6 +63,11 @@ class OutboxCleanupJobTest {
         ObjectMapper objectMapper() {
             return new ObjectMapper();
         }
+
+        @Bean
+        MessageSender messageSender() {
+            return (topic, key, payload) -> SendResult.ok();
+        }
     }
 
     @Autowired
@@ -67,6 +75,9 @@ class OutboxCleanupJobTest {
 
     @Autowired
     private OutboxMapper mapper;
+
+    @Autowired
+    private OutboxDispatcher outboxDispatcher;
 
     @BeforeEach
     void cleanDb() {
@@ -148,6 +159,15 @@ class OutboxCleanupJobTest {
         // Spot-check: first and last should be gone.
         assertThat(mapper.selectById("evt-batch-0")).isNull();
         assertThat(mapper.selectById("evt-batch-249")).isNull();
+    }
+
+    @Test
+    void dispatchesThroughMybatisPlusStoreWithTheDefaultTransactionRunner() {
+        seed("evt-dispatch", OutboxMessageStatus.PENDING, Instant.now());
+
+        outboxDispatcher.dispatch(1);
+
+        assertThat(mapper.selectById("evt-dispatch").getStatus()).isEqualTo(OutboxMessageStatus.PUBLISHED.name());
     }
 
     /// Helper: append a PENDING entry with the given occurredAt, then flip it to the target status.

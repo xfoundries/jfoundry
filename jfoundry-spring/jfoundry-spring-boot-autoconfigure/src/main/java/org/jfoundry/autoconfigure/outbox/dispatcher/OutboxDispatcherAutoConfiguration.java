@@ -5,6 +5,8 @@ import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.outbox.BackoffStrategy;
 import org.jfoundry.application.outbox.OutboxDispatcher;
 import org.jfoundry.application.outbox.OutboxMessageStore;
+import org.jfoundry.application.transaction.TransactionRunner;
+import org.jfoundry.autoconfigure.transaction.TransactionRunnerAutoConfiguration;
 import org.jfoundry.infrastructure.outbox.spring.backoff.ExponentialBackoffStrategy;
 import org.jfoundry.infrastructure.outbox.spring.dispatcher.ScheduledOutboxDispatcher;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -35,7 +37,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /// </ul>
 @AutoConfiguration
 @AutoConfigureAfter(
-        value = MessageSenderAutoConfiguration.class,
+        value = {MessageSenderAutoConfiguration.class, TransactionRunnerAutoConfiguration.class},
         name = "org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration"
 )
 @ConditionalOnClass({OutboxMessageStore.class, MessageSender.class, ScheduledOutboxDispatcher.class})
@@ -55,15 +57,16 @@ public class OutboxDispatcherAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean({OutboxMessageStore.class, MessageSender.class, BackoffStrategy.class})
+    @ConditionalOnBean({OutboxMessageStore.class, MessageSender.class, BackoffStrategy.class, TransactionRunner.class})
     @ConditionalOnMissingBean(OutboxDispatcher.class)
     @ConditionalOnProperty(prefix = "jfoundry.outbox.dispatcher", name = "mode", havingValue = "scheduled", matchIfMissing = true)
     public ScheduledOutboxDispatcher scheduledOutboxDispatcher(
             OutboxMessageStore outboxRepository,
             MessageSender messageSender,
             BackoffStrategy backoffStrategy,
+            TransactionRunner transactionRunner,
             OutboxDispatcherProperties properties) {
-        return new ScheduledOutboxDispatcher(outboxRepository, messageSender,
+        return new ScheduledOutboxDispatcher(outboxRepository, messageSender, transactionRunner,
                 properties.getMaxRetries(), backoffStrategy, properties.getBatchSize());
     }
 
@@ -73,12 +76,13 @@ public class OutboxDispatcherAutoConfiguration {
     /// enabled by default for {@code scheduled} and {@code jobrunr} dispatching, and is disabled
     /// when {@code mode=none}.
     @Bean
-    @ConditionalOnBean({OutboxMessageStore.class})
+    @ConditionalOnBean({OutboxMessageStore.class, TransactionRunner.class})
     @ConditionalOnMissingBean(OutboxRecoveryJob.class)
     @Conditional(OutboxMaintenanceConditions.RecoveryEnabled.class)
     public OutboxRecoveryJob outboxRecoveryJob(OutboxMessageStore outboxRepository,
-                                               OutboxRecoveryProperties recoveryProperties) {
-        return new OutboxRecoveryJob(outboxRepository, recoveryProperties);
+                                               OutboxRecoveryProperties recoveryProperties,
+                                               TransactionRunner transactionRunner) {
+        return new OutboxRecoveryJob(outboxRepository, recoveryProperties, transactionRunner);
     }
 
     /// Terminal-state cleanup job.
@@ -87,11 +91,12 @@ public class OutboxDispatcherAutoConfiguration {
     /// enabled by default for {@code scheduled} and {@code jobrunr} dispatching, and is disabled
     /// when {@code mode=none}.
     @Bean
-    @ConditionalOnBean({OutboxMessageStore.class})
+    @ConditionalOnBean({OutboxMessageStore.class, TransactionRunner.class})
     @ConditionalOnMissingBean(OutboxCleanupJob.class)
     @Conditional(OutboxMaintenanceConditions.CleanupEnabled.class)
     public OutboxCleanupJob outboxCleanupJob(OutboxMessageStore outboxRepository,
-                                             OutboxCleanupProperties cleanupProperties) {
-        return new OutboxCleanupJob(outboxRepository, cleanupProperties);
+                                             OutboxCleanupProperties cleanupProperties,
+                                             TransactionRunner transactionRunner) {
+        return new OutboxCleanupJob(outboxRepository, cleanupProperties, transactionRunner);
     }
 }

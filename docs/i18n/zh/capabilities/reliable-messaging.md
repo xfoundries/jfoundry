@@ -31,6 +31,12 @@
 
 Recovery 将卡住的 `DISPATCHING` 消息恢复为 `PENDING`。Cleanup 只删除过期终态记录。运行时派发触发和维护任务调度属于实现关注点。
 
+## 运行时事务边界
+
+`OutboxTemplate.append(...)` 加入业务事务，不会自行开启独立事务。Spring Boot runtime 的派发则使用三个独立的短数据库事务：领取记录、在数据库事务外发送每条已领取的 payload、再记录发送结果。Recovery 和每个 cleanup 批次也在独立事务中执行。JPA 和 MyBatis-Plus store 均遵循这一语义。
+
+`InboxTemplate` 先在新事务中领取消息。handler 与 `PROCESSED` 状态迁移在第二个独立事务中执行。handler 失败时，该事务回滚，新的事务会记录 `FAILED`，然后重新抛出原始异常。只有存在 `TransactionRunner` 时，Boot 才会创建具备该语义的 template。直接使用 `new InboxTemplate(store)` 属于手工 runtime API，调用方必须为 store 提供所需的事务边界。
+
 ## SQL 模板
 
 SQL 仅作为可复制模板提供，jfoundry 从不自动执行。`jfoundry-outbox-core` 拥有规范 Outbox 路径，`jfoundry-inbox-core` 拥有规范 Inbox 路径。将需要的模板复制进业务应用的迁移流程：

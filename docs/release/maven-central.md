@@ -12,10 +12,11 @@ The root POM publishes URL and SCM metadata for `https://github.com/xfoundries/j
 - Maven 3.9.0 or newer.
 - A Sonatype Central Portal account with publishing rights for `io.github.xfoundries`.
 - SNAPSHOT publishing enabled for the `io.github.xfoundries` namespace if publishing development snapshots.
-- For local release dry-runs, a Maven server entry named `jfoundry` in `~/.m2/settings.xml`.
-- For GitHub Actions release or SNAPSHOT publishing, repository environment `jfoundry` with these secrets:
+- For local release dry-runs, a Maven server entry named `central` in `~/.m2/settings.xml`.
+- For GitHub Actions publishing, use the repository environment `jfoundry` with these secrets:
   - `CENTRAL_USERNAME`: Sonatype Central Portal username or publishing token username.
   - `CENTRAL_PASSWORD`: Sonatype Central Portal password or publishing token password.
+- For GitHub Actions releases only, also provide:
   - `GPG_PRIVATE_KEY`: ASCII-armored private key used to sign artifacts.
   - `GPG_PASSPHRASE`: passphrase for the private key.
 - A GPG key available to Maven for local artifact signing.
@@ -39,15 +40,15 @@ Example server configuration:
 
 ## GitHub Secrets To Add Later
 
-When the Central Portal namespace is ready, add these secrets to the repository environment
-named `jfoundry`:
+When the Central Portal namespace is ready, add the credentials below to the repository environment
+named `jfoundry`. SNAPSHOT publishing needs only the Central credentials; releases also need GPG.
 
 | Secret | Value |
 |--------|-------|
 | `CENTRAL_USERNAME` | Sonatype Central Portal username or publishing token username |
 | `CENTRAL_PASSWORD` | Sonatype Central Portal password or publishing token password |
-| `GPG_PRIVATE_KEY` | ASCII-armored private key used to sign artifacts |
-| `GPG_PASSPHRASE` | Passphrase for `GPG_PRIVATE_KEY` |
+| `GPG_PRIVATE_KEY` (release only) | ASCII-armored private key used to sign artifacts |
+| `GPG_PASSPHRASE` (release only) | Passphrase for `GPG_PRIVATE_KEY` |
 
 GitHub path: repository `Settings` -> `Environments` -> `jfoundry` -> `Environment secrets`.
 Add protection reviewers to the environment if release publication should require manual approval.

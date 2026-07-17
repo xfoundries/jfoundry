@@ -6,7 +6,9 @@
 
 可靠消息使用 `jfoundry-outbox-spring-boot-starter` 添加 Outbox runtime，并单独选择 MyBatis-Plus 或 JPA Outbox store starter。`jfoundry-inbox-spring-boot-starter` 添加 Inbox runtime，并单独选择 store。`jfoundry-messaging-spring-boot-starter` 提供默认 Jackson `PayloadSerializer`：时间输出为 ISO-8601，数值保持普通 JSON 值，不使用 default-typing metadata 或 Java 类名。用户提供的 `PayloadSerializer` 优先。
 
-Outbox dispatcher 默认使用 `scheduled`。`jobrunr` 选择 JobRunr 派发，同时保留轻量 scheduled maintenance；`none` 不注册 dispatcher、recovery 或 cleanup job。相应配置项和条件请查阅参考页。
+Outbox dispatcher 默认使用 `scheduled`。`jobrunr` 选择 JobRunr 派发，同时保留轻量 scheduled maintenance；`none` 不注册 dispatcher、recovery 或 cleanup job。dispatcher、recovery、cleanup 以及自动配置的 Inbox template 均需要 `TransactionRunner`；标准 starter 会在 Spring Boot 提供 `PlatformTransactionManager` 时创建它。相应配置项和条件请查阅参考页。
+
+启用投递前，应添加 broker-specific starter 或提供真正的 `MessageSender`。logging fallback 会刻意将每次发送报告为失败，因此它适合发现遗漏的 broker 装配，但不会发布消息。
 
 自动配置仅在前置条件满足时提供默认值。应用 Bean 覆盖相应默认实现，包括 `TransactionRunner`、`PersistenceFailureTranslator`、`AggregatePersistenceContext`、`MessageSender`、`PayloadSerializer`、Outbox/Inbox store 和 JPA Inbox claim strategy。不要把框架 SQL 放入自动执行的 migration 路径。
 
