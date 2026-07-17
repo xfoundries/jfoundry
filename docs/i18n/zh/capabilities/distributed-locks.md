@@ -1,11 +1,6 @@
 # 分布式锁
 
-分布式锁由框架无关 core 和显式 Redisson 集成组成：
-
-- `jfoundry-lock-core`：`DistributedLockClient`、`LockTemplate`、`LockOptions`、`@DistributedLock`。
-- `jfoundry-lock-redisson`：Redisson `RLock` adapter。
-- `jfoundry-lock-spring`：`@DistributedLock` 的 Spring AOP 拦截器。
-- `jfoundry-lock-redisson-spring-boot-starter`：显式 Spring Boot 入口。
+分布式锁提供框架无关的契约：`DistributedLockClient`、`LockTemplate`、`LockOptions` 和 `@DistributedLock`。只有互斥本身是用例语义的一部分时才使用锁；它不能替代数据库一致性或聚合不变量。
 
 编程式用法：
 
@@ -22,36 +17,14 @@ lockTemplate.execute(
         });
 ```
 
-注解用法：
+key 标识受保护的业务资源。应使用稳定的 key，使独立工作可以并发，而相互冲突的工作必须互斥。
 
-```java
-@DistributedLock(key = "'order:' + #command.orderId", waitTime = "2s", leaseTime = "10s")
-public void confirm(ConfirmOrderCommand command) {
-    // application orchestration
-}
-```
-
-`key` 可以是普通锁名，例如 `order:daily-rebuild`；也可以是显式 Spring Expression Language 表达式，例如 `"'order:' + #command.orderId"`。使用 `-parameters` 编译时可以按参数名引用参数；`#p0` 和 `#a0` 这类别名始终可用。
-
-`waitTime` 支持 `ms`、`s`、`m`、`h`，也支持 `PT10S` 这类 ISO-8601 duration。`leaseTime` 为空时把过期行为交给锁后端。对 Redisson 而言，这意味着使用 watchdog；设置 `leaseTime` 时使用 Redisson 的定时 `tryLock(waitTime, leaseTime, unit)`。
+`waitTime` 控制调用方等待获取锁的最长时间。所选 lock client 支持显式租期时，`leaseTime` 控制锁的生命周期。
 
 无法获得锁时，默认 `LockFailureMode.THROW` 会抛出 `DistributedLockUnavailableException`。只有当“跳过执行”本身就是明确业务结果时，才使用 `failureMode = LockFailureMode.SKIP`。
-
-Spring Boot 依赖：
-
-```xml
-<dependency>
-    <groupId>io.github.xfoundries</groupId>
-    <artifactId>jfoundry-lock-redisson-spring-boot-starter</artifactId>
-</dependency>
-```
-
-如需关闭注解 advisor：
-
-```properties
-jfoundry.lock.annotation.enabled=false
-```
 
 ## 与事务的执行顺序
 
 当同一方法同时使用 `@DistributedLock` 和 `@ApplicationTransactional` 时，锁 advisor 先执行，事务 advisor 在锁内执行。这样可以避免在等待分布式锁期间提前打开数据库事务。
+
+Spring Boot 运行时装配、所选 lock client 集成、用户覆盖和注解配置见 [Spring Boot 运行时装配](../implementations/spring-boot.md)。精确的 starter、配置项和自动配置条件见 [Spring Boot 自动配置参考](../reference/spring-boot-autoconfiguration.md)。

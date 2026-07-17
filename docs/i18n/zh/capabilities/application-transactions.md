@@ -12,23 +12,8 @@ transactionRunner.run(TransactionOptions.builder()
 });
 ```
 
-Spring 项目也可以在应用服务上使用 `@ApplicationTransactional`：
-
-```java
-@ApplicationTransactional(name = "confirm-order", timeoutSeconds = 10)
-public void confirm(ConfirmOrderCommand command) {
-    // application orchestration
-}
-```
-
-该注解由 Spring AOP 实现，并委托给 `TransactionRunner`。它不是基础设施代码中 Spring `@Transactional` 的替代品。建议在 Use Case 或 Application Service 边界使用，让应用层通过 jfoundry 契约表达事务边界。
-
-Spring Boot 项目通过 `jfoundry-spring-boot-starter` 获得该集成。当存在 `PlatformTransactionManager` 时，自动配置会创建 `SpringTransactionRunner`。存在 `TransactionRunner` Bean 时，注解 advisor 默认开启。
-
-如需关闭注解 advisor：
-
-```properties
-jfoundry.application.transaction.annotation.enabled=false
-```
+运行时集成可以提供声明式事务边界，但它不能替代运行时的基础设施事务机制。应用事务边界应保持在 Use Case 或 Application Service 边界。
 
 如果同一方法还需要分布式锁，advisor 执行顺序见 [分布式锁](distributed-locks.md)。
+
+运行时装配、用户覆盖和注解配置见 [Spring Boot 运行时装配](../implementations/spring-boot.md)。精确的 starter、配置项和自动配置条件见 [Spring Boot 自动配置参考](../reference/spring-boot-autoconfiguration.md)。

@@ -14,29 +14,14 @@ transactionRunner.run(TransactionOptions.builder()
 });
 ```
 
-Spring projects can also use `@ApplicationTransactional` on application services:
-
-```java
-@ApplicationTransactional(name = "confirm-order", timeoutSeconds = 10)
-public void confirm(ConfirmOrderCommand command) {
-    // application orchestration
-}
-```
-
-The annotation is implemented by Spring AOP and delegates to `TransactionRunner`. It is not a
-replacement for Spring `@Transactional` in infrastructure code. Use it at use-case or application
-service boundaries when you want the application layer to express the transaction boundary through
-jfoundry's contract.
-
-Spring Boot projects get this integration through `jfoundry-spring-boot-starter`. When a
-`PlatformTransactionManager` is available, auto-configuration creates a `SpringTransactionRunner`.
-The annotation advisor is enabled by default when a `TransactionRunner` bean exists.
-
-Disable the annotation advisor when needed:
-
-```properties
-jfoundry.application.transaction.annotation.enabled=false
-```
+Runtime integrations can expose declarative transaction boundaries, but they do not replace a
+runtime's infrastructure-level transaction mechanism. Keep the application transaction boundary at
+the use-case or application service boundary.
 
 When a method also needs a distributed lock, see [Distributed Locks](distributed-locks.md) for the
 advisor ordering.
+
+For runtime assembly, user overrides, and annotation configuration, see
+[Spring Boot Runtime Assembly](../implementations/spring-boot.md). The exact starter, property, and
+auto-configuration conditions are in the
+[Spring Boot Auto-configuration reference](../reference/spring-boot-autoconfiguration.md).
