@@ -253,7 +253,7 @@
                         <version>${central-publishing-maven-plugin.version}</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <publishingServerId>central</publishingServerId>
+                            <publishingServerId>jfoundry</publishingServerId>
                             <autoPublish>false</autoPublish>
                         </configuration>
                     </plugin>

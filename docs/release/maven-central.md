@@ -12,7 +12,7 @@ The root POM publishes URL and SCM metadata for `https://github.com/xfoundries/j
 - Maven 3.9.0 or newer.
 - A Sonatype Central Portal account with publishing rights for `io.github.xfoundries`.
 - SNAPSHOT publishing enabled for the `io.github.xfoundries` namespace if publishing development snapshots.
-- For local release dry-runs, a Maven server entry named `central` in `~/.m2/settings.xml`.
+- For local release dry-runs, a Maven server entry named `jfoundry` in `~/.m2/settings.xml`.
 - For GitHub Actions publishing, use the repository environment `jfoundry` with these secrets:
   - `CENTRAL_USERNAME`: Sonatype Central Portal username or publishing token username.
   - `CENTRAL_PASSWORD`: Sonatype Central Portal password or publishing token password.
@@ -31,7 +31,7 @@ Example server configuration:
 ```xml
 <servers>
   <server>
-    <id>central</id>
+    <id>jfoundry</id>
     <username>${env.CENTRAL_USERNAME}</username>
     <password>${env.CENTRAL_PASSWORD}</password>
   </server>
@@ -92,7 +92,7 @@ Publish the current development version locally with:
 
 ```bash
 mvn -DskipTests deploy \
-  -DaltDeploymentRepository=central::https://central.sonatype.com/repository/maven-snapshots/
+  -DaltDeploymentRepository=jfoundry::https://central.sonatype.com/repository/maven-snapshots/
 ```
 
 The current reactor version must end with `-SNAPSHOT`. Do not use the release workflow for
@@ -104,7 +104,7 @@ current root version is a SNAPSHOT before deploying:
 
 ```bash
 ./mvnw -B -DskipTests deploy \
-  -DaltDeploymentRepository=central::https://central.sonatype.com/repository/maven-snapshots/
+  -DaltDeploymentRepository=jfoundry::https://central.sonatype.com/repository/maven-snapshots/
 ```
 
 Consumers must add the Central Portal snapshots repository to resolve these versions:
