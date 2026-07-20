@@ -8,7 +8,7 @@ import org.jfoundry.application.event.externalization.ExternalizationRuleResolve
 import org.jfoundry.application.outbox.DomainEventOutboxRecorder;
 import org.jfoundry.application.outbox.OutboxMessage;
 import org.jfoundry.application.outbox.OutboxMessageStore;
-import org.jfoundry.domain.event.AbstractDomainEvent;
+import org.jfoundry.domain.event.BaseDomainEvent;
 import org.jmolecules.event.types.DomainEvent;
 
 import java.time.Instant;
@@ -85,15 +85,15 @@ public class DefaultDomainEventOutboxRecorder implements DomainEventOutboxRecord
     }
 
     private static String resolveEventId(DomainEvent event) {
-        if (event instanceof AbstractDomainEvent abstractEvent) {
-            return abstractEvent.getEventId().toString();
+        if (event instanceof BaseDomainEvent baseEvent) {
+            return baseEvent.getEventId().toString();
         }
         return java.util.UUID.randomUUID().toString();
     }
 
     private static Instant resolveOccurredAt(DomainEvent event) {
-        if (event instanceof AbstractDomainEvent abstractEvent) {
-            return abstractEvent.getOccurredAt();
+        if (event instanceof BaseDomainEvent baseEvent) {
+            return baseEvent.getOccurredAt();
         }
         return Instant.now();
     }

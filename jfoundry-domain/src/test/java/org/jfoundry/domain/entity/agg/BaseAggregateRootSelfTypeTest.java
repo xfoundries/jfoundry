@@ -1,6 +1,6 @@
 package org.jfoundry.domain.entity.agg;
 
-import org.jfoundry.domain.event.AbstractDomainEvent;
+import org.jfoundry.domain.event.BaseDomainEvent;
 import org.jmolecules.ddd.types.AggregateRoot;
 import org.jmolecules.ddd.types.Identifiable;
 import org.jmolecules.ddd.types.Identifier;
@@ -39,7 +39,7 @@ class BaseAggregateRootSelfTypeTest {
         }
     }
 
-    static class OrderCanceledEvent extends AbstractDomainEvent {
+    static class OrderCanceledEvent extends BaseDomainEvent {
         private final OrderId orderId;
 
         OrderCanceledEvent(OrderId orderId) {

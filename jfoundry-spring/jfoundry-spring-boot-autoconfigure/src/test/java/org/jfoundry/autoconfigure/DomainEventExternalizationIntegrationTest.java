@@ -3,7 +3,7 @@ package org.jfoundry.autoconfigure;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfoundry.application.ApplicationService;
 import org.jfoundry.application.event.DomainEventContext;
-import org.jfoundry.domain.event.AbstractDomainEvent;
+import org.jfoundry.domain.event.BaseDomainEvent;
 import org.jfoundry.domain.entity.agg.BaseAggregateRoot;
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
@@ -49,7 +49,7 @@ class DomainEventExternalizationIntegrationTest {
     private CollectingMessageSender collectingSender;
 
     @Externalized("env.created")
-    static class EnvCreatedEvent extends AbstractDomainEvent {
+    static class EnvCreatedEvent extends BaseDomainEvent {
     }
 
     @Test

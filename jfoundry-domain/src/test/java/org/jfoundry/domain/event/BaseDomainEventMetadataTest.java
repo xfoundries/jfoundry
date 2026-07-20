@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class AbstractDomainEventMetadataTest {
+class BaseDomainEventMetadataTest {
 
     @Test
     void occurredAtAndEventIdArePopulatedOnConstruction() {
@@ -54,7 +54,7 @@ class AbstractDomainEventMetadataTest {
         assertEquals(a.hashCode(), a.hashCode());
     }
 
-    static class TestEvent extends AbstractDomainEvent {
+    static class TestEvent extends BaseDomainEvent {
         private final String aggregateId;
 
         TestEvent(String aggregateId) {
@@ -67,6 +67,6 @@ class AbstractDomainEventMetadataTest {
         }
     }
 
-    static class AnotherEvent extends AbstractDomainEvent {
+    static class AnotherEvent extends BaseDomainEvent {
     }
 }

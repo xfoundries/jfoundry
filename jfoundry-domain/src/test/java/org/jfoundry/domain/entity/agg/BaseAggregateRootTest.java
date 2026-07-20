@@ -1,6 +1,6 @@
 package org.jfoundry.domain.entity.agg;
 
-import org.jfoundry.domain.event.AbstractDomainEvent;
+import org.jfoundry.domain.event.BaseDomainEvent;
 import org.jmolecules.ddd.types.Identifier;
 import org.jmolecules.event.types.DomainEvent;
 import org.junit.jupiter.api.Test;
@@ -67,7 +67,7 @@ class BaseAggregateRootTest {
         }
     }
 
-    private static class TestDomainEvent extends AbstractDomainEvent {
+    private static class TestDomainEvent extends BaseDomainEvent {
         private final TestAggregateId aggregateId;
 
         TestDomainEvent(TestAggregateId aggregateId) {
