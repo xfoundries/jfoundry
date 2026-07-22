@@ -101,7 +101,7 @@ process.
 This capability assembles persistence only. It does not provide Outbox dispatching, scheduling,
 payload serialization, automatic domain-event externalization, Inbox assembly, or a starter.
 
-## Outbox Dispatching
+## Outbox Dispatching And Maintenance
 
 Add `jfoundry-outbox-quarkus-runtime` when an application needs the shared Outbox claim, send, and
 state-transition runtime:
@@ -123,8 +123,21 @@ application-provided CDI `OutboxDispatcher` takes precedence.
 
 Message delivery remains outside database transactions. Each claim and state transition runs in an
 independent transaction through `TransactionRunner`, consistent with the framework-neutral Outbox
-contract. Recovery, cleanup, payload serialization, automatic event externalization, broker
-adapters, and starters remain explicit capabilities.
+contract.
+
+The same extension also provides scheduled Outbox maintenance without requiring a `MessageSender`.
+Recovery is disabled by default; enable it with `jfoundry.outbox.recovery.enabled=true` to reset
+stale `DISPATCHING` records at `jfoundry.outbox.recovery.interval` (default `60s`) after
+`jfoundry.outbox.recovery.stuck-timeout` (default `5m`). Cleanup is independently disabled by
+default; enable it with `jfoundry.outbox.cleanup.enabled=true` to remove expired terminal records
+at `jfoundry.outbox.cleanup.interval` (default `24h`). Its defaults retain `PUBLISHED` records for
+seven days, `DEAD_LETTERED` records for 30 days, and delete at most 1000 records per status per
+run. Configure `published-retention-days`, `dead-lettered-retention-days`, and `batch-size` under
+`jfoundry.outbox.cleanup` when different operational limits are required.
+
+Recovery and each terminal-status cleanup run use independent `REQUIRES_NEW` transaction boundaries.
+Payload serialization, automatic event externalization, broker adapters, and starters remain
+explicit capabilities.
 
 ## JPA Inbox Storage
 
@@ -153,11 +166,10 @@ does not provide a dispatcher, scheduler, serializer, automatic event externaliz
 ## Native Image Verification
 
 The repository's Quarkus native CI job first installs the extension artifacts and then builds a
-separate consumer application. Its `@QuarkusIntegrationTest` invokes `TransactionRunner` through an
-HTTP endpoint against the native executable.
+separate consumer application. Its `@QuarkusIntegrationTest` invokes `TransactionRunner`, Outbox
+dispatch, recovery, and cleanup through HTTP endpoints against the native executable.
 
-Run the same verification on a machine with GraalVM Native Image, or with Docker available for
-Quarkus container builds:
+Run the same verification on a machine with GraalVM Native Image:
 
 ```bash
 ./mvnw -B \
@@ -166,12 +178,12 @@ Quarkus container builds:
 
 ./mvnw -B \
   -pl jfoundry-quarkus/jfoundry-quarkus-integration-tests \
-  -Pnative -Dquarkus.native.container-build=true verify
+  -Pnative verify
 ```
 
 ## Current Scope
 
 This Quarkus integration covers CDI discovery, application transactions, JPA aggregate persistence
-context assembly, and optional JPA Outbox and Inbox storage. It does not yet provide Quarkus
-assembly for MyBatis-Plus, recovery and cleanup jobs, messaging, web adapters, configuration
-properties beyond Outbox dispatching, or starters. Those capabilities remain explicit follow-up work.
+context assembly, optional JPA Outbox and Inbox storage, and optional Outbox dispatch, recovery, and cleanup.
+It does not yet provide Quarkus assembly for MyBatis-Plus, messaging, web adapters, automatic event
+externalization, or starters. Those capabilities remain explicit follow-up work.
