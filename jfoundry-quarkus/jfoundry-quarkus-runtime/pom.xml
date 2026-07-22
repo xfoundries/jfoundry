@@ -19,6 +19,14 @@
     <dependencies>
         <dependency>
             <groupId>io.github.xfoundries</groupId>
+            <artifactId>jfoundry-application-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.xfoundries</groupId>
+            <artifactId>jfoundry-event-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-transaction-core</artifactId>
         </dependency>
         <dependency>

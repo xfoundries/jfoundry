@@ -61,8 +61,8 @@ Hexagonal 或 Onion 应依据领域和项目约束选择；jfoundry 不会为业
 
 [Spring Boot 自动配置参考](../reference/spring-boot-autoconfiguration.md)是单个 starter、配置项和注册条件的唯一目录。
 
-Quarkus 的依赖配置、传播模式和 Native Image 验证见[Quarkus 运行时集成](../implementations/quarkus.md)。
-除应用事务外的 Quarkus 装配尚不可用。
+Quarkus 的依赖配置、事务传播、应用服务领域事件分发和 Native Image 验证见
+[Quarkus 运行时集成](../implementations/quarkus.md)。
 
 ## 阅读路径
 

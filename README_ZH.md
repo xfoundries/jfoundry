@@ -49,7 +49,7 @@
 - **聚合持久化**：先阅读[聚合持久化](docs/i18n/zh/capabilities/aggregate-persistence.md)，再选择适合项目的平级实现：[JPA](docs/i18n/zh/implementations/jpa.md)或 [MyBatis-Plus](docs/i18n/zh/implementations/mybatis-plus.md)。
 - **可靠消息**：先阅读[可靠消息](docs/i18n/zh/capabilities/reliable-messaging.md)，再从对应的 [JPA](docs/i18n/zh/implementations/jpa.md) 或 [MyBatis-Plus](docs/i18n/zh/implementations/mybatis-plus.md) 指南中选择其存储实现。
 - **Spring Boot**：通过 [Spring Boot 运行时装配](docs/i18n/zh/implementations/spring-boot.md) 组装已选择的能力。
-- **Quarkus**：通过 [Quarkus 运行时集成](docs/i18n/zh/implementations/quarkus.md) 接入 CDI `TransactionRunner` 并验证 Native Image。
+- **Quarkus**：通过 [Quarkus 运行时集成](docs/i18n/zh/implementations/quarkus.md) 接入 CDI 事务、领域事件分发并验证 Native Image。
 - **starter、属性与条件**：查阅 [Spring Boot 自动配置](docs/i18n/zh/reference/spring-boot-autoconfiguration.md)。
 
 ## 最小接入

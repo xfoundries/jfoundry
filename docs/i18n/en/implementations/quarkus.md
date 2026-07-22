@@ -56,6 +56,39 @@ the adapter and restores the default afterwards. Jakarta Transactions has no por
 name or read-only transaction setting, so this adapter rejects `TransactionOptions.name` and
 `TransactionOptions.readOnly` rather than silently ignoring them.
 
+## Domain Event Dispatch
+
+The base runtime extension also provides the application-service event boundary. For every CDI bean
+annotated with framework-neutral `@ApplicationService`, Quarkus adds a runtime-only interceptor
+binding during augmentation. On the outermost successful invocation, the interceptor drains events
+from aggregates registered through `DomainEventContext` and sends them to every CDI
+`DomainEventDispatcher`. Nested application-service invocations share the same
+scope, so dispatch occurs once at the outermost boundary. An exception escaping that boundary
+discards its pending events.
+
+```java
+@ApplicationScoped
+@ApplicationService
+class ConfirmOrder {
+
+    private final DomainEventContext domainEventContext;
+
+    ConfirmOrder(DomainEventContext domainEventContext) {
+        this.domainEventContext = domainEventContext;
+    }
+
+    void handle(Order order) {
+        order.confirm();
+        domainEventContext.register(order);
+    }
+}
+```
+
+The extension supplies the `DomainEventContext` used by this boundary. This assembly supports
+synchronous application-service methods only; `CompletionStage` and Mutiny return types are rejected.
+It provides in-process domain-event orchestration only and does not add an Outbox store, serializer,
+broker client, or automatic event externalization.
+
 ## JPA Aggregate Persistence
 
 To use `JpaAggregateRepository`, add `jfoundry-persistence-jpa` and the Quarkus Hibernate ORM and
@@ -166,8 +199,8 @@ does not provide a dispatcher, scheduler, serializer, automatic event externaliz
 ## Native Image Verification
 
 The repository's Quarkus native CI job first installs the extension artifacts and then builds a
-separate consumer application. Its `@QuarkusIntegrationTest` invokes `TransactionRunner`, Outbox
-dispatch, recovery, and cleanup through HTTP endpoints against the native executable.
+separate consumer application. Its `@QuarkusIntegrationTest` invokes `TransactionRunner`, domain-event
+dispatch, Outbox dispatch, recovery, and cleanup through HTTP endpoints against the native executable.
 
 Run the same verification on a machine with GraalVM Native Image:
 
@@ -183,7 +216,8 @@ Run the same verification on a machine with GraalVM Native Image:
 
 ## Current Scope
 
-This Quarkus integration covers CDI discovery, application transactions, JPA aggregate persistence
-context assembly, optional JPA Outbox and Inbox storage, and optional Outbox dispatch, recovery, and cleanup.
+This Quarkus integration covers CDI discovery, application transactions, application-service domain-event
+dispatch, JPA aggregate persistence context assembly, optional JPA Outbox and Inbox storage, and optional
+Outbox dispatch, recovery, and cleanup.
 It does not yet provide Quarkus assembly for MyBatis-Plus, messaging, web adapters, automatic event
 externalization, or starters. Those capabilities remain explicit follow-up work.

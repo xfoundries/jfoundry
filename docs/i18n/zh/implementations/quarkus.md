@@ -53,6 +53,34 @@ deployment 构件；应用不应直接添加 deployment 构件。
 Jakarta Transactions 没有可移植的事务名称或只读事务设置，因此此适配器会拒绝
 `TransactionOptions.name` 与 `TransactionOptions.readOnly`，而不会静默忽略它们。
 
+## 领域事件分发
+
+基础 runtime 扩展还提供应用服务的事件边界。对于所有标注运行时无关 `@ApplicationService` 的 CDI Bean，
+Quarkus 会在 augmentation 阶段加入仅限运行时的 interceptor binding。最外层调用成功后，interceptor 会
+从通过 `DomainEventContext` 注册的聚合中提取事件，并交给每个 CDI `DomainEventDispatcher`。
+嵌套应用服务调用共享同一个作用域，因此只会在最外层边界分发一次；若异常从该边界逸出，待分发事件会被丢弃。
+
+```java
+@ApplicationScoped
+@ApplicationService
+class ConfirmOrder {
+
+    private final DomainEventContext domainEventContext;
+
+    ConfirmOrder(DomainEventContext domainEventContext) {
+        this.domainEventContext = domainEventContext;
+    }
+
+    void handle(Order order) {
+        order.confirm();
+        domainEventContext.register(order);
+    }
+}
+```
+
+扩展提供此边界所使用的 `DomainEventContext`。该装配只支持同步应用服务方法，会拒绝 `CompletionStage` 和
+Mutiny 返回类型；它只提供进程内领域事件编排，不会引入 Outbox store、serializer、broker client 或自动事件外部化。
+
 ## JPA 聚合持久化
 
 使用 `JpaAggregateRepository` 时，除 `jfoundry-persistence-jpa` 外，还需加入应用所选的 Quarkus
@@ -146,7 +174,7 @@ dispatcher 不会引入 broker client 或 logging sender。可按需配置 `jfou
 ## Native Image 验证
 
 仓库的 Quarkus Native CI job 会先安装扩展构件，再构建独立的消费者应用。其
-`@QuarkusIntegrationTest` 通过 HTTP 入口调用 `TransactionRunner`、Outbox 派发、恢复和清理，针对原生可执行文件运行。
+`@QuarkusIntegrationTest` 通过 HTTP 入口调用 `TransactionRunner`、领域事件分发、Outbox 派发、恢复和清理，针对原生可执行文件运行。
 
 在安装了 GraalVM Native Image 的机器上，可运行相同验证：
 
@@ -162,6 +190,6 @@ dispatcher 不会引入 broker client 或 logging sender。可按需配置 `jfou
 
 ## 当前范围
 
-当前 Quarkus 集成覆盖 CDI 发现、应用事务、JPA 聚合持久化上下文装配、可选的 JPA Outbox 和 Inbox 存储，以及可选的
-Outbox 派发、恢复和清理。它尚未提供 MyBatis-Plus、消息、Web adapter、自动事件外部化或 starter 的 Quarkus 装配；
+当前 Quarkus 集成覆盖 CDI 发现、应用事务、应用服务领域事件分发、JPA 聚合持久化上下文装配、可选的 JPA Outbox 和 Inbox 存储，
+以及可选的 Outbox 派发、恢复和清理。它尚未提供 MyBatis-Plus、消息、Web adapter、自动事件外部化或 starter 的 Quarkus 装配；
 这些能力仍是后续的显式工作项。

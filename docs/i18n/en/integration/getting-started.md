@@ -76,9 +76,8 @@ for the exact implementation boundaries.
 The [Spring Boot Auto-configuration reference](../reference/spring-boot-autoconfiguration.md) is
 the canonical catalog for individual starters, properties, and registration conditions.
 
-For Quarkus dependency setup, propagation support, and Native Image verification, see
-[Quarkus Runtime Integration](../implementations/quarkus.md). Quarkus assembly beyond application
-transactions is not available yet.
+For Quarkus dependency setup, transaction propagation, application-service domain-event dispatch,
+and Native Image verification, see [Quarkus Runtime Integration](../implementations/quarkus.md).
 
 ## Reading Path
 
