@@ -74,6 +74,8 @@ class InboxTemplateTest {
         assertThat(transactions.options)
                 .extracting(TransactionOptions::propagation)
                 .containsExactly(TransactionPropagation.REQUIRES_NEW, TransactionPropagation.REQUIRES_NEW);
+        assertThat(transactions.options)
+                .allSatisfy(options -> assertThat(options.name()).isEmpty());
     }
 
     @Test
@@ -94,6 +96,8 @@ class InboxTemplateTest {
                         TransactionPropagation.REQUIRES_NEW,
                         TransactionPropagation.REQUIRES_NEW,
                         TransactionPropagation.REQUIRES_NEW);
+        assertThat(transactions.options)
+                .allSatisfy(options -> assertThat(options.name()).isEmpty());
     }
 
     static class RecordingInboxMessageStore implements InboxMessageStore {

@@ -31,11 +31,11 @@ public class InboxTemplate {
             return executeWithoutTransaction(messageId, consumerName, handler);
         }
 
-        if (!inNewTransaction("jfoundry-inbox-claim", () -> store.tryStartProcessing(messageId, consumerName))) {
+        if (!inNewTransaction(() -> store.tryStartProcessing(messageId, consumerName))) {
             return false;
         }
         try {
-            inNewTransaction("jfoundry-inbox-process", () -> {
+            inNewTransaction(() -> {
                 handler.handle();
                 store.markProcessed(messageId, consumerName);
                 return null;
@@ -43,7 +43,7 @@ public class InboxTemplate {
             return true;
         } catch (RuntimeException e) {
             try {
-                inNewTransaction("jfoundry-inbox-fail", () -> {
+                inNewTransaction(() -> {
                     store.markFailed(messageId, consumerName, e.getMessage());
                     return null;
                 });
@@ -68,10 +68,9 @@ public class InboxTemplate {
         }
     }
 
-    private <T> T inNewTransaction(String name, TransactionCallback<T> callback) {
+    private <T> T inNewTransaction(TransactionCallback<T> callback) {
         try {
             return transactionRunner.call(TransactionOptions.builder()
-                    .name(name)
                     .propagation(TransactionPropagation.REQUIRES_NEW)
                     .build(), callback);
         } catch (RuntimeException exception) {

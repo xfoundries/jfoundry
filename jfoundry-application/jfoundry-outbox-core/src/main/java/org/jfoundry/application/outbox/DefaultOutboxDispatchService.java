@@ -53,7 +53,7 @@ public class DefaultOutboxDispatchService implements OutboxDispatcher {
 
     @Override
     public void dispatch(int batchSize) {
-        List<OutboxMessage> messages = inNewTransaction("jfoundry-outbox-claim",
+        List<OutboxMessage> messages = inNewTransaction(
                 () -> repository.claimDispatchable(batchSize, claimerId));
         for (OutboxMessage message : messages) {
             dispatchMessage(message);
@@ -64,7 +64,7 @@ public class DefaultOutboxDispatchService implements OutboxDispatcher {
         try {
             SendResult result = messageSender.send(message.getTopic(), message.getPayloadKey(), message.getPayloadJson());
             if (result.success()) {
-                inNewTransaction("jfoundry-outbox-publish", () -> {
+                inNewTransaction(() -> {
                     repository.markAsPublished(message.getEventId(), message.getClaimToken());
                     return null;
                 });
@@ -78,14 +78,14 @@ public class DefaultOutboxDispatchService implements OutboxDispatcher {
     }
 
     private void markAsFailed(OutboxMessage message, String errorMessage) {
-        inNewTransaction("jfoundry-outbox-fail", () -> {
+        inNewTransaction(() -> {
             repository.markAsFailed(message.getEventId(), message.getClaimToken(),
                     errorMessage, maxRetries, backoff);
             return null;
         });
     }
 
-    private <T> T inNewTransaction(String name, TransactionCallback<T> callback) {
+    private <T> T inNewTransaction(TransactionCallback<T> callback) {
         if (transactionRunner == null) {
             try {
                 return callback.execute();
@@ -97,7 +97,6 @@ public class DefaultOutboxDispatchService implements OutboxDispatcher {
         }
         try {
             return transactionRunner.call(TransactionOptions.builder()
-                    .name(name)
                     .propagation(TransactionPropagation.REQUIRES_NEW)
                     .build(), callback);
         } catch (RuntimeException exception) {

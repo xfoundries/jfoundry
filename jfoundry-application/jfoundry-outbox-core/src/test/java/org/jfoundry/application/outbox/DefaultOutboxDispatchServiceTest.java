@@ -78,6 +78,8 @@ class DefaultOutboxDispatchServiceTest {
         assertThat(transactions.options)
                 .extracting(TransactionOptions::propagation)
                 .containsExactly(TransactionPropagation.REQUIRES_NEW, TransactionPropagation.REQUIRES_NEW);
+        assertThat(transactions.options)
+                .allSatisfy(options -> assertThat(options.name()).isEmpty());
         assertThat(store.published).containsExactly("evt-1");
     }
 
