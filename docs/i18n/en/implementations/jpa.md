@@ -22,13 +22,19 @@ root update is reported as `ConflictException` at repository flush.
 Use `jfoundry-jpa-spring-boot-starter` for JPA business runtime assembly. It does not add Outbox or
 Inbox stores.
 
+For Quarkus, add `jfoundry-quarkus-runtime` with `jfoundry-persistence-jpa`, Quarkus Hibernate ORM,
+and the selected datasource extension. A CDI-managed `JpaAggregateRepository` receives its
+transaction-scoped `AggregatePersistenceContext` from the jfoundry Quarkus extension. Use
+`TransactionRunner` as the transaction boundary; do not create or set the context in business code.
+See [Quarkus](quarkus.md) for the runtime assembly requirements.
+
 ### Direct JPA Or Hibernate Assembly
 
-The JPA adapter is runtime-neutral, not a turnkey raw-Hibernate bootstrap. Outside Spring Boot,
-the application creates the `EntityManagerFactory`, starts and completes each transaction, registers
-the aggregate and framework entities with its persistence unit, and supplies a transaction-scoped
-`AggregatePersistenceContext` to `JpaAggregateRepository`. The repository must be used only inside
-that persistence context and transaction.
+The JPA adapter is runtime-neutral, not a turnkey raw-Hibernate bootstrap. Outside Spring Boot and
+the supported Quarkus assembly, the application creates the `EntityManagerFactory`, starts and
+completes each transaction, registers the aggregate and framework entities with its persistence
+unit, and supplies a transaction-scoped `AggregatePersistenceContext` to `JpaAggregateRepository`.
+The repository must be used only inside that persistence context and transaction.
 
 JPQL is portable query language over entities and fields. Hibernate translates JPQL to the selected
 database dialect for ordinary queries and updates. The Inbox first-claim operation is intentionally

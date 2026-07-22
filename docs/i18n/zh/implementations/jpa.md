@@ -12,9 +12,16 @@
 
 JPA 业务运行时装配使用 `jfoundry-jpa-spring-boot-starter`。它不会引入 Outbox 或 Inbox store。
 
+Quarkus 环境中，加入 `jfoundry-quarkus-runtime`、`jfoundry-persistence-jpa`、Quarkus Hibernate ORM
+和所选数据源扩展即可。由 CDI 管理的 `JpaAggregateRepository` 会从 jfoundry Quarkus 扩展获得事务作用域内的
+`AggregatePersistenceContext`。应使用 `TransactionRunner` 作为事务边界，业务代码无需创建或设置该上下文。
+运行时装配要求见 [Quarkus](quarkus.md)。
+
 ### 直接装配 JPA 或 Hibernate
 
-JPA adapter 是运行时无关的，但不是开箱即用的 raw-Hibernate bootstrap。Spring Boot 之外，应用负责创建 `EntityManagerFactory`、开启和完成每个事务、向 persistence unit 注册聚合与框架实体，并向 `JpaAggregateRepository` 提供事务作用域内的 `AggregatePersistenceContext`。repository 只能在该持久化上下文和事务内使用。
+JPA adapter 是运行时无关的，但不是开箱即用的 raw-Hibernate bootstrap。Spring Boot 和受支持的 Quarkus
+装配之外，应用负责创建 `EntityManagerFactory`、开启和完成每个事务、向 persistence unit 注册聚合与框架实体，并向
+`JpaAggregateRepository` 提供事务作用域内的 `AggregatePersistenceContext`。repository 只能在该持久化上下文和事务内使用。
 
 JPQL 是面向实体及其字段的可移植查询语言。Hibernate 会把普通 JPQL 查询和更新转换为所选数据库方言。Inbox 的首次 claim 刻意不同：它需要原子的 insert-or-ignore 等价操作，因此必须显式保留数据库相关策略，而不能假装 JPQL 能可移植地表达该操作。
 

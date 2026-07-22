@@ -56,6 +56,30 @@ the adapter and restores the default afterwards. Jakarta Transactions has no por
 name or read-only transaction setting, so this adapter rejects `TransactionOptions.name` and
 `TransactionOptions.readOnly` rather than silently ignoring them.
 
+## JPA Aggregate Persistence
+
+To use `JpaAggregateRepository`, add `jfoundry-persistence-jpa` and the Quarkus Hibernate ORM and
+datasource extensions selected by the application. A repository subclass must be a CDI bean and
+receive `EntityManager` through its constructor. The jfoundry extension discovers CDI beans that
+implement `AggregatePersistenceContextAware` and supplies a JTA transaction-bound persistence
+context automatically. An application may replace that default by declaring its own CDI
+`AggregatePersistenceContext` bean.
+
+Keep `findById(...)`, domain behavior, and `modify(...)` in the same `TransactionRunner` callback.
+Quarkus binds the injected `EntityManager` and aggregate persistence state to that transaction, so
+the repository applies changes to the entity graph loaded in that same persistence context.
+
+```java
+transactionRunner.run(() -> {
+    Order order = repository.findById(orderId);
+    order.confirm();
+    repository.modify(order);
+});
+```
+
+This assembly covers business aggregate persistence only. It does not register or configure JPA
+Outbox or Inbox stores.
+
 ## Native Image Verification
 
 The repository's Quarkus native CI job first installs the extension artifacts and then builds a
@@ -77,6 +101,7 @@ Quarkus container builds:
 
 ## Current Scope
 
-This first Quarkus integration covers CDI discovery and application transactions only. It does not
-yet provide Quarkus assembly for JPA, MyBatis-Plus, Outbox, Inbox, messaging, scheduling, web
-adapters, configuration properties, or starters. Those capabilities remain explicit follow-up work.
+This Quarkus integration covers CDI discovery, application transactions, and JPA aggregate
+persistence context assembly. It does not yet provide Quarkus assembly for MyBatis-Plus, Outbox,
+Inbox, messaging, scheduling, web adapters, configuration properties, or starters. Those
+capabilities remain explicit follow-up work.
