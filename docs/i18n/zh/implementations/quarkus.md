@@ -150,6 +150,34 @@ dispatcher 不会引入 broker client 或 logging sender。可按需配置 `jfou
 
 恢复和每种终态记录清理都使用独立的 `REQUIRES_NEW` 事务边界。broker adapter 和 starter 仍是显式能力。
 
+## Kafka 消息投递
+
+加入 `jfoundry-messaging-kafka-quarkus-runtime`，即可提供默认的 Quarkus Kafka `MessageSender`
+实现：
+
+```xml
+<dependency>
+    <groupId>io.github.xfoundries</groupId>
+    <artifactId>jfoundry-messaging-kafka-quarkus-runtime</artifactId>
+</dependency>
+```
+
+该扩展会引入 `quarkus-messaging-kafka`，并通过固定的出站 channel `jfoundry-kafka` 发送。使用
+SmallRye Kafka connector 配置该 channel：
+
+```properties
+kafka.bootstrap.servers=localhost:9092
+mp.messaging.outgoing.jfoundry-kafka.connector=smallrye-kafka
+mp.messaging.outgoing.jfoundry-kafka.key.serializer=org.apache.kafka.common.serialization.StringSerializer
+mp.messaging.outgoing.jfoundry-kafka.value.serializer=org.apache.kafka.common.serialization.StringSerializer
+```
+
+`MessageSender.send(topic, payloadKey, payload)` 会为每一条 Kafka record 动态设置 topic 与 key，因此
+`@Externalized` 和 `@AggregateRouting` 仍决定 Outbox 路由。channel 名称只是基础设施配置，并非业务目的地。
+adapter 会等待 broker 确认，并将失败映射为 `SendResult`；可通过
+`jfoundry.messaging.kafka.send-timeout` 修改默认的 `10s` 超时。它是 Quarkus CDI 默认 Bean，应用可以用自己的
+`MessageSender` 覆盖。
+
 ## 自动领域事件外部化
 
 `jfoundry-outbox-quarkus-runtime` 还提供显式的自动外部化装配。它引入 Quarkus Jackson，并提供可替换的
@@ -203,7 +231,7 @@ Native Image。它不指定 broker transport；需要投递时，请另行选择
 
 ```bash
 ./mvnw -B \
-  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment \
+  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-quarkus-deployment,jfoundry-quarkus/jfoundry-messaging-kafka-quarkus-runtime,jfoundry-quarkus/jfoundry-messaging-kafka-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment \
   -am -DskipTests install
 
 ./mvnw -B \
@@ -214,5 +242,5 @@ Native Image。它不指定 broker transport；需要投递时，请另行选择
 ## 当前范围
 
 当前 Quarkus 集成覆盖 CDI 发现、应用事务、应用服务领域事件分发、JPA 聚合持久化上下文装配、可选的 JPA Outbox 和 Inbox 存储、
-被明确标记事件的自动外部化，以及可选的 Outbox 派发、恢复和清理。它尚未提供 MyBatis-Plus、broker 消息 adapter、Web adapter
-或 starter 的 Quarkus 装配；这些能力仍是后续的显式工作项。
+被明确标记事件的自动外部化、Kafka 消息投递，以及可选的 Outbox 派发、恢复和清理。它尚未提供 MyBatis-Plus、RabbitMQ、RocketMQ、
+Web adapter 或 starter 的 Quarkus 装配；这些能力仍是后续的显式工作项。

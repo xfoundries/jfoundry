@@ -53,7 +53,7 @@ jfoundry/sql/inbox/common/create_inbox_message.sql
 |------|------|
 | MyBatis-Plus Outbox 和 Inbox store | [MyBatis-Plus](../implementations/mybatis-plus.md) |
 | JPA Outbox 和 Inbox store，包括数据库相关的 Inbox claim | [JPA](../implementations/jpa.md) |
-| Quarkus Outbox runtime 与自动领域事件外部化 | [Quarkus](../implementations/quarkus.md) |
+| Quarkus Outbox runtime、自动领域事件外部化与 Kafka 投递 | [Quarkus](../implementations/quarkus.md) |
 | Spring Boot 能力装配和 dispatcher 配置 | [Spring Boot](../implementations/spring-boot.md) |
 
 Starter、配置项和注册条件查询请使用 [Spring Boot 自动配置](../reference/spring-boot-autoconfiguration.md)。

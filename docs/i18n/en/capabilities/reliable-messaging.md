@@ -73,7 +73,7 @@ jfoundry/sql/inbox/common/create_inbox_message.sql
 |------|-------|
 | MyBatis-Plus Outbox and Inbox stores | [MyBatis-Plus](../implementations/mybatis-plus.md) |
 | JPA Outbox and Inbox stores, including database-specific Inbox claiming | [JPA](../implementations/jpa.md) |
-| Quarkus Outbox runtime and automatic domain-event externalization | [Quarkus](../implementations/quarkus.md) |
+| Quarkus Outbox runtime, automatic domain-event externalization, and Kafka delivery | [Quarkus](../implementations/quarkus.md) |
 | Spring Boot capability assembly and dispatcher configuration | [Spring Boot](../implementations/spring-boot.md) |
 
 Use [Spring Boot Auto-configuration](../reference/spring-boot-autoconfiguration.md) as the lookup

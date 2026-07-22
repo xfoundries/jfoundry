@@ -171,6 +171,35 @@ run. Configure `published-retention-days`, `dead-lettered-retention-days`, and `
 Recovery and each terminal-status cleanup run use independent `REQUIRES_NEW` transaction boundaries.
 Broker adapters and starters remain explicit capabilities.
 
+## Kafka Message Delivery
+
+Add `jfoundry-messaging-kafka-quarkus-runtime` to provide the default Quarkus Kafka implementation
+of `MessageSender`:
+
+```xml
+<dependency>
+    <groupId>io.github.xfoundries</groupId>
+    <artifactId>jfoundry-messaging-kafka-quarkus-runtime</artifactId>
+</dependency>
+```
+
+The extension brings `quarkus-messaging-kafka` and sends through the fixed outgoing channel
+`jfoundry-kafka`. Configure that channel with the SmallRye Kafka connector:
+
+```properties
+kafka.bootstrap.servers=localhost:9092
+mp.messaging.outgoing.jfoundry-kafka.connector=smallrye-kafka
+mp.messaging.outgoing.jfoundry-kafka.key.serializer=org.apache.kafka.common.serialization.StringSerializer
+mp.messaging.outgoing.jfoundry-kafka.value.serializer=org.apache.kafka.common.serialization.StringSerializer
+```
+
+`MessageSender.send(topic, payloadKey, payload)` dynamically sets the Kafka topic and key for each
+record, so `@Externalized` and `@AggregateRouting` continue to determine Outbox routing. The channel
+name is infrastructure configuration, not a business destination. The adapter waits for broker
+acknowledgement and maps failures to `SendResult`; configure
+`jfoundry.messaging.kafka.send-timeout` to change its `10s` default. It is a Quarkus CDI default
+bean, so an application can replace it with its own `MessageSender`.
+
 ## Automatic Domain-Event Externalization
 
 `jfoundry-outbox-quarkus-runtime` also supplies an explicit automatic externalization assembly. It
@@ -236,7 +265,7 @@ Run the same verification on a machine with GraalVM Native Image:
 
 ```bash
 ./mvnw -B \
-  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment \
+  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-quarkus-deployment,jfoundry-quarkus/jfoundry-messaging-kafka-quarkus-runtime,jfoundry-quarkus/jfoundry-messaging-kafka-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment \
   -am -DskipTests install
 
 ./mvnw -B \
@@ -248,6 +277,6 @@ Run the same verification on a machine with GraalVM Native Image:
 
 This Quarkus integration covers CDI discovery, application transactions, application-service domain-event
 dispatch, JPA aggregate persistence context assembly, optional JPA Outbox and Inbox storage, automatic
-externalization for explicitly marked events, and optional Outbox dispatch, recovery, and cleanup.
-It does not yet provide Quarkus assembly for MyBatis-Plus, broker messaging adapters, web adapters,
-or starters. Those capabilities remain explicit follow-up work.
+externalization for explicitly marked events, Kafka message delivery, and optional Outbox dispatch,
+recovery, and cleanup. It does not yet provide Quarkus assembly for MyBatis-Plus, RabbitMQ, RocketMQ,
+web adapters, or starters. Those capabilities remain explicit follow-up work.
