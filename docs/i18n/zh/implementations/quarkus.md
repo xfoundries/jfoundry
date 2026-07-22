@@ -92,6 +92,28 @@ transactionRunner.run(() -> {
 
 该能力只装配持久化，不提供 Outbox 派发、调度、payload 序列化、自动领域事件外部化、Inbox 装配或 starter。
 
+## Outbox 派发
+
+应用需要共享的 Outbox claim、发送和状态转换运行时时，加入 `jfoundry-outbox-quarkus-runtime`：
+
+```xml
+<dependency>
+    <groupId>io.github.xfoundries</groupId>
+    <artifactId>jfoundry-outbox-quarkus-runtime</artifactId>
+</dependency>
+```
+
+该扩展提供默认 CDI `OutboxDispatcher`，并使用 Quarkus Scheduler。只有配置
+`jfoundry.outbox.dispatcher.enabled=true` 时才会启动定时派发。应用必须提供
+`OutboxMessageStore`（例如通过 `jfoundry-outbox-jpa-quarkus-runtime`）和真实的 `MessageSender`；
+dispatcher 不会引入 broker client 或 logging sender。可按需配置 `jfoundry.outbox.dispatcher.interval`
+（默认 `5s`）、`batch-size`（默认 `50`）、`max-retries`（默认 `5`）、`backoff-base`（默认 `1s`）和
+`backoff-max`（默认 `5m`）。应用提供的 CDI `OutboxDispatcher` 优先。
+
+消息发送始终位于数据库事务之外。每次 claim 和状态转换都通过 `TransactionRunner` 在独立事务中进行，
+与运行时无关的 Outbox 契约保持一致。恢复、清理、payload 序列化、自动事件外部化、broker adapter 和 starter
+仍是显式能力。
+
 ## JPA Inbox 存储
 
 除基础 runtime 扩展和 Quarkus Hibernate ORM 外，加入 `jfoundry-inbox-jpa-quarkus-runtime`：
@@ -121,7 +143,7 @@ transactionRunner.run(() -> {
 
 ```bash
 ./mvnw -B \
-  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment \
+  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment \
   -am -DskipTests install
 
 ./mvnw -B \
@@ -132,5 +154,5 @@ transactionRunner.run(() -> {
 ## 当前范围
 
 当前 Quarkus 集成覆盖 CDI 发现、应用事务、JPA 聚合持久化上下文装配以及可选的 JPA Outbox 和 Inbox 存储。
-它尚未提供 MyBatis-Plus、Outbox 派发、消息、调度、Web adapter、配置属性或 starter 的 Quarkus 装配；
-这些能力仍是后续的显式工作项。
+它尚未提供 MyBatis-Plus、恢复和清理任务、消息、Web adapter、Outbox 派发之外的配置属性或 starter 的
+Quarkus 装配；这些能力仍是后续的显式工作项。

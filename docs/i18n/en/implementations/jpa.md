@@ -55,6 +55,10 @@ storage assembly only: it does not add a dispatcher, scheduler, serializer, auto
 externalization, or Inbox support. See [Quarkus](quarkus.md) for dependency setup and native-image
 verification.
 
+For Quarkus Outbox dispatching, add `jfoundry-outbox-quarkus-runtime` and provide a real CDI
+`MessageSender`. Its scheduler is disabled until `jfoundry.outbox.dispatcher.enabled=true`; it does
+not add a broker client or a fallback sender. See [Quarkus](quarkus.md) for dispatch configuration.
+
 For Quarkus JPA Inbox storage, add `jfoundry-inbox-jpa-quarkus-runtime`. It registers
 `JpaInboxMessageEntity` with the default persistence unit and supplies default CDI
 `JpaInboxClaimStrategy`, `InboxMessageStore`, and `InboxTemplate` beans. The default claim strategy

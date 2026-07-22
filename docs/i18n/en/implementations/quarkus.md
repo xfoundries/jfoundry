@@ -101,6 +101,31 @@ process.
 This capability assembles persistence only. It does not provide Outbox dispatching, scheduling,
 payload serialization, automatic domain-event externalization, Inbox assembly, or a starter.
 
+## Outbox Dispatching
+
+Add `jfoundry-outbox-quarkus-runtime` when an application needs the shared Outbox claim, send, and
+state-transition runtime:
+
+```xml
+<dependency>
+    <groupId>io.github.xfoundries</groupId>
+    <artifactId>jfoundry-outbox-quarkus-runtime</artifactId>
+</dependency>
+```
+
+The extension provides a default CDI `OutboxDispatcher` and uses the Quarkus Scheduler. It remains
+inactive unless `jfoundry.outbox.dispatcher.enabled=true`. The application must provide both an
+`OutboxMessageStore` (for example through `jfoundry-outbox-jpa-quarkus-runtime`) and a real
+`MessageSender`; the dispatcher does not add a broker client or a logging sender. Configure
+`jfoundry.outbox.dispatcher.interval` (default `5s`), `batch-size` (default `50`), `max-retries`
+(default `5`), `backoff-base` (default `1s`), and `backoff-max` (default `5m`) as needed. An
+application-provided CDI `OutboxDispatcher` takes precedence.
+
+Message delivery remains outside database transactions. Each claim and state transition runs in an
+independent transaction through `TransactionRunner`, consistent with the framework-neutral Outbox
+contract. Recovery, cleanup, payload serialization, automatic event externalization, broker
+adapters, and starters remain explicit capabilities.
+
 ## JPA Inbox Storage
 
 Add `jfoundry-inbox-jpa-quarkus-runtime` alongside the base runtime extension and Quarkus Hibernate
@@ -136,7 +161,7 @@ Quarkus container builds:
 
 ```bash
 ./mvnw -B \
-  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment \
+  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment \
   -am -DskipTests install
 
 ./mvnw -B \
@@ -148,5 +173,5 @@ Quarkus container builds:
 
 This Quarkus integration covers CDI discovery, application transactions, JPA aggregate persistence
 context assembly, and optional JPA Outbox and Inbox storage. It does not yet provide Quarkus
-assembly for MyBatis-Plus, Outbox dispatching, messaging, scheduling, web adapters, configuration
-properties, or starters. Those capabilities remain explicit follow-up work.
+assembly for MyBatis-Plus, recovery and cleanup jobs, messaging, web adapters, configuration
+properties beyond Outbox dispatching, or starters. Those capabilities remain explicit follow-up work.
