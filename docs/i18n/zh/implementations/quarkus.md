@@ -72,7 +72,25 @@ transactionRunner.run(() -> {
 });
 ```
 
-此装配仅覆盖业务聚合持久化，不会注册或配置 JPA Outbox、Inbox store。
+此装配仅覆盖业务聚合持久化。应用需要基于 JPA 的 Outbox store 时，应显式加入下文所述的能力。
+
+## JPA Outbox 存储
+
+除基础 runtime 扩展和 Quarkus Hibernate ORM 外，加入 `jfoundry-outbox-jpa-quarkus-runtime`：
+
+```xml
+<dependency>
+    <groupId>io.github.xfoundries</groupId>
+    <artifactId>jfoundry-outbox-jpa-quarkus-runtime</artifactId>
+</dependency>
+```
+
+该能力会把 `JpaOutboxMessageEntity` 注册到默认 persistence unit，并提供由
+`JpaOutboxMessageStore` 支撑的默认 CDI `OutboxMessageStore`。应用声明自己的 CDI
+`OutboxMessageStore` Bean 即可覆盖它。和所有 jfoundry SQL 模板一样，应用仍负责通过自己的迁移流程维护
+`jfoundry_outbox_event` 表。
+
+该能力只装配持久化，不提供 Outbox 派发、调度、payload 序列化、自动领域事件外部化、Inbox 装配或 starter。
 
 ## Native Image 验证
 
@@ -83,7 +101,7 @@ transactionRunner.run(() -> {
 
 ```bash
 ./mvnw -B \
-  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment \
+  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment \
   -am -DskipTests install
 
 ./mvnw -B \
@@ -93,5 +111,5 @@ transactionRunner.run(() -> {
 
 ## 当前范围
 
-当前 Quarkus 集成覆盖 CDI 发现、应用事务和 JPA 聚合持久化上下文装配。它尚未提供 MyBatis-Plus、Outbox、
-Inbox、消息、调度、Web adapter、配置属性或 starter 的 Quarkus 装配；这些能力仍是后续的显式工作项。
+当前 Quarkus 集成覆盖 CDI 发现、应用事务、JPA 聚合持久化上下文装配和可选的 JPA Outbox 存储。它尚未提供
+MyBatis-Plus、Outbox 派发、Inbox、消息、调度、Web adapter、配置属性或 starter 的 Quarkus 装配；这些能力仍是后续的显式工作项。

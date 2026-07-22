@@ -77,8 +77,29 @@ transactionRunner.run(() -> {
 });
 ```
 
-This assembly covers business aggregate persistence only. It does not register or configure JPA
-Outbox or Inbox stores.
+This assembly covers business aggregate persistence only. Add the explicit JPA Outbox capability
+described below when an application needs a JPA-backed Outbox store.
+
+## JPA Outbox Storage
+
+Add `jfoundry-outbox-jpa-quarkus-runtime` alongside the base runtime extension and Quarkus Hibernate
+ORM:
+
+```xml
+<dependency>
+    <groupId>io.github.xfoundries</groupId>
+    <artifactId>jfoundry-outbox-jpa-quarkus-runtime</artifactId>
+</dependency>
+```
+
+The capability registers `JpaOutboxMessageEntity` with the default persistence unit and provides a
+default CDI `OutboxMessageStore` backed by `JpaOutboxMessageStore`. An application can replace that
+store by declaring its own CDI `OutboxMessageStore` bean. As with every jfoundry SQL template, the
+application remains responsible for managing the `jfoundry_outbox_event` table through its migration
+process.
+
+This capability assembles persistence only. It does not provide Outbox dispatching, scheduling,
+payload serialization, automatic domain-event externalization, Inbox assembly, or a starter.
 
 ## Native Image Verification
 
@@ -91,7 +112,7 @@ Quarkus container builds:
 
 ```bash
 ./mvnw -B \
-  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment \
+  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment \
   -am -DskipTests install
 
 ./mvnw -B \
@@ -101,7 +122,7 @@ Quarkus container builds:
 
 ## Current Scope
 
-This Quarkus integration covers CDI discovery, application transactions, and JPA aggregate
-persistence context assembly. It does not yet provide Quarkus assembly for MyBatis-Plus, Outbox,
-Inbox, messaging, scheduling, web adapters, configuration properties, or starters. Those
-capabilities remain explicit follow-up work.
+This Quarkus integration covers CDI discovery, application transactions, JPA aggregate persistence
+context assembly, and optional JPA Outbox storage. It does not yet provide Quarkus assembly for
+MyBatis-Plus, Outbox dispatching, Inbox, messaging, scheduling, web adapters, configuration
+properties, or starters. Those capabilities remain explicit follow-up work.

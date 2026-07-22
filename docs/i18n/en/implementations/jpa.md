@@ -48,6 +48,13 @@ Select `jfoundry-outbox-jpa-spring-boot-starter` and/or
 Spring Boot their framework entities are mapped automatically, so applications do not add them to
 their own `@EntityScan`.
 
+For Quarkus JPA Outbox storage, add `jfoundry-outbox-jpa-quarkus-runtime`. It registers
+`JpaOutboxMessageEntity` with the default persistence unit and supplies a default CDI
+`OutboxMessageStore`; an application-provided CDI `OutboxMessageStore` takes precedence. This is
+storage assembly only: it does not add a dispatcher, scheduler, serializer, automatic event
+externalization, or Inbox support. See [Quarkus](quarkus.md) for dependency setup and native-image
+verification.
+
 Entity registration is not schema management. Copy the matching Outbox or Inbox SQL template into
 the application's migration process and maintain it there. Do not rely on Hibernate schema
 generation to create or evolve jfoundry tables.
