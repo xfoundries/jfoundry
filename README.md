@@ -30,6 +30,8 @@ runtime integration
 
 Dependencies point inward. This keeps a Spring Boot integration outside the core rather than making it a requirement for every application.
 
+![jfoundry module architecture](docs/i18n/assets/jfoundry-module-architecture.svg)
+
 ## Capabilities
 
 | Area | Capability |

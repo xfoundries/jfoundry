@@ -30,6 +30,8 @@
 
 依赖方向始终指向内层。因此 Spring Boot 集成位于核心之外，而不是每个应用的必需依赖。
 
+![jfoundry 模块架构](docs/i18n/assets/jfoundry-module-architecture.svg)
+
 ## 能力概览
 
 | 范畴 | 能力 |
