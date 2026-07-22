@@ -1,10 +1,6 @@
 package org.jfoundry.autoconfigure;
 
-import org.jfoundry.application.transaction.TransactionCallback;
-import org.jfoundry.application.transaction.TransactionOptions;
-import org.jfoundry.application.transaction.TransactionRunner;
 import org.jfoundry.autoconfigure.aop.JFoundryAopAutoConfiguration;
-import org.jfoundry.autoconfigure.transaction.ApplicationTransactionalAutoConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.aop.config.AopConfigUtils;
@@ -23,10 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AopInfrastructureAutoConfigurationTest {
 
     private final ApplicationContextRunner runner = new ApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(
-                    JFoundryAopAutoConfiguration.class,
-                    ApplicationTransactionalAutoConfiguration.class))
-            .withBean(TransactionRunner.class, PassThroughTransactionRunner::new)
+            .withConfiguration(AutoConfigurations.of(JFoundryAopAutoConfiguration.class))
             .withUserConfiguration(LateBeanPostProcessorConfiguration.class);
 
     @Test
@@ -47,14 +40,6 @@ class AopInfrastructureAutoConfigurationTest {
         static BeanPostProcessor lateBeanPostProcessor() {
             return new BeanPostProcessor() {
             };
-        }
-    }
-
-    static class PassThroughTransactionRunner implements TransactionRunner {
-
-        @Override
-        public <T> T call(TransactionOptions options, TransactionCallback<T> callback) throws Exception {
-            return callback.execute();
         }
     }
 }

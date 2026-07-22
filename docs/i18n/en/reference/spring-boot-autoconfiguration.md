@@ -30,7 +30,6 @@ technology-specific setup, use the [implementation guides](../implementations/sp
 
 | Property | Default | Effect |
 |----------|---------|--------|
-| `jfoundry.application.transaction.annotation.enabled` | `true` | Enables `@ApplicationTransactional` advisor when a `TransactionRunner` bean exists. |
 | `jfoundry.lock.annotation.enabled` | `true` | Enables `@DistributedLock` advisor when a `DistributedLockClient` bean exists. |
 | `jfoundry.domain.event.dispatch.enabled` | `true` | Enables application-service boundary domain event dispatch. |
 | `jfoundry.domain.event.dispatch.spring.enabled` | `true` | Enables Spring `ApplicationEventPublisher` dispatch when the Spring event adapter is present. |
@@ -56,9 +55,8 @@ technology-specific setup, use the [implementation guides](../implementations/sp
 
 | Auto-configuration | Registers | Main conditions |
 |--------------------|-----------|-----------------|
-| `JFoundryAopAutoConfiguration` | Spring's canonical internal auto-proxy creator | Spring AOP is available. It coordinates the transaction, domain-event, and distributed-lock advisors through one auto-proxy creator and lazily resolves their interceptors. |
+| `JFoundryAopAutoConfiguration` | Spring's canonical internal auto-proxy creator | Spring AOP is available. It coordinates the domain-event and distributed-lock advisors through one auto-proxy creator and lazily resolves their interceptors. |
 | `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner` | `TransactionRunner` and `TransactionTemplate` are available, Spring Boot has configured a `PlatformTransactionManager`, and no existing `TransactionRunner` exists. |
-| `ApplicationTransactionalAutoConfiguration` | `@ApplicationTransactional` interceptor and advisor | A `TransactionRunner` bean exists and annotation support is enabled. It runs after `TransactionRunnerAutoConfiguration`, so either an auto-configured or user-defined runner can be used. |
 | `DistributedLockAutoConfiguration` | `LockTemplate`, optional Redisson `DistributedLockClient`, optional `@DistributedLock` advisor | `jfoundry-lock-core` is present. Redisson adapter requires `RedissonClient`; annotation advisor requires `DistributedLockClient` and annotation support enabled. |
 | `DomainEventPersistenceAutoConfiguration` | Repository `DomainEventContext` injector | `DomainEventContext` and `AbstractAggregateRepository` are on the classpath. |
 | `PersistenceFailureAutoConfiguration` | Default Spring `PersistenceFailureTranslator` and repository injector | `AbstractAggregateRepository`, Spring data-access exceptions, and `jfoundry-persistence-spring` are present; no user-defined translator. |

@@ -13,7 +13,6 @@ import org.springframework.core.type.AnnotationMetadata;
 /// Coordinates the single Spring auto-proxy creator used by jfoundry advisors.
 @AutoConfiguration(beforeName = {
         "org.jfoundry.autoconfigure.event.DomainEventDispatchAutoConfiguration",
-        "org.jfoundry.autoconfigure.transaction.ApplicationTransactionalAutoConfiguration",
         "org.jfoundry.autoconfigure.lock.DistributedLockAutoConfiguration"
 })
 @ConditionalOnClass(Advisor.class)

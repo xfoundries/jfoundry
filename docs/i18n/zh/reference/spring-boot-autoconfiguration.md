@@ -28,7 +28,6 @@
 
 | 配置项 | 默认值 | 作用 |
 |--------|--------|------|
-| `jfoundry.application.transaction.annotation.enabled` | `true` | 当存在 `TransactionRunner` Bean 时，开启 `@ApplicationTransactional` advisor。 |
 | `jfoundry.lock.annotation.enabled` | `true` | 当存在 `DistributedLockClient` Bean 时，开启 `@DistributedLock` advisor。 |
 | `jfoundry.domain.event.dispatch.enabled` | `true` | 开启应用服务边界上的领域事件自动派发。 |
 | `jfoundry.domain.event.dispatch.spring.enabled` | `true` | 当 Spring 事件 adapter 存在时，开启 Spring `ApplicationEventPublisher` 派发。 |
@@ -54,9 +53,8 @@
 
 | 自动配置 | 注册 Bean | 主要条件 |
 |----------|-----------|----------|
-| `JFoundryAopAutoConfiguration` | Spring 规范的内部 auto-proxy creator | Spring AOP 可用。事务、领域事件和分布式锁 advisor 共用一个 auto-proxy creator，并延迟解析各自的 interceptor。 |
+| `JFoundryAopAutoConfiguration` | Spring 规范的内部 auto-proxy creator | Spring AOP 可用。领域事件和分布式锁 advisor 共用一个 auto-proxy creator，并延迟解析各自的 interceptor。 |
 | `TransactionRunnerAutoConfiguration` | `SpringTransactionRunner` | 存在 `TransactionRunner` 与 `TransactionTemplate`，Spring Boot 已配置 `PlatformTransactionManager`，且没有已有 `TransactionRunner`。 |
-| `ApplicationTransactionalAutoConfiguration` | `@ApplicationTransactional` interceptor 与 advisor | 存在 `TransactionRunner` Bean 且开启注解支持。该配置在 `TransactionRunnerAutoConfiguration` 之后运行，因此自动配置或用户自定义的 runner 均可使用。 |
 | `DistributedLockAutoConfiguration` | `LockTemplate`、可选 Redisson `DistributedLockClient`、可选 `@DistributedLock` advisor | 存在 `jfoundry-lock-core`。Redisson adapter 需要 `RedissonClient`；注解 advisor 需要 `DistributedLockClient` 且开启注解支持。 |
 | `DomainEventPersistenceAutoConfiguration` | Repository `DomainEventContext` 注入器 | classpath 中存在 `DomainEventContext` 和 `AbstractAggregateRepository`。 |
 | `PersistenceFailureAutoConfiguration` | 默认 Spring `PersistenceFailureTranslator` 与 Repository 注入器 | 存在 `AbstractAggregateRepository`、Spring 数据访问异常和 `jfoundry-persistence-spring`；没有用户自定义 translator。 |

@@ -31,9 +31,9 @@ the method is an intentional business outcome.
 
 ## Ordering With Transactions
 
-When both `@DistributedLock` and `@ApplicationTransactional` apply to the same method, the lock
-advisor runs first and the transaction advisor runs inside the lock. This avoids opening a database
-transaction while waiting for a distributed lock.
+When a use case needs both a distributed lock and a transaction, acquire the lock first and call
+`TransactionRunner` inside its critical section. This avoids opening a database transaction while
+waiting for a distributed lock.
 
 For Spring Boot runtime assembly, selected lock-client integration, user overrides, and annotation
 configuration, see [Spring Boot Runtime Assembly](../implementations/spring-boot.md). The exact
