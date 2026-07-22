@@ -5,6 +5,8 @@ import org.jfoundry.application.inbox.InboxMessageStatus;
 import org.jfoundry.application.inbox.InboxMessageStore;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 /// Jakarta Persistence implementation of the Inbox persistence SPI.
 public final class JpaInboxMessageStore implements InboxMessageStore {
@@ -32,16 +34,16 @@ public final class JpaInboxMessageStore implements InboxMessageStore {
     @Override
     public boolean tryStartProcessing(String messageId, String consumerName) {
         Instant now = Instant.now();
-        int retried = entityManager.createQuery("""
-                update JpaInboxMessageEntity e
-                   set e.status = :processing, e.updatedAt = :now, e.errorMessage = null
-                 where e.messageId = :messageId and e.consumerName = :consumerName and e.status = :failed
+        int retried = entityManager.createNativeQuery("""
+                update jfoundry_inbox_message
+                   set status = ?1, updated_at = ?2, error_message = null
+                 where message_id = ?3 and consumer_name = ?4 and status = ?5
                 """)
-                .setParameter("processing", InboxMessageStatus.PROCESSING.name())
-                .setParameter("now", now)
-                .setParameter("messageId", messageId)
-                .setParameter("consumerName", consumerName)
-                .setParameter("failed", InboxMessageStatus.FAILED.name())
+                .setParameter(1, InboxMessageStatus.PROCESSING.name())
+                .setParameter(2, utcTimestamp(now))
+                .setParameter(3, messageId)
+                .setParameter(4, consumerName)
+                .setParameter(5, InboxMessageStatus.FAILED.name())
                 .executeUpdate();
         entityManager.flush();
         entityManager.clear();
@@ -60,16 +62,16 @@ public final class JpaInboxMessageStore implements InboxMessageStore {
     @Override
     public void markProcessed(String messageId, String consumerName) {
         Instant now = Instant.now();
-        entityManager.createQuery("""
-                update JpaInboxMessageEntity e
-                   set e.status = :processed, e.processedAt = :now, e.updatedAt = :now, e.errorMessage = null
-                 where e.messageId = :messageId and e.consumerName = :consumerName and e.status = :processing
+        entityManager.createNativeQuery("""
+                update jfoundry_inbox_message
+                   set status = ?1, processed_at = ?2, updated_at = ?2, error_message = null
+                 where message_id = ?3 and consumer_name = ?4 and status = ?5
                 """)
-                .setParameter("processed", InboxMessageStatus.PROCESSED.name())
-                .setParameter("now", now)
-                .setParameter("messageId", messageId)
-                .setParameter("consumerName", consumerName)
-                .setParameter("processing", InboxMessageStatus.PROCESSING.name())
+                .setParameter(1, InboxMessageStatus.PROCESSED.name())
+                .setParameter(2, utcTimestamp(now))
+                .setParameter(3, messageId)
+                .setParameter(4, consumerName)
+                .setParameter(5, InboxMessageStatus.PROCESSING.name())
                 .executeUpdate();
         entityManager.flush();
         entityManager.clear();
@@ -77,17 +79,17 @@ public final class JpaInboxMessageStore implements InboxMessageStore {
 
     @Override
     public void markFailed(String messageId, String consumerName, String errorMessage) {
-        entityManager.createQuery("""
-                update JpaInboxMessageEntity e
-                   set e.status = :failed, e.updatedAt = :now, e.errorMessage = :errorMessage
-                 where e.messageId = :messageId and e.consumerName = :consumerName and e.status = :processing
+        entityManager.createNativeQuery("""
+                update jfoundry_inbox_message
+                   set status = ?1, updated_at = ?2, error_message = ?3
+                 where message_id = ?4 and consumer_name = ?5 and status = ?6
                 """)
-                .setParameter("failed", InboxMessageStatus.FAILED.name())
-                .setParameter("now", Instant.now())
-                .setParameter("errorMessage", errorMessage)
-                .setParameter("messageId", messageId)
-                .setParameter("consumerName", consumerName)
-                .setParameter("processing", InboxMessageStatus.PROCESSING.name())
+                .setParameter(1, InboxMessageStatus.FAILED.name())
+                .setParameter(2, utcTimestamp(Instant.now()))
+                .setParameter(3, errorMessage)
+                .setParameter(4, messageId)
+                .setParameter(5, consumerName)
+                .setParameter(6, InboxMessageStatus.PROCESSING.name())
                 .executeUpdate();
         entityManager.flush();
         entityManager.clear();
@@ -101,5 +103,9 @@ public final class JpaInboxMessageStore implements InboxMessageStore {
                 .setParameter("messageId", messageId)
                 .setParameter("consumerName", consumerName)
                 .getSingleResult() > 0;
+    }
+
+    private static LocalDateTime utcTimestamp(Instant instant) {
+        return LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
     }
 }

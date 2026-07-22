@@ -103,7 +103,7 @@ jobs:
       - name: Install Quarkus extension artifacts
         run: >
           ./mvnw -B
-          -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment
+          -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment
           -am -DskipTests install
 
       - name: Run Quarkus Native Image smoke test

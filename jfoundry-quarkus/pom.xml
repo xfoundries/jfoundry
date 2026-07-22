@@ -37,6 +37,8 @@
         <module>jfoundry-quarkus-deployment</module>
         <module>jfoundry-outbox-jpa-quarkus-runtime</module>
         <module>jfoundry-outbox-jpa-quarkus-deployment</module>
+        <module>jfoundry-inbox-jpa-quarkus-runtime</module>
+        <module>jfoundry-inbox-jpa-quarkus-deployment</module>
         <module>jfoundry-quarkus-integration-tests</module>
     </modules>
 </project>

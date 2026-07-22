@@ -101,6 +101,30 @@ process.
 This capability assembles persistence only. It does not provide Outbox dispatching, scheduling,
 payload serialization, automatic domain-event externalization, Inbox assembly, or a starter.
 
+## JPA Inbox Storage
+
+Add `jfoundry-inbox-jpa-quarkus-runtime` alongside the base runtime extension and Quarkus Hibernate
+ORM:
+
+```xml
+<dependency>
+    <groupId>io.github.xfoundries</groupId>
+    <artifactId>jfoundry-inbox-jpa-quarkus-runtime</artifactId>
+</dependency>
+```
+
+The capability registers `JpaInboxMessageEntity` with the default persistence unit. It provides
+default CDI beans for `JpaInboxClaimStrategy`, `InboxMessageStore`, and `InboxTemplate`; the store
+uses `JpaInboxMessageStore`, and the template uses the runtime's `TransactionRunner` for its claim,
+processing, and failure boundaries. The built-in claim strategy is selected from the datasource
+product and supports PostgreSQL and MySQL only. For another database, declare a CDI
+`JpaInboxClaimStrategy` bean. An application may also replace `InboxMessageStore` or
+`InboxTemplate` with its own CDI bean.
+
+The application remains responsible for copying the Inbox SQL template into its migration process
+and maintaining the `jfoundry_inbox_message` table. This capability assembles persistence only. It
+does not provide a dispatcher, scheduler, serializer, automatic event externalization, or a starter.
+
 ## Native Image Verification
 
 The repository's Quarkus native CI job first installs the extension artifacts and then builds a
@@ -112,7 +136,7 @@ Quarkus container builds:
 
 ```bash
 ./mvnw -B \
-  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment \
+  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment \
   -am -DskipTests install
 
 ./mvnw -B \
@@ -123,6 +147,6 @@ Quarkus container builds:
 ## Current Scope
 
 This Quarkus integration covers CDI discovery, application transactions, JPA aggregate persistence
-context assembly, and optional JPA Outbox storage. It does not yet provide Quarkus assembly for
-MyBatis-Plus, Outbox dispatching, Inbox, messaging, scheduling, web adapters, configuration
+context assembly, and optional JPA Outbox and Inbox storage. It does not yet provide Quarkus
+assembly for MyBatis-Plus, Outbox dispatching, messaging, scheduling, web adapters, configuration
 properties, or starters. Those capabilities remain explicit follow-up work.

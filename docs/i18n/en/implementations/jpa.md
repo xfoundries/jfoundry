@@ -55,6 +55,15 @@ storage assembly only: it does not add a dispatcher, scheduler, serializer, auto
 externalization, or Inbox support. See [Quarkus](quarkus.md) for dependency setup and native-image
 verification.
 
+For Quarkus JPA Inbox storage, add `jfoundry-inbox-jpa-quarkus-runtime`. It registers
+`JpaInboxMessageEntity` with the default persistence unit and supplies default CDI
+`JpaInboxClaimStrategy`, `InboxMessageStore`, and `InboxTemplate` beans. The default claim strategy
+supports PostgreSQL and MySQL only; declare `JpaInboxClaimStrategy` for another database. An
+application-provided `JpaInboxClaimStrategy`, `InboxMessageStore`, or `InboxTemplate` takes
+precedence. This is storage assembly only: it does not add a dispatcher, scheduler, serializer,
+automatic event externalization, or a starter. See [Quarkus](quarkus.md) for dependency setup and
+native-image verification.
+
 Entity registration is not schema management. Copy the matching Outbox or Inbox SQL template into
 the application's migration process and maintain it there. Do not rely on Hibernate schema
 generation to create or evolve jfoundry tables.
@@ -65,8 +74,9 @@ updates for a claimed record use that token.
 
 The JPA Inbox built-in atomic claim strategy supports PostgreSQL and MySQL only. Provide
 `JpaInboxClaimStrategy` for another database product. When the product is unknown and no strategy
-is supplied, Boot fails fast rather than choosing a generic dialect behavior. A user-provided
-`InboxMessageStore`, `OutboxMessageStore`, or `JpaInboxClaimStrategy` takes precedence.
+is supplied, a runtime default fails fast rather than choosing a generic dialect behavior. A
+user-provided `InboxMessageStore`, `OutboxMessageStore`, `InboxTemplate`, or
+`JpaInboxClaimStrategy` takes precedence.
 
 A custom claim strategy implements
 `boolean tryClaim(EntityManager entityManager, String messageId, String consumerName, Instant now)`.
