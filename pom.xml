@@ -71,6 +71,7 @@
         <module>jfoundry-infrastructure</module>
         <module>jfoundry-starters</module>
         <module>jfoundry-spring</module>
+        <module>jfoundry-quarkus</module>
         <module>jfoundry-verification</module>
     </modules>
 
