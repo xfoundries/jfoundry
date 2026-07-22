@@ -131,8 +131,8 @@ store by declaring its own CDI `OutboxMessageStore` bean. As with every jfoundry
 application remains responsible for managing the `jfoundry_outbox_event` table through its migration
 process.
 
-This capability assembles persistence only. It does not provide Outbox dispatching, scheduling,
-payload serialization, automatic domain-event externalization, Inbox assembly, or a starter.
+This capability assembles persistence only. Add the explicit Outbox runtime assembly described
+below for dispatching, payload serialization, or automatic domain-event externalization.
 
 ## Outbox Dispatching And Maintenance
 
@@ -169,8 +169,38 @@ run. Configure `published-retention-days`, `dead-lettered-retention-days`, and `
 `jfoundry.outbox.cleanup` when different operational limits are required.
 
 Recovery and each terminal-status cleanup run use independent `REQUIRES_NEW` transaction boundaries.
-Payload serialization, automatic event externalization, broker adapters, and starters remain
-explicit capabilities.
+Broker adapters and starters remain explicit capabilities.
+
+## Automatic Domain-Event Externalization
+
+`jfoundry-outbox-quarkus-runtime` also supplies an explicit automatic externalization assembly. It
+adds Quarkus Jackson and produces replaceable defaults for `PayloadSerializer`,
+`ExternalizationRuleResolver`, `AggregateRoutingResolver`, `OutboxTemplate`, and
+`DomainEventOutboxRecorder`. It does not add an Outbox store or a broker client; add a store
+capability such as `jfoundry-outbox-jpa-quarkus-runtime` separately.
+
+Automatic recording is disabled by default. Enable it only when the domain event itself is a stable
+integration contract:
+
+```properties
+jfoundry.domain.event.dispatch.outbox.enabled=true
+```
+
+Mark each intended integration event with `@Externalized("<topic>")`. Add `@AggregateRouting` when
+the aggregate type, id, or version should be retained with the Outbox row; the resolved aggregate id
+also becomes the default message key when no routing key is specified. Events without
+`@Externalized` are not recorded. Applications can replace the default serializer or recorder with
+their own CDI bean.
+
+The enclosing transaction must cover the complete application-service invocation, including domain
+event dispatch. For example, apply Jakarta `@Transactional` to the `@ApplicationService` method, or
+invoke that method from an outer `TransactionRunner` callback. Starting and completing a
+`TransactionRunner` callback only around the aggregate mutation inside the application service is
+too narrow: the domain-event boundary records the Outbox entry after that callback has returned.
+
+The extension registers `@Externalized` event classes for Jackson reflection during augmentation, so
+the default serializer works in Native Image. It does not prescribe a broker transport; use an
+explicit `MessageSender` adapter and enable the dispatcher separately when delivery is required.
 
 ## JPA Inbox Storage
 
@@ -217,7 +247,7 @@ Run the same verification on a machine with GraalVM Native Image:
 ## Current Scope
 
 This Quarkus integration covers CDI discovery, application transactions, application-service domain-event
-dispatch, JPA aggregate persistence context assembly, optional JPA Outbox and Inbox storage, and optional
-Outbox dispatch, recovery, and cleanup.
-It does not yet provide Quarkus assembly for MyBatis-Plus, messaging, web adapters, automatic event
-externalization, or starters. Those capabilities remain explicit follow-up work.
+dispatch, JPA aggregate persistence context assembly, optional JPA Outbox and Inbox storage, automatic
+externalization for explicitly marked events, and optional Outbox dispatch, recovery, and cleanup.
+It does not yet provide Quarkus assembly for MyBatis-Plus, broker messaging adapters, web adapters,
+or starters. Those capabilities remain explicit follow-up work.

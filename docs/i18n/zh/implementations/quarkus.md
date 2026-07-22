@@ -118,7 +118,7 @@ transactionRunner.run(() -> {
 `OutboxMessageStore` Bean 即可覆盖它。和所有 jfoundry SQL 模板一样，应用仍负责通过自己的迁移流程维护
 `jfoundry_outbox_event` 表。
 
-该能力只装配持久化，不提供 Outbox 派发、调度、payload 序列化、自动领域事件外部化、Inbox 装配或 starter。
+该能力只装配持久化。需要派发、payload 序列化或自动领域事件外部化时，请额外加入下文所述的显式 Outbox runtime 装配。
 
 ## Outbox 派发与维护
 
@@ -148,8 +148,31 @@ dispatcher 不会引入 broker client 或 logging sender。可按需配置 `jfou
 默认保留 `PUBLISHED` 记录七天、`DEAD_LETTERED` 记录 30 天，并且每次每种状态最多删除 1000 条。需要不同的运维限制时，
 可在 `jfoundry.outbox.cleanup` 下配置 `published-retention-days`、`dead-lettered-retention-days` 和 `batch-size`。
 
-恢复和每种终态记录清理都使用独立的 `REQUIRES_NEW` 事务边界。payload 序列化、自动事件外部化、broker adapter 和 starter
-仍是显式能力。
+恢复和每种终态记录清理都使用独立的 `REQUIRES_NEW` 事务边界。broker adapter 和 starter 仍是显式能力。
+
+## 自动领域事件外部化
+
+`jfoundry-outbox-quarkus-runtime` 还提供显式的自动外部化装配。它引入 Quarkus Jackson，并提供可替换的
+`PayloadSerializer`、`ExternalizationRuleResolver`、`AggregateRoutingResolver`、`OutboxTemplate` 与
+`DomainEventOutboxRecorder` 默认 CDI Bean。它不会添加 Outbox store 或 broker client；应单独加入例如
+`jfoundry-outbox-jpa-quarkus-runtime` 的 store 能力。
+
+自动记录默认关闭。只有领域事件本身就是稳定的集成契约时才启用：
+
+```properties
+jfoundry.domain.event.dispatch.outbox.enabled=true
+```
+
+对每个预期作为集成事件的类型添加 `@Externalized("<topic>")`。需要把聚合类型、id 或版本写入 Outbox 行时，添加
+`@AggregateRouting`；在未指定路由 key 时，解析出的聚合 id 也会成为默认消息 key。没有 `@Externalized` 的事件不会被记录。
+应用可以声明自己的 CDI Bean 覆盖默认 serializer 或 recorder。
+
+事务边界必须包住完整的应用服务调用，包括领域事件分发。例如，可在 `@ApplicationService` 方法上使用 Jakarta
+`@Transactional`，或在外层 `TransactionRunner` 回调中调用该方法。仅在应用服务内部将聚合修改包进一个
+`TransactionRunner` 回调是不够的：领域事件边界会在该回调返回后才写入 Outbox。
+
+扩展会在 augmentation 阶段为 `@Externalized` 事件类型注册 Jackson 反射元数据，因此默认 serializer 可以用于
+Native Image。它不指定 broker transport；需要投递时，请另行选择 `MessageSender` adapter 并启用 dispatcher。
 
 ## JPA Inbox 存储
 
@@ -190,6 +213,6 @@ dispatcher 不会引入 broker client 或 logging sender。可按需配置 `jfou
 
 ## 当前范围
 
-当前 Quarkus 集成覆盖 CDI 发现、应用事务、应用服务领域事件分发、JPA 聚合持久化上下文装配、可选的 JPA Outbox 和 Inbox 存储，
-以及可选的 Outbox 派发、恢复和清理。它尚未提供 MyBatis-Plus、消息、Web adapter、自动事件外部化或 starter 的 Quarkus 装配；
-这些能力仍是后续的显式工作项。
+当前 Quarkus 集成覆盖 CDI 发现、应用事务、应用服务领域事件分发、JPA 聚合持久化上下文装配、可选的 JPA Outbox 和 Inbox 存储、
+被明确标记事件的自动外部化，以及可选的 Outbox 派发、恢复和清理。它尚未提供 MyBatis-Plus、broker 消息 adapter、Web adapter
+或 starter 的 Quarkus 装配；这些能力仍是后续的显式工作项。

@@ -100,7 +100,11 @@ public class DomainEventDispatchResource {
 
         @Override
         public void dispatch(List<? extends DomainEvent> events) {
-            events.forEach(event -> aggregateIds.add(((RecordedDomainEvent) event).aggregateId()));
+            events.stream()
+                    .filter(RecordedDomainEvent.class::isInstance)
+                    .map(RecordedDomainEvent.class::cast)
+                    .map(RecordedDomainEvent::aggregateId)
+                    .forEach(aggregateIds::add);
         }
 
         List<String> dispatchedAggregateIds() {

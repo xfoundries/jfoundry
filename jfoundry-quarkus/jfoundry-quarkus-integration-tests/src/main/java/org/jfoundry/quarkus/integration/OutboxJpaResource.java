@@ -65,7 +65,7 @@ public class OutboxJpaResource {
                 "order.created.v1",
                 "{}",
                 Instant.now())));
-        outboxDispatcher.dispatch(1);
+        outboxDispatcher.dispatch(10);
         return transactionRunner.call(() -> String.valueOf(entityManager.createNativeQuery("""
                 select status from jfoundry_outbox_event where event_id = ?1
                 """)
