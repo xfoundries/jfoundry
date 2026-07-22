@@ -101,6 +101,8 @@ Hexagonal Port/Adapter 约定分离。
 
 - Java 21 业务应用；Java 25 由 jfoundry CI 兼容矩阵覆盖。
 - Spring Boot 3.5.x 和 Spring Framework 6.2.x。
+- Quarkus 3.37.3 的 CDI 发现与 Jakarta Transactions `TransactionRunner` 集成，已具备 JVM 消费者
+  smoke test 和 Native Image CI gate。
 - MyBatis-Plus 业务持久化与 PostgreSQL。
 - JPA 与 MyBatis-Plus Outbox/Inbox store 与 PostgreSQL、MySQL。
 - Kafka 集成、Redis/Redisson 分布式锁、事务性 Outbox 和消费端 Inbox。
@@ -119,7 +121,8 @@ Hexagonal Port/Adapter 约定分离。
   包级 Ring 和 ArchUnit 依赖规则完成验证。
 - 在已有生产项目中切换架构风格的迁移成本或组织效果。本 Demo 验证的是两个分别维护的变体，
   不是生产迁移。
-- Quarkus、Micronaut、Helidon 等非 Spring Runtime。
+- 除 Quarkus CDI 与应用事务外的非 Spring Runtime 能力装配，包括 Quarkus 持久化、消息、调度与 Web
+  集成；Micronaut 与 Helidon 尚无运行时集成。
 - 其他 ORM、数据库或消息中间件组合。
 - 应用安全、可观测性、部署、容量、性能、灾难恢复和长期生产运行。
 - 下游项目从一个 jfoundry 稳定版本升级到另一个稳定版本的兼容性。

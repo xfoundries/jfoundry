@@ -4,7 +4,6 @@
 
 ```java
 transactionRunner.run(TransactionOptions.builder()
-        .name("confirm-order")
         .timeout(Duration.ofSeconds(10))
         .build(), () -> {
     orderRepository.save(order);
@@ -16,4 +15,4 @@ transactionRunner.run(TransactionOptions.builder()
 
 如果同一方法还需要分布式锁，advisor 执行顺序见 [分布式锁](distributed-locks.md)。
 
-运行时装配、用户覆盖和注解配置见 [Spring Boot 运行时装配](../implementations/spring-boot.md)。精确的 starter、配置项和自动配置条件见 [Spring Boot 自动配置参考](../reference/spring-boot-autoconfiguration.md)。
+Spring 运行时装配、用户覆盖和注解配置见 [Spring Boot 运行时装配](../implementations/spring-boot.md)。精确的 starter、配置项和自动配置条件见 [Spring Boot 自动配置参考](../reference/spring-boot-autoconfiguration.md)。Quarkus CDI 与 Jakarta Transactions 行为，以及不能移植到 JTA 的选项，见 [Quarkus 运行时集成](../implementations/quarkus.md)。

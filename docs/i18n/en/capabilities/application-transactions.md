@@ -6,7 +6,6 @@ it when application orchestration needs an explicit transaction block without de
 
 ```java
 transactionRunner.run(TransactionOptions.builder()
-        .name("confirm-order")
         .timeout(Duration.ofSeconds(10))
         .build(), () -> {
     orderRepository.save(order);
@@ -21,7 +20,9 @@ the use-case or application service boundary.
 When a method also needs a distributed lock, see [Distributed Locks](distributed-locks.md) for the
 advisor ordering.
 
-For runtime assembly, user overrides, and annotation configuration, see
+For Spring runtime assembly, user overrides, and annotation configuration, see
 [Spring Boot Runtime Assembly](../implementations/spring-boot.md). The exact starter, property, and
 auto-configuration conditions are in the
 [Spring Boot Auto-configuration reference](../reference/spring-boot-autoconfiguration.md).
+For Quarkus CDI and Jakarta Transactions behavior, including options that are not portable to JTA,
+see [Quarkus Runtime Integration](../implementations/quarkus.md).

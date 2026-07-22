@@ -124,6 +124,8 @@ The strongest evidence currently applies to:
 
 - Java 21 business applications, with Java 25 covered by the jfoundry CI compatibility matrix.
 - Spring Boot 3.5.x and Spring Framework 6.2.x.
+- Quarkus 3.37.3 CDI discovery and Jakarta Transactions `TransactionRunner` integration, with a
+  JVM consumer smoke test and a Native Image CI gate.
 - MyBatis-Plus business persistence with PostgreSQL.
 - JPA and MyBatis-Plus Outbox/Inbox stores with PostgreSQL and MySQL.
 - Kafka integration, Redis/Redisson distributed locking, transactional Outbox, and consumer Inbox.
@@ -143,7 +145,9 @@ The following areas are not established by the current evidence:
   rules.
 - The migration cost or organizational outcome of changing architecture style in an established
   production codebase. The demo validates two maintained variants, not a production migration.
-- Non-Spring runtimes such as Quarkus, Micronaut, or Helidon.
+- Non-Spring runtime capability assembly beyond Quarkus CDI and application transactions, including
+  Quarkus persistence, messaging, scheduling, and web integration; Micronaut and Helidon have no
+  runtime integration yet.
 - Other ORM, database, or broker combinations.
 - Application security, observability, deployment, capacity, performance, disaster recovery, and
   long-running production operations.

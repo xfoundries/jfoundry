@@ -20,6 +20,7 @@ implementation pages explain technology-specific choices; reference pages provid
 - [JPA](implementations/jpa.md)
 - [MyBatis-Plus](implementations/mybatis-plus.md)
 - [Spring Boot Runtime Assembly](implementations/spring-boot.md)
+- [Quarkus Runtime Integration](implementations/quarkus.md)
 
 ## Reference
 

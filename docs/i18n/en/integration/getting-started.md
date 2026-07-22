@@ -7,9 +7,10 @@ plain runtime framework and ORM.
 
 ## Choose A BOM And Module Boundary
 
-Import `jfoundry-dependencies` for a runtime-neutral application, or
-`jfoundry-spring-dependencies` when Spring Boot assembles the application. Select the version from
-the intended release line; this project currently uses the following development version:
+Import `jfoundry-dependencies` for a runtime-neutral application,
+`jfoundry-spring-dependencies` when Spring Boot assembles the application, or
+`jfoundry-quarkus-dependencies` for the available Quarkus transaction integration. Select the
+version from the intended release line; this project currently uses the following development version:
 
 ```xml
 <dependencyManagement>
@@ -33,6 +34,7 @@ Keep dependencies in the layer that owns them:
 | Application | `jfoundry-application-starter` |
 | Infrastructure | The selected technology's infrastructure starter, such as `jfoundry-infrastructure-mybatis-plus-starter` |
 | Spring Boot assembly | `jfoundry-spring-boot-starter` plus only the required runtime capability starters |
+| Quarkus transaction integration | `jfoundry-quarkus-runtime` |
 
 Choose Hexagonal or Onion from domain and project constraints; jfoundry does not select an
 architecture style for a business project. Add ArchUnit tests before implementation grows around
@@ -73,6 +75,10 @@ for the exact implementation boundaries.
 
 The [Spring Boot Auto-configuration reference](../reference/spring-boot-autoconfiguration.md) is
 the canonical catalog for individual starters, properties, and registration conditions.
+
+For Quarkus dependency setup, propagation support, and Native Image verification, see
+[Quarkus Runtime Integration](../implementations/quarkus.md). Quarkus assembly beyond application
+transactions is not available yet.
 
 ## Reading Path
 

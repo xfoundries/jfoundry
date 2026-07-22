@@ -6,7 +6,7 @@ English | [中文](README_ZH.md)
 
 `jfoundry` is a practical DDD framework for Java, built on jMolecules and designed for Hexagonal Architecture and Onion Architecture.
 
-It helps business projects make domain modeling, architecture boundaries, and reliable integration executable in code. The core defines DDD concepts, architecture semantics, application contracts, domain events, persistence SPI, and messaging SPI without depending on a runtime framework. Spring is the first runtime integration; future runtimes can assemble the same core through peer integration modules.
+It helps business projects make domain modeling, architecture boundaries, and reliable integration executable in code. The core defines DDD concepts, architecture semantics, application contracts, domain events, persistence SPI, and messaging SPI without depending on a runtime framework. Spring and Quarkus assemble the same core through peer runtime integration modules.
 
 ## Why jfoundry
 
@@ -28,7 +28,7 @@ runtime integration
             -> domain
 ```
 
-Dependencies point inward. This keeps a Spring Boot integration outside the core rather than making it a requirement for every application.
+Dependencies point inward. This keeps runtime integrations outside the core rather than making a particular framework a requirement for every application.
 
 ![jfoundry module architecture](docs/i18n/assets/jfoundry-module-architecture.svg)
 
@@ -41,7 +41,7 @@ Dependencies point inward. This keeps a Spring Boot integration outside the core
 | Application | Application services, transaction boundaries, CQRS, and domain-event orchestration |
 | Persistence | Aggregate persistence contracts with JPA and MyBatis-Plus implementations |
 | Reliable messaging | Transactional Outbox, Inbox idempotency, messaging, and serialization SPI |
-| Runtime integration | Spring Framework and Spring Boot assembly, including optional Web MVC support |
+| Runtime integration | Spring Framework and Spring Boot assembly; Quarkus CDI and Jakarta Transactions integration |
 
 ## Choose Your Path
 
@@ -49,11 +49,12 @@ Dependencies point inward. This keeps a Spring Boot integration outside the core
 - **Aggregate persistence**: read [Aggregate Persistence](docs/i18n/en/capabilities/aggregate-persistence.md), then choose the peer implementation that fits the project: [JPA](docs/i18n/en/implementations/jpa.md) or [MyBatis-Plus](docs/i18n/en/implementations/mybatis-plus.md).
 - **Reliable messaging**: read [Reliable Messaging](docs/i18n/en/capabilities/reliable-messaging.md), then choose its JPA or MyBatis-Plus store from the corresponding [JPA](docs/i18n/en/implementations/jpa.md) or [MyBatis-Plus](docs/i18n/en/implementations/mybatis-plus.md) guide.
 - **Spring Boot**: use [Spring Boot Runtime Assembly](docs/i18n/en/implementations/spring-boot.md) to assemble the selected capabilities.
+- **Quarkus**: use [Quarkus Runtime Integration](docs/i18n/en/implementations/quarkus.md) for CDI `TransactionRunner` integration and Native Image verification.
 - **Starters, properties, and conditions**: use [Spring Boot Auto-configuration](docs/i18n/en/reference/spring-boot-autoconfiguration.md) as the reference.
 
 ## Minimal Setup
 
-Import the runtime-neutral BOM, then add only the starters and capability implementations required by the application. Spring Boot applications can instead use the Spring BOM described in the [runtime assembly guide](docs/i18n/en/implementations/spring-boot.md).
+Import the runtime-neutral BOM, then add only the starters and capability implementations required by the application. Spring Boot and Quarkus applications can instead use their corresponding runtime BOMs described in the runtime assembly guides.
 
 ```xml
 <dependencyManagement>
@@ -127,6 +128,7 @@ public final class Order extends BaseAggregateRoot<Order, OrderId> {
 - [JPA](docs/i18n/en/implementations/jpa.md)
 - [MyBatis-Plus](docs/i18n/en/implementations/mybatis-plus.md)
 - [Spring Boot Runtime Assembly](docs/i18n/en/implementations/spring-boot.md)
+- [Quarkus Runtime Integration](docs/i18n/en/implementations/quarkus.md)
 
 ### Reference
 

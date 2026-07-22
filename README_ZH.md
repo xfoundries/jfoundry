@@ -6,7 +6,7 @@
 
 `jfoundry` 是一个面向 Java 的可落地 DDD 开发框架，基于 jMolecules 构建，适用于 Hexagonal Architecture（六边形架构）和 Onion Architecture（洋葱架构）。
 
-它让业务项目能将领域建模、架构边界和可靠集成落实为代码。核心定义 DDD 概念、架构语义、应用层契约、领域事件、持久化 SPI 和消息 SPI，不依赖特定运行时框架。Spring 是当前第一套运行时集成；未来的运行时可以通过平级集成模块装配同一套核心能力。
+它让业务项目能将领域建模、架构边界和可靠集成落实为代码。核心定义 DDD 概念、架构语义、应用层契约、领域事件、持久化 SPI 和消息 SPI，不依赖特定运行时框架。Spring 与 Quarkus 通过平级运行时集成模块装配同一套核心能力。
 
 ## 为什么是 jfoundry
 
@@ -28,7 +28,7 @@
             -> 领域
 ```
 
-依赖方向始终指向内层。因此 Spring Boot 集成位于核心之外，而不是每个应用的必需依赖。
+依赖方向始终指向内层。因此运行时集成位于核心之外，而不是每个应用的必需依赖。
 
 ![jfoundry 模块架构](docs/i18n/assets/jfoundry-module-architecture.svg)
 
@@ -41,7 +41,7 @@
 | 应用层 | 应用服务、事务边界、CQRS 和领域事件编排 |
 | 持久化 | 聚合持久化契约，以及 JPA 和 MyBatis-Plus 实现 |
 | 可靠消息 | Transactional Outbox、Inbox 幂等、消息和序列化 SPI |
-| 运行时集成 | Spring Framework 与 Spring Boot 装配，包括可选 Web MVC 支持 |
+| 运行时集成 | Spring Framework 与 Spring Boot 装配；Quarkus CDI 与 Jakarta Transactions 集成 |
 
 ## 选择路径
 
@@ -49,11 +49,12 @@
 - **聚合持久化**：先阅读[聚合持久化](docs/i18n/zh/capabilities/aggregate-persistence.md)，再选择适合项目的平级实现：[JPA](docs/i18n/zh/implementations/jpa.md)或 [MyBatis-Plus](docs/i18n/zh/implementations/mybatis-plus.md)。
 - **可靠消息**：先阅读[可靠消息](docs/i18n/zh/capabilities/reliable-messaging.md)，再从对应的 [JPA](docs/i18n/zh/implementations/jpa.md) 或 [MyBatis-Plus](docs/i18n/zh/implementations/mybatis-plus.md) 指南中选择其存储实现。
 - **Spring Boot**：通过 [Spring Boot 运行时装配](docs/i18n/zh/implementations/spring-boot.md) 组装已选择的能力。
+- **Quarkus**：通过 [Quarkus 运行时集成](docs/i18n/zh/implementations/quarkus.md) 接入 CDI `TransactionRunner` 并验证 Native Image。
 - **starter、属性与条件**：查阅 [Spring Boot 自动配置](docs/i18n/zh/reference/spring-boot-autoconfiguration.md)。
 
 ## 最小接入
 
-引入运行时无关 BOM，再只添加应用需要的 starter 与能力实现。Spring Boot 应用可改用[运行时装配指南](docs/i18n/zh/implementations/spring-boot.md)所述的 Spring BOM。
+引入运行时无关 BOM，再只添加应用需要的 starter 与能力实现。Spring Boot 与 Quarkus 应用可分别改用运行时装配指南所述的 BOM。
 
 ```xml
 <dependencyManagement>
@@ -127,6 +128,7 @@ public final class Order extends BaseAggregateRoot<Order, OrderId> {
 - [JPA](docs/i18n/zh/implementations/jpa.md)
 - [MyBatis-Plus](docs/i18n/zh/implementations/mybatis-plus.md)
 - [Spring Boot 运行时装配](docs/i18n/zh/implementations/spring-boot.md)
+- [Quarkus 运行时集成](docs/i18n/zh/implementations/quarkus.md)
 
 ### 参考
 
