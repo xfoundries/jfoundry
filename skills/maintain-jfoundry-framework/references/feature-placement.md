@@ -7,30 +7,33 @@ Use this file before adding modules, classes, annotations, rules, adapters, star
 | Change | Location |
 |---|---|
 | Domain building block, entity/value object/event abstraction | `jfoundry-domain` |
-| Architecture facade annotation | `jfoundry-architecture/jfoundry-hexagonal` or `jfoundry-architecture/jfoundry-onion` |
-| CQRS annotation or dispatcher contract | `jfoundry-architecture/jfoundry-cqrs` |
-| Reusable ArchUnit rule or test helper | `jfoundry-architecture/jfoundry-architecture-test` |
-| Application service marker or application-layer contract | `jfoundry-application/jfoundry-application-core` |
-| Application transaction abstraction or `TransactionRunner` contract | `jfoundry-application/jfoundry-transaction-core` |
-| Domain event dispatch contract | `jfoundry-application/jfoundry-event-core` |
-| Event externalization metadata or routing rules | `jfoundry-application/jfoundry-event-externalization-core` |
-| Message sending or payload serialization SPI | `jfoundry-application/jfoundry-messaging-core` |
-| Outbox state, store contract, dispatcher service, retry/backoff core | `jfoundry-application/jfoundry-outbox-core` |
-| Inbox state, store contract, `InboxTemplate` | `jfoundry-application/jfoundry-inbox-core` |
-| Runtime-neutral HTTP problem semantics and exception-to-response policy | `jfoundry-infrastructure/jfoundry-web-problem-details` |
-| MyBatis-Plus business persistence adapter | `jfoundry-infrastructure/jfoundry-persistence-mybatis-plus` |
-| Jakarta Persistence business persistence adapter | `jfoundry-infrastructure/jfoundry-persistence-jpa` |
-| MyBatis-Plus Outbox/Inbox store adapter | `jfoundry-infrastructure/jfoundry-outbox-mybatis-plus` or `jfoundry-infrastructure/jfoundry-inbox-mybatis-plus` |
-| Broker `MessageSender` adapter | Matching runtime integration module, such as `jfoundry-spring/jfoundry-spring-runtime/jfoundry-messaging-spring` or `jfoundry-quarkus/jfoundry-messaging-<broker>-quarkus-runtime` |
-| Payload serializer adapter | `jfoundry-infrastructure/jfoundry-messaging-jackson` |
-| Pure JobRunr dispatcher adapter | `jfoundry-infrastructure/jfoundry-outbox-jobrunr` |
-| Spring Framework local event adapter | `jfoundry-spring/jfoundry-spring-runtime/jfoundry-event-spring` |
-| Spring transaction adapter | `jfoundry-spring/jfoundry-spring-runtime/jfoundry-transaction-spring` |
-| Spring messaging transport adapter | `jfoundry-spring/jfoundry-spring-runtime/jfoundry-messaging-spring` |
-| Spring Outbox transaction/scheduling adapter | `jfoundry-spring/jfoundry-spring-runtime/jfoundry-outbox-spring` |
-| Spring Web MVC ProblemDetail adapter | `jfoundry-spring/jfoundry-spring-runtime/jfoundry-webmvc-spring` |
-| Spring Boot conditions/properties/wiring | `jfoundry-spring/jfoundry-spring-boot-autoconfigure` |
-| User dependency entry point | `jfoundry-starters` or `jfoundry-spring/jfoundry-spring-boot-starters` |
+| Architecture facade annotation | `jfoundry-core/jfoundry-architecture/jfoundry-hexagonal` or `jfoundry-core/jfoundry-architecture/jfoundry-onion` |
+| CQRS annotation or dispatcher contract | `jfoundry-core/jfoundry-architecture/jfoundry-cqrs` |
+| Reusable ArchUnit rule or test helper | `jfoundry-core/jfoundry-architecture/jfoundry-architecture-test` |
+| Application service marker or application-layer contract | `jfoundry-core/jfoundry-application/jfoundry-application-core` |
+| Application transaction abstraction or `TransactionRunner` contract | `jfoundry-core/jfoundry-application/jfoundry-transaction-core` |
+| Domain event dispatch contract | `jfoundry-core/jfoundry-application/jfoundry-event-core` |
+| Event externalization metadata or routing rules | `jfoundry-core/jfoundry-application/jfoundry-event-externalization-core` |
+| Message sending or payload serialization SPI | `jfoundry-core/jfoundry-application/jfoundry-messaging-core` |
+| Outbox state, store contract, dispatcher service, retry/backoff core | `jfoundry-core/jfoundry-application/jfoundry-outbox-core` |
+| Inbox state, store contract, `InboxTemplate` | `jfoundry-core/jfoundry-application/jfoundry-inbox-core` |
+| Runtime-neutral HTTP problem semantics and exception-to-response policy | `jfoundry-core/jfoundry-infrastructure/jfoundry-web-problem-details` |
+| MyBatis-Plus business persistence adapter | `jfoundry-core/jfoundry-infrastructure/jfoundry-persistence-mybatis-plus` |
+| Jakarta Persistence business persistence adapter | `jfoundry-core/jfoundry-infrastructure/jfoundry-persistence-jpa` |
+| MyBatis-Plus Outbox/Inbox store adapter | `jfoundry-core/jfoundry-infrastructure/jfoundry-outbox-mybatis-plus` or `jfoundry-core/jfoundry-infrastructure/jfoundry-inbox-mybatis-plus` |
+| Broker `MessageSender` adapter | Matching runtime integration module, such as `jfoundry-runtime-integrations/jfoundry-spring/runtime/jfoundry-messaging-spring` or `jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-messaging-<broker>-quarkus-runtime` |
+| Payload serializer adapter | `jfoundry-core/jfoundry-infrastructure/jfoundry-messaging-jackson` |
+| Pure JobRunr dispatcher adapter | `jfoundry-core/jfoundry-infrastructure/jfoundry-outbox-jobrunr` |
+| Spring Framework local event adapter | `jfoundry-runtime-integrations/jfoundry-spring/runtime/jfoundry-event-spring` |
+| Spring transaction adapter | `jfoundry-runtime-integrations/jfoundry-spring/runtime/jfoundry-transaction-spring` |
+| Spring messaging transport adapter | `jfoundry-runtime-integrations/jfoundry-spring/runtime/jfoundry-messaging-spring` |
+| Spring Outbox transaction/scheduling adapter | `jfoundry-runtime-integrations/jfoundry-spring/runtime/jfoundry-outbox-spring` |
+| Spring Web MVC ProblemDetail adapter | `jfoundry-runtime-integrations/jfoundry-spring/runtime/jfoundry-webmvc-spring` |
+| Spring Boot conditions/properties/wiring | `jfoundry-runtime-integrations/jfoundry-spring/jfoundry-spring-boot-autoconfigure` |
+| Quarkus runtime extension behavior | `jfoundry-runtime-integrations/jfoundry-quarkus/runtime` |
+| Quarkus build-time processor or Native Image registration | `jfoundry-runtime-integrations/jfoundry-quarkus/deployment` |
+| Quarkus consumer integration verification | `jfoundry-runtime-integrations/jfoundry-quarkus/integration-tests` |
+| User dependency entry point | `jfoundry-core/jfoundry-starters` or `jfoundry-runtime-integrations/jfoundry-spring/boot-starters` |
 | Middleware integration verification | `jfoundry-verification/jfoundry-middleware-integration-tests` |
 
 ## Decision Rules
@@ -42,8 +45,9 @@ Use this file before adding modules, classes, annotations, rules, adapters, star
 - Keep persistence-context state and awareness contracts in `jfoundry-persistence-core`; place
   transaction-scoped implementations in runtime adapters and bean-lifecycle injection in Spring
   Boot auto-configuration. Business repository constructors should not expose runtime context.
-- If the code uses Spring transaction synchronization, `ApplicationEventPublisher`, scheduling, MVC APIs, or bean lifecycle, put it under `jfoundry-spring/jfoundry-spring-runtime`.
-- If the code registers Spring Boot beans conditionally or binds `@ConfigurationProperties`, put it in `jfoundry-spring/jfoundry-spring-boot-autoconfigure`.
+- If the code uses Spring transaction synchronization, `ApplicationEventPublisher`, scheduling, MVC APIs, or bean lifecycle, put it under `jfoundry-runtime-integrations/jfoundry-spring/runtime`.
+- If the code registers Spring Boot beans conditionally or binds `@ConfigurationProperties`, put it in `jfoundry-runtime-integrations/jfoundry-spring/jfoundry-spring-boot-autoconfigure`.
+- If the code uses Quarkus build steps, augmentation APIs, or Native Image build items, put it under `jfoundry-runtime-integrations/jfoundry-quarkus/deployment`; otherwise put Quarkus CDI runtime behavior under `jfoundry-runtime-integrations/jfoundry-quarkus/runtime`.
 - If an auto-configuration condition depends on a bean created by another auto-configuration, declare the ordering explicitly and test the real upstream auto-configuration chain instead of only pre-registering the bean in a context runner.
 - If the code only selects dependencies for users, put it in a starter POM.
 - If the code talks to a concrete database, ORM, serializer, or scheduler but does not require Spring Boot wiring, put it in `jfoundry-infrastructure`.

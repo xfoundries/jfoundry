@@ -25,16 +25,16 @@ mvn test
 | Change | Verification |
 |---|---|
 | Domain model API | `mvn -pl jfoundry-domain test` |
-| Architecture annotations | `mvn -pl jfoundry-architecture/jfoundry-hexagonal test` or relevant module |
-| ArchUnit rules | `mvn -pl jfoundry-architecture/jfoundry-architecture-test test` |
-| Application SPI/core | `mvn -pl jfoundry-application/<module> test` |
-| Transaction core | `mvn -pl jfoundry-application/jfoundry-transaction-core test` |
-| Outbox core | `mvn -pl jfoundry-application/jfoundry-outbox-core test` |
-| Inbox core | `mvn -pl jfoundry-application/jfoundry-inbox-core test` |
-| MyBatis-Plus adapter | `mvn -pl jfoundry-infrastructure/<module> -am test` |
+| Architecture annotations | `mvn -pl jfoundry-core/jfoundry-architecture/jfoundry-hexagonal test` or relevant module |
+| ArchUnit rules | `mvn -pl jfoundry-core/jfoundry-architecture/jfoundry-architecture-test test` |
+| Application SPI/core | `mvn -pl jfoundry-core/jfoundry-application/<module> test` |
+| Transaction core | `mvn -pl jfoundry-core/jfoundry-application/jfoundry-transaction-core test` |
+| Outbox core | `mvn -pl jfoundry-core/jfoundry-application/jfoundry-outbox-core test` |
+| Inbox core | `mvn -pl jfoundry-core/jfoundry-application/jfoundry-inbox-core test` |
+| MyBatis-Plus adapter | `mvn -pl jfoundry-core/jfoundry-infrastructure/<module> -am test` |
 | Broker sender runtime adapter | `mvn -pl <runtime messaging module> -am test` |
-| Spring runtime adapter | `mvn -pl jfoundry-spring/jfoundry-spring-runtime/<module> -am test` |
-| Boot auto-configuration | `mvn -pl jfoundry-spring/jfoundry-spring-boot-autoconfigure -am test` |
+| Spring runtime adapter | `mvn -pl jfoundry-runtime-integrations/jfoundry-spring/runtime/<module> -am test` |
+| Boot auto-configuration | `mvn -pl jfoundry-runtime-integrations/jfoundry-spring/jfoundry-spring-boot-autoconfigure -am test` |
 | Starter POM | `mvn -pl <starter-module> -am test` or `mvn validate` for dependency shape |
 | Middleware integration | `mvn -pl jfoundry-verification/jfoundry-middleware-integration-tests -am -Pit verify` |
 

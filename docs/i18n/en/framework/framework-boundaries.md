@@ -9,6 +9,12 @@ jfoundry core modules must not depend on application runtimes such as Spring, Sp
 Quarkus, Micronaut, CDI, or Jakarta EE runtime integration APIs. Stable low-intrusion libraries
 such as jMolecules and `slf4j-api` may appear in core modules when they express contracts.
 
+`jfoundry-core` is a directory group for runtime-neutral framework modules. It contains the domain,
+architecture, application, infrastructure, and runtime-neutral starter aggregates; it does not change
+the Onion dependency direction within those modules. `jfoundry-runtime-integrations` groups concrete
+runtime integrations: Spring uses `runtime/` and `boot-starters/`, while Quarkus uses `runtime/`,
+`deployment/`, and `integration-tests/`.
+
 ## Module Roles
 
 | Area | Modules |
@@ -16,19 +22,20 @@ such as jMolecules and `slf4j-api` may appear in core modules when they express 
 | Domain and architecture | `jfoundry-domain`, `jfoundry-architecture`, `jfoundry-hexagonal`, `jfoundry-onion`, `jfoundry-cqrs` |
 | Application contracts | `jfoundry-application-core`, `jfoundry-transaction-core`, `jfoundry-event-core`, `jfoundry-event-externalization-core`, `jfoundry-messaging-core`, `jfoundry-outbox-core`, `jfoundry-inbox-core` |
 | Framework-neutral adapters | `jfoundry-persistence-core`, `jfoundry-persistence-mybatis-plus`, `jfoundry-persistence-jpa`, `jfoundry-messaging-jackson`, Outbox/Inbox MyBatis-Plus and JPA stores, JobRunr dispatch adapter |
-| Spring runtime integration | `jfoundry-spring-runtime/*` |
-| Spring Boot integration | `jfoundry-spring-boot-autoconfigure`, `jfoundry-spring-boot-starters/*` |
+| Spring runtime integration | `jfoundry-runtime-integrations/jfoundry-spring/runtime/*` |
+| Spring Boot integration | `jfoundry-runtime-integrations/jfoundry-spring/jfoundry-spring-boot-autoconfigure`, `jfoundry-runtime-integrations/jfoundry-spring/boot-starters/*` |
+| Quarkus runtime integration | `jfoundry-runtime-integrations/jfoundry-quarkus/runtime/*`, `deployment/*` |
 | Verification | `jfoundry-verification/*` |
 
 ## Placement Rules
 
 - Spring Framework lifecycle, transaction synchronization, scheduling, event publishing, MVC APIs,
-  and Spring-side client wrappers belong under `../../../../jfoundry-spring/jfoundry-spring-runtime`.
+  and Spring-side client wrappers belong under `../../../../jfoundry-runtime-integrations/jfoundry-spring/runtime`.
 - Spring Boot conditions, `@ConfigurationProperties`, bean wiring, metadata, and
-  `AutoConfiguration.imports` belong under `../../../../jfoundry-spring/jfoundry-spring-boot-autoconfigure`.
+  `AutoConfiguration.imports` belong under `../../../../jfoundry-runtime-integrations/jfoundry-spring/jfoundry-spring-boot-autoconfigure`.
 - Starters are dependency entry points only; they must not contain runtime behavior.
 - Framework-neutral database, serializer, and scheduler adapters belong under
-  `jfoundry-infrastructure`.
+  `jfoundry-core/jfoundry-infrastructure`.
 - Broker client `MessageSender` adapters belong to their runtime integration. The application-layer
   `MessageSender` and `SendResult` contracts remain runtime-neutral.
 - Middleware integration tests and Testcontainers compatibility checks belong under

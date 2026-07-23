@@ -1,0 +1,59 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.github.xfoundries</groupId>
+        <artifactId>jfoundry-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>jfoundry-spring</artifactId>
+    <name>jfoundry-spring</name>
+    <description>
+        Spring runtime integration for jfoundry framework-neutral contracts. Spring Framework
+        adapters and Spring Boot starters are grouped by directory, while Spring Boot
+        auto-configuration remains a direct child module.
+    </description>
+    <packaging>pom</packaging>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.xfoundries</groupId>
+                <artifactId>jfoundry-spring-dependencies</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <modules>
+        <module>runtime/jfoundry-event-spring</module>
+        <module>runtime/jfoundry-persistence-spring</module>
+        <module>runtime/jfoundry-messaging-spring</module>
+        <module>runtime/jfoundry-outbox-spring</module>
+        <module>runtime/jfoundry-transaction-spring</module>
+        <module>runtime/jfoundry-lock-spring</module>
+        <module>runtime/jfoundry-webmvc-spring</module>
+        <module>jfoundry-spring-boot-autoconfigure</module>
+        <module>boot-starters/jfoundry-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-webmvc-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-event-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-messaging-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-messaging-kafka-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-messaging-rocketmq-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-messaging-rabbitmq-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-lock-redisson-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-outbox-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-outbox-mybatis-plus-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-outbox-jpa-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-outbox-jobrunr-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-inbox-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-inbox-mybatis-plus-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-inbox-jpa-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-mybatis-plus-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-jpa-spring-boot-starter</module>
+    </modules>
+</project>

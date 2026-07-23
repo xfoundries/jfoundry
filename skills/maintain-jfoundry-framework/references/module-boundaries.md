@@ -12,15 +12,18 @@ Stable, low-intrusion libraries such as jMolecules and `slf4j-api` may appear in
 
 - `jfoundry-domain`: domain building blocks, entity/value object/event/repository abstractions.
 - `jfoundry-architecture`: architecture style facade modules and aggregation.
-- `jfoundry-architecture/jfoundry-architecture-test`: reusable ArchUnit and test helpers for framework users.
+- `jfoundry-core/jfoundry-architecture/jfoundry-architecture-test`: reusable ArchUnit and test helpers for framework users.
 - `jfoundry-application`: application-layer contracts, CQRS annotations, event dispatch contracts, messaging SPI, Outbox/Inbox core contracts.
 - `jfoundry-infrastructure`: framework-neutral technical adapters for persistence, messaging, payload serialization, JobRunr dispatching, and similar technologies.
 
 ### Runtime Integration
 
-- `jfoundry-spring/jfoundry-spring-runtime`: Spring Framework adapters such as local event publishing, transaction runner, messaging sender wrappers, outbox transaction/scheduling integration, and Web MVC ProblemDetail support.
-- `jfoundry-spring/jfoundry-spring-boot-autoconfigure`: Spring Boot auto-configuration, conditions, properties, and runtime wiring.
-- `jfoundry-spring/jfoundry-spring-boot-starters`: dependency entry points only.
+- `jfoundry-runtime-integrations/jfoundry-spring/runtime`: Spring Framework adapters such as local event publishing, transaction runner, messaging sender wrappers, outbox transaction/scheduling integration, and Web MVC ProblemDetail support.
+- `jfoundry-runtime-integrations/jfoundry-spring/jfoundry-spring-boot-autoconfigure`: Spring Boot auto-configuration, conditions, properties, and runtime wiring.
+- `jfoundry-runtime-integrations/jfoundry-spring/boot-starters`: dependency entry points only.
+- `jfoundry-runtime-integrations/jfoundry-quarkus/runtime`: Quarkus runtime extension artifacts and CDI behavior.
+- `jfoundry-runtime-integrations/jfoundry-quarkus/deployment`: Quarkus build-time processors and Native Image registration.
+- `jfoundry-runtime-integrations/jfoundry-quarkus/integration-tests`: Quarkus consumer integration verification.
 
 ### Verification
 

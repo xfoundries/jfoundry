@@ -33,11 +33,11 @@ When framework docs, examples, or test fixtures mention DDD modeling concepts, k
 For every module-placement decision, apply Onion Simple as defined in `references/module-boundaries.md`.
 
 - Keep `jfoundry-domain`, `jfoundry-architecture`, and `jfoundry-application` modules independent of Spring, Spring Boot, web frameworks, broker clients, persistence framework details, CDI, and Jakarta runtime APIs.
-- Keep Spring Framework runtime adapters under `jfoundry-spring/jfoundry-spring-runtime`.
-- Keep Spring Boot auto-configuration only under `jfoundry-spring/jfoundry-spring-boot-autoconfigure`.
+- Keep Spring Framework runtime adapters under `jfoundry-runtime-integrations/jfoundry-spring/runtime`.
+- Keep Spring Boot auto-configuration only under `jfoundry-runtime-integrations/jfoundry-spring/jfoundry-spring-boot-autoconfigure`.
 - Keep Spring Boot starters as dependency entry points. Do not put Java runtime logic in starter modules.
-- Keep framework-neutral technical adapters under `jfoundry-infrastructure`.
-- Keep reusable architecture tests under `jfoundry-architecture/jfoundry-architecture-test`.
+- Keep framework-neutral technical adapters under `jfoundry-core/jfoundry-infrastructure`.
+- Keep reusable architecture tests under `jfoundry-core/jfoundry-architecture/jfoundry-architecture-test`.
 - Keep middleware integration verification under `jfoundry-verification`.
 - Do not make default starters heavy. Outbox, Inbox, broker adapters, JobRunr, and MyBatis-Plus store adapters must remain explicit capability choices.
 

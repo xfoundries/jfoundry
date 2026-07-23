@@ -51,7 +51,7 @@ Recorded on 2026-06-27 with local Java `21.0.10-tem` and Maven wrapper `3.9.16`.
 | Release guard | `mvn -Prelease -DskipTests validate` | Expected fail fast on `Release builds require non-SNAPSHOT project versions.` |
 | Maven 4 validate | Maven `4.0.0-rc-5`, `mvn -B -DskipTests validate -e` | PASS, no model warnings |
 | Maven 4 package | Maven `4.0.0-rc-5`, `mvn -B -DskipTests package` | PASS |
-| Quarkus JVM consumer smoke test | Install runtime/deployment artifacts, then `mvn -pl jfoundry-quarkus/jfoundry-quarkus-integration-tests -Pjvm-integration verify` | PASS on Java 21 |
+| Quarkus JVM consumer smoke test | Install runtime/deployment artifacts, then `mvn -pl jfoundry-runtime-integrations/jfoundry-quarkus/integration-tests/jfoundry-quarkus-integration-tests -Pjvm-integration verify` | PASS on Java 21 |
 
 Local Java 25 is not installed in this worktree. Java 25 is covered by the GitHub Actions
 test matrix and must pass there before advertising Java 25 runtime compatibility for 1.x.

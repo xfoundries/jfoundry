@@ -305,11 +305,11 @@ Run the same verification on a machine with GraalVM Native Image:
 
 ```bash
 ./mvnw -B \
-  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-web-problem-details-quarkus-runtime,jfoundry-quarkus/jfoundry-web-problem-details-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-quarkus-deployment,jfoundry-quarkus/jfoundry-messaging-kafka-quarkus-runtime,jfoundry-quarkus/jfoundry-messaging-kafka-quarkus-deployment,jfoundry-quarkus/jfoundry-messaging-rabbitmq-quarkus-runtime,jfoundry-quarkus/jfoundry-messaging-rabbitmq-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment \
+  -pl jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-web-problem-details-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-web-problem-details-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-outbox-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-outbox-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-messaging-kafka-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-messaging-kafka-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-messaging-rabbitmq-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-messaging-rabbitmq-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-inbox-jpa-quarkus-deployment \
   -am -DskipTests install
 
 ./mvnw -B \
-  -pl jfoundry-quarkus/jfoundry-quarkus-integration-tests \
+  -pl jfoundry-runtime-integrations/jfoundry-quarkus/integration-tests/jfoundry-quarkus-integration-tests \
   -Pnative verify
 ```
 
