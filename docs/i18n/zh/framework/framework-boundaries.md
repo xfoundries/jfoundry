@@ -39,7 +39,7 @@ jfoundry core 模块不得依赖 Spring、Spring Boot、Helidon、Quarkus、Micr
 
 `jfoundry-outbox-jobrunr` 是纯 JobRunr 派发 adapter；它的 Spring Boot 自动配置也属于 `jfoundry-spring-boot-autoconfigure`。
 
-`jfoundry-outbox-jpa` 和 `jfoundry-inbox-jpa` 是运行时无关的 Jakarta Persistence adapter。它们实现 Outbox 和 Inbox store SPI，不要求 Spring 或 Spring Boot。它们的 Spring Boot starter，即 `jfoundry-outbox-jpa-spring-boot-starter` 和 `jfoundry-inbox-jpa-spring-boot-starter`，是显式能力选择；通用 `jfoundry-jpa-spring-boot-starter` 只提供业务 JPA 运行时装配，不会引入任一 store。
+`jfoundry-outbox-jpa` 和 `jfoundry-inbox-jpa` 是运行时无关的 Jakarta Persistence adapter。它们实现 Outbox 和 Inbox store SPI，不要求 Spring 或 Spring Boot。它们的 Spring Boot starter，即 `jfoundry-outbox-jpa-spring-boot-starter` 和 `jfoundry-inbox-jpa-spring-boot-starter`，是显式能力选择；通用 `jfoundry-persistence-jpa-spring-boot-starter` 只提供业务 JPA 运行时装配，不会引入任一 store。
 
 实现机制和数据库限制属于 [JPA 实现指南](../implementations/jpa.md)。能力状态模型和 SQL 模板策略属于[可靠消息](../capabilities/reliable-messaging.md)。
 

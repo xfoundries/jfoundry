@@ -10,7 +10,7 @@
 
 乐观并发控制时，在实体图根实体上标注 `@Version`，并确保每次实体图变更都会改变根实体的持久化属性。子实体变更不会仅因根实体存在 `@Version` 就参与并发控制；mapper 可在同步子实体变更时显式 touch 根实体。并发根更新会在 repository flush 时以 `ConflictException` 报告。
 
-JPA 业务运行时装配使用 `jfoundry-jpa-spring-boot-starter`。它不会引入 Outbox 或 Inbox store。
+JPA 业务运行时装配使用 `jfoundry-persistence-jpa-spring-boot-starter`。它不会引入 Outbox 或 Inbox store。
 
 Quarkus 环境中，加入 `jfoundry-quarkus-runtime`、`jfoundry-persistence-jpa`、
 `jfoundry-persistence-jpa-quarkus-runtime`、Quarkus Hibernate ORM 和所选数据源扩展即可。由 CDI 管理的

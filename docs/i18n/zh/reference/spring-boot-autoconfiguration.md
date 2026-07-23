@@ -9,7 +9,7 @@
 | `jfoundry-spring-boot-starter` | Spring Boot 自动配置、Spring `TransactionRunner` 集成 | Outbox、Inbox、MyBatis-Plus store、broker client、JobRunr |
 | `jfoundry-lock-redisson-spring-boot-starter` | 分布式锁 core、Spring `@DistributedLock` 拦截、Redisson adapter、Redisson Spring Boot starter | Outbox、Inbox、broker 投递 |
 | `jfoundry-event-spring-boot-starter` | 领域事件派发、Spring application event 发布 | Outbox 持久化或 broker 投递 |
-| `jfoundry-messaging-spring-boot-starter` | Messaging SPI、Jackson payload serializer、Spring messaging runtime、默认 logging `MessageSender` | Kafka、RabbitMQ、RocketMQ client |
+| `jfoundry-messaging-spring-boot-starter` | Messaging SPI、Jackson payload serializer 和 Spring messaging runtime | 任意 `MessageSender` 或 broker client |
 | `jfoundry-messaging-kafka-spring-boot-starter` | Kafka `MessageSender` adapter，在 Boot 创建 `KafkaOperations` 后选择 | Outbox store |
 | `jfoundry-messaging-rabbitmq-spring-boot-starter` | RabbitMQ `MessageSender` adapter | Outbox store |
 | `jfoundry-messaging-rocketmq-spring-boot-starter` | RocketMQ `MessageSender` adapter | Outbox store |
@@ -20,8 +20,8 @@
 | `jfoundry-inbox-spring-boot-starter` | Inbox core、`InboxTemplate` | Inbox 表存储 |
 | `jfoundry-inbox-mybatis-plus-spring-boot-starter` | MyBatis-Plus `InboxMessageStore` adapter | 数据库 migration 执行 |
 | `jfoundry-inbox-jpa-spring-boot-starter` | JPA `InboxMessageStore` 适配器和受支持数据库的领取策略 | 数据库迁移执行，以及 PostgreSQL、MySQL 之外数据库的内置领取支持 |
-| `jfoundry-mybatis-plus-spring-boot-starter` | 业务 MyBatis-Plus runtime/persistence 入口：基础自动配置、共享 persistence runtime 支持和 MyBatis-Plus Boot starter | 运行时无关的 `jfoundry-infrastructure-mybatis-plus-starter`、Outbox/Inbox store |
-| `jfoundry-jpa-spring-boot-starter` | 每个聚合一个由 JPA 管理的实体图的 jfoundry JPA 适配器、共享 Spring 事务持久化上下文、Spring Boot JPA 运行时 | 对分离聚合执行合并、手动多表或多实体图同步算法、Outbox 和 Inbox 存储 |
+| `jfoundry-persistence-mybatis-plus-spring-boot-starter` | 业务 MyBatis-Plus 持久化入口：基础自动配置、共享 persistence runtime 支持和 MyBatis-Plus Boot starter | 运行时无关的 `jfoundry-infrastructure-mybatis-plus-starter`、Outbox/Inbox store |
+| `jfoundry-persistence-jpa-spring-boot-starter` | 每个聚合一个由 JPA 管理的实体图的 jfoundry JPA 适配器、共享 Spring 事务持久化上下文、Spring Boot JPA 运行时 | 对分离聚合执行合并、手动多表或多实体图同步算法、Outbox 和 Inbox 存储 |
 | `jfoundry-webmvc-spring-boot-starter` | Web MVC `ProblemDetail` 异常响应 | Messaging、Outbox、Inbox |
 
 ## 配置项

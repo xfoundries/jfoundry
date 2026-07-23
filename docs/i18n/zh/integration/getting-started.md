@@ -46,12 +46,12 @@ Hexagonal 或 Onion 应依据领域和项目约束选择；jfoundry 不会为业
     </dependency>
     <dependency>
         <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>
+        <artifactId>jfoundry-persistence-mybatis-plus-spring-boot-starter</artifactId>
     </dependency>
 </dependencies>
 ```
 
-配置应用的数据源，并将持久化 adapter 保留在 infrastructure 模块。MyBatis-Plus runtime starter 不会引入 Outbox 或 Inbox store。JPA 运行时则将 MyBatis-Plus runtime starter 替换为 `jfoundry-jpa-spring-boot-starter`；它同样将 Outbox 和 Inbox store 保持为显式选择。准确的实现边界见 [MyBatis-Plus](../implementations/mybatis-plus.md)、[JPA](../implementations/jpa.md)和 [Spring Boot 运行时装配](../implementations/spring-boot.md)。
+配置应用的数据源，并将持久化 adapter 保留在 infrastructure 模块。MyBatis-Plus runtime starter 不会引入 Outbox 或 Inbox store。JPA 运行时则将 MyBatis-Plus runtime starter 替换为 `jfoundry-persistence-jpa-spring-boot-starter`；它同样将 Outbox 和 Inbox store 保持为显式选择。准确的实现边界见 [MyBatis-Plus](../implementations/mybatis-plus.md)、[JPA](../implementations/jpa.md)和 [Spring Boot 运行时装配](../implementations/spring-boot.md)。
 
 ## 仅在需要时追加能力
 

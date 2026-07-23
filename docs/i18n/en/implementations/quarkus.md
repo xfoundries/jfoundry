@@ -45,11 +45,25 @@ artifact automatically.
 |---|---|
 | `jfoundry-spring-boot-starter` | `jfoundry-quarkus-runtime` |
 | `jfoundry-event-spring-boot-starter` | `jfoundry-quarkus-runtime` |
-| `jfoundry-jpa-spring-boot-starter` | `jfoundry-quarkus-runtime`, `jfoundry-persistence-jpa`, `jfoundry-persistence-jpa-quarkus-runtime`, `quarkus-hibernate-orm`, and the selected Quarkus JDBC extension |
+| `jfoundry-persistence-jpa-spring-boot-starter` | `jfoundry-quarkus-runtime`, `jfoundry-persistence-jpa`, `jfoundry-persistence-jpa-quarkus-runtime`, `quarkus-hibernate-orm`, and the selected Quarkus JDBC extension |
 | `jfoundry-outbox-jpa-spring-boot-starter` | The JPA composition above plus `jfoundry-outbox-jpa-quarkus-runtime` and `jfoundry-outbox-quarkus-runtime` when dispatching is required |
 | `jfoundry-inbox-jpa-spring-boot-starter` | The JPA composition above plus `jfoundry-inbox-jpa-quarkus-runtime` |
 | Kafka or RabbitMQ messaging starter | `jfoundry-messaging-kafka-quarkus-runtime` or `jfoundry-messaging-rabbitmq-quarkus-runtime` |
-| `jfoundry-webmvc-spring-boot-starter` | `jfoundry-web-problem-details-quarkus-runtime` |
+| `jfoundry-webmvc-spring-boot-starter` | `jfoundry-web-quarkus-runtime` |
+
+## Supported Scope
+
+Quarkus is not a Spring starter translation layer. Its explicit composition currently covers CDI/JTA
+transactions, local CDI domain-event delivery, JPA aggregate persistence, JPA Outbox and Inbox
+stores, Outbox dispatch and maintenance, Kafka and RabbitMQ delivery, and REST problem responses.
+The generic `jfoundry-web-quarkus-runtime` extension currently provides the Problem Details adapter
+and is the home for future Quarkus Web inbound integration; it does not move web semantics into the
+core.
+
+MyBatis-Plus aggregate persistence, RocketMQ delivery, Redisson distributed locks, and JobRunr
+assembly are not supported Quarkus compositions today. Do not add the framework-neutral adapters or
+Spring starters as a substitute; select a custom application adapter only when the project owns that
+integration.
 
 ## Transaction Semantics
 
@@ -293,13 +307,14 @@ does not provide a dispatcher, scheduler, serializer, automatic event externaliz
 
 ## REST Problem Details
 
-Add `jfoundry-web-problem-details-quarkus-runtime` when a Quarkus REST application needs the shared
-RFC 9457 error contract:
+Add `jfoundry-web-quarkus-runtime` when a Quarkus REST application needs the shared RFC 9457 error
+contract. The extension is named for the broader Quarkus Web boundary; Problem Details is its
+currently implemented capability:
 
 ```xml
 <dependency>
     <groupId>io.github.xfoundries</groupId>
-    <artifactId>jfoundry-web-problem-details-quarkus-runtime</artifactId>
+    <artifactId>jfoundry-web-quarkus-runtime</artifactId>
 </dependency>
 ```
 
@@ -324,7 +339,7 @@ Run the same verification on a machine with GraalVM Native Image:
 
 ```bash
 ./mvnw -B \
-  -pl jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-web-problem-details-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-web-problem-details-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-outbox-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-outbox-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-messaging-kafka-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-messaging-kafka-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-messaging-rabbitmq-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-messaging-rabbitmq-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-inbox-jpa-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-persistence-jpa-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-persistence-jpa-quarkus-deployment \
+  -pl jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-web-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-web-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-outbox-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-outbox-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-messaging-kafka-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-messaging-kafka-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-messaging-rabbitmq-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-messaging-rabbitmq-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-inbox-jpa-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-persistence-jpa-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-persistence-jpa-quarkus-deployment \
   -am -DskipTests install
 
 ./mvnw -B \

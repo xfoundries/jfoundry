@@ -53,14 +53,14 @@ with the base and MyBatis-Plus runtime starters:
     </dependency>
     <dependency>
         <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>
+        <artifactId>jfoundry-persistence-mybatis-plus-spring-boot-starter</artifactId>
     </dependency>
 </dependencies>
 ```
 
 Configure the application's datasource and keep its persistence adapter in the infrastructure
 module. The MyBatis-Plus runtime starter does not add Outbox or Inbox stores. For a JPA runtime,
-replace the MyBatis-Plus runtime starter with `jfoundry-jpa-spring-boot-starter`; it also leaves
+replace the MyBatis-Plus runtime starter with `jfoundry-persistence-jpa-spring-boot-starter`; it also leaves
 Outbox and Inbox stores explicit. See [MyBatis-Plus](../implementations/mybatis-plus.md),
 [JPA](../implementations/jpa.md), and [Spring Boot Runtime Assembly](../implementations/spring-boot.md)
 for the exact implementation boundaries.

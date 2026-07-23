@@ -16,9 +16,13 @@
 
 MyBatis-Plus adapter 是运行时无关的，但不是开箱即用的运行时 bootstrap。Spring Boot 之外，应用负责配置 MyBatis-Plus、开启和完成每个事务，并注册 mapper。配置 `@Version` 时，还必须向 `MybatisPlusAggregateRepository` 提供事务作用域内的 `AggregatePersistenceContext`；该上下文保存加载时的版本，供后续更新和删除使用。未配置 `@Version` 的 repository 不保留版本状态，但其数据库操作仍应位于应用自己的事务内。
 
+Spring Boot 可通过 `jfoundry-persistence-mybatis-plus-spring-boot-starter` 装配该能力。Quarkus 当前没有
+jfoundry MyBatis-Plus runtime integration；不要从运行时无关 adapter 推导出该支持。已支持的 Spring Boot
+装配见 [Spring Boot](spring-boot.md)，Quarkus 当前能力范围见 [Quarkus](quarkus.md)。
+
 ## Outbox 与 Inbox Store
 
-内置 `OutboxMessageStore` 选择 `jfoundry-outbox-mybatis-plus-spring-boot-starter`，内置 `InboxMessageStore` 选择 `jfoundry-inbox-mybatis-plus-spring-boot-starter`。两者均为显式选择；`jfoundry-mybatis-plus-spring-boot-starter` 只装配业务持久化，不会引入任一 store。SQL 模板仍由业务应用迁移流程拥有。
+内置 `OutboxMessageStore` 选择 `jfoundry-outbox-mybatis-plus-spring-boot-starter`，内置 `InboxMessageStore` 选择 `jfoundry-inbox-mybatis-plus-spring-boot-starter`。两者均为显式选择；`jfoundry-persistence-mybatis-plus-spring-boot-starter` 只装配业务持久化，不会引入任一 store。SQL 模板仍由业务应用迁移流程拥有。
 
 在 Spring Boot 下，默认 Outbox dispatcher 和 Inbox template 使用 `TransactionRunner` 包裹各自的数据库阶段。即使单次 MyBatis mapper 调用可以自行提交，这仍不可省略：handler 与 Inbox 的 `PROCESSED` 状态迁移必须保持原子性。
 

@@ -30,7 +30,7 @@ Capability starters:
 
 - `jfoundry-event-spring-boot-starter`: local domain event publication.
 - `jfoundry-messaging-spring-boot-starter`: messaging contracts, Spring Boot JSON support, Jackson
-  serializer, and default logging sender; it must support non-web applications without requiring a
+  serializer; it must support non-web applications without requiring a
   WebMVC or WebFlux starter.
 - `jfoundry-messaging-<broker>-spring-boot-starter`: concrete broker sender adapter.
 - `jfoundry-messaging-kafka-spring-boot-starter`: Kafka sender adapter.
@@ -41,8 +41,8 @@ Capability starters:
 - `jfoundry-outbox-jobrunr-spring-boot-starter`: JobRunr dispatcher.
 - `jfoundry-inbox-spring-boot-starter`: Inbox core and `InboxTemplate`.
 - `jfoundry-inbox-mybatis-plus-spring-boot-starter`: MyBatis-Plus Inbox store.
-- `jfoundry-mybatis-plus-spring-boot-starter`: Spring Boot runtime assembly for business MyBatis-Plus persistence, not Outbox/Inbox stores.
-- `jfoundry-jpa-spring-boot-starter`: explicit Spring Boot runtime assembly for business Jakarta Persistence adapters.
+- `jfoundry-persistence-mybatis-plus-spring-boot-starter`: Spring Boot runtime assembly for business MyBatis-Plus persistence, not Outbox/Inbox stores.
+- `jfoundry-persistence-jpa-spring-boot-starter`: explicit Spring Boot runtime assembly for business Jakarta Persistence adapters.
 - `jfoundry-webmvc-spring-boot-starter`: Web MVC ProblemDetail support.
 
 ## Before Changing A Starter

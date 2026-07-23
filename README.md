@@ -48,8 +48,8 @@ Dependencies point inward. This keeps runtime integrations outside the core rath
 - **Architecture and modeling**: start with [Getting Started](docs/i18n/en/integration/getting-started.md), then select an [architecture style](docs/i18n/en/framework/architecture-styles.md) and review [modeling conventions](docs/i18n/en/modeling/repository-vs-read-contracts.md).
 - **Aggregate persistence**: read [Aggregate Persistence](docs/i18n/en/capabilities/aggregate-persistence.md), then choose the peer implementation that fits the project: [JPA](docs/i18n/en/implementations/jpa.md) or [MyBatis-Plus](docs/i18n/en/implementations/mybatis-plus.md).
 - **Reliable messaging**: read [Reliable Messaging](docs/i18n/en/capabilities/reliable-messaging.md), then choose its JPA or MyBatis-Plus store from the corresponding [JPA](docs/i18n/en/implementations/jpa.md) or [MyBatis-Plus](docs/i18n/en/implementations/mybatis-plus.md) guide.
-- **Spring Boot**: use [Spring Boot Runtime Assembly](docs/i18n/en/implementations/spring-boot.md) to assemble the selected capabilities.
-- **Quarkus**: use [Quarkus Runtime Integration](docs/i18n/en/implementations/quarkus.md) for CDI transactions, REST Problem Details, domain-event dispatch, explicit Outbox externalization, Kafka and RabbitMQ delivery, and Native Image verification.
+- **Spring Boot**: use [Spring Boot Runtime Assembly](docs/i18n/en/implementations/spring-boot.md) for starter-based, conditional auto-configuration of selected capabilities.
+- **Quarkus**: use [Quarkus Runtime Integration](docs/i18n/en/implementations/quarkus.md) for explicit extension composition, CDI transactions, REST Problem Details, domain-event dispatch, JPA-backed reliable messaging, Kafka and RabbitMQ delivery, and Native Image verification.
 - **Starters, properties, and conditions**: use [Spring Boot Auto-configuration](docs/i18n/en/reference/spring-boot-autoconfiguration.md) as the reference.
 
 ## Minimal Setup

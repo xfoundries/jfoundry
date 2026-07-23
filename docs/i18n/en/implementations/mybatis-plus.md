@@ -34,11 +34,17 @@ registration. When `@Version` is configured, it must also supply a transaction-s
 version used by later update and delete operations. Repositories without `@Version` do not retain
 version state, but their database operations still belong inside the application's transaction.
 
+Spring Boot assembly is available through
+`jfoundry-persistence-mybatis-plus-spring-boot-starter`. Quarkus does not currently provide a
+jfoundry MyBatis-Plus runtime integration; do not infer one from the runtime-neutral adapter. See
+[Spring Boot](spring-boot.md) for the supported assembly and [Quarkus](quarkus.md) for its current
+capability scope.
+
 ## Outbox And Inbox Stores
 
 Choose `jfoundry-outbox-mybatis-plus-spring-boot-starter` for the built-in `OutboxMessageStore` and
 `jfoundry-inbox-mybatis-plus-spring-boot-starter` for the built-in `InboxMessageStore`. These are
-explicit choices; `jfoundry-mybatis-plus-spring-boot-starter` assembles business persistence only
+explicit choices; `jfoundry-persistence-mybatis-plus-spring-boot-starter` assembles business persistence only
 and does not add either store. SQL templates remain application-owned migrations.
 
 Under Spring Boot, the default Outbox dispatcher and Inbox template use `TransactionRunner` for

@@ -19,7 +19,7 @@ changes a persistent root attribute. Child-only changes do not participate merel
 has `@Version`; the mapper may explicitly touch the root while applying a child change. A concurrent
 root update is reported as `ConflictException` at repository flush.
 
-Use `jfoundry-jpa-spring-boot-starter` for JPA business runtime assembly. It does not add Outbox or
+Use `jfoundry-persistence-jpa-spring-boot-starter` for JPA business runtime assembly. It does not add Outbox or
 Inbox stores.
 
 For Quarkus, add `jfoundry-quarkus-runtime`, `jfoundry-persistence-jpa`,

@@ -60,7 +60,7 @@ also belongs under `jfoundry-spring-boot-autoconfigure`.
 They implement the Outbox and Inbox store SPIs without requiring Spring or Spring Boot. Their
 Spring Boot starters, `jfoundry-outbox-jpa-spring-boot-starter` and
 `jfoundry-inbox-jpa-spring-boot-starter`, are explicit capability choices; the general
-`jfoundry-jpa-spring-boot-starter` provides business JPA runtime assembly only and adds neither
+`jfoundry-persistence-jpa-spring-boot-starter` provides business JPA runtime assembly only and adds neither
 store.
 
 Implementation mechanics and database limitations belong in the [JPA implementation guide](../implementations/jpa.md).
