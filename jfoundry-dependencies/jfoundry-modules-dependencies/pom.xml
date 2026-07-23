@@ -393,12 +393,12 @@
       </dependency>
       <dependency>
         <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>
+        <artifactId>jfoundry-persistence-mybatis-plus-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-jpa-spring-boot-starter</artifactId>
+        <artifactId>jfoundry-persistence-jpa-spring-boot-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

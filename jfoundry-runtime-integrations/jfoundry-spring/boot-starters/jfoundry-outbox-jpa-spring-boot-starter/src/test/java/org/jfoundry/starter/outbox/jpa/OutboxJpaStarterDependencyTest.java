@@ -30,7 +30,7 @@ class OutboxJpaStarterDependencyTest {
 
     @Test
     void businessJpaStarterDoesNotIncludeReliableMessagingStores() throws Exception {
-        assertThat(dependencyDeclarations(Path.of("..", "jfoundry-jpa-spring-boot-starter", "pom.xml")))
+        assertThat(dependencyDeclarations(Path.of("..", "jfoundry-persistence-jpa-spring-boot-starter", "pom.xml")))
                 .doesNotContainKeys("jfoundry-outbox-jpa", "jfoundry-inbox-jpa");
     }
 
@@ -39,7 +39,7 @@ class OutboxJpaStarterDependencyTest {
         Path projectRoot = repositoryRoot();
         Process process = new ProcessBuilder(
                 projectRoot.resolve("mvnw").toString(),
-                "-pl", "jfoundry-runtime-integrations/jfoundry-spring/boot-starters/jfoundry-jpa-spring-boot-starter",
+                "-pl", "jfoundry-runtime-integrations/jfoundry-spring/boot-starters/jfoundry-persistence-jpa-spring-boot-starter",
                 "-am",
                 "dependency:tree",
                 "-Dscope=runtime",
@@ -49,10 +49,10 @@ class OutboxJpaStarterDependencyTest {
                 .start();
 
         String output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-        String jpaStarterTree = dependencyTreeFor(output, "jfoundry-jpa-spring-boot-starter");
-
         assertThat(process.waitFor()).as(output).isZero();
-        assertThat(jpaStarterTree).contains("jfoundry-jpa-spring-boot-starter");
+        String jpaStarterTree = dependencyTreeFor(output, "jfoundry-persistence-jpa-spring-boot-starter");
+
+        assertThat(jpaStarterTree).contains("jfoundry-persistence-jpa-spring-boot-starter");
         assertThat(jpaStarterTree).doesNotContain("jfoundry-outbox-jpa", "jfoundry-inbox-jpa");
     }
 

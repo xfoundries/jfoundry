@@ -28,7 +28,7 @@ class InboxJpaStarterDependencyTest {
 
     @Test
     void businessJpaStarterDoesNotIncludeReliableMessagingStores() throws Exception {
-        assertThat(dependencyDeclarations(Path.of("..", "jfoundry-jpa-spring-boot-starter", "pom.xml")))
+        assertThat(dependencyDeclarations(Path.of("..", "jfoundry-persistence-jpa-spring-boot-starter", "pom.xml")))
                 .doesNotContainKeys("jfoundry-outbox-jpa", "jfoundry-inbox-jpa");
     }
 

@@ -53,7 +53,7 @@
         <module>boot-starters/jfoundry-inbox-spring-boot-starter</module>
         <module>boot-starters/jfoundry-inbox-mybatis-plus-spring-boot-starter</module>
         <module>boot-starters/jfoundry-inbox-jpa-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-mybatis-plus-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-jpa-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-persistence-mybatis-plus-spring-boot-starter</module>
+        <module>boot-starters/jfoundry-persistence-jpa-spring-boot-starter</module>
     </modules>
 </project>

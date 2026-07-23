@@ -8,12 +8,9 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-mybatis-plus-spring-boot-starter</artifactId>
-    <name>jfoundry-mybatis-plus-spring-boot-starter</name>
-    <description>
-        Spring Boot starter for jfoundry business persistence with MyBatis-Plus.
-        Outbox and Inbox MyBatis-Plus stores are provided by their own feature starters.
-    </description>
+    <artifactId>jfoundry-persistence-jpa-spring-boot-starter</artifactId>
+    <name>jfoundry-persistence-jpa-spring-boot-starter</name>
+    <description>Spring Boot runtime assembly for jfoundry Jakarta Persistence adapters.</description>
 
     <dependencies>
         <dependency>
@@ -22,11 +19,15 @@
         </dependency>
         <dependency>
             <groupId>io.github.xfoundries</groupId>
+            <artifactId>jfoundry-infrastructure-jpa-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-persistence-spring</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
     </dependencies>
 
@@ -35,9 +36,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
+                <configuration><skip>true</skip></configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -46,15 +45,11 @@
                     <execution>
                         <id>attach-empty-javadoc</id>
                         <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
+                        <goals><goal>jar</goal></goals>
                         <configuration>
                             <classesDirectory>${maven.multiModuleProjectDirectory}/.mvn/javadoc-placeholder</classesDirectory>
                             <classifier>javadoc</classifier>
-                            <includes>
-                                <include>README.md</include>
-                            </includes>
+                            <includes><include>README.md</include></includes>
                         </configuration>
                     </execution>
                 </executions>
