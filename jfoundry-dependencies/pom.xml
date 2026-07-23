@@ -36,6 +36,7 @@
     <module>jfoundry-spring-integration-dependencies</module>
     <module>jfoundry-spring-dependencies</module>
     <module>jfoundry-quarkus-dependencies</module>
+    <module>jfoundry-helidon-dependencies</module>
   </modules>
   <dependencyManagement>
     <dependencies>
