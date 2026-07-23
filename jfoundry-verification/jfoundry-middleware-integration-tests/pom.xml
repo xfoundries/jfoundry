@@ -199,6 +199,11 @@
             <artifactId>spring-rabbit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-client</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

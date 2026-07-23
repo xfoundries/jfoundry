@@ -196,9 +196,9 @@ mp.messaging.outgoing.jfoundry-kafka.value.serializer=org.apache.kafka.common.se
 `MessageSender.send(topic, payloadKey, payload)` dynamically sets the Kafka topic and key for each
 record, so `@Externalized` and `@AggregateRouting` continue to determine Outbox routing. The channel
 name is infrastructure configuration, not a business destination. The adapter waits for broker
-acknowledgement and maps failures to `SendResult`; configure
-`jfoundry.messaging.kafka.send-timeout` to change its `10s` default. It is a Quarkus CDI default
-bean, so an application can replace it with its own `MessageSender`.
+acknowledgement and maps failures to `SendResult`. Configure delivery timeouts through the Kafka
+client and connector properties. It is a Quarkus CDI default bean, so an application can replace it
+with its own `MessageSender`.
 
 ## RabbitMQ Message Delivery
 
@@ -213,9 +213,9 @@ Add `jfoundry-messaging-rabbitmq-quarkus-runtime` for a default RabbitMQ `Messag
 
 The adapter uses the Vert.x RabbitMQ client and connects only when the first message is sent.
 `MessageSender.send(topic, payloadKey, payload)` maps `topic` to the exchange and `payloadKey` to
-the routing key. Configure `jfoundry.messaging.rabbitmq.host`, `port`, `username`, `password`,
-`virtual-host`, and optionally `send-timeout` (default `10s`). The CDI default bean is replaceable
-with an application `MessageSender`.
+the routing key. Configure the client with a Quarkus `@Identifier("jfoundry-rabbitmq")`
+`RabbitMQOptions` producer; its standard Vert.x options cover host, credentials, TLS, recovery, and
+connection timeouts. The CDI default bean is replaceable with an application `MessageSender`.
 
 ## Automatic Domain-Event Externalization
 
@@ -295,5 +295,5 @@ Run the same verification on a machine with GraalVM Native Image:
 This Quarkus integration covers CDI discovery, application transactions, application-service domain-event
 dispatch, JPA aggregate persistence context assembly, optional JPA Outbox and Inbox storage, automatic
 externalization for explicitly marked events, Kafka and RabbitMQ message delivery, and optional Outbox dispatch,
-recovery, and cleanup. It does not yet provide Quarkus assembly for MyBatis-Plus, RocketMQ,
-web adapters, or starters. Those capabilities remain explicit follow-up work.
+recovery, and cleanup. It does not yet provide Quarkus assembly for MyBatis-Plus, RocketMQ, web adapters, or
+starters. Those capabilities remain explicit follow-up work.

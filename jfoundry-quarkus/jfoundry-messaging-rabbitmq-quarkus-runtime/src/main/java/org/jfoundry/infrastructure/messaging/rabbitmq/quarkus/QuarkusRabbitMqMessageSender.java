@@ -9,12 +9,10 @@ import io.vertx.rabbitmq.RabbitMQOptions;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import io.smallrye.common.annotation.Identifier;
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
 
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 /// Quarkus RabbitMQ-backed {@link MessageSender}.
 @ApplicationScoped
@@ -22,29 +20,15 @@ import java.util.concurrent.TimeUnit;
 public class QuarkusRabbitMqMessageSender implements MessageSender {
 
     private final RabbitMQClient client;
-    private final Duration sendTimeout;
-
     @Inject
     public QuarkusRabbitMqMessageSender(
             Vertx vertx,
-            @ConfigProperty(name = "jfoundry.messaging.rabbitmq.host", defaultValue = "localhost") String host,
-            @ConfigProperty(name = "jfoundry.messaging.rabbitmq.port", defaultValue = "5672") int port,
-            @ConfigProperty(name = "jfoundry.messaging.rabbitmq.username", defaultValue = "guest") String username,
-            @ConfigProperty(name = "jfoundry.messaging.rabbitmq.password", defaultValue = "guest") String password,
-            @ConfigProperty(name = "jfoundry.messaging.rabbitmq.virtual-host", defaultValue = "/") String virtualHost,
-            @ConfigProperty(name = "jfoundry.messaging.rabbitmq.send-timeout", defaultValue = "10s") Duration sendTimeout) {
-        this(RabbitMQClient.create(vertx, new RabbitMQOptions()
-                .setHost(host)
-                .setPort(port)
-                .setUser(username)
-                .setPassword(password)
-                .setVirtualHost(virtualHost)
-                .setAutomaticRecoveryEnabled(true)), sendTimeout);
+            @Identifier("jfoundry-rabbitmq") RabbitMQOptions options) {
+        this(RabbitMQClient.create(vertx, options));
     }
 
-    QuarkusRabbitMqMessageSender(RabbitMQClient client, Duration sendTimeout) {
+    QuarkusRabbitMqMessageSender(RabbitMQClient client) {
         this.client = client;
-        this.sendTimeout = sendTimeout;
     }
 
     @Override
@@ -67,6 +51,6 @@ public class QuarkusRabbitMqMessageSender implements MessageSender {
     }
 
     private void await(Future<Void> future) throws Exception {
-        future.toCompletionStage().toCompletableFuture().get(sendTimeout.toMillis(), TimeUnit.MILLISECONDS);
+        future.toCompletionStage().toCompletableFuture().get();
     }
 }

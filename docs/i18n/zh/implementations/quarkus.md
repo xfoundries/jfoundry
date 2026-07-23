@@ -174,9 +174,8 @@ mp.messaging.outgoing.jfoundry-kafka.value.serializer=org.apache.kafka.common.se
 
 `MessageSender.send(topic, payloadKey, payload)` 会为每一条 Kafka record 动态设置 topic 与 key，因此
 `@Externalized` 和 `@AggregateRouting` 仍决定 Outbox 路由。channel 名称只是基础设施配置，并非业务目的地。
-adapter 会等待 broker 确认，并将失败映射为 `SendResult`；可通过
-`jfoundry.messaging.kafka.send-timeout` 修改默认的 `10s` 超时。它是 Quarkus CDI 默认 Bean，应用可以用自己的
-`MessageSender` 覆盖。
+adapter 会等待 broker 确认，并将失败映射为 `SendResult`；投递超时由 Kafka client 与 connector 原生属性配置。
+它是 Quarkus CDI 默认 Bean，应用可以用自己的 `MessageSender` 覆盖。
 
 ## RabbitMQ 消息投递
 
@@ -190,9 +189,9 @@ adapter 会等待 broker 确认，并将失败映射为 `SendResult`；可通过
 ```
 
 adapter 使用 Vert.x RabbitMQ client，并只在首次发送消息时连接。`MessageSender.send(topic, payloadKey, payload)`
-会将 `topic` 映射为 exchange、`payloadKey` 映射为 routing key。配置
-`jfoundry.messaging.rabbitmq.host`、`port`、`username`、`password`、`virtual-host`，并可选配置
-`send-timeout`（默认 `10s`）。CDI 默认 Bean 可由应用自己的 `MessageSender` 覆盖。
+会将 `topic` 映射为 exchange、`payloadKey` 映射为 routing key。通过 Quarkus
+`@Identifier("jfoundry-rabbitmq")` 的 `RabbitMQOptions` producer 配置 client；标准 Vert.x options 覆盖 host、
+凭据、TLS、恢复与连接超时。CDI 默认 Bean 可由应用自己的 `MessageSender` 覆盖。
 
 ## 自动领域事件外部化
 

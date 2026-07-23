@@ -5,13 +5,10 @@ import io.smallrye.reactive.messaging.MutinyEmitter;
 import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
-
-import java.time.Duration;
 
 /// Quarkus Kafka-backed {@link MessageSender}.
 @ApplicationScoped
@@ -19,14 +16,9 @@ import java.time.Duration;
 public class QuarkusKafkaMessageSender implements MessageSender {
 
     private final MutinyEmitter<String> emitter;
-    private final Duration sendTimeout;
-
     @Inject
-    public QuarkusKafkaMessageSender(
-            @Channel("jfoundry-kafka") MutinyEmitter<String> emitter,
-            @ConfigProperty(name = "jfoundry.messaging.kafka.send-timeout", defaultValue = "10s") Duration sendTimeout) {
+    public QuarkusKafkaMessageSender(@Channel("jfoundry-kafka") MutinyEmitter<String> emitter) {
         this.emitter = emitter;
-        this.sendTimeout = sendTimeout;
     }
 
     @Override
@@ -36,7 +28,7 @@ public class QuarkusKafkaMessageSender implements MessageSender {
                     .withTopic(topic)
                     .withKey(payloadKey)
                     .build();
-            emitter.sendMessage(Message.of(payload).addMetadata(metadata)).await().atMost(sendTimeout);
+            emitter.sendMessage(Message.of(payload).addMetadata(metadata)).await().indefinitely();
             return SendResult.ok();
         } catch (Exception e) {
             Throwable cause = e.getCause() != null ? e.getCause() : e;

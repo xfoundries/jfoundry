@@ -7,7 +7,6 @@ import org.jfoundry.application.messaging.SendResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.time.Duration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -20,7 +19,7 @@ class QuarkusKafkaMessageSenderTest {
     void sendsThePayloadWithTheRequestedTopicAndKey() {
         MutinyEmitter<String> emitter = mock(MutinyEmitter.class);
         when(emitter.sendMessage(any(Message.class))).thenReturn(io.smallrye.mutiny.Uni.createFrom().voidItem());
-        QuarkusKafkaMessageSender sender = new QuarkusKafkaMessageSender(emitter, Duration.ofSeconds(1));
+        QuarkusKafkaMessageSender sender = new QuarkusKafkaMessageSender(emitter);
 
         SendResult result = sender.send("order.created.v1", "order-42", "{\"id\":42}");
 
