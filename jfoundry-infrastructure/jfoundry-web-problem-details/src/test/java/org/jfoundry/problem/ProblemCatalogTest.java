@@ -26,4 +26,16 @@ class ProblemCatalogTest {
         assertThat(problem.code()).isEqualTo("HTTP_METHOD_NOT_ALLOWED");
         assertThat(problem.detail()).isEqualTo("The HTTP method is not allowed for this resource.");
     }
+
+    @Test
+    void identifiesTheHttpStatusesWithSharedProblemSemantics() {
+        assertThat(ProblemCatalog.supportsHttpStatus(400)).isTrue();
+        assertThat(ProblemCatalog.supportsHttpStatus(404)).isTrue();
+        assertThat(ProblemCatalog.supportsHttpStatus(405)).isTrue();
+        assertThat(ProblemCatalog.supportsHttpStatus(406)).isTrue();
+        assertThat(ProblemCatalog.supportsHttpStatus(413)).isTrue();
+        assertThat(ProblemCatalog.supportsHttpStatus(415)).isTrue();
+        assertThat(ProblemCatalog.supportsHttpStatus(503)).isTrue();
+        assertThat(ProblemCatalog.supportsHttpStatus(403)).isFalse();
+    }
 }

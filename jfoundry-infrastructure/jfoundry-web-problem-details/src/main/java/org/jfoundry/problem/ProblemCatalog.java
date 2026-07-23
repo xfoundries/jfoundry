@@ -60,6 +60,14 @@ public final class ProblemCatalog {
         };
     }
 
+    /// Returns whether the status has shared JFoundry problem semantics.
+    public static boolean supportsHttpStatus(int status) {
+        return switch (status) {
+            case 400, 404, 405, 406, 413, 415, 503 -> true;
+            default -> false;
+        };
+    }
+
     private static ProblemDescriptor problem(int status, String code, String title, String type, String detail) {
         return new ProblemDescriptor(status, code, title, URI.create(TYPE_PREFIX + type), detail);
     }

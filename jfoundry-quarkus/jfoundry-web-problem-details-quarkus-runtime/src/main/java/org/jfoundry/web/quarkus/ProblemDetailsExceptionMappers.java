@@ -9,6 +9,7 @@ import org.jfoundry.application.exception.InvalidArgumentException;
 import org.jfoundry.application.exception.NotFoundException;
 import org.jfoundry.domain.exception.DomainRuleViolationException;
 import org.jfoundry.domain.exception.DomainStateException;
+import org.jfoundry.problem.ProblemCatalog;
 
 /// Groups the precise Jakarta REST exception mappers used for JFoundry problem responses.
 public final class ProblemDetailsExceptionMappers {
@@ -54,7 +55,7 @@ public final class ProblemDetailsExceptionMappers {
         @Override
         public Response toResponse(WebApplicationException exception) {
             Response source = exception.getResponse();
-            if (!ProblemDetailsResponses.supportsHttpStatus(source.getStatus())) {
+            if (!ProblemCatalog.supportsHttpStatus(source.getStatus())) {
                 return source;
             }
             return ProblemDetailsResponses.forHttpStatus(source.getStatus(), source.getHeaders());

@@ -21,13 +21,6 @@ final class ProblemDetailsResponses {
         return problem(ProblemCatalog.forHttpStatus(status), headers);
     }
 
-    static boolean supportsHttpStatus(int status) {
-        return switch (status) {
-            case 400, 404, 405, 406, 413, 415, 503 -> true;
-            default -> false;
-        };
-    }
-
     private static Response problem(ProblemDescriptor descriptor, MultivaluedMap<String, Object> headers) {
         Response.ResponseBuilder response = Response.status(descriptor.status())
                 .type(PROBLEM_JSON)
