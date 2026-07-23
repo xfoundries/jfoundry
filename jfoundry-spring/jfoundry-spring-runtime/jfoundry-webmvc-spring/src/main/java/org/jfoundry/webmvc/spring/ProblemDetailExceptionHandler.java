@@ -6,6 +6,8 @@ import org.jfoundry.application.exception.InvalidArgumentException;
 import org.jfoundry.application.exception.NotFoundException;
 import org.jfoundry.domain.exception.DomainRuleViolationException;
 import org.jfoundry.domain.exception.DomainStateException;
+import org.jfoundry.problem.ProblemCatalog;
+import org.jfoundry.problem.ProblemDescriptor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -25,54 +27,39 @@ import org.springframework.web.util.WebUtils;
 @RestControllerAdvice
 public class ProblemDetailExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private final CoreProblemCodeResolver coreProblemCodeResolver;
-    private final HttpProblemCodeResolver httpProblemCodeResolver;
-
-    public ProblemDetailExceptionHandler() {
-        this(new CoreProblemCodeResolver(), new HttpProblemCodeResolver());
-    }
-
-    ProblemDetailExceptionHandler(CoreProblemCodeResolver coreProblemCodeResolver,
-                                  HttpProblemCodeResolver httpProblemCodeResolver) {
-        this.coreProblemCodeResolver = coreProblemCodeResolver;
-        this.httpProblemCodeResolver = httpProblemCodeResolver;
-    }
-
     @ExceptionHandler(InvalidArgumentException.class)
     public ResponseEntity<ProblemDetail> handleInvalidArgument(InvalidArgumentException exception) {
-        return problem(coreProblemCodeResolver.resolve(exception), exception.getMessage());
+        return problem(ProblemCatalog.forException(exception));
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ProblemDetail> handleNotFound(NotFoundException exception) {
-        return problem(coreProblemCodeResolver.resolve(exception), exception.getMessage());
+        return problem(ProblemCatalog.forException(exception));
     }
 
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ProblemDetail> handleConflict(ConflictException exception) {
-        return problem(coreProblemCodeResolver.resolve(exception), exception.getMessage());
+        return problem(ProblemCatalog.forException(exception));
     }
 
     @ExceptionHandler(ExternalAccessException.class)
     public ResponseEntity<ProblemDetail> handleExternalAccess(ExternalAccessException exception) {
-        CoreProblemCode code = coreProblemCodeResolver.resolve(exception);
-        return ResponseEntity.status(code.status())
-                .body(ProblemDetails.create(code));
+        return problem(ProblemCatalog.forException(exception));
     }
 
     @ExceptionHandler(DomainRuleViolationException.class)
     public ResponseEntity<ProblemDetail> handleDomainRuleViolation(DomainRuleViolationException exception) {
-        return problem(coreProblemCodeResolver.resolve(exception), exception.getMessage());
+        return problem(ProblemCatalog.forException(exception));
     }
 
     @ExceptionHandler(DomainStateException.class)
     public ResponseEntity<ProblemDetail> handleDomainState(DomainStateException exception) {
-        return problem(coreProblemCodeResolver.resolve(exception), exception.getMessage());
+        return problem(ProblemCatalog.forException(exception));
     }
 
-    private static ResponseEntity<ProblemDetail> problem(ProblemCode code, String detail) {
-        return ResponseEntity.status(code.status())
-                .body(ProblemDetails.create(code, detail));
+    private static ResponseEntity<ProblemDetail> problem(ProblemDescriptor descriptor) {
+        return ResponseEntity.status(HttpStatusCode.valueOf(descriptor.status()))
+                .body(toProblemDetail(descriptor));
     }
 
     @Override
@@ -81,10 +68,20 @@ public class ProblemDetailExceptionHandler extends ResponseEntityExceptionHandle
                                                              HttpHeaders headers,
                                                              HttpStatusCode statusCode,
                                                              WebRequest request) {
-        HttpProblemCode code = httpProblemCodeResolver.resolve(exception, statusCode);
+        ProblemDescriptor descriptor = ProblemCatalog.forHttpStatus(statusCode.value());
         if (statusCode.isSameCodeAs(HttpStatus.INTERNAL_SERVER_ERROR) && request instanceof ServletWebRequest) {
             request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, exception, WebRequest.SCOPE_REQUEST);
         }
-        return super.handleExceptionInternal(exception, ProblemDetails.create(code), headers, code.status(), request);
+        return super.handleExceptionInternal(exception, toProblemDetail(descriptor), headers,
+                HttpStatusCode.valueOf(descriptor.status()), request);
+    }
+
+    private static ProblemDetail toProblemDetail(ProblemDescriptor descriptor) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(descriptor.status()),
+                descriptor.detail());
+        problemDetail.setTitle(descriptor.title());
+        problemDetail.setType(descriptor.type());
+        problemDetail.setProperty("code", descriptor.code());
+        return problemDetail;
     }
 }

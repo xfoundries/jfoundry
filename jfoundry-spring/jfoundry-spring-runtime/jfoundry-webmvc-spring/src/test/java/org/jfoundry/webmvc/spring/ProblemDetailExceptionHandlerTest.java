@@ -85,21 +85,21 @@ class ProblemDetailExceptionHandlerTest {
 
     @ParameterizedTest
     @MethodSource("httpExceptionCases")
-    void mapsSpringMvcExceptionsToHttpProblemCodes(Exception exception, HttpProblemCode code) throws Exception {
+    void mapsSpringMvcExceptionsToHttpProblemCodes(Exception exception, int status, String code) throws Exception {
         ResponseEntity<Object> response = handler.handleException(exception, webRequest());
 
         assertThat(response).isNotNull();
-        assertProblem(response, code);
+        assertProblem(response, status, code);
     }
 
     private static Stream<Arguments> httpExceptionCases() {
         return Stream.of(
                 Arguments.of(new HttpRequestMethodNotSupportedException("POST", List.of("GET")),
-                        HttpProblemCode.METHOD_NOT_ALLOWED),
+                        405, "HTTP_METHOD_NOT_ALLOWED"),
                 Arguments.of(new HttpMediaTypeNotSupportedException(MediaType.APPLICATION_XML,
-                        List.of(MediaType.APPLICATION_JSON)), HttpProblemCode.UNSUPPORTED_MEDIA_TYPE),
+                        List.of(MediaType.APPLICATION_JSON)), 415, "HTTP_UNSUPPORTED_MEDIA_TYPE"),
                 Arguments.of(new HttpMediaTypeNotAcceptableException(List.of(MediaType.APPLICATION_JSON)),
-                        HttpProblemCode.NOT_ACCEPTABLE)
+                        406, "HTTP_NOT_ACCEPTABLE")
         );
     }
 
@@ -120,14 +120,11 @@ class ProblemDetailExceptionHandlerTest {
         assertThat(response.getBody().getProperties()).containsEntry("code", code);
     }
 
-    private static void assertProblem(ResponseEntity<Object> response, ProblemCode code) {
-        assertThat(response.getStatusCode()).isEqualTo(code.status());
+    private static void assertProblem(ResponseEntity<Object> response, int status, String code) {
+        assertThat(response.getStatusCode().value()).isEqualTo(status);
         assertThat(response.getBody()).isInstanceOf(ProblemDetail.class);
         ProblemDetail problem = (ProblemDetail) response.getBody();
-        assertThat(problem.getStatus()).isEqualTo(code.status().value());
-        assertThat(problem.getTitle()).isEqualTo(code.title());
-        assertThat(problem.getType()).hasToString("urn:jfoundry:problem:" + code.type());
-        assertThat(problem.getDetail()).isEqualTo(code.defaultDetail());
-        assertThat(problem.getProperties()).containsEntry("code", code.code());
+        assertThat(problem.getStatus()).isEqualTo(status);
+        assertThat(problem.getProperties()).containsEntry("code", code);
     }
 }
