@@ -237,6 +237,28 @@ Native Image。它不指定 broker transport；需要投递时，请另行选择
 应用仍负责把 Inbox SQL 模板复制到自己的迁移流程中，并维护 `jfoundry_inbox_message` 表。该能力只装配持久化，
 不提供 dispatcher、scheduler、serializer、自动事件外部化或 starter。
 
+## REST Problem Details
+
+Quarkus REST 应用需要共享的 RFC 9457 错误契约时，加入
+`jfoundry-web-problem-details-quarkus-runtime`：
+
+```xml
+<dependency>
+    <groupId>io.github.xfoundries</groupId>
+    <artifactId>jfoundry-web-problem-details-quarkus-runtime</artifactId>
+</dependency>
+```
+
+该扩展会引入 Quarkus REST Jackson 支持，并为六种 JFoundry application 与 domain 异常渲染
+`application/problem+json` 响应：`InvalidArgumentException`、`NotFoundException`、
+`ConflictException`、`ExternalAccessException`、`DomainRuleViolationException` 和
+`DomainStateException`。它还会为状态码为 `400`、`404`、`405`、`406`、`413`、`415` 和 `503`
+的标准 Jakarta REST 失败渲染共享契约。
+
+响应包含共享的 `type`、`title`、`status`、`detail` 以及 JFoundry `code` 字段。适配器会保留源
+Jakarta REST 响应提供的非实体头；存在 `Allow` 时也会保留。它不会推断 Quarkus 未提供的响应头。未知异常
+和其他 HTTP 状态会继续使用正常的 Quarkus 行为，而不会被转换成 JFoundry 错误。
+
 ## Native Image 验证
 
 仓库的 Quarkus Native CI job 会先安装扩展构件，再构建独立的消费者应用。其
@@ -246,7 +268,7 @@ Native Image。它不指定 broker transport；需要投递时，请另行选择
 
 ```bash
 ./mvnw -B \
-  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-quarkus-deployment,jfoundry-quarkus/jfoundry-messaging-kafka-quarkus-runtime,jfoundry-quarkus/jfoundry-messaging-kafka-quarkus-deployment,jfoundry-quarkus/jfoundry-messaging-rabbitmq-quarkus-runtime,jfoundry-quarkus/jfoundry-messaging-rabbitmq-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment \
+  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-web-problem-details-quarkus-runtime,jfoundry-quarkus/jfoundry-web-problem-details-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-quarkus-deployment,jfoundry-quarkus/jfoundry-messaging-kafka-quarkus-runtime,jfoundry-quarkus/jfoundry-messaging-kafka-quarkus-deployment,jfoundry-quarkus/jfoundry-messaging-rabbitmq-quarkus-runtime,jfoundry-quarkus/jfoundry-messaging-rabbitmq-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment \
   -am -DskipTests install
 
 ./mvnw -B \
@@ -256,6 +278,6 @@ Native Image。它不指定 broker transport；需要投递时，请另行选择
 
 ## 当前范围
 
-当前 Quarkus 集成覆盖 CDI 发现、应用事务、应用服务领域事件分发、JPA 聚合持久化上下文装配、可选的 JPA Outbox 和 Inbox 存储、
-被明确标记事件的自动外部化、Kafka 与 RabbitMQ 消息投递，以及可选的 Outbox 派发、恢复和清理。它尚未提供 MyBatis-Plus、RocketMQ、
-Web adapter 或 starter 的 Quarkus 装配；这些能力仍是后续的显式工作项。
+当前 Quarkus 集成覆盖 CDI 发现、应用事务、REST Problem Details、应用服务领域事件分发、JPA 聚合持久化上下文装配、可选的 JPA
+Outbox 和 Inbox 存储、被明确标记事件的自动外部化、Kafka 与 RabbitMQ 消息投递，以及可选的 Outbox 派发、恢复和清理。它尚未提供
+MyBatis-Plus、RocketMQ 或 starter 的 Quarkus 装配；这些能力仍是后续的显式工作项。

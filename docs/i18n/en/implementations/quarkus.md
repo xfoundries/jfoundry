@@ -272,6 +272,29 @@ The application remains responsible for copying the Inbox SQL template into its 
 and maintaining the `jfoundry_inbox_message` table. This capability assembles persistence only. It
 does not provide a dispatcher, scheduler, serializer, automatic event externalization, or a starter.
 
+## REST Problem Details
+
+Add `jfoundry-web-problem-details-quarkus-runtime` when a Quarkus REST application needs the shared
+RFC 9457 error contract:
+
+```xml
+<dependency>
+    <groupId>io.github.xfoundries</groupId>
+    <artifactId>jfoundry-web-problem-details-quarkus-runtime</artifactId>
+</dependency>
+```
+
+The extension brings Quarkus REST Jackson support and renders `application/problem+json` responses
+for the six JFoundry application and domain exceptions: `InvalidArgumentException`,
+`NotFoundException`, `ConflictException`, `ExternalAccessException`,
+`DomainRuleViolationException`, and `DomainStateException`. It also renders the shared contract for
+standard Jakarta REST failures with statuses `400`, `404`, `405`, `406`, `413`, `415`, and `503`.
+
+Responses contain the shared `type`, `title`, `status`, `detail`, and JFoundry `code` fields. The
+adapter preserves non-entity headers supplied by the source Jakarta REST response, including `Allow`
+when it is present. It does not infer headers that Quarkus does not provide. Unknown exceptions and
+other HTTP statuses retain normal Quarkus behavior instead of being converted into a JFoundry error.
+
 ## Native Image Verification
 
 The repository's Quarkus native CI job first installs the extension artifacts and then builds a
@@ -282,7 +305,7 @@ Run the same verification on a machine with GraalVM Native Image:
 
 ```bash
 ./mvnw -B \
-  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-quarkus-deployment,jfoundry-quarkus/jfoundry-messaging-kafka-quarkus-runtime,jfoundry-quarkus/jfoundry-messaging-kafka-quarkus-deployment,jfoundry-quarkus/jfoundry-messaging-rabbitmq-quarkus-runtime,jfoundry-quarkus/jfoundry-messaging-rabbitmq-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment \
+  -pl jfoundry-quarkus/jfoundry-quarkus-runtime,jfoundry-quarkus/jfoundry-quarkus-deployment,jfoundry-quarkus/jfoundry-web-problem-details-quarkus-runtime,jfoundry-quarkus/jfoundry-web-problem-details-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-quarkus-deployment,jfoundry-quarkus/jfoundry-messaging-kafka-quarkus-runtime,jfoundry-quarkus/jfoundry-messaging-kafka-quarkus-deployment,jfoundry-quarkus/jfoundry-messaging-rabbitmq-quarkus-runtime,jfoundry-quarkus/jfoundry-messaging-rabbitmq-quarkus-deployment,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-quarkus/jfoundry-inbox-jpa-quarkus-deployment \
   -am -DskipTests install
 
 ./mvnw -B \
@@ -292,8 +315,8 @@ Run the same verification on a machine with GraalVM Native Image:
 
 ## Current Scope
 
-This Quarkus integration covers CDI discovery, application transactions, application-service domain-event
-dispatch, JPA aggregate persistence context assembly, optional JPA Outbox and Inbox storage, automatic
-externalization for explicitly marked events, Kafka and RabbitMQ message delivery, and optional Outbox dispatch,
-recovery, and cleanup. It does not yet provide Quarkus assembly for MyBatis-Plus, RocketMQ, web adapters, or
-starters. Those capabilities remain explicit follow-up work.
+This Quarkus integration covers CDI discovery, application transactions, REST Problem Details,
+application-service domain-event dispatch, JPA aggregate persistence context assembly, optional JPA Outbox and
+Inbox storage, automatic externalization for explicitly marked events, Kafka and RabbitMQ message delivery, and
+optional Outbox dispatch, recovery, and cleanup. It does not yet provide Quarkus assembly for MyBatis-Plus,
+RocketMQ, or starters. Those capabilities remain explicit follow-up work.

@@ -35,6 +35,8 @@
     <modules>
         <module>jfoundry-quarkus-runtime</module>
         <module>jfoundry-quarkus-deployment</module>
+        <module>jfoundry-web-problem-details-quarkus-runtime</module>
+        <module>jfoundry-web-problem-details-quarkus-deployment</module>
         <module>jfoundry-outbox-quarkus-runtime</module>
         <module>jfoundry-outbox-quarkus-deployment</module>
         <module>jfoundry-messaging-kafka-quarkus-runtime</module>
