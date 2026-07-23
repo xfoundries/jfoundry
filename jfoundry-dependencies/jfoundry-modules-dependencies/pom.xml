@@ -243,12 +243,12 @@
       </dependency>
       <dependency>
         <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-web-problem-details-quarkus-runtime</artifactId>
+        <artifactId>jfoundry-web-quarkus-runtime</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>io.github.xfoundries</groupId>
-        <artifactId>jfoundry-web-problem-details-quarkus-deployment</artifactId>
+        <artifactId>jfoundry-web-quarkus-deployment</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

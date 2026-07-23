@@ -11,10 +11,10 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-web-problem-details-quarkus-runtime</artifactId>
+    <artifactId>jfoundry-web-quarkus-runtime</artifactId>
 
-    <name>jfoundry-web-problem-details-quarkus-runtime</name>
-    <description>Quarkus REST rendering for jfoundry problem details.</description>
+    <name>jfoundry-web-quarkus-runtime</name>
+    <description>Quarkus REST runtime integration for jfoundry web adapters.</description>
 
     <dependencies>
         <dependency>
@@ -51,7 +51,7 @@
                             <goal>extension-descriptor</goal>
                         </goals>
                         <configuration>
-                            <deployment>${project.groupId}:jfoundry-web-problem-details-quarkus-deployment:${project.version}</deployment>
+                            <deployment>${project.groupId}:jfoundry-web-quarkus-deployment:${project.version}</deployment>
                         </configuration>
                     </execution>
                 </executions>

@@ -11,15 +11,15 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>jfoundry-web-problem-details-quarkus-deployment</artifactId>
+    <artifactId>jfoundry-web-quarkus-deployment</artifactId>
 
-    <name>jfoundry-web-problem-details-quarkus-deployment</name>
-    <description>Quarkus build-time registration for jfoundry REST problem details.</description>
+    <name>jfoundry-web-quarkus-deployment</name>
+    <description>Quarkus build-time integration for jfoundry web adapters.</description>
 
     <dependencies>
         <dependency>
             <groupId>io.github.xfoundries</groupId>
-            <artifactId>jfoundry-web-problem-details-quarkus-runtime</artifactId>
+            <artifactId>jfoundry-web-quarkus-runtime</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

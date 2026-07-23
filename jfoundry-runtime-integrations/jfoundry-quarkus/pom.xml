@@ -35,7 +35,7 @@
 
     <modules>
         <module>runtime/jfoundry-quarkus-runtime</module>
-        <module>runtime/jfoundry-web-problem-details-quarkus-runtime</module>
+        <module>runtime/jfoundry-web-quarkus-runtime</module>
         <module>runtime/jfoundry-outbox-quarkus-runtime</module>
         <module>runtime/jfoundry-messaging-kafka-quarkus-runtime</module>
         <module>runtime/jfoundry-messaging-rabbitmq-quarkus-runtime</module>
@@ -43,7 +43,7 @@
         <module>runtime/jfoundry-inbox-jpa-quarkus-runtime</module>
         <module>runtime/jfoundry-persistence-jpa-quarkus-runtime</module>
         <module>deployment/jfoundry-quarkus-deployment</module>
-        <module>deployment/jfoundry-web-problem-details-quarkus-deployment</module>
+        <module>deployment/jfoundry-web-quarkus-deployment</module>
         <module>deployment/jfoundry-outbox-quarkus-deployment</module>
         <module>deployment/jfoundry-messaging-kafka-quarkus-deployment</module>
         <module>deployment/jfoundry-messaging-rabbitmq-quarkus-deployment</module>
