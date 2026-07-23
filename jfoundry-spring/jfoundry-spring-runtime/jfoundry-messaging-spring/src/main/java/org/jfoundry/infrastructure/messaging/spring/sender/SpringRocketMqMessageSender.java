@@ -1,4 +1,4 @@
-package org.jfoundry.infrastructure.messaging.rocketmq;
+package org.jfoundry.infrastructure.messaging.spring.sender;
 
 import org.apache.rocketmq.client.producer.MQProducer;
 import org.apache.rocketmq.common.message.Message;
@@ -8,13 +8,13 @@ import org.jfoundry.application.messaging.SendResult;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
-/// RocketMQ-backed {@link MessageSender}.
-public class RocketMqMessageSender implements MessageSender {
+/// Spring-managed RocketMQ-backed {@link MessageSender}.
+public class SpringRocketMqMessageSender implements MessageSender {
 
     private final MQProducer producer;
     private final Duration sendTimeout;
 
-    public RocketMqMessageSender(MQProducer producer, Duration sendTimeout) {
+    public SpringRocketMqMessageSender(MQProducer producer, Duration sendTimeout) {
         this.producer = producer;
         this.sendTimeout = sendTimeout;
     }
@@ -28,8 +28,8 @@ public class RocketMqMessageSender implements MessageSender {
             }
             producer.send(message, sendTimeout.toMillis());
             return SendResult.ok();
-        } catch (Exception e) {
-            Throwable cause = e.getCause() != null ? e.getCause() : e;
+        } catch (Exception exception) {
+            Throwable cause = exception.getCause() != null ? exception.getCause() : exception;
             return SendResult.fail(cause.getMessage());
         }
     }

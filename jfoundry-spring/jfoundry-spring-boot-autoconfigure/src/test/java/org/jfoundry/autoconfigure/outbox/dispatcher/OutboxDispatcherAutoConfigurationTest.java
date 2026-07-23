@@ -27,6 +27,13 @@ class OutboxDispatcherAutoConfigurationTest {
                     .withBean(BackoffStrategy.class, () -> (BackoffStrategy) failedAttempts -> Duration.ofSeconds(1))
                     .withBean(CountingTransactionRunner.class, CountingTransactionRunner::new);
 
+    private final ApplicationContextRunner runnerWithoutMessageSender =
+            new ApplicationContextRunner()
+                    .withConfiguration(AutoConfigurations.of(OutboxDispatcherAutoConfiguration.class))
+                    .withBean(OutboxMessageStore.class, () -> mock(OutboxMessageStore.class))
+                    .withBean(BackoffStrategy.class, () -> (BackoffStrategy) failedAttempts -> Duration.ofSeconds(1))
+                    .withBean(CountingTransactionRunner.class, CountingTransactionRunner::new);
+
     @Test
     void scheduledModeRegistersDispatcherAndMaintenanceJobs() {
         runner
@@ -36,6 +43,13 @@ class OutboxDispatcherAutoConfigurationTest {
                     assertThat(context).hasSingleBean(OutboxRecoveryJob.class);
                     assertThat(context).hasSingleBean(OutboxCleanupJob.class);
                 });
+    }
+
+    @Test
+    void scheduledModeDoesNotRegisterDispatcherWithoutMessageSender() {
+        runnerWithoutMessageSender
+                .withPropertyValues("jfoundry.outbox.dispatcher.mode=scheduled")
+                .run(context -> assertThat(context).doesNotHaveBean(OutboxDispatcher.class));
     }
 
     @Test

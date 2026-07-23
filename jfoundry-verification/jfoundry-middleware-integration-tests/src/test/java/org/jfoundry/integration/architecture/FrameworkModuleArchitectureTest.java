@@ -21,7 +21,7 @@ class FrameworkModuleArchitectureTest {
         assertThat(classes).anyMatch(javaClass ->
                 javaClass.getName().equals("org.jfoundry.application.outbox.OutboxMessageStore"));
         assertThat(classes).anyMatch(javaClass ->
-                javaClass.getName().equals("org.jfoundry.infrastructure.messaging.rabbitmq.RabbitMqMessageSender"));
+                javaClass.getName().equals("org.jfoundry.infrastructure.messaging.spring.sender.SpringRabbitMqMessageSender"));
         assertThat(classes).anyMatch(javaClass ->
                 javaClass.getName().equals("org.jfoundry.autoconfigure.messaging.kafka.KafkaMessageSenderAutoConfiguration"));
     }
@@ -48,7 +48,6 @@ class FrameworkModuleArchitectureTest {
         FrameworkModuleRules.infrastructure_message_stores_should_be_in_infrastructure_ring.check(classes);
         FrameworkModuleRules.spring_application_event_dispatcher_should_be_in_infrastructure_ring.check(classes);
         FrameworkModuleRules.spring_event_dispatcher_should_not_be_in_messaging_package.check(classes);
-        FrameworkModuleRules.logging_message_sender_should_be_in_infrastructure_ring.check(classes);
         FrameworkModuleRules.default_domain_event_outbox_recorder_should_be_in_infrastructure_ring.check(classes);
         FrameworkModuleRules.outbox_domain_event_dispatcher_should_be_in_infrastructure_ring.check(classes);
         FrameworkModuleRules.kafka_message_sender_should_be_in_infrastructure_ring.check(classes);

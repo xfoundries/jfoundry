@@ -8,12 +8,12 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /// Spring Kafka-backed {@link MessageSender}.
-public class KafkaMessageSender implements MessageSender {
+public class SpringKafkaMessageSender implements MessageSender {
 
     private final KafkaOperations<String, String> kafkaOperations;
     private final Duration sendTimeout;
 
-    public KafkaMessageSender(KafkaOperations<String, String> kafkaOperations, Duration sendTimeout) {
+    public SpringKafkaMessageSender(KafkaOperations<String, String> kafkaOperations, Duration sendTimeout) {
         this.kafkaOperations = kafkaOperations;
         this.sendTimeout = sendTimeout;
     }
@@ -21,14 +21,13 @@ public class KafkaMessageSender implements MessageSender {
     @Override
     public SendResult send(String topic, String payloadKey, String payload) {
         try {
-            kafkaOperations.send(topic, payloadKey, payload)
-                    .get(sendTimeout.toMillis(), TimeUnit.MILLISECONDS);
+            kafkaOperations.send(topic, payloadKey, payload).get(sendTimeout.toMillis(), TimeUnit.MILLISECONDS);
             return SendResult.ok();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
-            return SendResult.fail(e.getMessage());
-        } catch (Exception e) {
-            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            return SendResult.fail(exception.getMessage());
+        } catch (Exception exception) {
+            Throwable cause = exception.getCause() != null ? exception.getCause() : exception;
             return SendResult.fail(cause.getMessage());
         }
     }

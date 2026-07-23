@@ -20,7 +20,7 @@ Use this file before adding modules, classes, annotations, rules, adapters, star
 | MyBatis-Plus business persistence adapter | `jfoundry-infrastructure/jfoundry-persistence-mybatis-plus` |
 | Jakarta Persistence business persistence adapter | `jfoundry-infrastructure/jfoundry-persistence-jpa` |
 | MyBatis-Plus Outbox/Inbox store adapter | `jfoundry-infrastructure/jfoundry-outbox-mybatis-plus` or `jfoundry-infrastructure/jfoundry-inbox-mybatis-plus` |
-| Broker `MessageSender` adapter | `jfoundry-infrastructure/jfoundry-messaging-<broker>` |
+| Broker `MessageSender` adapter | Matching runtime integration module, such as `jfoundry-spring/jfoundry-spring-runtime/jfoundry-messaging-spring` or `jfoundry-quarkus/jfoundry-messaging-<broker>-quarkus-runtime` |
 | Payload serializer adapter | `jfoundry-infrastructure/jfoundry-messaging-jackson` |
 | Pure JobRunr dispatcher adapter | `jfoundry-infrastructure/jfoundry-outbox-jobrunr` |
 | Spring Framework local event adapter | `jfoundry-spring/jfoundry-spring-runtime/jfoundry-event-spring` |
@@ -42,7 +42,8 @@ Use this file before adding modules, classes, annotations, rules, adapters, star
 - If the code registers Spring Boot beans conditionally or binds `@ConfigurationProperties`, put it in `jfoundry-spring/jfoundry-spring-boot-autoconfigure`.
 - If an auto-configuration condition depends on a bean created by another auto-configuration, declare the ordering explicitly and test the real upstream auto-configuration chain instead of only pre-registering the bean in a context runner.
 - If the code only selects dependencies for users, put it in a starter POM.
-- If the code talks to a concrete database, ORM, broker, serializer, or scheduler but does not require Spring Boot wiring, put it in `jfoundry-infrastructure`.
+- If the code talks to a concrete database, ORM, serializer, or scheduler but does not require Spring Boot wiring, put it in `jfoundry-infrastructure`.
+- If the code implements `MessageSender` through a concrete broker client, place it in the runtime integration that manages that client. Keep only the `MessageSender` and `SendResult` contracts runtime-neutral.
 - If a change helps only jfoundry's own middleware verification, put it in `jfoundry-verification`, not in public modules.
 
 ## Public API Discipline

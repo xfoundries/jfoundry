@@ -21,9 +21,6 @@
         <module>jfoundry-persistence-core</module>
         <module>jfoundry-persistence-jpa</module>
         <module>jfoundry-messaging-jackson</module>
-        <module>jfoundry-messaging-kafka</module>
-        <module>jfoundry-messaging-rocketmq</module>
-        <module>jfoundry-messaging-rabbitmq</module>
         <module>jfoundry-lock-redisson</module>
         <module>jfoundry-inbox-mybatis-plus</module>
         <module>jfoundry-inbox-jpa</module>

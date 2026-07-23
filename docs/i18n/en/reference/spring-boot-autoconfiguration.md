@@ -63,10 +63,9 @@ technology-specific setup, use the [implementation guides](../implementations/sp
 | `AggregatePersistenceContextAutoConfiguration` | Transaction-bound `AggregatePersistenceContext` and aware-repository injector | Persistence context SPI, Spring transaction support, and `jfoundry-persistence-spring` are present; no user-defined context. |
 | `DomainEventDispatchAutoConfiguration` | `DomainEventScope`, `DomainEventContext`, dispatch interceptor, Spring event dispatcher, optional Outbox dispatcher | Application service and dispatcher types are present; dispatch properties allow the selected path. |
 | `DomainEventOutboxRecorderAutoConfiguration` | `PayloadSerializer`, `OutboxTemplate`, externalization resolvers, `DomainEventOutboxRecorder` | Outbox store and serializer dependencies are available; no user-defined replacement for each bean. |
-| `MessageSenderAutoConfiguration` | `LoggingMessageSender` fallback | No user-defined or broker-specific `MessageSender` exists. The fallback returns failed send results. |
-| `KafkaMessageSenderAutoConfiguration` | `KafkaMessageSender` | `KafkaOperations` class and bean exist; no existing `MessageSender`. |
-| `RabbitMqMessageSenderAutoConfiguration` | `RabbitMqMessageSender` | `RabbitTemplate` class and `RabbitOperations` bean exist; no existing `MessageSender`. |
-| `RocketMqMessageSenderAutoConfiguration` | `RocketMqMessageSender` | RocketMQ producer class and `MQProducer` bean exist; no existing `MessageSender`. |
+| `KafkaMessageSenderAutoConfiguration` | `SpringKafkaMessageSender` | `KafkaOperations` class and bean exist; no existing `MessageSender`. |
+| `RabbitMqMessageSenderAutoConfiguration` | `SpringRabbitMqMessageSender` | `RabbitTemplate` class and `RabbitOperations` bean exist; no existing `MessageSender`. |
+| `RocketMqMessageSenderAutoConfiguration` | `SpringRocketMqMessageSender` | RocketMQ producer class and `MQProducer` bean exist; no existing `MessageSender`. |
 | `OutboxMybatisPlusAutoConfiguration` | Outbox table-name customizer, `MybatisPlusInterceptor`, `OutboxMessageStore` | MyBatis-Plus and Outbox store adapter classes are present. SQL templates are not run automatically. |
 | `OutboxJpaAutoConfiguration` | JPA `OutboxMessageStore` | `EntityManagerFactory` and the JPA Outbox adapter are present; no user-defined `OutboxMessageStore` exists. |
 | `OutboxDispatcherAutoConfiguration` | `BackoffStrategy`, scheduled dispatcher, recovery job, cleanup job | An Outbox store, message sender, and `TransactionRunner` exist; mode is `scheduled` or maintenance is enabled by managed modes. |
@@ -78,10 +77,10 @@ technology-specific setup, use the [implementation guides](../implementations/sp
 
 ## Notes
 
-- Broker-specific `MessageSender` beans take precedence over the logging fallback. Kafka sender
-  auto-configuration runs after Spring Boot's `KafkaAutoConfiguration`, so a Boot-created
-  `KafkaOperations` bean is visible before jfoundry evaluates the sender condition, and before
-  `MessageSenderAutoConfiguration` selects the fallback.
+- Kafka sender auto-configuration runs after Spring Boot's `KafkaAutoConfiguration`, so a
+  Boot-created `KafkaOperations` bean is visible before jfoundry evaluates the sender condition.
+- jfoundry registers no fallback `MessageSender`. Add a broker-specific starter or define an
+  application `MessageSender` before enabling Outbox delivery.
 - `TransactionRunnerAutoConfiguration` runs after Spring Boot transaction auto-configuration so
   JDBC, JPA, or JTA transaction managers are visible before its bean conditions are evaluated.
 - jfoundry registers its advisors through Spring's canonical auto-proxy creator. A more capable

@@ -5,11 +5,11 @@ import org.jfoundry.application.messaging.SendResult;
 import org.springframework.amqp.rabbit.core.RabbitOperations;
 
 /// Spring RabbitMQ-backed {@link MessageSender}.
-public class RabbitMqMessageSender implements MessageSender {
+public class SpringRabbitMqMessageSender implements MessageSender {
 
     private final RabbitOperations rabbitOperations;
 
-    public RabbitMqMessageSender(RabbitOperations rabbitOperations) {
+    public SpringRabbitMqMessageSender(RabbitOperations rabbitOperations) {
         this.rabbitOperations = rabbitOperations;
     }
 
@@ -18,8 +18,8 @@ public class RabbitMqMessageSender implements MessageSender {
         try {
             rabbitOperations.convertAndSend(topic, payloadKey, payload);
             return SendResult.ok();
-        } catch (Exception e) {
-            Throwable cause = e.getCause() != null ? e.getCause() : e;
+        } catch (Exception exception) {
+            Throwable cause = exception.getCause() != null ? exception.getCause() : exception;
             return SendResult.fail(cause.getMessage());
         }
     }

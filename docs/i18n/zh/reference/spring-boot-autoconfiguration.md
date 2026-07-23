@@ -61,10 +61,9 @@
 | `AggregatePersistenceContextAutoConfiguration` | 事务绑定的 `AggregatePersistenceContext` 与 aware Repository 注入器 | 存在 persistence context SPI、Spring 事务支持和 `jfoundry-persistence-spring`；没有用户自定义 context。 |
 | `DomainEventDispatchAutoConfiguration` | `DomainEventScope`、`DomainEventContext`、派发拦截器、Spring event dispatcher、可选 Outbox dispatcher | 应用服务和 dispatcher 类型存在；配置项允许对应路径。 |
 | `DomainEventOutboxRecorderAutoConfiguration` | `PayloadSerializer`、`OutboxTemplate`、外部化 resolver、`DomainEventOutboxRecorder` | Outbox store 和 serializer 依赖可用；每种 Bean 均没有用户自定义替代。 |
-| `MessageSenderAutoConfiguration` | `LoggingMessageSender` fallback | 没有用户自定义或 broker-specific `MessageSender`。fallback 返回发送失败结果。 |
-| `KafkaMessageSenderAutoConfiguration` | `KafkaMessageSender` | 存在 `KafkaOperations` class 和 Bean；没有已有 `MessageSender`。 |
-| `RabbitMqMessageSenderAutoConfiguration` | `RabbitMqMessageSender` | 存在 `RabbitTemplate` class 和 `RabbitOperations` Bean；没有已有 `MessageSender`。 |
-| `RocketMqMessageSenderAutoConfiguration` | `RocketMqMessageSender` | 存在 RocketMQ producer class 和 `MQProducer` Bean；没有已有 `MessageSender`。 |
+| `KafkaMessageSenderAutoConfiguration` | `SpringKafkaMessageSender` | 存在 `KafkaOperations` class 和 Bean；没有已有 `MessageSender`。 |
+| `RabbitMqMessageSenderAutoConfiguration` | `SpringRabbitMqMessageSender` | 存在 `RabbitTemplate` class 和 `RabbitOperations` Bean；没有已有 `MessageSender`。 |
+| `RocketMqMessageSenderAutoConfiguration` | `SpringRocketMqMessageSender` | 存在 RocketMQ producer class 和 `MQProducer` Bean；没有已有 `MessageSender`。 |
 | `OutboxMybatisPlusAutoConfiguration` | Outbox 表名 customizer、`MybatisPlusInterceptor`、`OutboxMessageStore` | MyBatis-Plus 和 Outbox store adapter class 存在。SQL 模板不会自动执行。 |
 | `OutboxJpaAutoConfiguration` | JPA `OutboxMessageStore` | 存在 `EntityManagerFactory` 和 JPA Outbox 适配器；没有用户自定义 `OutboxMessageStore`。 |
 | `OutboxDispatcherAutoConfiguration` | `BackoffStrategy`、scheduled dispatcher、recovery job、cleanup job | 存在 Outbox store、message sender 和 `TransactionRunner`；mode 为 `scheduled` 或维护任务由托管 mode 启用。 |
@@ -76,9 +75,10 @@
 
 ## 说明
 
-- broker-specific `MessageSender` 会优先于 logging fallback。Kafka sender 自动配置在
-  Spring Boot 的 `KafkaAutoConfiguration` 之后执行，因此 jfoundry 评估 sender 条件时可以看到
-  Boot 创建的 `KafkaOperations` Bean；该评估又早于 `MessageSenderAutoConfiguration` 选择 fallback。
+- Kafka sender 自动配置在 Spring Boot 的 `KafkaAutoConfiguration` 之后执行，因此 jfoundry 评估
+  sender 条件时可以看到 Boot 创建的 `KafkaOperations` Bean。
+- jfoundry 不注册 fallback `MessageSender`。启用 Outbox 投递前，应添加 broker-specific starter 或
+  定义应用自己的 `MessageSender`。
 - `TransactionRunnerAutoConfiguration` 在 Spring Boot 事务自动配置之后运行，确保其 Bean 条件评估前已经可以看到 JDBC、JPA 或 JTA 事务管理器。
 - jfoundry 通过 Spring 规范的 auto-proxy creator 注册各类 advisor。其他 Spring 集成已经注册更强的
   creator 时，Spring 的标准升级协议会保留该 creator；业务应用无需注册 jfoundry 专用 proxy creator。

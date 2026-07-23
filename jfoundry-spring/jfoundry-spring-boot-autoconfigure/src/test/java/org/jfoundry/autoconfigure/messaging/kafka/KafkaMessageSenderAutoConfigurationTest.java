@@ -1,9 +1,8 @@
 package org.jfoundry.autoconfigure.messaging.kafka;
 
-import org.jfoundry.autoconfigure.messaging.MessageSenderAutoConfiguration;
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.messaging.SendResult;
-import org.jfoundry.infrastructure.messaging.spring.sender.KafkaMessageSender;
+import org.jfoundry.infrastructure.messaging.spring.sender.SpringKafkaMessageSender;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
@@ -18,15 +17,14 @@ class KafkaMessageSenderAutoConfigurationTest {
     @SuppressWarnings("unchecked")
     private final ApplicationContextRunner runner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(
-                    KafkaMessageSenderAutoConfiguration.class,
-            MessageSenderAutoConfiguration.class))
+                    KafkaMessageSenderAutoConfiguration.class))
             .withBean(KafkaOperations.class, () -> mock(KafkaOperations.class));
 
     @Test
     void createsSpringKafkaMessageSenderWhenKafkaOperationsExists() {
         runner.run(context -> {
             assertThat(context).hasSingleBean(MessageSender.class);
-            assertThat(context.getBean(MessageSender.class)).isInstanceOf(KafkaMessageSender.class);
+            assertThat(context.getBean(MessageSender.class)).isInstanceOf(SpringKafkaMessageSender.class);
         });
     }
 
@@ -35,7 +33,7 @@ class KafkaMessageSenderAutoConfigurationTest {
         runner.withBean(MessageSender.class, () -> (topic, key, payload) -> SendResult.ok())
                 .run(context -> {
                     assertThat(context).hasSingleBean(MessageSender.class);
-                    assertThat(context).doesNotHaveBean(KafkaMessageSender.class);
+                    assertThat(context).doesNotHaveBean(SpringKafkaMessageSender.class);
                 });
     }
 
@@ -44,13 +42,12 @@ class KafkaMessageSenderAutoConfigurationTest {
         new ApplicationContextRunner()
                 .withConfiguration(AutoConfigurations.of(
                         KafkaAutoConfiguration.class,
-                        KafkaMessageSenderAutoConfiguration.class,
-                        MessageSenderAutoConfiguration.class))
+                        KafkaMessageSenderAutoConfiguration.class))
                 .run(context -> {
                     assertThat(context).hasSingleBean(KafkaOperations.class);
                     assertThat(context).hasSingleBean(MessageSender.class);
                     assertThat(context.getBean(MessageSender.class))
-                            .isInstanceOf(KafkaMessageSender.class);
+                            .isInstanceOf(SpringKafkaMessageSender.class);
                 });
     }
 

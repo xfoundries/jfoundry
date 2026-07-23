@@ -63,9 +63,6 @@
                                         <exclude>io.github.xfoundries:jfoundry-lock-*</exclude>
                                         <exclude>io.github.xfoundries:jfoundry-outbox-*</exclude>
                                         <exclude>io.github.xfoundries:jfoundry-inbox-*</exclude>
-                                        <exclude>io.github.xfoundries:jfoundry-messaging-kafka</exclude>
-                                        <exclude>io.github.xfoundries:jfoundry-messaging-rabbitmq</exclude>
-                                        <exclude>io.github.xfoundries:jfoundry-messaging-rocketmq</exclude>
                                         <exclude>io.github.xfoundries:jfoundry-persistence-mybatis-plus</exclude>
                                         <exclude>io.github.xfoundries:jfoundry-outbox-jobrunr</exclude>
                                         <exclude>com.baomidou:*</exclude>

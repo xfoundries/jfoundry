@@ -5,8 +5,8 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.GetResponse;
 import org.jfoundry.application.messaging.SendResult;
+import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.outbox.DefaultOutboxDispatchService;
-import org.jfoundry.infrastructure.messaging.rabbitmq.RabbitMqMessageSender;
 import org.jfoundry.infrastructure.outbox.mybatis.MybatisPlusOutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxData;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxMapper;
@@ -94,7 +94,7 @@ class RabbitMqOutboxDispatchIT {
              Channel channel = connection.createChannel()) {
             new DefaultOutboxDispatchService(
                     store,
-                    new RabbitMqMessageSender(channel),
+                    rabbitMqSender(channel),
                     3,
                     retry -> Duration.ofMillis(10),
                     "it-pod").dispatch(10);
@@ -142,6 +142,18 @@ class RabbitMqOutboxDispatchIT {
         connectionFactory.setUsername(rabbitmq.getAdminUsername());
         connectionFactory.setPassword(rabbitmq.getAdminPassword());
         return connectionFactory;
+    }
+
+    private static MessageSender rabbitMqSender(Channel channel) {
+        return (topic, key, payload) -> {
+            try {
+                channel.basicPublish(topic, key == null ? "" : key, null, payload.getBytes(StandardCharsets.UTF_8));
+                return SendResult.ok();
+            } catch (Exception exception) {
+                Throwable cause = exception.getCause() != null ? exception.getCause() : exception;
+                return SendResult.fail(cause.getMessage());
+            }
+        };
     }
 
     private static String singleMessage() throws Exception {

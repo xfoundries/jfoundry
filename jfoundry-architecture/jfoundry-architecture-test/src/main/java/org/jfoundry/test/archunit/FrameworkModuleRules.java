@@ -194,15 +194,6 @@ public final class FrameworkModuleRules {
                     .because("Spring ApplicationEvent publishing is a domain event adapter, not a messaging transport adapter");
 
     @ArchTest
-    public static final ArchRule logging_message_sender_should_be_in_infrastructure_ring =
-            classes()
-                    .that().haveFullyQualifiedName(
-                            "org.jfoundry.infrastructure.messaging.spring.sender.LoggingMessageSender")
-                    .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
-                    .allowEmptyShould(true)
-                    .because("LoggingMessageSender belongs to the Onion infrastructure ring");
-
-    @ArchTest
     public static final ArchRule default_domain_event_outbox_recorder_should_be_in_infrastructure_ring =
             classes()
                     .that().haveFullyQualifiedName(
@@ -223,10 +214,10 @@ public final class FrameworkModuleRules {
     @ArchTest
     public static final ArchRule kafka_message_sender_should_be_in_infrastructure_ring =
             classes()
-                    .that().haveFullyQualifiedName("org.jfoundry.infrastructure.messaging.kafka.KafkaMessageSender")
+                    .that().haveFullyQualifiedName("org.jfoundry.infrastructure.messaging.spring.sender.SpringKafkaMessageSender")
                     .should(resideInPackageAnnotatedWith(InfrastructureRing.class))
                     .allowEmptyShould(true)
-                    .because("KafkaMessageSender belongs to the Onion infrastructure ring");
+                    .because("SpringKafkaMessageSender belongs to the Onion infrastructure ring");
 
     @ArchTest
     public static final ArchRule jackson_payload_serializer_should_be_in_infrastructure_ring =

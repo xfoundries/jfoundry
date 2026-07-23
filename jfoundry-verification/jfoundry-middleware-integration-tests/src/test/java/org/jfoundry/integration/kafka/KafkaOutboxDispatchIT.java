@@ -10,8 +10,8 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jfoundry.application.messaging.SendResult;
+import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.outbox.DefaultOutboxDispatchService;
-import org.jfoundry.infrastructure.messaging.kafka.KafkaMessageSender;
 import org.jfoundry.infrastructure.outbox.mybatis.MybatisPlusOutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxData;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxMapper;
@@ -90,7 +90,7 @@ class KafkaOutboxDispatchIT {
         try (Producer<String, String> producer = producer()) {
             new DefaultOutboxDispatchService(
                     store,
-                    new KafkaMessageSender(producer, Duration.ofSeconds(10)),
+                    kafkaSender(producer),
                     3,
                     retry -> Duration.ofMillis(10),
                     "it-pod").dispatch(10);
@@ -143,6 +143,19 @@ class KafkaOutboxDispatchIT {
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.ACKS_CONFIG, "all");
         return new KafkaProducer<>(props);
+    }
+
+    private static MessageSender kafkaSender(Producer<String, String> producer) {
+        return (topic, key, payload) -> {
+            try {
+                producer.send(new org.apache.kafka.clients.producer.ProducerRecord<>(topic, key, payload))
+                        .get(10, java.util.concurrent.TimeUnit.SECONDS);
+                return SendResult.ok();
+            } catch (Exception exception) {
+                Throwable cause = exception.getCause() != null ? exception.getCause() : exception;
+                return SendResult.fail(cause.getMessage());
+            }
+        };
     }
 
     private Consumer<String, String> consumer(String groupId) {

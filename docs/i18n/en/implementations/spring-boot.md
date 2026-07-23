@@ -33,10 +33,9 @@ externalized domain events are the intended integration contract. Otherwise, kee
 append an explicitly translated integration event through `OutboxTemplate` inside the business
 transaction.
 
-Before enabling delivery, add a broker-specific starter or provide a real `MessageSender`. The
-logging fallback intentionally reports every send as failed, so it is useful for detecting missing
-broker assembly but does not publish messages. With the default dispatcher, those failures are
-retried and eventually dead-lettered.
+Before enabling delivery, add a broker-specific starter or provide a real `MessageSender`. Without
+one, jfoundry does not register an Outbox dispatcher, so messages remain pending until an explicit
+delivery capability is configured.
 
 Auto-configuration supplies defaults only when their prerequisites are available. Application beans
 override the relevant defaults, including `TransactionRunner`, `PersistenceFailureTranslator`,

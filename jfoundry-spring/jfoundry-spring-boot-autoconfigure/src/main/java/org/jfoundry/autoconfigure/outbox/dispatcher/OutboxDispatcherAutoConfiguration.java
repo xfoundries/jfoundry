@@ -1,6 +1,5 @@
 package org.jfoundry.autoconfigure.outbox.dispatcher;
 
-import org.jfoundry.autoconfigure.messaging.MessageSenderAutoConfiguration;
 import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.outbox.BackoffStrategy;
 import org.jfoundry.application.outbox.OutboxDispatcher;
@@ -37,7 +36,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /// </ul>
 @AutoConfiguration
 @AutoConfigureAfter(
-        value = {MessageSenderAutoConfiguration.class, TransactionRunnerAutoConfiguration.class},
+        value = TransactionRunnerAutoConfiguration.class,
         name = "org.jfoundry.autoconfigure.outbox.persistence.OutboxMybatisPlusAutoConfiguration"
 )
 @ConditionalOnClass({OutboxMessageStore.class, MessageSender.class, ScheduledOutboxDispatcher.class})

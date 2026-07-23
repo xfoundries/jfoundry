@@ -32,7 +32,7 @@ mvn test
 | Outbox core | `mvn -pl jfoundry-application/jfoundry-outbox-core test` |
 | Inbox core | `mvn -pl jfoundry-application/jfoundry-inbox-core test` |
 | MyBatis-Plus adapter | `mvn -pl jfoundry-infrastructure/<module> -am test` |
-| Broker adapter | `mvn -pl jfoundry-infrastructure/jfoundry-messaging-<broker> -am test` |
+| Broker sender runtime adapter | `mvn -pl <runtime messaging module> -am test` |
 | Spring runtime adapter | `mvn -pl jfoundry-spring/jfoundry-spring-runtime/<module> -am test` |
 | Boot auto-configuration | `mvn -pl jfoundry-spring/jfoundry-spring-boot-autoconfigure -am test` |
 | Starter POM | `mvn -pl <starter-module> -am test` or `mvn validate` for dependency shape |

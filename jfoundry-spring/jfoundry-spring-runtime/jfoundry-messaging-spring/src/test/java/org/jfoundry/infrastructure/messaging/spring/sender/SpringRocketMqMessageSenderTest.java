@@ -1,4 +1,4 @@
-package org.jfoundry.infrastructure.messaging.rocketmq;
+package org.jfoundry.infrastructure.messaging.spring.sender;
 
 import org.apache.rocketmq.client.producer.MQProducer;
 import org.apache.rocketmq.common.message.Message;
@@ -16,17 +16,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class RocketMqMessageSenderTest {
+class SpringRocketMqMessageSenderTest {
 
     private final MQProducer producer = mock(MQProducer.class);
-    private final RocketMqMessageSender sender = new RocketMqMessageSender(producer, Duration.ofSeconds(1));
+    private final SpringRocketMqMessageSender sender = new SpringRocketMqMessageSender(producer, Duration.ofSeconds(1));
 
     @Test
-    void returnsOkWhenRocketMqSendCompletes() throws Exception {
+    void sendsTopicKeyAndUtf8Payload() throws Exception {
         SendResult result = sender.send("order.created", "order-1", "{}");
 
         assertThat(result.success()).isTrue();
         assertThat(result.errorMessage()).isNull();
+
         ArgumentCaptor<Message> message = ArgumentCaptor.forClass(Message.class);
         verify(producer).send(message.capture(), eq(1_000L));
         assertThat(message.getValue().getTopic()).isEqualTo("order.created");

@@ -5,8 +5,8 @@ import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.jfoundry.application.messaging.SendResult;
+import org.jfoundry.application.messaging.MessageSender;
 import org.jfoundry.application.outbox.DefaultOutboxDispatchService;
-import org.jfoundry.infrastructure.messaging.rocketmq.RocketMqMessageSender;
 import org.jfoundry.infrastructure.outbox.mybatis.MybatisPlusOutboxMessageStore;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxData;
 import org.jfoundry.infrastructure.outbox.mybatis.OutboxMapper;
@@ -116,7 +116,7 @@ class RocketMqOutboxDispatchIT {
 
             new DefaultOutboxDispatchService(
                     store,
-                    new RocketMqMessageSender(producer, Duration.ofSeconds(10)),
+                    rocketMqSender(producer),
                     3,
                     retry -> Duration.ofMillis(10),
                     "it-pod").dispatch(10);
@@ -171,6 +171,23 @@ class RocketMqOutboxDispatchIT {
         producer.setRetryTimesWhenSendFailed(0);
         producer.start();
         return producer;
+    }
+
+    private static MessageSender rocketMqSender(DefaultMQProducer producer) {
+        return (topic, key, payload) -> {
+            try {
+                org.apache.rocketmq.common.message.Message message = new org.apache.rocketmq.common.message.Message(
+                        topic, payload.getBytes(StandardCharsets.UTF_8));
+                if (key != null) {
+                    message.setKeys(key);
+                }
+                producer.send(message, 10_000L);
+                return SendResult.ok();
+            } catch (Exception exception) {
+                Throwable cause = exception.getCause() != null ? exception.getCause() : exception;
+                return SendResult.fail(cause.getMessage());
+            }
+        };
     }
 
     private static DefaultLitePullConsumer consumer() throws Exception {

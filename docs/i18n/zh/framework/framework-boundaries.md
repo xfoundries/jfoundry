@@ -12,7 +12,7 @@ jfoundry core 模块不得依赖 Spring、Spring Boot、Helidon、Quarkus、Micr
 |------|------|
 | 领域与架构 | `jfoundry-domain`、`jfoundry-architecture`、`jfoundry-hexagonal`、`jfoundry-onion`、`jfoundry-cqrs` |
 | 应用契约 | `jfoundry-application-core`、`jfoundry-transaction-core`、`jfoundry-event-core`、`jfoundry-event-externalization-core`、`jfoundry-messaging-core`、`jfoundry-outbox-core`、`jfoundry-inbox-core` |
-| 运行时无关适配器 | `jfoundry-persistence-core`、`jfoundry-persistence-mybatis-plus`、`jfoundry-persistence-jpa`、`jfoundry-messaging-jackson`、broker adapter、Outbox/Inbox MyBatis-Plus 与 JPA store、JobRunr dispatcher adapter |
+| 运行时无关适配器 | `jfoundry-persistence-core`、`jfoundry-persistence-mybatis-plus`、`jfoundry-persistence-jpa`、`jfoundry-messaging-jackson`、Outbox/Inbox MyBatis-Plus 与 JPA store、JobRunr dispatcher adapter |
 | Spring 运行时集成 | `jfoundry-spring-runtime/*` |
 | Spring Boot 集成 | `jfoundry-spring-boot-autoconfigure`、`jfoundry-spring-boot-starters/*` |
 | 验证 | `jfoundry-verification/*` |
@@ -22,7 +22,8 @@ jfoundry core 模块不得依赖 Spring、Spring Boot、Helidon、Quarkus、Micr
 - Spring Framework 生命周期、事务同步、调度、事件发布、MVC API 和 Spring 侧 client wrapper 位于 `../../../../jfoundry-spring/jfoundry-spring-runtime`。
 - Spring Boot 条件、`@ConfigurationProperties`、Bean 装配、metadata 和 `AutoConfiguration.imports` 位于 `../../../../jfoundry-spring/jfoundry-spring-boot-autoconfigure`。
 - Starter 只是依赖入口，不得承载运行时行为。
-- 运行时无关的数据库、broker、serializer 和 scheduler adapter 位于 `jfoundry-infrastructure`。
+- 运行时无关的数据库、serializer 和 scheduler adapter 位于 `jfoundry-infrastructure`。
+- Broker client `MessageSender` adapter 位于各自的运行时集成；应用层 `MessageSender` 与 `SendResult` 契约仍保持运行时无关。
 - 中间件集成测试和 Testcontainers 兼容性验证位于 `jfoundry-verification`。
 
 ## 可靠消息边界

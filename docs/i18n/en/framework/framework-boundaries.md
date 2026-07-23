@@ -15,7 +15,7 @@ such as jMolecules and `slf4j-api` may appear in core modules when they express 
 |------|---------|
 | Domain and architecture | `jfoundry-domain`, `jfoundry-architecture`, `jfoundry-hexagonal`, `jfoundry-onion`, `jfoundry-cqrs` |
 | Application contracts | `jfoundry-application-core`, `jfoundry-transaction-core`, `jfoundry-event-core`, `jfoundry-event-externalization-core`, `jfoundry-messaging-core`, `jfoundry-outbox-core`, `jfoundry-inbox-core` |
-| Framework-neutral adapters | `jfoundry-persistence-core`, `jfoundry-persistence-mybatis-plus`, `jfoundry-persistence-jpa`, `jfoundry-messaging-jackson`, broker adapters, Outbox/Inbox MyBatis-Plus and JPA stores, JobRunr dispatch adapter |
+| Framework-neutral adapters | `jfoundry-persistence-core`, `jfoundry-persistence-mybatis-plus`, `jfoundry-persistence-jpa`, `jfoundry-messaging-jackson`, Outbox/Inbox MyBatis-Plus and JPA stores, JobRunr dispatch adapter |
 | Spring runtime integration | `jfoundry-spring-runtime/*` |
 | Spring Boot integration | `jfoundry-spring-boot-autoconfigure`, `jfoundry-spring-boot-starters/*` |
 | Verification | `jfoundry-verification/*` |
@@ -27,8 +27,10 @@ such as jMolecules and `slf4j-api` may appear in core modules when they express 
 - Spring Boot conditions, `@ConfigurationProperties`, bean wiring, metadata, and
   `AutoConfiguration.imports` belong under `../../../../jfoundry-spring/jfoundry-spring-boot-autoconfigure`.
 - Starters are dependency entry points only; they must not contain runtime behavior.
-- Framework-neutral database, broker, serializer, and scheduler adapters belong under
+- Framework-neutral database, serializer, and scheduler adapters belong under
   `jfoundry-infrastructure`.
+- Broker client `MessageSender` adapters belong to their runtime integration. The application-layer
+  `MessageSender` and `SendResult` contracts remain runtime-neutral.
 - Middleware integration tests and Testcontainers compatibility checks belong under
   `jfoundry-verification`.
 
