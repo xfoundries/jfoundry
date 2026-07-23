@@ -17,6 +17,7 @@ Use this file before adding modules, classes, annotations, rules, adapters, star
 | Message sending or payload serialization SPI | `jfoundry-application/jfoundry-messaging-core` |
 | Outbox state, store contract, dispatcher service, retry/backoff core | `jfoundry-application/jfoundry-outbox-core` |
 | Inbox state, store contract, `InboxTemplate` | `jfoundry-application/jfoundry-inbox-core` |
+| Runtime-neutral HTTP problem semantics and exception-to-response policy | `jfoundry-infrastructure/jfoundry-web-problem-details` |
 | MyBatis-Plus business persistence adapter | `jfoundry-infrastructure/jfoundry-persistence-mybatis-plus` |
 | Jakarta Persistence business persistence adapter | `jfoundry-infrastructure/jfoundry-persistence-jpa` |
 | MyBatis-Plus Outbox/Inbox store adapter | `jfoundry-infrastructure/jfoundry-outbox-mybatis-plus` or `jfoundry-infrastructure/jfoundry-inbox-mybatis-plus` |
@@ -35,6 +36,9 @@ Use this file before adding modules, classes, annotations, rules, adapters, star
 ## Decision Rules
 
 - If the code defines an abstraction used by multiple runtimes, keep it framework-neutral.
+- Runtime-neutral does not imply application-layer ownership. Transport representations, protocol status mappings,
+  and exception-to-response policies remain inbound adapters; place shared implementations in infrastructure or a
+  dedicated adapter module.
 - Keep persistence-context state and awareness contracts in `jfoundry-persistence-core`; place
   transaction-scoped implementations in runtime adapters and bean-lifecycle injection in Spring
   Boot auto-configuration. Business repository constructors should not expose runtime context.

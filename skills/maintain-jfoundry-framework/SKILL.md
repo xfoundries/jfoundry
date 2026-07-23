@@ -30,6 +30,8 @@ When framework docs, examples, or test fixtures mention DDD modeling concepts, k
 
 ## Non-Negotiable Boundaries
 
+For every module-placement decision, apply Onion Simple as defined in `references/module-boundaries.md`.
+
 - Keep `jfoundry-domain`, `jfoundry-architecture`, and `jfoundry-application` modules independent of Spring, Spring Boot, web frameworks, broker clients, persistence framework details, CDI, and Jakarta runtime APIs.
 - Keep Spring Framework runtime adapters under `jfoundry-spring/jfoundry-spring-runtime`.
 - Keep Spring Boot auto-configuration only under `jfoundry-spring/jfoundry-spring-boot-autoconfigure`.

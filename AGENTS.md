@@ -19,6 +19,10 @@ Use Java 21 features where they simplify the model, especially records for immut
 
 ## Architecture Boundaries
 
+JFoundry framework internals use Onion Simple: `domain`, `application`, and `infrastructure` are the dependency
+rings. Runtime integrations are outer adapters; Hexagonal is an optional architecture language for downstream
+projects, not the framework's internal module-placement model.
+
 The core framework must remain independent of runtime frameworks such as Spring, Spring Boot, Quarkus, Helidon, Micronaut, CDI, and Jakarta EE runtime APIs. Keep these boundaries explicit:
 
 - `jfoundry-domain` contains domain modeling primitives and must not depend on application, infrastructure, persistence, messaging, or runtime integration modules.

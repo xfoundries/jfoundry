@@ -18,6 +18,7 @@
     </properties>
 
     <modules>
+        <module>jfoundry-web-problem-details</module>
         <module>jfoundry-persistence-core</module>
         <module>jfoundry-persistence-jpa</module>
         <module>jfoundry-messaging-jackson</module>

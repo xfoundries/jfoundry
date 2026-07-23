@@ -1,0 +1,29 @@
+package org.jfoundry.problem;
+
+import org.jfoundry.application.exception.InvalidArgumentException;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ProblemCatalogTest {
+
+    @Test
+    void resolvesCoreExceptionsToStableProblemDescriptors() {
+        ProblemDescriptor problem = ProblemCatalog.forException(new InvalidArgumentException("pageSize is invalid"));
+
+        assertThat(problem.status()).isEqualTo(400);
+        assertThat(problem.code()).isEqualTo("INVALID_ARGUMENT");
+        assertThat(problem.title()).isEqualTo("Invalid argument");
+        assertThat(problem.type()).hasToString("urn:jfoundry:problem:invalid-argument");
+        assertThat(problem.detail()).isEqualTo("pageSize is invalid");
+    }
+
+    @Test
+    void resolvesStandardHttpStatusesToSafeProblemDescriptors() {
+        ProblemDescriptor problem = ProblemCatalog.forHttpStatus(405);
+
+        assertThat(problem.status()).isEqualTo(405);
+        assertThat(problem.code()).isEqualTo("HTTP_METHOD_NOT_ALLOWED");
+        assertThat(problem.detail()).isEqualTo("The HTTP method is not allowed for this resource.");
+    }
+}
