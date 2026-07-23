@@ -35,6 +35,22 @@ The extension brings Quarkus Arc and Narayana JTA as runtime dependencies. It re
 application-scoped `QuarkusTransactionRunner`, which can be injected through the framework-neutral
 `TransactionRunner` contract.
 
+## Spring Boot And Quarkus Composition
+
+Spring Boot starters select dependency sets and rely on Boot auto-configuration. Quarkus applications
+compose explicit extensions; Quarkus discovers each matching deployment artifact from its runtime
+artifact automatically.
+
+| Spring Boot capability | Quarkus dependency composition |
+|---|---|
+| `jfoundry-spring-boot-starter` | `jfoundry-quarkus-runtime` |
+| `jfoundry-event-spring-boot-starter` | `jfoundry-quarkus-runtime` |
+| `jfoundry-jpa-spring-boot-starter` | `jfoundry-quarkus-runtime`, `jfoundry-persistence-jpa`, `jfoundry-persistence-jpa-quarkus-runtime`, `quarkus-hibernate-orm`, and the selected Quarkus JDBC extension |
+| `jfoundry-outbox-jpa-spring-boot-starter` | The JPA composition above plus `jfoundry-outbox-jpa-quarkus-runtime` and `jfoundry-outbox-quarkus-runtime` when dispatching is required |
+| `jfoundry-inbox-jpa-spring-boot-starter` | The JPA composition above plus `jfoundry-inbox-jpa-quarkus-runtime` |
+| Kafka or RabbitMQ messaging starter | `jfoundry-messaging-kafka-quarkus-runtime` or `jfoundry-messaging-rabbitmq-quarkus-runtime` |
+| `jfoundry-webmvc-spring-boot-starter` | `jfoundry-web-problem-details-quarkus-runtime` |
+
 ## Transaction Semantics
 
 The adapter maps all six `TransactionPropagation` values to Jakarta Transactions behavior:
@@ -91,8 +107,11 @@ broker client, or automatic event externalization.
 
 ## JPA Aggregate Persistence
 
-To use `JpaAggregateRepository`, add `jfoundry-persistence-jpa` and the Quarkus Hibernate ORM and
-datasource extensions selected by the application. A repository subclass must be a CDI bean and
+To use `JpaAggregateRepository`, add `jfoundry-persistence-jpa`,
+`jfoundry-persistence-jpa-quarkus-runtime`, and the Quarkus Hibernate ORM and datasource extensions
+selected by the application. The JPA capability translates known Hibernate connection and query-timeout
+failures into `ExternalAccessException`; applications may replace its CDI `PersistenceFailureTranslator`.
+A repository subclass must be a CDI bean and
 receive `EntityManager` through its constructor. The jfoundry extension discovers CDI beans that
 implement `AggregatePersistenceContextAware` and supplies a JTA transaction-bound persistence
 context automatically. An application may replace that default by declaring its own CDI
@@ -305,7 +324,7 @@ Run the same verification on a machine with GraalVM Native Image:
 
 ```bash
 ./mvnw -B \
-  -pl jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-web-problem-details-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-web-problem-details-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-outbox-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-outbox-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-messaging-kafka-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-messaging-kafka-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-messaging-rabbitmq-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-messaging-rabbitmq-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-inbox-jpa-quarkus-deployment \
+  -pl jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-web-problem-details-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-web-problem-details-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-outbox-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-outbox-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-messaging-kafka-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-messaging-kafka-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-messaging-rabbitmq-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-messaging-rabbitmq-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-outbox-jpa-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-outbox-jpa-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-inbox-jpa-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-inbox-jpa-quarkus-deployment,jfoundry-runtime-integrations/jfoundry-quarkus/runtime/jfoundry-persistence-jpa-quarkus-runtime,jfoundry-runtime-integrations/jfoundry-quarkus/deployment/jfoundry-persistence-jpa-quarkus-deployment \
   -am -DskipTests install
 
 ./mvnw -B \

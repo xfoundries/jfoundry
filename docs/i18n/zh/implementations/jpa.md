@@ -12,9 +12,12 @@
 
 JPA 业务运行时装配使用 `jfoundry-jpa-spring-boot-starter`。它不会引入 Outbox 或 Inbox store。
 
-Quarkus 环境中，加入 `jfoundry-quarkus-runtime`、`jfoundry-persistence-jpa`、Quarkus Hibernate ORM
-和所选数据源扩展即可。由 CDI 管理的 `JpaAggregateRepository` 会从 jfoundry Quarkus 扩展获得事务作用域内的
+Quarkus 环境中，加入 `jfoundry-quarkus-runtime`、`jfoundry-persistence-jpa`、
+`jfoundry-persistence-jpa-quarkus-runtime`、Quarkus Hibernate ORM 和所选数据源扩展即可。由 CDI 管理的
+`JpaAggregateRepository` 会从 jfoundry Quarkus 扩展获得事务作用域内的
 `AggregatePersistenceContext`。应使用 `TransactionRunner` 作为事务边界，业务代码无需创建或设置该上下文。
+JPA Quarkus capability 会翻译已知 Hibernate 可用性失败，应用可以使用自己的 CDI
+`PersistenceFailureTranslator` 覆盖它。
 运行时装配要求见 [Quarkus](quarkus.md)。
 
 ### 直接装配 JPA 或 Hibernate

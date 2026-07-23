@@ -25,4 +25,13 @@ class DomainEventDispatchResourceIT {
                 .statusCode(200)
                 .body(org.hamcrest.Matchers.equalTo("[]"));
     }
+
+    @Test
+    void publishesCdiEventsAfterTheTransactionCommits() {
+        when()
+                .get("/jfoundry/domain-events/cdi/transaction")
+                .then()
+                .statusCode(200)
+                .body(org.hamcrest.Matchers.equalTo("[outer, inner]"));
+    }
 }

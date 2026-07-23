@@ -75,7 +75,9 @@ class QuarkusDomainEventDispatchCdiTest {
         public void dispatch(List<? extends DomainEvent> events) {
             dispatchCallCount++;
             for (DomainEvent event : events) {
-                this.events.add((TestDomainEvent) event);
+                if (event instanceof TestDomainEvent testDomainEvent) {
+                    this.events.add(testDomainEvent);
+                }
             }
         }
 

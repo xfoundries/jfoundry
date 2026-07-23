@@ -22,10 +22,13 @@ root update is reported as `ConflictException` at repository flush.
 Use `jfoundry-jpa-spring-boot-starter` for JPA business runtime assembly. It does not add Outbox or
 Inbox stores.
 
-For Quarkus, add `jfoundry-quarkus-runtime` with `jfoundry-persistence-jpa`, Quarkus Hibernate ORM,
-and the selected datasource extension. A CDI-managed `JpaAggregateRepository` receives its
+For Quarkus, add `jfoundry-quarkus-runtime`, `jfoundry-persistence-jpa`,
+`jfoundry-persistence-jpa-quarkus-runtime`, Quarkus Hibernate ORM, and the selected datasource
+extension. A CDI-managed `JpaAggregateRepository` receives its
 transaction-scoped `AggregatePersistenceContext` from the jfoundry Quarkus extension. Use
 `TransactionRunner` as the transaction boundary; do not create or set the context in business code.
+The JPA Quarkus capability translates known Hibernate availability failures and can be replaced with
+an application CDI `PersistenceFailureTranslator`.
 See [Quarkus](quarkus.md) for the runtime assembly requirements.
 
 ### Direct JPA Or Hibernate Assembly

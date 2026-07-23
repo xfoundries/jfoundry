@@ -1,6 +1,7 @@
 package org.jfoundry.quarkus.integration;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -9,6 +10,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.jfoundry.application.ApplicationService;
 import org.jfoundry.application.event.DomainEventContext;
 import org.jfoundry.application.event.DomainEventDispatcher;
+import org.jfoundry.application.transaction.TransactionRunner;
 import org.jfoundry.domain.event.EventRecordable;
 import org.jmolecules.event.types.DomainEvent;
 
@@ -21,13 +23,19 @@ public class DomainEventDispatchResource {
 
     private final DomainEventApplicationService applicationService;
     private final RecordingDomainEventDispatcher dispatcher;
+    private final RecordingCdiObserver cdiObserver;
+    private final TransactionRunner transactionRunner;
 
     @Inject
     public DomainEventDispatchResource(
             DomainEventApplicationService applicationService,
-            RecordingDomainEventDispatcher dispatcher) {
+            RecordingDomainEventDispatcher dispatcher,
+            RecordingCdiObserver cdiObserver,
+            TransactionRunner transactionRunner) {
         this.applicationService = applicationService;
         this.dispatcher = dispatcher;
+        this.cdiObserver = cdiObserver;
+        this.transactionRunner = transactionRunner;
     }
 
     @GET
@@ -49,6 +57,15 @@ public class DomainEventDispatchResource {
             return dispatcher.dispatchedAggregateIds().toString();
         }
         throw new IllegalStateException("Expected application service to fail");
+    }
+
+    @GET
+    @Path("/cdi/transaction")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String publishesCdiEventsAfterCommit() throws Exception {
+        cdiObserver.reset();
+        transactionRunner.run(applicationService::handle);
+        return cdiObserver.observedAggregateIds().toString();
     }
 
     @ApplicationScoped
@@ -108,6 +125,24 @@ public class DomainEventDispatchResource {
         }
 
         List<String> dispatchedAggregateIds() {
+            return List.copyOf(aggregateIds);
+        }
+
+        void reset() {
+            aggregateIds.clear();
+        }
+    }
+
+    @ApplicationScoped
+    static class RecordingCdiObserver {
+
+        private final List<String> aggregateIds = new ArrayList<>();
+
+        void observe(@Observes RecordedDomainEvent event) {
+            aggregateIds.add(event.aggregateId());
+        }
+
+        List<String> observedAggregateIds() {
             return List.copyOf(aggregateIds);
         }
 
