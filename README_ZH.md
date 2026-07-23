@@ -41,7 +41,7 @@
 | 应用层 | 应用服务、事务边界、CQRS 和领域事件编排 |
 | 持久化 | 聚合持久化契约，以及 JPA 和 MyBatis-Plus 实现 |
 | 可靠消息 | Transactional Outbox、Inbox 幂等、消息和序列化 SPI |
-| 运行时集成 | Spring Framework 与 Spring Boot 装配；Quarkus CDI、Jakarta Transactions、显式 Outbox 外部化与 Kafka 投递装配 |
+| 运行时集成 | Spring Framework 与 Spring Boot 装配；Quarkus CDI、Jakarta Transactions、显式 Outbox 外部化、Kafka 与 RabbitMQ 投递装配 |
 
 ## 选择路径
 
@@ -49,7 +49,7 @@
 - **聚合持久化**：先阅读[聚合持久化](docs/i18n/zh/capabilities/aggregate-persistence.md)，再选择适合项目的平级实现：[JPA](docs/i18n/zh/implementations/jpa.md)或 [MyBatis-Plus](docs/i18n/zh/implementations/mybatis-plus.md)。
 - **可靠消息**：先阅读[可靠消息](docs/i18n/zh/capabilities/reliable-messaging.md)，再从对应的 [JPA](docs/i18n/zh/implementations/jpa.md) 或 [MyBatis-Plus](docs/i18n/zh/implementations/mybatis-plus.md) 指南中选择其存储实现。
 - **Spring Boot**：通过 [Spring Boot 运行时装配](docs/i18n/zh/implementations/spring-boot.md) 组装已选择的能力。
-- **Quarkus**：通过 [Quarkus 运行时集成](docs/i18n/zh/implementations/quarkus.md) 接入 CDI 事务、领域事件分发、显式 Outbox 外部化、Kafka 投递并验证 Native Image。
+- **Quarkus**：通过 [Quarkus 运行时集成](docs/i18n/zh/implementations/quarkus.md) 接入 CDI 事务、领域事件分发、显式 Outbox 外部化、Kafka 与 RabbitMQ 投递并验证 Native Image。
 - **starter、属性与条件**：查阅 [Spring Boot 自动配置](docs/i18n/zh/reference/spring-boot-autoconfiguration.md)。
 
 ## 最小接入

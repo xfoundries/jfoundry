@@ -39,6 +39,8 @@
         <module>jfoundry-outbox-quarkus-deployment</module>
         <module>jfoundry-messaging-kafka-quarkus-runtime</module>
         <module>jfoundry-messaging-kafka-quarkus-deployment</module>
+        <module>jfoundry-messaging-rabbitmq-quarkus-runtime</module>
+        <module>jfoundry-messaging-rabbitmq-quarkus-deployment</module>
         <module>jfoundry-outbox-jpa-quarkus-runtime</module>
         <module>jfoundry-outbox-jpa-quarkus-deployment</module>
         <module>jfoundry-inbox-jpa-quarkus-runtime</module>

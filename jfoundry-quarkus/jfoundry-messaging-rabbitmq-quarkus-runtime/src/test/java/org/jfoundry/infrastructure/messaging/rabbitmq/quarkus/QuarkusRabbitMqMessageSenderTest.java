@@ -1,0 +1,34 @@
+package org.jfoundry.infrastructure.messaging.rabbitmq.quarkus;
+
+import io.vertx.core.Future;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.rabbitmq.RabbitMQClient;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.time.Duration;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+class QuarkusRabbitMqMessageSenderTest {
+
+    @Test
+    void publishesThePayloadToTheRequestedExchangeAndRoutingKey() {
+        RabbitMQClient client = mock(RabbitMQClient.class);
+        when(client.isConnected()).thenReturn(true);
+        when(client.basicPublish("orders", "order-42", Buffer.buffer("{\"id\":42}")))
+                .thenReturn(Future.succeededFuture());
+        QuarkusRabbitMqMessageSender sender = new QuarkusRabbitMqMessageSender(client, Duration.ofSeconds(1));
+
+        var result = sender.send("orders", "order-42", "{\"id\":42}");
+
+        assertThat(result.success()).isTrue();
+        ArgumentCaptor<Buffer> payload = ArgumentCaptor.forClass(Buffer.class);
+        verify(client).basicPublish(org.mockito.ArgumentMatchers.eq("orders"),
+                org.mockito.ArgumentMatchers.eq("order-42"), payload.capture());
+        assertThat(payload.getValue().toString()).isEqualTo("{\"id\":42}");
+    }
+}

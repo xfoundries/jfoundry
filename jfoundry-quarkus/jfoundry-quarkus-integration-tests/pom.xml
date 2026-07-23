@@ -35,6 +35,10 @@
         </dependency>
         <dependency>
             <groupId>io.github.xfoundries</groupId>
+            <artifactId>jfoundry-messaging-rabbitmq-quarkus-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.xfoundries</groupId>
             <artifactId>jfoundry-outbox-jpa-quarkus-runtime</artifactId>
         </dependency>
         <dependency>
