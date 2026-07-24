@@ -1,6 +1,7 @@
 package org.jfoundry.infrastructure.persistence.helidon;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 import jakarta.transaction.Status;
 import jakarta.transaction.TransactionSynchronizationRegistry;
 import org.jfoundry.infrastructure.persistence.AggregatePersistenceContext;
@@ -12,13 +13,14 @@ import java.util.Map;
 import java.util.Objects;
 
 /// Aggregate persistence state bound to the current Helidon JTA transaction.
-@ApplicationScoped
+@Dependent
 public final class HelidonAggregatePersistenceContext implements AggregatePersistenceContext {
 
     private static final Object RESOURCE_KEY = new Object();
 
     private final TransactionSynchronizationRegistry transactionSynchronizationRegistry;
 
+    @Inject
     public HelidonAggregatePersistenceContext(TransactionSynchronizationRegistry transactionSynchronizationRegistry) {
         this.transactionSynchronizationRegistry = Objects.requireNonNull(
                 transactionSynchronizationRegistry, "TransactionSynchronizationRegistry must not be null");

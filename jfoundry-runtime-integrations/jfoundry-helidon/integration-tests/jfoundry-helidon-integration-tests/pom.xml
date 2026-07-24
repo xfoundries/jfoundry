@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent><groupId>io.github.xfoundries</groupId><artifactId>jfoundry-helidon</artifactId><version>1.0.0-SNAPSHOT</version><relativePath>../../pom.xml</relativePath></parent>
+  <artifactId>jfoundry-helidon-integration-tests</artifactId>
+  <name>jfoundry-helidon-integration-tests</name>
+  <description>JVM and Native Image verification for JFoundry Helidon MP runtime integration.</description>
+  <properties><skipITs>true</skipITs><mainClass>io.helidon.microprofile.cdi.Main</mainClass></properties>
+  <dependencies>
+    <dependency><groupId>io.github.xfoundries</groupId><artifactId>jfoundry-helidon-runtime</artifactId></dependency>
+    <dependency><groupId>io.github.xfoundries</groupId><artifactId>jfoundry-web-helidon-runtime</artifactId></dependency>
+    <dependency><groupId>io.helidon.microprofile.server</groupId><artifactId>helidon-microprofile-server</artifactId></dependency>
+    <dependency><groupId>io.helidon.integrations.cdi</groupId><artifactId>helidon-integrations-cdi-jta-weld</artifactId><scope>runtime</scope></dependency>
+    <dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><scope>test</scope></dependency>
+  </dependencies>
+  <profiles><profile><id>jvm-integration</id><properties><skipITs>false</skipITs></properties></profile><profile><id>native-image</id><dependencies><dependency><groupId>io.helidon.integrations.graal</groupId><artifactId>helidon-mp-graal-native-image-extension</artifactId></dependency></dependencies><build><plugins><plugin><groupId>org.graalvm.buildtools</groupId><artifactId>native-maven-plugin</artifactId><version>0.11.5</version><configuration><buildArgs><buildArg>--initialize-at-build-time=jakarta.transaction.Transactional,jakarta.transaction.Transactional$TxType,java.lang.annotation.Annotation</buildArg><buildArg>--initialize-at-build-time=org.jfoundry.helidon.integration</buildArg></buildArgs></configuration><executions><execution><id>resource-config</id><goals><goal>generateResourceConfig</goal></goals></execution><execution><id>build-native-image</id><goals><goal>compile-no-fork</goal></goals></execution></executions></plugin></plugins></build></profile></profiles>
+</project>

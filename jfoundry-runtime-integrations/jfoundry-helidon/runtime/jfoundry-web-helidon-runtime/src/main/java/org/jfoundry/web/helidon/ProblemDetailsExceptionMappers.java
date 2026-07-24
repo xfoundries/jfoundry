@@ -3,6 +3,7 @@ package org.jfoundry.web.helidon;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 import org.jfoundry.application.exception.ConflictException;
 import org.jfoundry.application.exception.ExternalAccessException;
 import org.jfoundry.application.exception.InvalidArgumentException;
@@ -24,13 +25,20 @@ public final class ProblemDetailsExceptionMappers {
         }
     }
 
+    @Provider
     public static final class InvalidArgumentMapper extends JFoundryExceptionMapper<InvalidArgumentException> { }
+    @Provider
     public static final class NotFoundMapper extends JFoundryExceptionMapper<NotFoundException> { }
+    @Provider
     public static final class ConflictMapper extends JFoundryExceptionMapper<ConflictException> { }
+    @Provider
     public static final class ExternalAccessMapper extends JFoundryExceptionMapper<ExternalAccessException> { }
+    @Provider
     public static final class DomainRuleViolationMapper extends JFoundryExceptionMapper<DomainRuleViolationException> { }
+    @Provider
     public static final class DomainStateMapper extends JFoundryExceptionMapper<DomainStateException> { }
 
+    @Provider
     public static final class WebApplicationMapper implements ExceptionMapper<WebApplicationException> {
         @Override
         public Response toResponse(WebApplicationException exception) {

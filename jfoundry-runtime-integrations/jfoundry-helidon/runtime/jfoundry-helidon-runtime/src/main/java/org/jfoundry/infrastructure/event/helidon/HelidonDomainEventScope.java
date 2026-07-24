@@ -1,6 +1,6 @@
 package org.jfoundry.infrastructure.event.helidon;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import org.jfoundry.application.event.DefaultDomainEventContext;
 import org.jfoundry.domain.event.EventRecordable;
 import org.jmolecules.event.types.DomainEvent;
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /// Thread-bound domain-event scope for a Helidon application-service invocation.
-@ApplicationScoped
+@Dependent
 public class HelidonDomainEventScope {
 
     private static final ThreadLocal<State> CURRENT = new ThreadLocal<>();

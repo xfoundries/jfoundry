@@ -29,6 +29,24 @@
         </dependencies>
     </dependencyManagement>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.smallrye</groupId>
+                <artifactId>jandex-maven-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jandex</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
     <modules>
         <module>runtime/jfoundry-helidon-runtime</module>
         <module>runtime/jfoundry-persistence-jpa-helidon-runtime</module>
@@ -36,5 +54,6 @@
         <module>runtime/jfoundry-outbox-helidon-runtime</module>
         <module>runtime/jfoundry-outbox-jpa-helidon-runtime</module>
         <module>runtime/jfoundry-inbox-jpa-helidon-runtime</module>
+        <module>integration-tests/jfoundry-helidon-integration-tests</module>
     </modules>
 </project>

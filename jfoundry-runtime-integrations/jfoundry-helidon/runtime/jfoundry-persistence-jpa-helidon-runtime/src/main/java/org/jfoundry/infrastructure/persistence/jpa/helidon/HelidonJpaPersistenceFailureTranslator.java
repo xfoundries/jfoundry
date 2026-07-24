@@ -1,6 +1,6 @@
 package org.jfoundry.infrastructure.persistence.jpa.helidon;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.persistence.QueryTimeoutException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.jfoundry.application.exception.ExternalAccessException;
@@ -11,7 +11,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 /// Translates Hibernate availability failures at a Helidon JPA persistence boundary.
-@ApplicationScoped
+@Dependent
 public final class HelidonJpaPersistenceFailureTranslator implements PersistenceFailureTranslator {
 
     @Override

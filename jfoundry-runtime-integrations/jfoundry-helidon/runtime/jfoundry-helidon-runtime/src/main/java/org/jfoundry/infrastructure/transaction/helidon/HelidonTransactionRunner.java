@@ -1,6 +1,6 @@
 package org.jfoundry.infrastructure.transaction.helidon;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.transaction.Status;
 import jakarta.transaction.Transaction;
@@ -13,7 +13,7 @@ import org.jfoundry.application.transaction.TransactionRunner;
 import java.util.Objects;
 
 /// Helidon MP CDI adapter for explicit application transaction boundaries.
-@ApplicationScoped
+@Dependent
 public class HelidonTransactionRunner implements TransactionRunner {
 
     private final TransactionManager transactionManager;

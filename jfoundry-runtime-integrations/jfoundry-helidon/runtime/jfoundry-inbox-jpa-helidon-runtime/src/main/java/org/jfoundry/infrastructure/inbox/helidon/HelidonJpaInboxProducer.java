@@ -1,6 +1,6 @@
 package org.jfoundry.infrastructure.inbox.helidon;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.persistence.EntityManager;
 import org.jfoundry.application.inbox.InboxMessageStore;
@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 
 /// Provides JPA-backed Inbox components for Helidon applications.
-@ApplicationScoped
+@Dependent
 public final class HelidonJpaInboxProducer {
 
     @Produces

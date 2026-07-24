@@ -1,21 +1,24 @@
 package org.jfoundry.infrastructure.persistence.helidon;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 import org.jfoundry.infrastructure.persistence.AggregatePersistenceContext;
 import org.jfoundry.infrastructure.persistence.AggregatePersistenceContextAware;
 
 import java.util.Objects;
 
 /// Supplies the Helidon transaction-bound context to CDI-managed persistence adapters.
-@ApplicationScoped
+@Dependent
 public final class HelidonAggregatePersistenceContextBinder {
 
     private final AggregatePersistenceContext persistenceContext;
     private final Instance<AggregatePersistenceContextAware> persistenceContextAwares;
 
+    @Inject
     public HelidonAggregatePersistenceContextBinder(
             AggregatePersistenceContext persistenceContext,
             Instance<AggregatePersistenceContextAware> persistenceContextAwares) {
