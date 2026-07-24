@@ -33,6 +33,10 @@
             <artifactId>jfoundry-domain</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.github.xfoundries</groupId>
+            <artifactId>jfoundry-persistence-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.helidon.microprofile.cdi</groupId>
             <artifactId>helidon-microprofile-cdi</artifactId>
         </dependency>

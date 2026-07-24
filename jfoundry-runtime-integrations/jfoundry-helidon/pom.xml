@@ -31,5 +31,7 @@
 
     <modules>
         <module>runtime/jfoundry-helidon-runtime</module>
+        <module>runtime/jfoundry-persistence-jpa-helidon-runtime</module>
+        <module>runtime/jfoundry-web-helidon-runtime</module>
     </modules>
 </project>
