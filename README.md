@@ -6,7 +6,7 @@ English | [中文](README_ZH.md)
 
 `jfoundry` is a practical DDD framework for Java, built on jMolecules and designed for Hexagonal Architecture and Onion Architecture.
 
-It helps business projects make domain modeling, architecture boundaries, and reliable integration executable in code. The core defines DDD concepts, architecture semantics, application contracts, domain events, persistence SPI, and messaging SPI without depending on a runtime framework. Spring and Quarkus assemble the same core through peer runtime integration modules.
+It helps business projects make domain modeling, architecture boundaries, and reliable integration executable in code. The core defines DDD concepts, architecture semantics, application contracts, domain events, persistence SPI, and messaging SPI without depending on a runtime framework. Spring, Quarkus, and Helidon assemble the same core through peer runtime integration modules.
 
 ## Why jfoundry
 
@@ -41,7 +41,7 @@ Dependencies point inward. This keeps runtime integrations outside the core rath
 | Application | Application services, transaction boundaries, CQRS, and domain-event orchestration |
 | Persistence | Aggregate persistence contracts with JPA and MyBatis-Plus implementations |
 | Reliable messaging | Transactional Outbox, Inbox idempotency, messaging, and serialization SPI |
-| Runtime integration | Spring Framework and Spring Boot assembly; Quarkus CDI, Jakarta Transactions, REST Problem Details, explicit Outbox externalization, Kafka, and RabbitMQ delivery assembly |
+| Runtime integration | Spring Framework and Spring Boot assembly; Quarkus and Helidon CDI/Jakarta Transactions, JPA, Outbox/Inbox, and REST Problem Details assembly |
 
 ## Choose Your Path
 
@@ -50,11 +50,12 @@ Dependencies point inward. This keeps runtime integrations outside the core rath
 - **Reliable messaging**: read [Reliable Messaging](docs/i18n/en/capabilities/reliable-messaging.md), then choose its JPA or MyBatis-Plus store from the corresponding [JPA](docs/i18n/en/implementations/jpa.md) or [MyBatis-Plus](docs/i18n/en/implementations/mybatis-plus.md) guide.
 - **Spring Boot**: use [Spring Boot Runtime Assembly](docs/i18n/en/implementations/spring-boot.md) for starter-based, conditional auto-configuration of selected capabilities.
 - **Quarkus**: use [Quarkus Runtime Integration](docs/i18n/en/implementations/quarkus.md) for explicit extension composition, CDI transactions, REST Problem Details, domain-event dispatch, JPA-backed reliable messaging, Kafka and RabbitMQ delivery, and Native Image verification.
+- **Helidon MP**: use [Helidon MP Runtime Integration](docs/i18n/en/implementations/helidon.md) for explicit CDI/JTA, JPA, Outbox/Inbox, and REST Problem Details composition. Its Native Image support currently verifies CDI/Web only; Helidon Narayana JTA Native execution remains experimental upstream.
 - **Starters, properties, and conditions**: use [Spring Boot Auto-configuration](docs/i18n/en/reference/spring-boot-autoconfiguration.md) as the reference.
 
 ## Minimal Setup
 
-Import the runtime-neutral BOM, then add only the starters and capability implementations required by the application. Spring Boot and Quarkus applications can instead use their corresponding runtime BOMs described in the runtime assembly guides.
+Import the runtime-neutral BOM, then add only the starters and capability implementations required by the application. Spring Boot, Quarkus, and Helidon applications can instead use their corresponding runtime BOMs described in the runtime assembly guides.
 
 ```xml
 <dependencyManagement>
@@ -129,6 +130,7 @@ public final class Order extends BaseAggregateRoot<Order, OrderId> {
 - [MyBatis-Plus](docs/i18n/en/implementations/mybatis-plus.md)
 - [Spring Boot Runtime Assembly](docs/i18n/en/implementations/spring-boot.md)
 - [Quarkus Runtime Integration](docs/i18n/en/implementations/quarkus.md)
+- [Helidon MP Runtime Integration](docs/i18n/en/implementations/helidon.md)
 
 ### Reference
 

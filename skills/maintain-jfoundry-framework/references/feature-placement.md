@@ -33,6 +33,8 @@ Use this file before adding modules, classes, annotations, rules, adapters, star
 | Quarkus runtime extension behavior | `jfoundry-runtime-integrations/jfoundry-quarkus/runtime` |
 | Quarkus build-time processor or Native Image registration | `jfoundry-runtime-integrations/jfoundry-quarkus/deployment` |
 | Quarkus consumer integration verification | `jfoundry-runtime-integrations/jfoundry-quarkus/integration-tests` |
+| Helidon MP CDI, JTA, JAX-RS, scheduling, or JPA runtime behavior | `jfoundry-runtime-integrations/jfoundry-helidon/runtime` |
+| Helidon MP consumer or Native Image verification | `jfoundry-runtime-integrations/jfoundry-helidon/integration-tests` |
 | User dependency entry point | `jfoundry-core/jfoundry-starters` or `jfoundry-runtime-integrations/jfoundry-spring/boot-starters` |
 | Middleware integration verification | `jfoundry-verification/jfoundry-middleware-integration-tests` |
 
@@ -48,6 +50,7 @@ Use this file before adding modules, classes, annotations, rules, adapters, star
 - If the code uses Spring transaction synchronization, `ApplicationEventPublisher`, scheduling, MVC APIs, or bean lifecycle, put it under `jfoundry-runtime-integrations/jfoundry-spring/runtime`.
 - If the code registers Spring Boot beans conditionally or binds `@ConfigurationProperties`, put it in `jfoundry-runtime-integrations/jfoundry-spring/jfoundry-spring-boot-autoconfigure`.
 - If the code uses Quarkus build steps, augmentation APIs, or Native Image build items, put it under `jfoundry-runtime-integrations/jfoundry-quarkus/deployment`; otherwise put Quarkus CDI runtime behavior under `jfoundry-runtime-integrations/jfoundry-quarkus/runtime`.
+- If the code uses Helidon MP CDI lifecycle, Jakarta transactions, JAX-RS, scheduling, or Helidon JPA integration, put it under `jfoundry-runtime-integrations/jfoundry-helidon/runtime`. Keep Helidon Native consumer checks under its `integration-tests` directory; do not create a Quarkus-style deployment module without an upstream Helidon build-time extension model.
 - If an auto-configuration condition depends on a bean created by another auto-configuration, declare the ordering explicitly and test the real upstream auto-configuration chain instead of only pre-registering the bean in a context runner.
 - If the code only selects dependencies for users, put it in a starter POM.
 - If the code talks to a concrete database, ORM, serializer, or scheduler but does not require Spring Boot wiring, put it in `jfoundry-infrastructure`.

@@ -12,8 +12,8 @@ such as jMolecules and `slf4j-api` may appear in core modules when they express 
 `jfoundry-core` is a directory group for runtime-neutral framework modules. It contains the domain,
 architecture, application, infrastructure, and runtime-neutral starter aggregates; it does not change
 the Onion dependency direction within those modules. `jfoundry-runtime-integrations` groups concrete
-runtime integrations: Spring uses `runtime/` and `boot-starters/`, while Quarkus uses `runtime/`,
-`deployment/`, and `integration-tests/`.
+runtime integrations: Spring uses `runtime/` and `boot-starters/`, Quarkus uses `runtime/`,
+`deployment/`, and `integration-tests/`, and Helidon uses `runtime/` and `integration-tests/`.
 
 ## Module Roles
 
@@ -25,6 +25,7 @@ runtime integrations: Spring uses `runtime/` and `boot-starters/`, while Quarkus
 | Spring runtime integration | `jfoundry-runtime-integrations/jfoundry-spring/runtime/*` |
 | Spring Boot integration | `jfoundry-runtime-integrations/jfoundry-spring/jfoundry-spring-boot-autoconfigure`, `jfoundry-runtime-integrations/jfoundry-spring/boot-starters/*` |
 | Quarkus runtime integration | `jfoundry-runtime-integrations/jfoundry-quarkus/runtime/*`, `deployment/*` |
+| Helidon MP runtime integration | `jfoundry-runtime-integrations/jfoundry-helidon/runtime/*`, `integration-tests/*` |
 | Verification | `jfoundry-verification/*` |
 
 ## Placement Rules
@@ -33,6 +34,9 @@ runtime integrations: Spring uses `runtime/` and `boot-starters/`, while Quarkus
   and Spring-side client wrappers belong under `../../../../jfoundry-runtime-integrations/jfoundry-spring/runtime`.
 - Spring Boot conditions, `@ConfigurationProperties`, bean wiring, metadata, and
   `AutoConfiguration.imports` belong under `../../../../jfoundry-runtime-integrations/jfoundry-spring/jfoundry-spring-boot-autoconfigure`.
+- Helidon CDI lifecycle, JTA, JAX-RS, scheduling, and JPA integration belong under
+  `jfoundry-runtime-integrations/jfoundry-helidon/runtime`; consumer verification belongs under its
+  `integration-tests` directory. Helidon has no JFoundry deployment module or starter layer.
 - Starters are dependency entry points only; they must not contain runtime behavior.
 - Framework-neutral database, serializer, and scheduler adapters belong under
   `jfoundry-core/jfoundry-infrastructure`.

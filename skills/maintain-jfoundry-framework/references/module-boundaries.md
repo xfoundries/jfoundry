@@ -24,6 +24,8 @@ Stable, low-intrusion libraries such as jMolecules and `slf4j-api` may appear in
 - `jfoundry-runtime-integrations/jfoundry-quarkus/runtime`: Quarkus runtime extension artifacts and CDI behavior.
 - `jfoundry-runtime-integrations/jfoundry-quarkus/deployment`: Quarkus build-time processors and Native Image registration.
 - `jfoundry-runtime-integrations/jfoundry-quarkus/integration-tests`: Quarkus consumer integration verification.
+- `jfoundry-runtime-integrations/jfoundry-helidon/runtime`: Helidon MP CDI, JTA, JAX-RS, scheduling, and JPA runtime behavior.
+- `jfoundry-runtime-integrations/jfoundry-helidon/integration-tests`: Helidon MP consumer and Native Image verification.
 
 ### Verification
 
@@ -48,6 +50,8 @@ Practical rules:
 - Application modules define contracts and framework-neutral services. They may depend on domain abstractions and jMolecules semantics.
 - Infrastructure modules implement or consume application/domain contracts without registering Spring Boot auto-configuration.
 - Spring runtime modules may depend on application contracts and framework-neutral adapters.
+- Helidon runtime modules may depend on application contracts and framework-neutral adapters, but must not
+  introduce a Quarkus deployment layer or Spring Boot starter semantics.
 - Boot auto-configuration wires beans, conditions, properties, and integration defaults.
 - Starters depend on modules; they do not contain Java runtime behavior.
 

@@ -31,10 +31,17 @@ The JPA Quarkus capability translates known Hibernate availability failures and 
 an application CDI `PersistenceFailureTranslator`.
 See [Quarkus](quarkus.md) for the runtime assembly requirements.
 
+For Helidon MP, add `jfoundry-helidon-runtime`, `jfoundry-persistence-jpa`, and
+`jfoundry-persistence-jpa-helidon-runtime`, then configure the application's Helidon CDI
+JPA/Hibernate integration, datasource, and persistence unit. The Helidon runtime supplies the
+transaction-bound persistence context and the same recognized Hibernate availability-failure
+translation. See [Helidon MP](helidon.md) for its explicit dependency composition and Native Image
+limitations.
+
 ### Direct JPA Or Hibernate Assembly
 
 The JPA adapter is runtime-neutral, not a turnkey raw-Hibernate bootstrap. Outside Spring Boot and
-the supported Quarkus assembly, the application creates the `EntityManagerFactory`, starts and
+the supported Quarkus and Helidon assembly, the application creates the `EntityManagerFactory`, starts and
 completes each transaction, registers the aggregate and framework entities with its persistence
 unit, and supplies a transaction-scoped `AggregatePersistenceContext` to `JpaAggregateRepository`.
 The repository must be used only inside that persistence context and transaction.
@@ -71,6 +78,13 @@ precedence. This is storage assembly only: it does not add a dispatcher, schedul
 automatic event externalization, or a starter. See [Quarkus](quarkus.md) for dependency setup and
 native-image verification.
 
+For Helidon MP, add `jfoundry-outbox-jpa-helidon-runtime` to expose the JPA
+`OutboxMessageStore`, and add `jfoundry-inbox-jpa-helidon-runtime` to expose
+`JpaInboxClaimStrategy`, `InboxMessageStore`, and `InboxTemplate`. Both require the application's
+JPA integration and migrations. Add `jfoundry-outbox-helidon-runtime` separately for opt-in
+scheduled dispatch and automatic externalization. See [Helidon MP](helidon.md) for the CDI
+alternative replacement rule and native-image scope.
+
 Entity registration is not schema management. Copy the matching Outbox or Inbox SQL template into
 the application's migration process and maintain it there. Do not rely on Hibernate schema
 generation to create or evolve jfoundry tables.
@@ -91,5 +105,5 @@ It must atomically create the `PROCESSING` row and return `false` for an existin
 a concurrent duplicate-delivery test for the target database. Raw JPA/Hibernate Outbox and Inbox
 assembly must apply the transaction boundaries described by [reliable messaging](../capabilities/reliable-messaging.md).
 
-For runtime assembly and configuration, see [Spring Boot](spring-boot.md) and the
-[auto-configuration reference](../reference/spring-boot-autoconfiguration.md).
+For runtime assembly and configuration, see [Spring Boot](spring-boot.md), [Quarkus](quarkus.md),
+[Helidon MP](helidon.md), and the [auto-configuration reference](../reference/spring-boot-autoconfiguration.md).

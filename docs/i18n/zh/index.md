@@ -20,6 +20,7 @@
 - [MyBatis-Plus](implementations/mybatis-plus.md)
 - [Spring Boot 运行时装配](implementations/spring-boot.md)
 - [Quarkus 运行时集成](implementations/quarkus.md)
+- [Helidon MP 运行时集成](implementations/helidon.md)
 
 ## 参考
 

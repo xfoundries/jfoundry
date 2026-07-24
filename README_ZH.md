@@ -6,7 +6,7 @@
 
 `jfoundry` 是一个面向 Java 的可落地 DDD 开发框架，基于 jMolecules 构建，适用于 Hexagonal Architecture（六边形架构）和 Onion Architecture（洋葱架构）。
 
-它让业务项目能将领域建模、架构边界和可靠集成落实为代码。核心定义 DDD 概念、架构语义、应用层契约、领域事件、持久化 SPI 和消息 SPI，不依赖特定运行时框架。Spring 与 Quarkus 通过平级运行时集成模块装配同一套核心能力。
+它让业务项目能将领域建模、架构边界和可靠集成落实为代码。核心定义 DDD 概念、架构语义、应用层契约、领域事件、持久化 SPI 和消息 SPI，不依赖特定运行时框架。Spring、Quarkus 与 Helidon 通过平级运行时集成模块装配同一套核心能力。
 
 ## 为什么是 jfoundry
 
@@ -41,7 +41,7 @@
 | 应用层 | 应用服务、事务边界、CQRS 和领域事件编排 |
 | 持久化 | 聚合持久化契约，以及 JPA 和 MyBatis-Plus 实现 |
 | 可靠消息 | Transactional Outbox、Inbox 幂等、消息和序列化 SPI |
-| 运行时集成 | Spring Framework 与 Spring Boot 装配；Quarkus CDI、Jakarta Transactions、REST Problem Details、显式 Outbox 外部化、Kafka 与 RabbitMQ 投递装配 |
+| 运行时集成 | Spring Framework 与 Spring Boot 装配；Quarkus 与 Helidon 的 CDI/Jakarta Transactions、JPA、Outbox/Inbox 与 REST Problem Details 装配 |
 
 ## 选择路径
 
@@ -50,11 +50,12 @@
 - **可靠消息**：先阅读[可靠消息](docs/i18n/zh/capabilities/reliable-messaging.md)，再从对应的 [JPA](docs/i18n/zh/implementations/jpa.md) 或 [MyBatis-Plus](docs/i18n/zh/implementations/mybatis-plus.md) 指南中选择其存储实现。
 - **Spring Boot**：通过 [Spring Boot 运行时装配](docs/i18n/zh/implementations/spring-boot.md) 使用 starter 与条件化自动配置组装已选择的能力。
 - **Quarkus**：通过 [Quarkus 运行时集成](docs/i18n/zh/implementations/quarkus.md) 使用显式 extension 组合接入 CDI 事务、REST Problem Details、领域事件分发、基于 JPA 的可靠消息、Kafka 与 RabbitMQ 投递并验证 Native Image。
+- **Helidon MP**：通过 [Helidon MP 运行时集成](docs/i18n/zh/implementations/helidon.md) 显式组合 CDI/JTA、JPA、Outbox/Inbox 与 REST Problem Details。其 Native Image 当前验证 CDI/Web；Helidon Narayana JTA 的 Native 执行仍是上游实验性能力。
 - **starter、属性与条件**：查阅 [Spring Boot 自动配置](docs/i18n/zh/reference/spring-boot-autoconfiguration.md)。
 
 ## 最小接入
 
-引入运行时无关 BOM，再只添加应用需要的 starter 与能力实现。Spring Boot 与 Quarkus 应用可分别改用运行时装配指南所述的 BOM。
+引入运行时无关 BOM，再只添加应用需要的 starter 与能力实现。Spring Boot、Quarkus 与 Helidon 应用可分别改用运行时装配指南所述的 BOM。
 
 ```xml
 <dependencyManagement>
@@ -129,6 +130,7 @@ public final class Order extends BaseAggregateRoot<Order, OrderId> {
 - [MyBatis-Plus](docs/i18n/zh/implementations/mybatis-plus.md)
 - [Spring Boot 运行时装配](docs/i18n/zh/implementations/spring-boot.md)
 - [Quarkus 运行时集成](docs/i18n/zh/implementations/quarkus.md)
+- [Helidon MP 运行时集成](docs/i18n/zh/implementations/helidon.md)
 
 ### 参考
 

@@ -21,6 +21,7 @@ implementation pages explain technology-specific choices; reference pages provid
 - [MyBatis-Plus](implementations/mybatis-plus.md)
 - [Spring Boot Runtime Assembly](implementations/spring-boot.md)
 - [Quarkus Runtime Integration](implementations/quarkus.md)
+- [Helidon MP Runtime Integration](implementations/helidon.md)
 
 ## Reference
 
