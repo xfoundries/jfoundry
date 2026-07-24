@@ -4,7 +4,7 @@ import io.helidon.scheduling.Scheduling;
 import io.helidon.scheduling.Task;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -20,7 +20,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /// Helidon scheduling trigger for the framework-neutral Outbox dispatch runtime.
-@ApplicationScoped
+@Dependent
 public class HelidonOutboxDispatcher implements OutboxDispatcher {
 
     private final Instance<OutboxMessageStore> outboxMessageStore;
