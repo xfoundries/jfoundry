@@ -19,8 +19,8 @@ Stable, low-intrusion libraries such as jMolecules and `slf4j-api` may appear in
 ### Runtime Integration
 
 - `jfoundry-runtime-integrations/jfoundry-spring/runtime`: Spring Framework adapters such as local event publishing, transaction runner, messaging sender wrappers, outbox transaction/scheduling integration, and Web MVC ProblemDetail support.
-- `jfoundry-runtime-integrations/jfoundry-spring/jfoundry-spring-boot-autoconfigure`: Spring Boot auto-configuration, conditions, properties, and runtime wiring.
-- `jfoundry-runtime-integrations/jfoundry-spring/boot-starters`: dependency entry points only.
+- `jfoundry-runtime-integrations/jfoundry-spring/autoconfigure/jfoundry-spring-boot-autoconfigure`: Spring Boot auto-configuration, conditions, properties, and runtime wiring.
+- `jfoundry-runtime-integrations/jfoundry-spring/starters`: dependency entry points only.
 - `jfoundry-runtime-integrations/jfoundry-quarkus/runtime`: Quarkus runtime extension artifacts and CDI behavior.
 - `jfoundry-runtime-integrations/jfoundry-quarkus/deployment`: Quarkus build-time processors and Native Image registration.
 - `jfoundry-runtime-integrations/jfoundry-quarkus/integration-tests`: Quarkus consumer integration verification.

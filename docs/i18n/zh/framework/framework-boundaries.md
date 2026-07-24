@@ -16,7 +16,7 @@ jfoundry core 模块不得依赖 Spring、Spring Boot、Helidon、Quarkus、Micr
 | 应用契约 | `jfoundry-application-core`、`jfoundry-transaction-core`、`jfoundry-event-core`、`jfoundry-event-externalization-core`、`jfoundry-messaging-core`、`jfoundry-outbox-core`、`jfoundry-inbox-core` |
 | 运行时无关适配器 | `jfoundry-persistence-core`、`jfoundry-persistence-mybatis-plus`、`jfoundry-persistence-jpa`、`jfoundry-messaging-jackson`、Outbox/Inbox MyBatis-Plus 与 JPA store、JobRunr dispatcher adapter |
 | Spring 运行时集成 | `jfoundry-runtime-integrations/jfoundry-spring/runtime/*` |
-| Spring Boot 集成 | `jfoundry-runtime-integrations/jfoundry-spring/jfoundry-spring-boot-autoconfigure`、`jfoundry-runtime-integrations/jfoundry-spring/boot-starters/*` |
+| Spring Boot 集成 | `jfoundry-runtime-integrations/jfoundry-spring/autoconfigure/jfoundry-spring-boot-autoconfigure`、`jfoundry-runtime-integrations/jfoundry-spring/starters/*` |
 | Quarkus 运行时集成 | `jfoundry-runtime-integrations/jfoundry-quarkus/runtime/*`、`deployment/*` |
 | Helidon MP 运行时集成 | `jfoundry-runtime-integrations/jfoundry-helidon/runtime/*`、`integration-tests/*` |
 | 验证 | `jfoundry-verification/*` |
@@ -24,7 +24,7 @@ jfoundry core 模块不得依赖 Spring、Spring Boot、Helidon、Quarkus、Micr
 ## 放置规则
 
 - Spring Framework 生命周期、事务同步、调度、事件发布、MVC API 和 Spring 侧 client wrapper 位于 `../../../../jfoundry-runtime-integrations/jfoundry-spring/runtime`。
-- Spring Boot 条件、`@ConfigurationProperties`、Bean 装配、metadata 和 `AutoConfiguration.imports` 位于 `../../../../jfoundry-runtime-integrations/jfoundry-spring/jfoundry-spring-boot-autoconfigure`。
+- Spring Boot 条件、`@ConfigurationProperties`、Bean 装配、metadata 和 `AutoConfiguration.imports` 位于 `../../../../jfoundry-runtime-integrations/jfoundry-spring/autoconfigure/jfoundry-spring-boot-autoconfigure`。
 - Helidon CDI 生命周期、JTA、JAX-RS、调度和 JPA 集成位于 `jfoundry-runtime-integrations/jfoundry-helidon/runtime`；consumer 验证位于其 `integration-tests` 目录。Helidon 没有 JFoundry deployment 模块或 starter 层。
 - Starter 只是依赖入口，不得承载运行时行为。
 - 运行时无关的数据库、serializer 和 scheduler adapter 位于 `jfoundry-core/jfoundry-infrastructure`。

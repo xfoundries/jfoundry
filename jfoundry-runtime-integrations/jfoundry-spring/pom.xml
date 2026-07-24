@@ -12,8 +12,8 @@
     <name>jfoundry-spring</name>
     <description>
         Spring runtime integration for jfoundry framework-neutral contracts. Spring Framework
-        adapters and Spring Boot starters are grouped by directory, while Spring Boot
-        auto-configuration remains a direct child module.
+        adapters, Spring Boot auto-configuration, and Spring Boot starters are grouped by
+        responsibility.
     </description>
     <packaging>pom</packaging>
 
@@ -37,23 +37,23 @@
         <module>runtime/jfoundry-transaction-spring</module>
         <module>runtime/jfoundry-lock-spring</module>
         <module>runtime/jfoundry-webmvc-spring</module>
-        <module>jfoundry-spring-boot-autoconfigure</module>
-        <module>boot-starters/jfoundry-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-webmvc-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-event-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-messaging-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-messaging-kafka-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-messaging-rocketmq-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-messaging-rabbitmq-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-lock-redisson-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-outbox-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-outbox-mybatis-plus-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-outbox-jpa-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-outbox-jobrunr-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-inbox-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-inbox-mybatis-plus-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-inbox-jpa-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-persistence-mybatis-plus-spring-boot-starter</module>
-        <module>boot-starters/jfoundry-persistence-jpa-spring-boot-starter</module>
+        <module>autoconfigure/jfoundry-spring-boot-autoconfigure</module>
+        <module>starters/jfoundry-spring-boot-starter</module>
+        <module>starters/jfoundry-webmvc-spring-boot-starter</module>
+        <module>starters/jfoundry-event-spring-boot-starter</module>
+        <module>starters/jfoundry-messaging-spring-boot-starter</module>
+        <module>starters/jfoundry-messaging-kafka-spring-boot-starter</module>
+        <module>starters/jfoundry-messaging-rocketmq-spring-boot-starter</module>
+        <module>starters/jfoundry-messaging-rabbitmq-spring-boot-starter</module>
+        <module>starters/jfoundry-lock-redisson-spring-boot-starter</module>
+        <module>starters/jfoundry-outbox-spring-boot-starter</module>
+        <module>starters/jfoundry-outbox-mybatis-plus-spring-boot-starter</module>
+        <module>starters/jfoundry-outbox-jpa-spring-boot-starter</module>
+        <module>starters/jfoundry-outbox-jobrunr-spring-boot-starter</module>
+        <module>starters/jfoundry-inbox-spring-boot-starter</module>
+        <module>starters/jfoundry-inbox-mybatis-plus-spring-boot-starter</module>
+        <module>starters/jfoundry-inbox-jpa-spring-boot-starter</module>
+        <module>starters/jfoundry-persistence-mybatis-plus-spring-boot-starter</module>
+        <module>starters/jfoundry-persistence-jpa-spring-boot-starter</module>
     </modules>
 </project>
