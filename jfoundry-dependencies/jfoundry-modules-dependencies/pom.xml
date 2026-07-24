@@ -252,6 +252,9 @@
         <artifactId>jfoundry-web-helidon-runtime</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency><groupId>io.github.xfoundries</groupId><artifactId>jfoundry-outbox-helidon-runtime</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>io.github.xfoundries</groupId><artifactId>jfoundry-outbox-jpa-helidon-runtime</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>io.github.xfoundries</groupId><artifactId>jfoundry-inbox-jpa-helidon-runtime</artifactId><version>${project.version}</version></dependency>
       <dependency>
         <groupId>io.github.xfoundries</groupId>
         <artifactId>jfoundry-quarkus-runtime</artifactId>
